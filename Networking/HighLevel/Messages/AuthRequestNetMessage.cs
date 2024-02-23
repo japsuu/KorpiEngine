@@ -1,6 +1,6 @@
-﻿using Korpi.Networking.LowLevel.NetStack.Serialization;
+﻿using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
-namespace Korpi.Networking.HighLevel.Messages;
+namespace KorpiEngine.Networking.HighLevel.Messages;
 
 public class AuthRequestNetMessage : NetMessage
 {

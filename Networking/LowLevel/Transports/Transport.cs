@@ -1,9 +1,9 @@
-﻿using Common.Logging;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.LowLevel.Transports.EventArgs;
+﻿using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.LowLevel.Transports.EventArgs;
 
-namespace Korpi.Networking.LowLevel.Transports;
+namespace KorpiEngine.Networking.LowLevel.Transports;
 
 /// <summary>
 /// Represents an object that can handle network messages.

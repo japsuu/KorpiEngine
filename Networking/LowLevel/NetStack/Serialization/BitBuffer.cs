@@ -46,7 +46,7 @@ using System.Text;
 	using UnityEngine.Assertions;
 #endif
 
-namespace Korpi.Networking.LowLevel.NetStack.Serialization;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
 public class BitBuffer
 {

@@ -1,7 +1,7 @@
-﻿using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.HighLevel.Messages;
+﻿using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.HighLevel.Messages;
 
-namespace Korpi.Networking.HighLevel.EventArgs;
+namespace KorpiEngine.Networking.HighLevel.EventArgs;
 
 /// <summary>
 /// Container about a message received on the server.

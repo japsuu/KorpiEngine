@@ -22,7 +22,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Korpi.Networking.LowLevel.NetStack.Threading;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Threading;
 
 [StructLayout(LayoutKind.Explicit, Size = 192)]
 public sealed class ConcurrentBuffer

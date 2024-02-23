@@ -1,15 +1,15 @@
-﻿using Common.Logging;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.HighLevel.EventArgs;
-using Korpi.Networking.HighLevel.Messages;
-using Korpi.Networking.HighLevel.Messages.Handlers;
-using Korpi.Networking.LowLevel;
-using Korpi.Networking.LowLevel.NetStack.Serialization;
-using Korpi.Networking.LowLevel.Transports.EventArgs;
-using Korpi.Networking.Utility;
+﻿using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.HighLevel.EventArgs;
+using KorpiEngine.Networking.HighLevel.Messages;
+using KorpiEngine.Networking.HighLevel.Messages.Handlers;
+using KorpiEngine.Networking.LowLevel;
+using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.LowLevel.Transports.EventArgs;
+using KorpiEngine.Networking.Utility;
 
-namespace Korpi.Networking;
+namespace KorpiEngine.Networking;
 
 /// <summary>
 /// Manages the network client.

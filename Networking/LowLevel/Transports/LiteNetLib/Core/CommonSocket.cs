@@ -1,11 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.LowLevel.Transports.EventArgs;
-using Korpi.Networking.Utility;
-using LiteNetLib;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.LowLevel.Transports.EventArgs;
+using KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
+using KorpiEngine.Networking.Utility;
 
-namespace Korpi.Networking.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core;
 
 internal abstract class CommonSocket
 {

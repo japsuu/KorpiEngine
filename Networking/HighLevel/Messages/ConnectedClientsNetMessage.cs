@@ -1,6 +1,6 @@
-using Korpi.Networking.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
-namespace Korpi.Networking.HighLevel.Messages;
+namespace KorpiEngine.Networking.HighLevel.Messages;
 
 /// <summary>
 /// Packet sent to a new client when they connect to the server.

@@ -1,4 +1,4 @@
-﻿namespace Korpi.Networking.HighLevel.Connections;
+﻿namespace KorpiEngine.Networking.HighLevel.Connections;
 
 public enum KickReason : short
 {

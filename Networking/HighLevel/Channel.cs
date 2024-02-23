@@ -1,4 +1,4 @@
-﻿namespace Korpi.Networking.HighLevel;
+﻿namespace KorpiEngine.Networking.HighLevel;
 
 /// <summary>
 /// Channel over which data is sent or received.

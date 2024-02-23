@@ -22,7 +22,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Korpi.Networking.LowLevel.NetStack.Unsafe;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Unsafe;
 #if NET_4_6 || NET_STANDARD_2_0
 public static class Memory
 {

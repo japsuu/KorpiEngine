@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-namespace Korpi.Networking.LowLevel.NetStack.Threading;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Threading;
 
 public sealed class ConcurrentPool<T> where T : class
 {

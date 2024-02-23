@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
+        <AssemblyName>KorpiEngine.Core</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

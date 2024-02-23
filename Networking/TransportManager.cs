@@ -1,10 +1,10 @@
-﻿using Common.Logging;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Messages;
-using Korpi.Networking.LowLevel.Transports;
-using Korpi.Networking.Utility;
+﻿using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Messages;
+using KorpiEngine.Networking.LowLevel.Transports;
+using KorpiEngine.Networking.Utility;
 
-namespace Korpi.Networking;
+namespace KorpiEngine.Networking;
 
 public class TransportManager
 {

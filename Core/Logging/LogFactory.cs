@@ -1,6 +1,9 @@
-﻿using log4net;
+﻿using System.Reflection;
+using log4net;
+using log4net.Config;
+using log4net.Repository;
 
-namespace Common.Logging;
+namespace KorpiEngine.Core.Logging;
 
 public static class LogFactory
 {
@@ -23,5 +26,20 @@ public static class LogFactory
             return CreateLogger(type);
 
         throw new Exception("Log4Net is not available!");
+    }
+    
+    
+    public static void Initialize(string relativeConfigFilePath)
+    {
+        if (!IsAvailable)
+        {
+            Console.WriteLine("Log4Net is not available, cannot initialize!");
+            return;
+        }
+        
+        string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeConfigFilePath);
+        
+        ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+        XmlConfigurator.Configure(logRepository, new FileInfo(configFilePath));
     }
 }

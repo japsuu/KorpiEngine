@@ -1,13 +1,13 @@
 using System.Runtime.CompilerServices;
-using Common.Logging;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.LowLevel.Transports.EventArgs;
-using Korpi.Networking.LowLevel.Transports.LiteNetLib.Core;
-using LiteNetLib;
-using LiteNetLib.Layers;
+using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.LowLevel.Transports.EventArgs;
+using KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core;
+using KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
+using KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers;
 
-namespace Korpi.Networking.LowLevel.Transports.LiteNetLib;
+namespace KorpiEngine.Networking.LowLevel.Transports.LiteNetLib;
 
 public class LiteNetLibTransport : Transport
 {

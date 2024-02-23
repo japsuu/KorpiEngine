@@ -1,8 +1,8 @@
-﻿using Common.Logging;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.LowLevel.Transports;
+﻿using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.LowLevel.Transports;
 
-namespace Korpi.Networking;
+namespace KorpiEngine.Networking;
 
 public class NetworkManager
 {

@@ -1,6 +1,6 @@
-﻿using Korpi.Networking.HighLevel.Connections;
+﻿using KorpiEngine.Networking.HighLevel.Connections;
 
-namespace Korpi.Networking.HighLevel.Authentication;
+namespace KorpiEngine.Networking.HighLevel.Authentication;
 
 public abstract class Authenticator
 {

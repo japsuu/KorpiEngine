@@ -1,6 +1,6 @@
-using Korpi.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.HighLevel.Connections;
 
-namespace Korpi.Networking.HighLevel.Messages.Handlers;
+namespace KorpiEngine.Networking.HighLevel.Messages.Handlers;
 
 /// <summary>
 /// Handles packets received on server, from clients.

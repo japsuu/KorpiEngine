@@ -1,6 +1,6 @@
-using Korpi.Networking.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
-namespace Korpi.Networking.HighLevel.Messages;
+namespace KorpiEngine.Networking.HighLevel.Messages;
 
 /// <summary>
 /// Sent by the client to the server to authenticate with a password.

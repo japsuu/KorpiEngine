@@ -27,7 +27,7 @@ using System.Numerics;
 	using UnityEngine;
 #endif
 
-namespace Korpi.Networking.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Quantization;
 
 public struct QuantizedQuaternion
 {

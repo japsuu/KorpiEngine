@@ -1,6 +1,6 @@
-﻿using Korpi.Networking.HighLevel.Connections;
+﻿using KorpiEngine.Networking.HighLevel.Connections;
 
-namespace Korpi.Networking.LowLevel.Transports.EventArgs;
+namespace KorpiEngine.Networking.LowLevel.Transports.EventArgs;
 
 public readonly struct RemoteConnectionStateArgs
 {

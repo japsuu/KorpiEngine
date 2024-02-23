@@ -1,12 +1,12 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Runtime.CompilerServices;
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.LowLevel.Transports.EventArgs;
-using LiteNetLib;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.LowLevel.Transports.EventArgs;
+using KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
 
-namespace Korpi.Networking.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core;
 
 internal class ServerSocket : CommonSocket
 {

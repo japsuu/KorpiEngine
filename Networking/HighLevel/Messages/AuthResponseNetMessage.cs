@@ -1,6 +1,6 @@
-using Korpi.Networking.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
-namespace Korpi.Networking.HighLevel.Messages;
+namespace KorpiEngine.Networking.HighLevel.Messages;
 
 /// <summary>
 /// Sent by the server to the client to indicate the result of the authentication process.

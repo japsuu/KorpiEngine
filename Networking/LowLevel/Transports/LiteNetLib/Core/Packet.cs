@@ -1,7 +1,7 @@
-using Korpi.Networking.HighLevel;
-using Korpi.Networking.Utility;
+using KorpiEngine.Networking.HighLevel;
+using KorpiEngine.Networking.Utility;
 
-namespace Korpi.Networking.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.LowLevel.Transports.LiteNetLib.Core;
 
 internal readonly struct Packet
 {

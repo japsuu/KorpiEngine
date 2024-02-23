@@ -1,8 +1,8 @@
-using Common.Logging;
-using Korpi.Networking.HighLevel.Connections;
-using Korpi.Networking.HighLevel.Messages;
+using KorpiEngine.Core.Logging;
+using KorpiEngine.Networking.HighLevel.Connections;
+using KorpiEngine.Networking.HighLevel.Messages;
 
-namespace Korpi.Networking.HighLevel.Authentication;
+namespace KorpiEngine.Networking.HighLevel.Authentication;
 
 public class PasswordAuthenticator : Authenticator
 {

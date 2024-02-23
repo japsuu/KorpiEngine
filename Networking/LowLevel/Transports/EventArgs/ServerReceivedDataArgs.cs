@@ -1,6 +1,6 @@
-﻿using Korpi.Networking.HighLevel;
+﻿using KorpiEngine.Networking.HighLevel;
 
-namespace Korpi.Networking.LowLevel.Transports.EventArgs;
+namespace KorpiEngine.Networking.LowLevel.Transports.EventArgs;
 
 /// <summary>
 /// Container about data received on the server.

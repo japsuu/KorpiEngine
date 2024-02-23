@@ -1,4 +1,4 @@
-﻿namespace Korpi.Networking.LowLevel;
+﻿namespace KorpiEngine.Networking.LowLevel;
 
 /// <summary>
 /// Represents the type of data being sent or received.

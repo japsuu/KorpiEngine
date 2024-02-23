@@ -1,6 +1,6 @@
-﻿using Korpi.Networking.LowLevel.NetStack.Serialization;
+﻿using KorpiEngine.Networking.LowLevel.NetStack.Serialization;
 
-namespace Korpi.Networking.HighLevel.Messages;
+namespace KorpiEngine.Networking.HighLevel.Messages;
 
 /// <summary>
 /// Represents an message (packet) that can be sent over the network.<br/>

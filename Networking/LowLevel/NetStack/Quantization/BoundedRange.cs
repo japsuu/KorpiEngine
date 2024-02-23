@@ -22,13 +22,14 @@
 
 using System.Numerics;
 using System.Runtime.CompilerServices;
+
 #if !(ENABLE_MONO || ENABLE_IL2CPP)
 
 #else
 	using UnityEngine;
 #endif
 
-namespace Korpi.Networking.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Networking.LowLevel.NetStack.Quantization;
 
 public struct QuantizedVector2
 {

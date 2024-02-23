@@ -1,4 +1,4 @@
-﻿namespace Korpi.Networking.LowLevel.Transports;
+﻿namespace KorpiEngine.Networking.LowLevel.Transports;
 
 /// <summary>
 /// The type of an address.

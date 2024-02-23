@@ -1,4 +1,4 @@
-﻿namespace Korpi.Networking.Utility;
+﻿namespace KorpiEngine.Networking.Utility;
 
 public static class ArraySegmentUtils
 {

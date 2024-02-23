@@ -5,14 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>KorpiEngine.Networking</AssemblyName>
+        <RootNamespace>KorpiEngine.Networking</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="LiteNetLib" Version="1.2.0" />
     </ItemGroup>
 
 </Project>
