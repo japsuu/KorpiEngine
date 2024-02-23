@@ -6,10 +6,25 @@
         <Nullable>enable</Nullable>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
         <AssemblyName>KorpiEngine.Core</AssemblyName>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
+        <Title>KorpiEngine.Core</Title>
+        <Authors>Japsu</Authors>
+        <Description>KorpiEngine core module</Description>
+        <PackageLicenseUrl>https://github.com/japsuu/Korpi/blob/master/LICENCE.md</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/japsuu/Korpi</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>KorpiEngine</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="log4net" Version="2.0.15" />
+      <PackageReference Include="OpenTK" Version="4.8.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Windowing\" />
     </ItemGroup>
 
 </Project>
