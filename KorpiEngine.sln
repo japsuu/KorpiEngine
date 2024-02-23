@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "Networking\Networking.csproj", "{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
