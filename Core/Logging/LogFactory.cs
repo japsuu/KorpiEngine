@@ -7,16 +7,20 @@ namespace KorpiEngine.Core.Logging;
 
 public static class LogFactory
 {
-    private static readonly bool IsAvailable = File.Exists(AppDomain.CurrentDomain.BaseDirectory + "log4net.dll");
-
-
-    private static IKorpiLogger CreateLogger(Type type)
+    private static readonly bool IsAvailable = File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "log4net.dll"));
+    
+    
+    public static void Initialize(string relativeConfigFilePath)
     {
-        ILog logger = LogManager.GetLogger(type);
-        if (logger != null)
-            return new DefaultLogger(logger);
+        if (!IsAvailable)
+        {
+            Console.WriteLine("Log4Net is not available, cannot initialize!");
+            return;
+        }
+        string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeConfigFilePath);
         
-        throw new Exception($"Failed to create logger for type {type}!");
+        ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+        XmlConfigurator.Configure(logRepository, new FileInfo(configFilePath));
     }
 
 
@@ -27,19 +31,14 @@ public static class LogFactory
 
         throw new Exception("Log4Net is not available!");
     }
-    
-    
-    public static void Initialize(string relativeConfigFilePath)
+
+
+    private static IKorpiLogger CreateLogger(Type type)
     {
-        if (!IsAvailable)
-        {
-            Console.WriteLine("Log4Net is not available, cannot initialize!");
-            return;
-        }
+        ILog logger = LogManager.GetLogger(type);
+        if (logger != null)
+            return new DefaultLogger(logger);
         
-        string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeConfigFilePath);
-        
-        ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-        XmlConfigurator.Configure(logRepository, new FileInfo(configFilePath));
+        throw new Exception($"Failed to create logger for type {type}!");
     }
 }
