@@ -1,15 +1,13 @@
-﻿using KorpiEngine.Core.ECS.Entities;
+﻿namespace KorpiEngine.Core.Entities.Components;
 
-namespace KorpiEngine.Core.ECS.Components;
-
-public abstract class Component
+public abstract class EntityComponent
 {
     public bool IsEnabled { get; private set; }
     
     protected Entity Entity { get; private set; } = null!;
     
     
-    protected Component() { }
+    protected EntityComponent() { }
 
 
     public void SetEntity(Entity entity)

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.ECS.Entities;
+﻿namespace KorpiEngine.Core.Entities;
 
 internal class EntityManager
 {

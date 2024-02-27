@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using KorpiEngine.Core.ECS.Components;
+using KorpiEngine.Core.Entities.Components;
 
-namespace KorpiEngine.Core.ECS.Entities;
+namespace KorpiEngine.Core.Entities;
 
 public abstract class Entity
 {
@@ -9,12 +9,12 @@ public abstract class Entity
     
     public bool IsEnabled { get; private set; }
     
-    private readonly Dictionary<Type, Component> _components;
+    private readonly Dictionary<Type, EntityComponent> _components;
 
 
     protected Entity(bool isEnabled = true)
     {
-        _components = new Dictionary<Type, Component>();
+        _components = new Dictionary<Type, EntityComponent>();
         
         if(isEnabled)
             Enable();
@@ -41,7 +41,7 @@ public abstract class Entity
     {
         OnUpdate();
         
-        foreach (Component component in _components.Values)
+        foreach (EntityComponent component in _components.Values)
         {
             component.Update();
         }
@@ -52,7 +52,7 @@ public abstract class Entity
     {
         OnFixedUpdate();
         
-        foreach (Component component in _components.Values)
+        foreach (EntityComponent component in _components.Values)
         {
             component.FixedUpdate();
         }
@@ -63,7 +63,7 @@ public abstract class Entity
     {
         OnDraw();
         
-        foreach (Component component in _components.Values)
+        foreach (EntityComponent component in _components.Values)
         {
             component.Draw();
         }
@@ -86,7 +86,7 @@ public abstract class Entity
     }
     
     
-    public void AddComponent<T>(T comp) where T : Component
+    public void AddComponent<T>(T comp) where T : EntityComponent
     {
         _components.Add(typeof(T), comp);
         comp.SetEntity(this);
@@ -94,7 +94,7 @@ public abstract class Entity
     }
     
     
-    public T AddComponent<T>() where T : Component, new()
+    public T AddComponent<T>() where T : EntityComponent, new()
     {
         T comp = new();
         _components.Add(typeof(T), comp);
@@ -104,7 +104,7 @@ public abstract class Entity
     }
     
     
-    public T GetOrAddComponent<T>() where T : Component, new()
+    public T GetOrAddComponent<T>() where T : EntityComponent, new()
     {
         if (TryGetComponent(out T? component))
             return component;
@@ -114,14 +114,14 @@ public abstract class Entity
     }
     
     
-    public bool TryGetComponent<T>([NotNullWhen(true)] out T? component) where T : Component
+    public bool TryGetComponent<T>([NotNullWhen(true)] out T? component) where T : EntityComponent
     {
         component = GetComponent<T>();
         return component != null;
     }
     
     
-    public void RemoveComponent<T>() where T : Component
+    public void RemoveComponent<T>() where T : EntityComponent
     {
         if (!TryGetComponent(out T? component))
             return;
@@ -132,9 +132,9 @@ public abstract class Entity
     }
 
 
-    private T? GetComponent<T>() where T : Component
+    private T? GetComponent<T>() where T : EntityComponent
     {
-        if (_components.TryGetValue(typeof(T), out Component? component))
+        if (_components.TryGetValue(typeof(T), out EntityComponent? component))
             return (T) component;
         return null;
     }

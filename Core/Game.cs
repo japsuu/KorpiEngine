@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.Core.Debugging.Profiling;
-using KorpiEngine.Core.ECS.Entities;
+using KorpiEngine.Core.Entities;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Cameras;

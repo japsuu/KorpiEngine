@@ -1,19 +1,19 @@
 ﻿using OpenTK.Mathematics;
 
-namespace KorpiEngine.Core.ECS.Components;
+namespace KorpiEngine.Core.Entities.Components;
 
-public class TransformComponent : Component
+public class TransformEntityComponent : EntityComponent
 {
     /// <summary>
     /// The parent of this transform, if any.
     /// </summary>
-    public TransformComponent? Parent { get; private set; }
+    public TransformEntityComponent? Parent { get; private set; }
     
     /// <summary>
     /// All children of this transform.
     /// All these have this transform as their parent.
     /// </summary>
-    public readonly List<TransformComponent> Children = new();
+    public readonly List<TransformEntityComponent> Children = new();
 
     /// <summary>
     /// Absolute position of this transform in the world.
@@ -71,7 +71,7 @@ public class TransformComponent : Component
     public Vector3 Scale;
 
 
-    public TransformComponent()
+    public TransformEntityComponent()
     {
         LocalPosition = Vector3.Zero;
         LocalRotation = Vector3.Zero;
@@ -84,7 +84,7 @@ public class TransformComponent : Component
     /// </summary>
     /// <param name="newParent">The new parent to set</param>
     /// <param name="keepWorldPosition">If this transform should keep it's world space position after the parent has changed</param>
-    public void SetParent(TransformComponent? newParent, bool keepWorldPosition = true)
+    public void SetParent(TransformEntityComponent? newParent, bool keepWorldPosition = true)
     {
         if (newParent == null)
         {
