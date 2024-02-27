@@ -8,7 +8,7 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// Represents a uniform.
 /// </summary>
 /// <typeparam name="T">The type of the uniform.</typeparam>
-public class Uniform<T> : ProgramVariable
+public class Uniform<T> : ProgramVariable where T : struct
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Uniform<T>));
 
@@ -46,8 +46,7 @@ public class Uniform<T> : ProgramVariable
 
     public Uniform(Action<int, T> setter)
     {
-        if (setter == null) throw new ArgumentNullException("setter");
-        _setter = setter;
+        _setter = setter ?? throw new ArgumentNullException(nameof(setter));
     }
 
 
@@ -55,7 +54,8 @@ public class Uniform<T> : ProgramVariable
     {
         Location = GL.GetUniformLocation(ProgramHandle, Name);
         Active = Location > -1;
-        if (!Active) Logger?.WarnFormat("Uniform not found or not active: {0}", Name);
+        if (!Active)
+            Logger.WarnFormat("Uniform not found or not active: {0}", Name);
     }
 
 
@@ -68,6 +68,7 @@ public class Uniform<T> : ProgramVariable
     {
         ShaderProgram.AssertActive();
         _value = value;
-        if (Active) _setter(Location, value);
+        if (Active)
+            _setter(Location, value);
     }
 }

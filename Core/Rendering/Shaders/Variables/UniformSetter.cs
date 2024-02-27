@@ -9,7 +9,7 @@ internal abstract class UniformSetter
 {
     protected abstract Type MappedType { get; }
 
-    private class Map<T> : UniformSetter
+    private class Map<T> : UniformSetter where T : struct
     {
         protected override Type MappedType => typeof(T);
 
@@ -64,7 +64,7 @@ internal abstract class UniformSetter
     }
 
 
-    public static Action<int, T> Get<T>()
+    public static Action<int, T> Get<T>() where T : struct
     {
         UniformSetter? setter = Setters.FirstOrDefault(u => u.MappedType == typeof(T));
         if (setter == null) throw new UniformTypeNotSupportedException(typeof(T));
