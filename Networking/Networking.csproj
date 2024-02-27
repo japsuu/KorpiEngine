@@ -5,10 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <AssemblyName>KorpiEngine.Networking</AssemblyName>
         <RootNamespace>KorpiEngine.Networking</RootNamespace>
+        <AssemblyName>KorpiEngine.Networking</AssemblyName>
+
+        <!-- Package information -->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
         <Title>KorpiEngine.Networking</Title>
         <Authors>Japsu</Authors>
         <Description>KorpiEngine networking module</Description>
@@ -17,6 +18,9 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>KorpiEngine</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
+        <IncludeSource>false</IncludeSource>
     </PropertyGroup>
 
     <ItemGroup>

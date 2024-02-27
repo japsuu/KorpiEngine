@@ -6,8 +6,9 @@
         <Nullable>enable</Nullable>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
         <AssemblyName>KorpiEngine.Core</AssemblyName>
+
+        <!-- Package information -->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
         <Title>KorpiEngine.Core</Title>
         <Authors>Japsu</Authors>
         <Description>KorpiEngine core module</Description>
@@ -16,15 +17,17 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>KorpiEngine</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
+        <IncludeSource>false</IncludeSource>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="ImGui.NET" Version="1.89.9.3" />
       <PackageReference Include="log4net" Version="2.0.15" />
       <PackageReference Include="OpenTK" Version="4.8.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Windowing\" />
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
 </Project>
