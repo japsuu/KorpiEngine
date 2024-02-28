@@ -1,19 +1,19 @@
 ﻿using OpenTK.Mathematics;
 
-namespace KorpiEngine.Core.Entities.Components;
+namespace KorpiEngine.Core.GameObjects.Components;
 
-public class TransformEntityComponent : EntityComponent
+public class TransformComponent : Component
 {
     /// <summary>
     /// The parent of this transform, if any.
     /// </summary>
-    public TransformEntityComponent? Parent { get; private set; }
+    public TransformComponent? Parent { get; private set; }
     
     /// <summary>
     /// All children of this transform.
     /// All these have this transform as their parent.
     /// </summary>
-    public readonly List<TransformEntityComponent> Children = new();
+    public readonly List<TransformComponent> Children = new();
 
     /// <summary>
     /// Absolute position of this transform in the world.
@@ -58,33 +58,25 @@ public class TransformEntityComponent : EntityComponent
     /// <summary>
     /// Position of this transform relative to its parent.
     /// </summary>
-    public Vector3 LocalPosition;
+    public Vector3 LocalPosition = Vector3.Zero;
     
     /// <summary>
     /// Rotation of this transform relative to its parent (radians).
     /// </summary>
-    public Vector3 LocalRotation;
+    public Vector3 LocalRotation = Vector3.Zero;
     
     /// <summary>
     /// Scale of this transform.
     /// </summary>
-    public Vector3 Scale;
+    public Vector3 Scale = Vector3.One;
 
 
-    public TransformEntityComponent()
-    {
-        LocalPosition = Vector3.Zero;
-        LocalRotation = Vector3.Zero;
-        Scale = Vector3.One;
-    }
-    
-    
     /// <summary>
     /// Changes the parent of this transform.
     /// </summary>
     /// <param name="newParent">The new parent to set</param>
     /// <param name="keepWorldPosition">If this transform should keep it's world space position after the parent has changed</param>
-    public void SetParent(TransformEntityComponent? newParent, bool keepWorldPosition = true)
+    public void SetParent(TransformComponent? newParent, bool keepWorldPosition = true)
     {
         if (newParent == null)
         {

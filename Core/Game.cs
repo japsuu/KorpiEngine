@@ -1,5 +1,8 @@
-﻿using KorpiEngine.Core.Debugging.Profiling;
-using KorpiEngine.Core.Entities;
+﻿using Arch.Core;
+using Arch.System;
+using KorpiEngine.Core.Debugging.Profiling;
+using KorpiEngine.Core.ECS.Systems;
+using KorpiEngine.Core.GameObjects;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Cameras;
@@ -18,20 +21,25 @@ namespace KorpiEngine.Core;
 /// </summary>
 public abstract class Game : IDisposable
 {
+    internal static Game Instance = null!;
+    
     // Protected:
     protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Game));
     protected readonly KorpiWindow Window;
     
     // Private:
-    private readonly EntityManager _entityManager;
-    private ImGuiController _imGuiController = null!;
+    private readonly ImGuiController _imGuiController;
     private double _fixedFrameAccumulator;
 
 
     protected Game(WindowingSettings settings)
     {
+        if (Instance != null)
+            throw new InvalidOperationException("Only one instance of Game can be created!");
+        Instance = this;
+        
         Window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        _entityManager = new EntityManager();
+        _imGuiController = new ImGuiController(Window);
         
         Window.Load += OnLoad;
         Window.UpdateFrame += OnUpdateFrame;
@@ -51,13 +59,10 @@ public abstract class Game : IDisposable
 
     private void OnLoad()
     {
-        _imGuiController = new ImGuiController(Window);
+        SceneManager.Initialize();
         GlobalJobPool.Initialize();
         
         LoadContent();
-        
-        // Load a scene.
-        SceneManager.LoadScene(new EmptyScene());
         
         // Show the window after all resources are loaded.
         Window.CenterWindow();
@@ -131,7 +136,6 @@ public abstract class Game : IDisposable
         Time.FixedUpdate();
         
         SceneManager.FixedUpdate();
-        _entityManager.FixedUpdate();
         
         FixedUpdate();
         
@@ -142,6 +146,8 @@ public abstract class Game : IDisposable
 
     private void InternalUpdate(double deltaTime, double fixedAlpha)
     {
+        SceneManager.EarlyUpdate();
+        
         Time.Update(deltaTime, fixedAlpha);
         Input.Update(Window.KeyboardState, Window.MouseState);
         
@@ -149,7 +155,6 @@ public abstract class Game : IDisposable
         _imGuiController.Update();
         
         SceneManager.Update();
-        _entityManager.Update();
         
         Update();
         
@@ -161,7 +166,6 @@ public abstract class Game : IDisposable
     private void InternalRender()
     {
         SceneManager.Draw();
-        _entityManager.Draw();
         
         Render();
 
@@ -174,7 +178,6 @@ public abstract class Game : IDisposable
     {
         UnloadContent();
         
-        ImGuiWindowManager.Dispose();
         GlobalJobPool.Shutdown();
     }
 
@@ -213,6 +216,8 @@ public abstract class Game : IDisposable
     
     public void Dispose()
     {
+        ImGuiWindowManager.Dispose();
+        _imGuiController.Dispose();
         Window.Dispose();
         GC.SuppressFinalize(this);
     }
