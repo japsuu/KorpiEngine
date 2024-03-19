@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "Networking\Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All", "All\All.csproj", "{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

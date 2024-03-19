@@ -34,7 +34,8 @@ public class ShaderProgram : GLObject
 
     protected override void Dispose(bool manual)
     {
-        if (!manual) return;
+        if (!manual)
+            return;
         GL.DeleteProgram(Handle);
     }
 
@@ -56,7 +57,7 @@ public class ShaderProgram : GLObject
     /// <summary>
     /// Activate the shaderProgram.
     /// </summary>
-    public void Use()
+    internal void Use()
     {
         GL.UseProgram(Handle);
     }
@@ -65,27 +66,27 @@ public class ShaderProgram : GLObject
     /// <summary>
     /// Attach shader object.
     /// </summary>
-    /// <param name="shader">Specifies the shader object to attach.</param>
-    public void Attach(Shader shader)
+    /// <param name="glShader">Specifies the shader object to attach.</param>
+    internal void AttachShader(GLShader glShader)
     {
-        GL.AttachShader(Handle, shader.Handle);
+        GL.AttachShader(Handle, glShader.Handle);
     }
 
 
     /// <summary>
     /// Detach shader object.
     /// </summary>
-    /// <param name="shader">Specifies the shader object to detach.</param>
-    public void Detach(Shader shader)
+    /// <param name="glShader">Specifies the shader object to detach.</param>
+    internal void DetachShader(GLShader glShader)
     {
-        GL.DetachShader(Handle, shader.Handle);
+        GL.DetachShader(Handle, glShader.Handle);
     }
 
 
     /// <summary>
     /// Link the shaderProgram.
     /// </summary>
-    public virtual void Link()
+    internal virtual void Link()
     {
         Logger.DebugFormat("Linking shaderProgram: {0}", Name);
         GL.LinkProgram(Handle);
@@ -93,6 +94,18 @@ public class ShaderProgram : GLObject
 
         // call OnLink() on all ShaderVariables
         _variables.ForEach(v => v.OnLink());
+    }
+
+
+    /// <summary>
+    /// Throws an <see cref="ObjectNotBoundException"/> if this shaderProgram is not the currently active one.
+    /// </summary>
+    [Conditional("DEBUG")]
+    internal void AssertActive()
+    {
+        GL.GetInteger(GetPName.CurrentProgram, out int activeHandle);
+        if (activeHandle != Handle)
+            throw new ObjectNotBoundException("ShaderProgram object is not currently active.");
     }
 
 
@@ -107,23 +120,14 @@ public class ShaderProgram : GLObject
 
         // check shaderProgram info log
         string? info = GL.GetProgramInfoLog(Handle);
-        if (!string.IsNullOrEmpty(info)) Logger?.InfoFormat("Link log:\n{0}", info);
+        if (!string.IsNullOrEmpty(info))
+            Logger?.InfoFormat("Link log:\n{0}", info);
 
         // log message and throw exception on link error
-        if (linkStatus == 1) return;
+        if (linkStatus == 1)
+            return;
         string msg = $"Error linking shaderProgram: {Name}";
         Logger?.Error(msg);
         throw new ProgramLinkException(msg, info);
-    }
-
-
-    /// <summary>
-    /// Throws an <see cref="ObjectNotBoundException"/> if this shaderProgram is not the currently active one.
-    /// </summary>
-    [Conditional("DEBUG")]
-    public void AssertActive()
-    {
-        GL.GetInteger(GetPName.CurrentProgram, out int activeHandle);
-        if (activeHandle != Handle) throw new ObjectNotBoundException("ShaderProgram object is not currently active.");
     }
 }

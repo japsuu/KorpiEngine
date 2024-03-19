@@ -230,7 +230,7 @@ void main()
         if (_window.CursorState == CursorState.Grabbed)
             mousePos = new Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
         
-        float deltaSeconds = Time.DeltaTimeFloat;
+        float deltaSeconds = Time.DeltaTime;
         
         if (_frameBegun)
         {

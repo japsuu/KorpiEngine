@@ -1,53 +1,107 @@
 ﻿using Arch.Core;
-using Arch.System;
-using KorpiEngine.Core.ECS.Components;
+using Arch.Core.Extensions;
+using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
-using KorpiEngine.Core.GameObjects;
+using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Scripting;
+using KorpiEngine.Core.Scripting.Components;
+using Entity = KorpiEngine.Core.Scripting.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="GameObject"/>s and register systems.
+/// Can create <see cref="Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene : IDisposable
 {
     /// <summary>
-    /// The systems for this scene.
+    /// The systems for this scene that are updated from the <see cref="Update"/> method.
+    /// Typically used for game logic.
     /// </summary>
-    private readonly Group<double> _systems;
+    private readonly SceneSystemGroup _simulationSystems;
+    
     /// <summary>
-    /// The game object manager for this scene.
+    /// The systems for this scene that are updated from the <see cref="FixedUpdate"/> method.
+    /// Typically used for physics.
     /// </summary>
-    internal readonly GameObjectManager GameObjectManager;
+    private readonly SceneSystemGroup _fixedSimulationSystems;
+    
+    /// <summary>
+    /// The systems for this scene that are updated when the scene is drawn.
+    /// Typically used for rendering and post-rendering effects.
+    /// </summary>
+    private readonly SceneSystemGroup _presentationSystems;
     
     /// <summary>
     /// The ESC world for this scene.
     /// </summary>
     internal readonly World World;
+    
+    /// <summary>
+    /// The main camera for this scene.
+    /// </summary>
+    public Camera MainCamera { get; protected set; }
 
 
     protected Scene()
     {
         World = World.Create();
-        _systems = new Group<double>("SceneSystems");
-        GameObjectManager = new GameObjectManager();
+        MainCamera = Instantiate<DefaultSceneCamera>("Main Camera");
+        _simulationSystems = new SceneSystemGroup("SimulationSystems");
+        _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
+        _presentationSystems = new SceneSystemGroup("PresentationSystems");
+    }
+
+
+    public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
+    {
+        Entity e = CreateEntity(name);
+        e.AddNativeComponent<MeshRendererComponent>().Mesh = Mesh.CreatePrimitive(primitiveType);
+        return e;
+    }
+
+
+    /// <summary>
+    /// Internally instantiates a new entity with the given component and name, and returns the component.
+    /// </summary>
+    /// <param name="name">The name of the entity.</param>
+    /// <typeparam name="T">The type of the component to add.</typeparam>
+    /// <returns>The added component.</returns>
+    public T Instantiate<T>(string name) where T : Behaviour, new()
+    {
+        Entity e = CreateEntity(name);
+        return e.AddComponent<T>();
     }
     
     
-    protected GameObject CreateGameObject(bool isEnabled)
+    /*protected void DestroyEntity(Arch.Core.Entity entity)
     {
-        return GameObjectManager.CreateGameObject(World.Create<Position, Rotation>(), isEnabled);
+        World.Destroy(entity);
+    }*/
+
+
+    private Entity CreateEntity(string name)
+    {
+        Arch.Core.Entity entity = World.Create<IdComponent, NameComponent, TransformComponent>();
+        entity.Get<IdComponent>().Id = new UUID();
+        entity.Get<NameComponent>().Name = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
+        return new Entity(entity.Reference(), this);
     }
     
     
     internal void InternalLoad()
     {
-        RegisterSystems(_systems);
-
-        // Add the render system last, so it draws last.
-        _systems.Add(new RenderSystem(this));
-        _systems.Initialize();
+        // Register systems.
+        RegisterSimulationSystems(_simulationSystems);
+        RegisterFixedSimulationSystems(_fixedSimulationSystems);
+        RegisterPresentationSystems(_presentationSystems);
+        
+        // Initialize systems.
+        _simulationSystems.Initialize();
+        _fixedSimulationSystems.Initialize();
+        _presentationSystems.Initialize();
         
         Load();
     }
@@ -55,63 +109,82 @@ public abstract class Scene : IDisposable
     
     internal void InternalUnload()
     {
-        _systems.Dispose();
-        
         Unload();
         
         World.Destroy(World);
-    }
-    
-    
-    internal void InternalEarlyUpdate()
-    {
-        _systems.BeforeUpdate(Time.DeltaTime);
         
-        EarlyUpdate();
+        Dispose();
     }
     
     
     internal void InternalUpdate()
     {
-        _systems.Update(Time.DeltaTime);
+        _simulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
+        _simulationSystems.Update(Time.DeltaTimeDouble);
+        _simulationSystems.AfterUpdate(Time.DeltaTimeDouble);
         
         Update();
-        GameObjectManager.Update();
     }
     
     
     internal void InternalFixedUpdate()
     {
+        _fixedSimulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
+        _fixedSimulationSystems.Update(Time.DeltaTimeDouble);
+        _fixedSimulationSystems.AfterUpdate(Time.DeltaTimeDouble);
+        
         FixedUpdate();
-        GameObjectManager.FixedUpdate();
     }
     
     
     internal void InternalDraw()
     {
-        LateUpdate();
+        _presentationSystems.BeforeUpdate(Time.DeltaTimeDouble);
+        _presentationSystems.Update(Time.DeltaTimeDouble);
+        _presentationSystems.AfterUpdate(Time.DeltaTimeDouble);
         
-        _systems.AfterUpdate(Time.DeltaTime);
+        LateUpdate();
     }
-    
-    
+
+
     /// <summary>
-    /// Register new systems to the scene.
+    /// Register new simulation systems to the scene.
     /// Called before <see cref="Load"/>
-    /// The systems will be automatically updated, in the order they were registered.
+    /// The systems will be automatically updated in the update loop, in the order they were registered.
     /// </summary>
-    protected virtual void RegisterSystems(Group<double> systems) { }
+    protected virtual void RegisterSimulationSystems(SceneSystemGroup systems)
+    {
+        systems.Add(new BehaviourSystem(this));
+    }
+
+
+    /// <summary>
+    /// Register new fixed simulation systems to the scene.
+    /// Called before <see cref="Load"/>
+    /// The systems will be automatically updated in the fixed update loop, in the order they were registered.
+    /// </summary>
+    protected virtual void RegisterFixedSimulationSystems(SceneSystemGroup systems)
+    {
+        systems.Add(new BehaviourFixedUpdateSystem(this));
+    }
+
+
+    /// <summary>
+    /// Register new presentation (rendering) systems to the scene.
+    /// Called before <see cref="Load"/>
+    /// The systems are automatically updated after simulation systems (<see cref="RegisterSimulationSystems"/>), in the order they were registered.
+    /// </summary>
+    protected virtual void RegisterPresentationSystems(SceneSystemGroup systems)
+    {
+        // Add the default render system.
+        systems.Add(new SpriteRenderSystem(this));
+    }
     
     
     /// <summary>
     /// Called when the scene is loaded.
     /// </summary>
     protected virtual void Load() { }
-    
-    /// <summary>
-    /// Called every frame before <see cref="Update"/>
-    /// </summary>
-    protected virtual void EarlyUpdate() { }
     
     /// <summary>
     /// Called every frame.
@@ -136,7 +209,9 @@ public abstract class Scene : IDisposable
     
     public void Dispose()
     {
-        _systems.Dispose();
+        _simulationSystems.Dispose();
+        _fixedSimulationSystems.Dispose();
+        _presentationSystems.Dispose();
         World.Dispose();
         GC.SuppressFinalize(this);
     }

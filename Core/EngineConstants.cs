@@ -27,7 +27,7 @@ public static class EngineConstants
     public const float DELTA_TIME_SLOW_THRESHOLD = 0.1f;
 
     /// <summary>
-    /// An upper limit on the amount of time the engine will report as having passed by the <see cref="Time.DeltaTime"/>.
+    /// An upper limit on the amount of time the engine will report as having passed by the <see cref="Time.DeltaTimeDouble"/>.
     /// </summary>
     public const float MAX_DELTA_TIME = 0.5f;
 

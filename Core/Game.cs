@@ -1,8 +1,4 @@
-﻿using Arch.Core;
-using Arch.System;
-using KorpiEngine.Core.Debugging.Profiling;
-using KorpiEngine.Core.ECS.Systems;
-using KorpiEngine.Core.GameObjects;
+﻿using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Cameras;
@@ -21,11 +17,9 @@ namespace KorpiEngine.Core;
 /// </summary>
 public abstract class Game : IDisposable
 {
-    internal static Game Instance = null!;
-    
     // Protected:
-    protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Game));
-    protected readonly KorpiWindow Window;
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Game));
+    private readonly KorpiWindow Window;
     
     // Private:
     private readonly ImGuiController _imGuiController;
@@ -34,10 +28,6 @@ public abstract class Game : IDisposable
 
     protected Game(WindowingSettings settings)
     {
-        if (Instance != null)
-            throw new InvalidOperationException("Only one instance of Game can be created!");
-        Instance = this;
-        
         Window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         _imGuiController = new ImGuiController(Window);
         
@@ -62,11 +52,11 @@ public abstract class Game : IDisposable
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
         
-        LoadContent();
-        
-        // Show the window after all resources are loaded.
+        // Queue window visibility after all internal resources are loaded.
         Window.CenterWindow();
         Window.IsVisible = true;
+        
+        OnLoadContent();
     }
 
 
@@ -97,7 +87,6 @@ public abstract class Game : IDisposable
         else if (deltaTime > EngineConstants.DELTA_TIME_SLOW_THRESHOLD)
         {
             Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
-            deltaTime = EngineConstants.MAX_DELTA_TIME;
         }
         
         using (new ProfileScope("Update"))
@@ -124,8 +113,7 @@ public abstract class Game : IDisposable
         MatrixManager.UpdateProjectionMatrix(Camera.RenderingCamera.ProjectionMatrix);
         
         InternalRender();
-
-        Window.SwapBuffers();
+        
         KorpiProfiler.End();
         KorpiProfiler.EndFrame();
     }
@@ -137,7 +125,7 @@ public abstract class Game : IDisposable
         
         SceneManager.FixedUpdate();
         
-        FixedUpdate();
+        OnFixedUpdate();
         
         // Instantly execute jobs.
         GlobalJobPool.FixedUpdate();
@@ -146,8 +134,6 @@ public abstract class Game : IDisposable
 
     private void InternalUpdate(double deltaTime, double fixedAlpha)
     {
-        SceneManager.EarlyUpdate();
-        
         Time.Update(deltaTime, fixedAlpha);
         Input.Update(Window.KeyboardState, Window.MouseState);
         
@@ -156,7 +142,7 @@ public abstract class Game : IDisposable
         
         SceneManager.Update();
         
-        Update();
+        OnUpdate();
         
         // Instantly execute jobs.
         GlobalJobPool.Update();
@@ -167,7 +153,7 @@ public abstract class Game : IDisposable
     {
         SceneManager.Draw();
         
-        Render();
+        OnRender();
 
         _imGuiController.Render();
         ImGuiController.CheckGlError("End of frame");
@@ -176,7 +162,7 @@ public abstract class Game : IDisposable
 
     private void OnUnload()
     {
-        UnloadContent();
+        OnUnloadContent();
         
         GlobalJobPool.Shutdown();
     }
@@ -186,32 +172,32 @@ public abstract class Game : IDisposable
     /// Called before the window is displayed for the first time.
     /// Load any resources here.
     /// </summary>
-    protected virtual void LoadContent() { }
+    protected virtual void OnLoadContent() { }
     
     
     /// <summary>
     /// Called every frame.
     /// </summary>
-    protected virtual void Update() { }
+    protected virtual void OnUpdate() { }
     
     
     /// <summary>
     /// Called every fixed update frame (see <see cref="EngineConstants.FIXED_DELTA_TIME"/>).
     /// </summary>
-    protected virtual void FixedUpdate() { }
+    protected virtual void OnFixedUpdate() { }
     
     
     /// <summary>
     /// Called when the game window is being rendered.
     /// </summary>
-    protected virtual void Render() { }
+    protected virtual void OnRender() { }
 
 
     /// <summary>
     /// Called when the game window is being unloaded.
     /// Dispose of any resources here.
     /// </summary>
-    protected virtual void UnloadContent() { }
+    protected virtual void OnUnloadContent() { }
     
     
     public void Dispose()

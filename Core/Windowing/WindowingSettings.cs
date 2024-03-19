@@ -16,7 +16,8 @@ public struct WindowingSettings
     {
         GameWindowSettings gws = new()
         {
-            UpdateFrequency = 0
+            UpdateFrequency = 0,
+            Win32SuspendTimerOnDrag = false
         };
         
         NativeWindowSettings nws = new()

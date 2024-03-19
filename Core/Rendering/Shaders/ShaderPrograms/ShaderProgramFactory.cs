@@ -33,17 +33,17 @@ public static class ShaderProgramFactory
             foreach (ShaderSourceAttribute attribute in shaders)
             {
                 // create a new shader of the appropriate type
-                using Shader shader = new(attribute.Type);
+                using GLShader glShader = new(attribute.Type);
                 Logger?.Debug($"Compiling {attribute.Type}: {attribute.SourceLocation}");
 
                 // load the source
-                string source = GetShaderSource(shaderBasePath, attribute.SourceLocation, shader.SourceFiles);
+                string source = GetShaderSource(shaderBasePath, attribute.SourceLocation, glShader.SourceFiles);
 
                 // compile shader source
-                shader.CompileSource(source);
+                glShader.CompileSource(source);
 
                 // attach shader to the shaderProgram
-                program.Attach(shader);
+                program.AttachShader(glShader);
             }
 
             // link and return the shaderProgram

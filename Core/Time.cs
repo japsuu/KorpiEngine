@@ -3,14 +3,14 @@
 public static class Time
 {
     /// <summary>
-    /// Time in seconds that has passed since the last frame.
-    /// </summary>
-    public static double DeltaTime { get; private set; }
-    
-    /// <summary>
     /// Time in seconds that has passed since the last frame, as a float.
     /// </summary>
-    public static float DeltaTimeFloat { get; private set; }
+    public static float DeltaTime { get; private set; }
+    
+    /// <summary>
+    /// Time in seconds that has passed since the last frame, as a double.
+    /// </summary>
+    public static double DeltaTimeDouble { get; private set; }
     
     /// <summary>
     /// Time in seconds that has passed since the last fixed frame.
@@ -46,8 +46,8 @@ public static class Time
 
     public static void Update(double deltaTime, double fixedAlpha)
     {
-        DeltaTime = deltaTime;
-        DeltaTimeFloat = (float) deltaTime;
+        DeltaTimeDouble = deltaTime;
+        DeltaTime = (float) deltaTime;
         
         FixedAlpha = fixedAlpha;
         
@@ -64,8 +64,8 @@ public static class Time
 
     public static void Reset()
     {
+        DeltaTimeDouble = 0;
         DeltaTime = 0;
-        DeltaTimeFloat = 0;
         TotalTime = 0;
         TotalFrameCount = 0;
     }

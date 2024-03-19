@@ -6,11 +6,11 @@ using OpenTK.Graphics.OpenGL4;
 namespace KorpiEngine.Core.Rendering.Shaders;
 
 /// <summary>
-/// Represents a shader object.
+/// Represents an OpenGL shader object.
 /// </summary>
-public class Shader : GLObject
+public class GLShader : GLObject
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Shader));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLShader));
 
     /// <summary>
     /// Specifies the type of this shader.
@@ -32,7 +32,7 @@ public class Shader : GLObject
     /// Initializes a new shader object of the given type.
     /// </summary>
     /// <param name="type"></param>
-    public Shader(ShaderType type) : base(GL.CreateShader(type))
+    public GLShader(ShaderType type) : base(GL.CreateShader(type))
     {
         Type = type;
         SourceFiles = new List<string>();

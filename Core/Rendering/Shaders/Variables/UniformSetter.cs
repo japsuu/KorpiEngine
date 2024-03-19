@@ -1,4 +1,3 @@
-using System.Drawing;
 using KorpiEngine.Core.Rendering.Exceptions;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;

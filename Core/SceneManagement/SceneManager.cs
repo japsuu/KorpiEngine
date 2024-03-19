@@ -80,12 +80,6 @@ public static class SceneManager
         // Load the new scene.
         scene.InternalLoad();
     }
-
-
-    internal static void EarlyUpdate()
-    {
-        CurrentScene.InternalEarlyUpdate();
-    }
     
     
     internal static void Update()
