@@ -2,5 +2,8 @@
 
 public class Mesh
 {
-    
+    public static Mesh CreatePrimitive(PrimitiveType primitiveType)
+    {
+        throw new NotImplementedException();
+    }
 }

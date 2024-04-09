@@ -49,6 +49,6 @@ public abstract class ProgramVariable
 
     public override string ToString()
     {
-        return string.Format("{0}.{1}", ShaderProgram.Name, Name);
+        return $"{ShaderProgram.Name}.{Name}";
     }
 }

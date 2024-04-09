@@ -1,11 +1,11 @@
 ﻿namespace KorpiEngine.Core;
 
-public struct Color
+public readonly struct Color
 {
-    public float R;
-    public float G;
-    public float B;
-    public float A;
+    public readonly float R;
+    public readonly float G;
+    public readonly float B;
+    public readonly float A;
 
 
     public Color(float r, float g, float b, float a)

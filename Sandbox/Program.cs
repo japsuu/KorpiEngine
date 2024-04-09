@@ -1,6 +1,8 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Materials;
+using KorpiEngine.Core.Rendering.Shaders.Variables;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
 using KorpiEngine.Core.Scripting.Components;
@@ -47,7 +49,15 @@ internal static class Program
         {
             _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Box");
             _blueBoxEntity.Transform.Position = new Vector3(0, 5, 0);
-            _blueBoxEntity.GetComponent<MeshRenderer>().Material.Color = new Color(0, 0, 1, 1);
+            Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material;
+            if (blueMaterial.TryGetUniformByName("a_Color", out Uniform<Color> colorUniform))
+            {
+                colorUniform.Value = new Color(0, 0, 1, 1);
+            }
+            else
+            {
+                Console.WriteLine("Uniform not found!");
+            }
 
             _player = Instantiate<PlayerController>("Player");
             _player.Transform.Position = new Vector3(0, 0, 0);
@@ -60,7 +70,7 @@ internal static class Program
 
             if (Input.KeyboardState.IsKeyPressed(Keys.Space))
             {
-                _player.Entity.GetComponent<IDamageable>().TakeDamage(10);
+                _player.Entity.GetComponent<IDamageable>()!.TakeDamage(10);
             }
         }
 

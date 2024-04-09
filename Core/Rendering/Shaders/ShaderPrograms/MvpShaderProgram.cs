@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Core.Rendering.Shaders.Variables;
+﻿/*using KorpiEngine.Core.Rendering.Shaders.Variables;
 using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
@@ -38,4 +38,4 @@ public class MVPShaderProgram : ShaderProgram
         
         base.Dispose(disposing);
     }
-}
+}*/

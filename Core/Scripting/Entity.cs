@@ -3,7 +3,6 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions;
-using Arch.Core.Utils;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting.Components;

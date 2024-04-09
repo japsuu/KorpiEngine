@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.Scripting.Components;
 public class MeshRenderer : Component
 {
     public Mesh Mesh { get; private set; }
-    public MaterialInstance Material { get; private set; }
+    public Material Material { get; private set; }
     
     
     public void SetMesh(Mesh mesh)

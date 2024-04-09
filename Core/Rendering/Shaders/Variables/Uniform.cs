@@ -38,13 +38,12 @@ public class Uniform<T> : ProgramVariable where T : struct
     }
 
 
-    internal Uniform()
-        : this(UniformSetter.Get<T>())
+    public Uniform() : this(UniformSetter.Get<T>())
     {
     }
 
 
-    public Uniform(Action<int, T> setter)
+    protected Uniform(Action<int, T> setter)
     {
         _setter = setter ?? throw new ArgumentNullException(nameof(setter));
     }

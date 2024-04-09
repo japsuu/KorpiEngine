@@ -5,7 +5,6 @@ using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Scripting;
-using KorpiEngine.Core.Scripting.Components;
 using Entity = KorpiEngine.Core.Scripting.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;

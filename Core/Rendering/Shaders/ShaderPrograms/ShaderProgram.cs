@@ -10,7 +10,7 @@ namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 /// <summary>
 /// Represents a shader shaderProgram object.
 /// </summary>
-public class ShaderProgram : GLObject
+public class ShaderProgram : GLObject       //TODO: Clean up from uniform stuff
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ShaderProgram));
 
@@ -121,13 +121,13 @@ public class ShaderProgram : GLObject
         // check shaderProgram info log
         string? info = GL.GetProgramInfoLog(Handle);
         if (!string.IsNullOrEmpty(info))
-            Logger?.InfoFormat("Link log:\n{0}", info);
+            Logger.InfoFormat("Link log:\n{0}", info);
 
         // log message and throw exception on link error
         if (linkStatus == 1)
             return;
         string msg = $"Error linking shaderProgram: {Name}";
-        Logger?.Error(msg);
+        Logger.Error(msg);
         throw new ProgramLinkException(msg, info);
     }
 }
