@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.Rendering;
+﻿using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Materials;
 
 namespace KorpiEngine.Core.Scripting.Components;
@@ -8,8 +9,10 @@ namespace KorpiEngine.Core.Scripting.Components;
 /// </summary>
 public class MeshRenderer : Component
 {
-    public Mesh Mesh { get; private set; }
-    public Material Material { get; private set; }
+    internal override Type NativeComponentType => typeof(MeshRendererComponent);
+    
+    public Mesh? Mesh { get; private set; }
+    public Material? Material { get; private set; }
     
     
     public void SetMesh(Mesh mesh)

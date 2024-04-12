@@ -223,7 +223,7 @@ public abstract class Texture : GLObject, IHasName
     internal void AssertLevel(int level)
     {
         if (!SupportsLevel(level))
-            throw new ArgumentException(string.Format("Texture does not contain the mipmap level {0} or does not support mipmapping at all.", level));
+            throw new ArgumentException($"Texture does not contain the mipmap level {level} or does not support mipmapping at all.");
     }
 
 

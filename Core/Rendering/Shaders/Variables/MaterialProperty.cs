@@ -1,16 +1,17 @@
 using System.Reflection;
+using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 
 /// <summary>
 /// Represents a shader variable identified by its name and the corresponding shaderProgram handle.
 /// </summary>
-public abstract class ProgramVariable
+public abstract class MaterialProperty
 {
     /// <summary>
     /// The handle of the shaderProgram to which this variable relates.
     /// </summary>
-    protected ShaderPrograms.ShaderProgram ShaderProgram { get; private set; } = null!;
+    protected ShaderProgram ShaderProgram { get; private set; } = null!;
 
     /// <summary>
     /// The handle of the shaderProgram to which this variable relates.
@@ -32,19 +33,29 @@ public abstract class ProgramVariable
     /// <summary>
     /// Initializes this instance using the given ShaderProgram and PropertyInfo.
     /// </summary>
-    internal virtual void Initialize(ShaderPrograms.ShaderProgram shaderProgram, PropertyInfo property)
+    internal void Initialize(ShaderProgram shaderProgram, PropertyInfo property)
     {
         ShaderProgram = shaderProgram;
         Name = property.Name;
+        InitializeVariable(shaderProgram, property);
     }
 
 
-    /// <summary>
-    /// When overridden in a derived class, handles initialization which must occur after the shaderProgram object is linked.
-    /// </summary>
-    internal virtual void OnLink()
+    protected virtual void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
     {
     }
+    
+    
+    internal void Bind()
+    {
+        if (!Active)
+            return;
+        ShaderProgram.AssertActive();
+        BindProperty();
+    }
+
+
+    protected abstract void BindProperty();
 
 
     public override string ToString()

@@ -44,6 +44,11 @@ public static class EngineConstants
     /// The level of anisotropic filtering to use for textures.
     /// </summary>
     public const int ANISOTROPIC_FILTERING_LEVEL = 16;
+    
+    /// <summary>
+    /// The base path of the internal shader files, relative to the project root.
+    /// </summary>
+    public const string INTERNAL_SHADER_BASE_PATH = "assets/shaders/";
 
     #endregion
 }

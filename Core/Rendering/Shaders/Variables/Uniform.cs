@@ -1,3 +1,4 @@
+using System.Reflection;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
@@ -5,10 +6,10 @@ using OpenTK.Graphics.OpenGL4;
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 
 /// <summary>
-/// Represents a uniform.
+/// Represents a shader uniform.
 /// </summary>
 /// <typeparam name="T">The type of the uniform.</typeparam>
-public class Uniform<T> : ProgramVariable where T : struct
+public class Uniform<T> : MaterialProperty where T : struct
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Uniform<T>));
 
@@ -24,18 +25,9 @@ public class Uniform<T> : ProgramVariable where T : struct
     private readonly Action<int, T> _setter;
 
     /// <summary>
-    /// The current value of the uniform.
+    /// The current value of the shader uniform.
     /// </summary>
-    private T _value;
-
-    /// <summary>
-    /// Gets or sets the current value of the shader uniform.
-    /// </summary>
-    public T Value
-    {
-        get => _value;
-        set => Set(value);
-    }
+    public T Value { get; set; }
 
 
     public Uniform() : this(UniformSetter.Get<T>())
@@ -49,7 +41,7 @@ public class Uniform<T> : ProgramVariable where T : struct
     }
 
 
-    internal override void OnLink()
+    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
     {
         Location = GL.GetUniformLocation(ProgramHandle, Name);
         Active = Location > -1;
@@ -58,16 +50,8 @@ public class Uniform<T> : ProgramVariable where T : struct
     }
 
 
-    /// <summary>
-    /// Sets the given value to the shaderProgram uniform.<br/>
-    /// Must be called on an active shaderProgram, i.e. after <see cref="ShaderProgram"/>.<see cref="ShaderProgram.Use()"/>.
-    /// </summary>
-    /// <param name="value">The value to set.</param>
-    public void Set(T value)
+    protected override void BindProperty()
     {
-        ShaderProgram.AssertActive();
-        _value = value;
-        if (Active)
-            _setter(Location, value);
+        _setter(Location, Value);
     }
 }

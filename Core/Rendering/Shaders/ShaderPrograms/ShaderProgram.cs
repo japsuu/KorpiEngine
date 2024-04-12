@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
-using KorpiEngine.Core.Rendering.Shaders.Variables;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
@@ -10,7 +8,7 @@ namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 /// <summary>
 /// Represents a shader shaderProgram object.
 /// </summary>
-public class ShaderProgram : GLObject       //TODO: Clean up from uniform stuff
+public sealed class ShaderProgram : GLObject
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ShaderProgram));
 
@@ -19,16 +17,13 @@ public class ShaderProgram : GLObject       //TODO: Clean up from uniform stuff
     /// </summary>
     public string Name => GetType().Name;
 
-    private List<ProgramVariable> _variables = null!;
-
 
     /// <summary>
     /// Initializes a new shaderProgram object.
     /// </summary>
-    protected ShaderProgram() : base(GL.CreateProgram())
+    internal ShaderProgram() : base(GL.CreateProgram())
     {
-        Logger.InfoFormat("Creating shader shaderProgram: {0}", Name);
-        InitializeShaderVariables();
+        Logger.InfoFormat("Creating shaderProgram: {0}", Name);
     }
 
 
@@ -37,20 +32,6 @@ public class ShaderProgram : GLObject       //TODO: Clean up from uniform stuff
         if (!manual)
             return;
         GL.DeleteProgram(Handle);
-    }
-
-
-    private void InitializeShaderVariables()
-    {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
-        _variables = new List<ProgramVariable>();
-        foreach (PropertyInfo property in GetType().GetProperties(flags).Where(i => typeof(ProgramVariable).IsAssignableFrom(i.PropertyType)))
-        {
-            ProgramVariable instance = (ProgramVariable)Activator.CreateInstance(property.PropertyType, true)!;
-            instance.Initialize(this, property);
-            property.SetValue(this, instance, null);
-            _variables.Add(instance);
-        }
     }
 
 
@@ -86,14 +67,11 @@ public class ShaderProgram : GLObject       //TODO: Clean up from uniform stuff
     /// <summary>
     /// Link the shaderProgram.
     /// </summary>
-    internal virtual void Link()
+    internal void Link()
     {
         Logger.DebugFormat("Linking shaderProgram: {0}", Name);
         GL.LinkProgram(Handle);
         CheckLinkStatus();
-
-        // call OnLink() on all ShaderVariables
-        _variables.ForEach(v => v.OnLink());
     }
 
 

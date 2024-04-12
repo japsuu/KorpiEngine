@@ -8,21 +8,12 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// </summary>
 public class TextureUniform<T> : Uniform<int> where T : Texture
 {
-    internal TextureUniform()
-        : base(GL.Uniform1)
+    public T? Texture;
+    public TextureUnit Unit;
+    
+    
+    internal TextureUniform() : base(GL.Uniform1)
     {
-    }
-
-
-    /// <summary>
-    /// Sets this uniform to sample from the given texture unit.<br/>
-    /// Calls to <see cref="Set(TextureUnit)"/> are equivalent to <see cref="Uniform{T}.Set"/>
-    /// with the corresponding integer, it just adds readability.
-    /// </summary>
-    /// <param name="unit">The texture unit to sample from.</param>
-    public void Set(TextureUnit unit)
-    {
-        Set((int)unit - (int)TextureUnit.Texture0);
     }
 
 
@@ -31,10 +22,22 @@ public class TextureUniform<T> : Uniform<int> where T : Texture
     /// </summary>
     /// <param name="unit">The texture unit to bind to.</param>
     /// <param name="texture">The texture to bind.</param>
-    public void BindTexture(TextureUnit unit, T texture)
+    public void Set(TextureUnit unit, T? texture)
     {
-        Set(unit);
-        texture.Bind(unit);
+        Unit = unit;
+        Value = (int)Unit - (int)TextureUnit.Texture0;
+        
+        if (Texture != null && texture == null)
+            Texture.Unbind();
+        
+        Texture = texture;
+    }
+
+
+    protected override void BindProperty()
+    {
+        Texture?.Bind(Unit);
+        base.BindProperty();
     }
 }
 

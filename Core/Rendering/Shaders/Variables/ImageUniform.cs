@@ -129,7 +129,7 @@ public sealed class ImageUniform : Uniform<int>
     /// <param name="format">Specifies the format that the elements of the texture will be treated as.</param>
     public void Bind(int imageUnit, int textureHandle, int level, bool layered, int layer, TextureAccess access, SizedInternalFormat format)
     {
-        Set(imageUnit);
+        Value = imageUnit;
         GL.BindImageTexture(imageUnit, textureHandle, level, layered, layer, access, format);
     }
 }

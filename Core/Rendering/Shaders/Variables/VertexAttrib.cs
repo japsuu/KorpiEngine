@@ -1,5 +1,6 @@
-using System.Reflection;
+/*using System.Reflection;
 using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -7,7 +8,7 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// <summary>
 /// Represents a vertex attribute.
 /// </summary>
-public sealed class VertexAttrib : ProgramVariable
+public sealed class VertexAttrib : MaterialProperty
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(VertexAttrib));
 
@@ -37,14 +38,19 @@ public sealed class VertexAttrib : ProgramVariable
     }
 
 
-    internal override void Initialize(ShaderPrograms.ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
     {
-        base.Initialize(shaderProgram, property);
         VertexAttribAttribute attribute = property.GetCustomAttributes<VertexAttribAttribute>(false).FirstOrDefault() ?? new VertexAttribAttribute();
         Components = attribute.Components;
         Type = attribute.Type;
         Normalized = attribute.Normalized;
-        if (attribute.Index > 0) BindAttribLocation(attribute.Index);
+        if (attribute.Index > 0)
+            BindAttribLocation(attribute.Index);
+        
+        Index = GL.GetAttribLocation(ProgramHandle, Name);
+        Active = Index > -1;
+        if (!Active)
+            Logger.WarnFormat("Vertex attribute not found or not active: {0}", Name);
     }
 
 
@@ -53,12 +59,4 @@ public sealed class VertexAttrib : ProgramVariable
         Index = index;
         GL.BindAttribLocation(ProgramHandle, index, Name);
     }
-
-
-    internal override void OnLink()
-    {
-        Index = GL.GetAttribLocation(ProgramHandle, Name);
-        Active = Index > -1;
-        if (!Active) Logger.WarnFormat("Vertex attribute not found or not active: {0}", Name);
-    }
-}
+}*/

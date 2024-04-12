@@ -1,5 +1,8 @@
-﻿using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+﻿using System.Reflection;
+using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+using KorpiEngine.Core.Rendering.Shaders.Variables;
 using KorpiEngine.Core.Rendering.Textures;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Materials;
 
@@ -10,7 +13,40 @@ namespace KorpiEngine.Core.Rendering.Materials;
 public abstract class Material
 {
     public abstract ShaderProgram GLShader { get; }
-    internal abstract void SetShaderProperties();
+
+    private List<MaterialProperty> _variables = null!;
+
+
+    protected Material()
+    {
+        InitializeMaterialProperties();
+    }
+    
+    
+    protected abstract void SetDefaultShaderProperties();
+
+
+    private void InitializeMaterialProperties()
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
+        _variables = new List<MaterialProperty>();
+        foreach (PropertyInfo property in GetType().GetProperties(flags).Where(i => typeof(MaterialProperty).IsAssignableFrom(i.PropertyType)))
+        {
+            MaterialProperty instance = (MaterialProperty)Activator.CreateInstance(property.PropertyType, true)!;
+            instance.Initialize(GLShader, property);
+            property.SetValue(this, instance, null);
+            _variables.Add(instance);
+        }
+        SetDefaultShaderProperties();
+    }
+    
+    
+    internal void Bind()
+    {
+        GLShader.Use();
+        foreach (MaterialProperty property in _variables)
+            property.Bind();
+    }
 }
 
 /// <summary>
@@ -33,10 +69,28 @@ public abstract class ShaderMaterial : Material
 /// </summary>
 public abstract class BaseMaterial3D : Material
 {
-    private Color _color = new(1f, 1f, 1f, 1f);
-    private Texture2D? _mainTexture = null;
+    public Color Color
+    {
+        get => _color.Value;
+        set => _color.Value = value;
+    }
     
-    public override ShaderProgram GLShader => ShaderManager.Standard3DShaderProgram;
+    public Texture2D? MainTexture
+    {
+        get => _mainTexture.Texture;
+        set => _mainTexture.Set(TextureUnit.Texture0, value);
+    }
+
+    private readonly Uniform<Color> _color = null!;
+    private readonly TextureUniform<Texture2D> _mainTexture = null!;
+    
+    public override ShaderProgram GLShader => ShaderManager.StandardShader3D;
+
+    
+    protected override void SetDefaultShaderProperties()
+    {
+        _color.Value = Color.White;
+    }
 }
 
 public class StandardMaterial3D : BaseMaterial3D
@@ -61,7 +115,7 @@ public class MaterialInstance   //TODO: Delayed property setting
     }
     
     
-    /// <summary>
+    /#1#// <summary>
     /// Tries to find and return a uniform by its name.
     /// Expensive operation, use sparingly.
     /// </summary>
@@ -81,7 +135,7 @@ public class MaterialInstance   //TODO: Delayed property setting
         // Set the property on the shader
         // This will depend on your Shader class implementation
         _material.GLShader.SetProperty(property.Name, value);
-    }
+    }#1#
 
 
     public void SetTexture1(Texture texture) => throw new NotImplementedException();

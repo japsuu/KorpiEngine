@@ -44,8 +44,8 @@ public struct SpriteRendererComponent : INativeComponent
 
 public struct MeshRendererComponent : INativeComponent
 {
-    public Mesh Mesh;
-    public MaterialInstance Material;
+    public Mesh? Mesh;
+    public Material? Material;
 }
 
 

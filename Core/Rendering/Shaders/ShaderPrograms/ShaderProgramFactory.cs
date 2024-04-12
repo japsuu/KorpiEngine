@@ -1,7 +1,6 @@
 using System.Text;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
-using KorpiEngine.Core.Rendering.Shaders.Sources;
 
 namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 
@@ -14,30 +13,27 @@ public static class ShaderProgramFactory
 
 
     /// <summary>
-    /// Initializes a shaderProgram object using the shader sources tagged to the type with <see cref="ShaderSourceAttribute"/>.
+    /// Initializes a shaderProgram object using the shader sources provided.
     /// </summary>
-    /// <typeparam name="T">Specifies the shaderProgram type to create.</typeparam>
     /// <returns>A compiled and linked shaderProgram.</returns>
-    public static T Create<T>(string shaderBasePath) where T : ShaderProgram
+    public static ShaderProgram Create(string shaderBasePath, List<ShaderSourceDescriptor> shaders)
     {
-        // retrieve shader types and filenames from attributes
-        List<ShaderSourceAttribute> shaders = ShaderSourceAttribute.GetShaderSources(typeof(T));
         if (shaders.Count == 0)
-            throw new OpenGLException($"ShaderSourceAttribute(s) missing for shader of type {typeof(T)}!");
+            throw new OpenGLException("No shaders provided for shaderProgram creation.");
 
-        // create shader shaderProgram instance
-        T program = (T)Activator.CreateInstance(typeof(T))!;
+        // Create a shader shaderProgram instance
+        ShaderProgram program = new();
         try
         {
             // compile and attach all shaders
-            foreach (ShaderSourceAttribute attribute in shaders)
+            foreach (ShaderSourceDescriptor sourceInfo in shaders)
             {
                 // create a new shader of the appropriate type
-                using GLShader glShader = new(attribute.Type);
-                Logger?.Debug($"Compiling {attribute.Type}: {attribute.SourceLocation}");
+                using GLShader glShader = new(sourceInfo.Type);
+                Logger?.Debug($"Compiling {sourceInfo.Type}: {sourceInfo.SourceLocation}");
 
                 // load the source
-                string source = GetShaderSource(shaderBasePath, attribute.SourceLocation, glShader.SourceFiles);
+                string source = GetShaderSource(shaderBasePath, sourceInfo.SourceLocation, glShader.SourceFiles);
 
                 // compile shader source
                 glShader.CompileSource(source);

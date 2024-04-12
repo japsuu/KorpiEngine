@@ -155,7 +155,7 @@ public abstract class Camera : Behaviour, IDisposable, IComparable<Camera>
     /// </summary>
     private void RecalculateViewMatrix()
     {
-        ViewMatrix = Matrix4.LookAt(Position, Position + Forward, Up);
+        ViewMatrix = Matrix4.LookAt(Transform.Position, Transform.Position + Transform.Forward, Transform.Up);
         RecalculateFrustum();
     }
 

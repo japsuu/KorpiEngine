@@ -1,3 +1,5 @@
+using System.Reflection;
+using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -13,12 +15,13 @@ public sealed class UniformBuffer : BufferBinding
     }
 
 
-    internal override void OnLink()
+    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
     {
-        base.OnLink();
-
-        // retrieve the default binding point
-        if (Active) GL.GetActiveUniformBlock(ProgramHandle, Index, ActiveUniformBlockParameter.UniformBlockBinding, out Binding);
+        base.InitializeVariable(shaderProgram, property);
+        
+        // Retrieve the default binding point
+        if (Active)
+            GL.GetActiveUniformBlock(ProgramHandle, Index, ActiveUniformBlockParameter.UniformBlockBinding, out Binding);
     }
 
 
@@ -52,8 +55,7 @@ public sealed class UniformBuffer : BufferBinding
     /// <param name="offsets">The offsets of the uniforms within the block.</param>
     public void GetBlockOffsets(out int[] offsets)
     {
-        int uniforms;
-        GL.GetActiveUniformBlock(ProgramHandle, Index, ActiveUniformBlockParameter.UniformBlockActiveUniforms, out uniforms);
+        GL.GetActiveUniformBlock(ProgramHandle, Index, ActiveUniformBlockParameter.UniformBlockActiveUniforms, out int uniforms);
         int[] indices = new int[uniforms];
         GL.GetActiveUniformBlock(ProgramHandle, Index, ActiveUniformBlockParameter.UniformBlockActiveUniformIndices, indices);
         offsets = new int[uniforms];
