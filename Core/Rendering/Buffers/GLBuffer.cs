@@ -7,8 +7,7 @@ namespace KorpiEngine.Core.Rendering.Buffers;
 /// Represents a buffer object.
 /// </summary>
 /// <typeparam name="T">The type of elements in the buffer object.</typeparam>
-public class Buffer<T> : GLObject
-    where T : struct
+public class GLBuffer<T> : GLObject where T : struct
 {
     /// <summary>
     /// A value indicating whether the buffer has been initialized and thus has access to allocated memory.
@@ -54,7 +53,7 @@ public class Buffer<T> : GLObject
     /// <summary>
     /// Creates a new, uninitialized buffer object using an explicitly given element size in bytes.
     /// </summary>
-    public Buffer(int elementSize) : base(GL.GenBuffer())
+    public GLBuffer(int elementSize) : base(GL.GenBuffer())
     {
         Initialized = false;
         ElementSize = elementSize;
@@ -64,14 +63,15 @@ public class Buffer<T> : GLObject
     /// <summary>
     /// Creates a new, uninitialized buffer object using the element size determined by Marshal.SizeOf().
     /// </summary>
-    public Buffer() : this(Marshal.SizeOf(typeof(T)))
+    public GLBuffer() : this(Marshal.SizeOf(typeof(T)))
     {
     }
 
 
     protected override void Dispose(bool manual)
     {
-        if (!manual) return;
+        if (!manual)
+            return;
         GL.DeleteBuffer(Handle);
     }
 
@@ -131,8 +131,7 @@ public class Buffer<T> : GLObject
     public void SubData(BufferTarget bufferTarget, T[] data)
     {
         if (data.Length > ElementCount)
-            throw new ArgumentException(
-                string.Format("Buffer not large enough to hold data. Buffer size: {0}. Elements to write: {1}.", ElementCount, data.Length));
+            throw new ArgumentException($"Buffer not large enough to hold data. Buffer size: {ElementCount}. Elements to write: {data.Length}.");
 
         // check if data does not fit at the end of the buffer
         int rest = ElementCount - CurrentElementIndex;
@@ -145,11 +144,13 @@ public class Buffer<T> : GLObject
             CurrentElementIndex += data.Length;
 
             // remember the total number of elements with data
-            if (ActiveElementCount < CurrentElementIndex) ActiveElementCount = CurrentElementIndex;
+            if (ActiveElementCount < CurrentElementIndex)
+                ActiveElementCount = CurrentElementIndex;
 
             // skip back if the end was reached
             // in this case it can only be reached exactly because otherwise it would be handled by the else-case
-            if (CurrentElementIndex >= ElementCount) CurrentElementIndex = 0;
+            if (CurrentElementIndex >= ElementCount)
+                CurrentElementIndex = 0;
         }
         else
         {
@@ -191,11 +192,9 @@ public class Buffer<T> : GLObject
     public void SubData(BufferTarget bufferTarget, T[] data, int offset, int count)
     {
         if (count > ElementCount - offset)
-            throw new ArgumentException(
-                string.Format("Buffer not large enough to hold data. Buffer size: {0}. Offset: {1}. Elements to write: {2}.", ElementCount, offset, count));
+            throw new ArgumentException($"Buffer not large enough to hold data. Buffer size: {ElementCount}. Offset: {offset}. Elements to write: {count}.");
         if (count > data.Length)
-            throw new ArgumentException(
-                string.Format("Not enough data to write to buffer. Data length: {0}. Elements to write: {1}.", data.Length, count));
+            throw new ArgumentException($"Not enough data to write to buffer. Data length: {data.Length}. Elements to write: {count}.");
         GL.BindBuffer(bufferTarget, Handle);
         GL.BufferSubData(bufferTarget, (IntPtr)(ElementSize * offset), (IntPtr)(ElementSize * count), data);
     }
@@ -221,7 +220,8 @@ public class Buffer<T> : GLObject
     /// <param name="usageHint">The usage hint of the buffer object.</param>
     public void Orphan(BufferTarget bufferTarget, BufferUsageHint usageHint = BufferUsageHint.StaticDraw)
     {
-        if (!Initialized) throw new InvalidOperationException("Can not orphan uninitialized buffer.");
+        if (!Initialized)
+            throw new InvalidOperationException("Can not orphan uninitialized buffer.");
         Init(bufferTarget, ElementCount, usageHint);
 
         // GL 4.3
@@ -237,7 +237,7 @@ public class Buffer<T> : GLObject
     /// <param name="readOffset">Element offset into the source buffer.</param>
     /// <param name="writeOffset">Element offset into this buffer</param>
     /// <param name="count">The Number of elements to copy.</param>
-    public void CopyFrom(Buffer<T> source, int readOffset, int writeOffset, int count)
+    public void CopyFrom(GLBuffer<T> source, int readOffset, int writeOffset, int count)
     {
         GL.BindBuffer(BufferTarget.CopyReadBuffer, source.Handle);
         GL.BindBuffer(BufferTarget.CopyWriteBuffer, Handle);
@@ -251,7 +251,7 @@ public class Buffer<T> : GLObject
     /// Copies elements from the source buffer to this buffer until the end of either buffer is reached.
     /// </summary>
     /// <param name="source">The source buffer to copy elements from.</param>
-    public void CopyFrom(Buffer<T> source)
+    public void CopyFrom(GLBuffer<T> source)
     {
         CopyFrom(source, 0, 0, Math.Min(ElementCount, source.ElementCount));
     }
@@ -266,6 +266,6 @@ public class Buffer<T> : GLObject
         GL.GetBufferParameter(bufferTarget, BufferParameterName.BufferSize, out uploadedSize);
         if (uploadedSize != size)
             throw new ApplicationException(
-                string.Format("Problem uploading data to buffer object. Tried to upload {0} bytes, but uploaded {1}.", size, uploadedSize));
+                $"Problem uploading data to buffer object. Tried to upload {size} bytes, but uploaded {uploadedSize}.");
     }
 }

@@ -67,7 +67,7 @@ public abstract class BufferBinding : MaterialProperty
     /// </summary>
     /// <typeparam name="T">The type of the container elements.</typeparam>
     /// <param name="buffer">The buffer to bind.</param>
-    public void SetBuffer<T>(Buffer<T> buffer) where T : struct
+    public void SetBuffer<T>(GLBuffer<T> buffer) where T : struct
     {
         _bufferHandle = buffer.Handle;
         _isRange = false;
@@ -81,7 +81,7 @@ public abstract class BufferBinding : MaterialProperty
     /// <param name="buffer">The buffer to bind.</param>
     /// <param name="offset">The starting offset in basic machine units into the buffer object buffer. </param>
     /// <param name="size">The amount of data in machine units that can be read from the buffer object while used as an indexed target. </param>
-    public void SetBuffer<T>(Buffer<T> buffer, int offset, int size) where T : struct
+    public void SetBuffer<T>(GLBuffer<T> buffer, int offset, int size) where T : struct
     {
         _bufferHandle = buffer.Handle;
         _isRange = true;

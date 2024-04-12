@@ -1,7 +1,9 @@
 ﻿using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.GraphicsDrivers;
 using KorpiEngine.Core.Rendering.Shaders;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -28,6 +30,7 @@ public abstract class Game : IDisposable
 
     protected Game(WindowingSettings settings)
     {
+        Graphics.Initialize(new GLGraphicsDriver());
         Window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         _imGuiController = new ImGuiController(Window);
         
@@ -165,6 +168,7 @@ public abstract class Game : IDisposable
         OnUnloadContent();
         
         GlobalJobPool.Shutdown();
+        Graphics.Shutdown();
     }
 
 

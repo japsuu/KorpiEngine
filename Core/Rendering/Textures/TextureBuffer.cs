@@ -32,7 +32,7 @@ public sealed class TextureBuffer : Texture
     /// Applies the internal format specified in the constructor.
     /// </summary>
     /// <param name="buffer">The buffer to bind.</param>
-    public void BindBufferToTexture<T>(Buffer<T> buffer)
+    public void BindBufferToTexture<T>(GLBuffer<T> buffer)
         where T : struct
     {
         BindBufferToTexture(buffer, InternalFormat);
@@ -45,7 +45,7 @@ public sealed class TextureBuffer : Texture
     /// <param name="buffer">The buffer to bind.</param>
     /// <param name="internalFormat">The internal format used when accessing the buffer.</param>
     /// <typeparam name="T">The type of elements in the buffer object.</typeparam>
-    public void BindBufferToTexture<T>(Buffer<T> buffer, SizedInternalFormat internalFormat)
+    public void BindBufferToTexture<T>(GLBuffer<T> buffer, SizedInternalFormat internalFormat)
         where T : struct
     {
         if (!buffer.Initialized) throw new ArgumentException("Can not bind uninitialized buffer to buffer texture.", "buffer");
