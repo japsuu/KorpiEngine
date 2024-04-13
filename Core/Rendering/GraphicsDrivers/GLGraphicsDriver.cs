@@ -1,19 +1,39 @@
-﻿namespace KorpiEngine.Core.Rendering.GraphicsDrivers;
+﻿using KorpiEngine.Core.Logging;
+
+namespace KorpiEngine.Core.Rendering.GraphicsDrivers;
 
 /// <summary>
 /// OpenGL graphics driver.
 /// </summary>
 public class GLGraphicsDriver : GraphicsDriver
 {
-    public override void Initialize() { }
+    protected override void InitializeInternal() { }
 
 
-    public override void Shutdown() { }
+    protected override void ShutdownInternal() { }
 }
 
 public abstract class GraphicsDriver
 {
-    public abstract void Initialize();
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDriver));
     
-    public abstract void Shutdown();
+    
+    public void Initialize()
+    {
+        Logger.Info("Initializing...");
+        InitializeInternal();
+    }
+
+
+    protected abstract void InitializeInternal();
+
+
+    public void Shutdown()
+    {
+        Logger.Info("Shutting down...");
+        ShutdownInternal();
+    }
+
+
+    protected abstract void ShutdownInternal();
 }

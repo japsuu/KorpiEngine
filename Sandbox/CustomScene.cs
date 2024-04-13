@@ -52,6 +52,6 @@ internal class CustomScene : Scene
         const float moveSpeed = 0.1f;
         _blueBoxEntity.Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);*/
             
-        Console.WriteLine($"Blue Box position: {_blueBoxEntity.Transform.Position}");
+        // Console.WriteLine($"Blue Box position: {_blueBoxEntity.Transform.Position}");
     }
 }

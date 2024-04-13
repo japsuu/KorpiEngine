@@ -50,7 +50,6 @@ public class ImGuiController : IDisposable
     {
         _window = window;
         window.Resize += args => WindowResized(args.Width, args.Height);
-        window.Unload += DestroyDeviceObjects;
         window.TextInput += e => PressChar((char)e.Unicode);
         window.MouseWheel += e => MouseScroll(e.Offset);
         
@@ -86,11 +85,6 @@ public class ImGuiController : IDisposable
     {
         _windowWidth = width;
         _windowHeight = height;
-    }
-
-    public void DestroyDeviceObjects()
-    {
-        Dispose();
     }
 
     public void CreateDeviceResources()

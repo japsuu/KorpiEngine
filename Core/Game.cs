@@ -21,7 +21,7 @@ public abstract class Game : IDisposable
 {
     // Protected:
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Game));
-    private readonly KorpiWindow Window;
+    private readonly KorpiWindow _window;
     
     // Private:
     private readonly ImGuiController _imGuiController;
@@ -30,14 +30,26 @@ public abstract class Game : IDisposable
 
     protected Game(WindowingSettings settings)
     {
+        InitializeLog4Net();
+
         Graphics.Initialize(new GLGraphicsDriver());
-        Window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        _imGuiController = new ImGuiController(Window);
+        _window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
+        _imGuiController = new ImGuiController(_window);
         
-        Window.Load += OnLoad;
-        Window.UpdateFrame += OnUpdateFrame;
-        Window.RenderFrame += OnRenderFrame;
-        Window.Unload += OnUnload;
+        _window.Load += OnLoad;
+        _window.UpdateFrame += OnUpdateFrame;
+        _window.RenderFrame += OnRenderFrame;
+        _window.Unload += OnUnload;
+    }
+
+
+    private static void InitializeLog4Net()
+    {
+        // Add support for additional encodings (code pages), required by Log4Net.
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        
+        // Initialize the Log4Net configuration.
+        LogFactory.Initialize("log4net.config");
     }
 
 
@@ -46,7 +58,7 @@ public abstract class Game : IDisposable
     /// </summary>
     public void Run()
     {
-        Window.Run();
+        _window.Run();
     }
 
 
@@ -56,8 +68,8 @@ public abstract class Game : IDisposable
         GlobalJobPool.Initialize();
         
         // Queue window visibility after all internal resources are loaded.
-        Window.CenterWindow();
-        Window.IsVisible = true;
+        _window.CenterWindow();
+        _window.IsVisible = true;
         
         OnLoadContent();
     }
@@ -138,7 +150,7 @@ public abstract class Game : IDisposable
     private void InternalUpdate(double deltaTime, double fixedAlpha)
     {
         Time.Update(deltaTime, fixedAlpha);
-        Input.Update(Window.KeyboardState, Window.MouseState);
+        Input.Update(_window.KeyboardState, _window.MouseState);
         
         ImGuiWindowManager.Update();
         _imGuiController.Update();
@@ -208,7 +220,7 @@ public abstract class Game : IDisposable
     {
         ImGuiWindowManager.Dispose();
         _imGuiController.Dispose();
-        Window.Dispose();
+        _window.Dispose();
         GC.SuppressFinalize(this);
     }
 }
