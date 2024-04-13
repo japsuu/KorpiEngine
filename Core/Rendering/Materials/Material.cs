@@ -14,7 +14,7 @@ public abstract class Material
 {
     public abstract ShaderProgram GLShader { get; }
 
-    private List<MaterialProperty> _variables = null!;
+    private List<MaterialProperty> _properties = null!;
 
 
     protected Material()
@@ -23,28 +23,22 @@ public abstract class Material
     }
     
     
-    protected abstract void SetDefaultShaderProperties();
+    protected abstract void RegisterMaterialProperties(List<MaterialProperty> properties);
+    protected abstract void SetMaterialPropertyDefaults();
 
 
     private void InitializeMaterialProperties()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
-        _variables = new List<MaterialProperty>();
-        foreach (PropertyInfo property in GetType().GetProperties(flags).Where(i => typeof(MaterialProperty).IsAssignableFrom(i.PropertyType)))
-        {
-            MaterialProperty instance = (MaterialProperty)Activator.CreateInstance(property.PropertyType, true)!;
-            instance.Initialize(GLShader, property);
-            property.SetValue(this, instance, null);
-            _variables.Add(instance);
-        }
-        SetDefaultShaderProperties();
+        _properties = new List<MaterialProperty>();
+        RegisterMaterialProperties(_properties);
+        SetMaterialPropertyDefaults();
     }
-    
-    
+
+
     internal void Bind()
     {
         GLShader.Use();
-        foreach (MaterialProperty property in _variables)
+        foreach (MaterialProperty property in _properties)
             property.Bind();
     }
 }
@@ -81,13 +75,23 @@ public abstract class BaseMaterial3D : Material
         set => _mainTexture.Set(TextureUnit.Texture0, value);
     }
 
-    private readonly Uniform<Color> _color = null!;
-    private readonly TextureUniform<Texture2D> _mainTexture = null!;
+    private Uniform<Color> _color { get; set; } = null!;
+    private TextureUniform<Texture2D> _mainTexture { get; set; } = null!;
     
     public override ShaderProgram GLShader => ShaderManager.StandardShader3D;
 
     
-    protected override void SetDefaultShaderProperties()
+    protected override void RegisterMaterialProperties(List<MaterialProperty> properties)
+    {
+        _color = new Uniform<Color>();
+        _mainTexture = new TextureUniform<Texture2D>();
+        
+        properties.Add(_color);
+        properties.Add(_mainTexture);
+    }
+
+    
+    protected override void SetMaterialPropertyDefaults()
     {
         _color.Value = Color.White;
     }

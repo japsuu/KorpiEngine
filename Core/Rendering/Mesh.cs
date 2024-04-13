@@ -119,12 +119,12 @@ public enum IndexFormat
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh : IDisposable
+public sealed class Mesh/* : IDisposable*/
 {
     /// <summary>
     /// The format of the mesh index buffer data.
     /// </summary>
-    public IndexFormat IndexFormat { get; private set; }
+    public IndexFormat IndexFormat { get; private set; } = IndexFormat.UInt16;
 
     /// <summary>
     /// The number of active vertex attributes (see <see cref="VertexAttributeDescriptor"/>).
@@ -148,36 +148,28 @@ public sealed class Mesh : IDisposable
     /// When the mesh is marked as readable, the vertex data is also kept in CPU-accessible memory (in addition to GPU memory).<br/>
     /// When the mesh is not marked as readable, the vertex data is uploaded to GPU memory and discarded from CPU memory.
     /// </summary>
-    public bool IsReadable { get; private set; }
+    public bool IsReadable { get; private set; } = true;
 
-    private VertexAttributeDescriptor[]? _vertexAttributes;
-    private bool[] _enabledVertexAttributes;    //TODO: Does not take in to account empty arrays.
-    private bool _isDirty;
+    private VertexAttributeDescriptor[]? _vertexLayout;
+    private bool[] _enabledVertexAttributes = new bool[8];    //TODO: Does not take in to account empty arrays.
+    private bool _isDirty = true;
     private int _vertexSizeBytes;
     private byte[]? _vertexDataBuffer;
     private byte[]? _indexDataBuffer;
-    private readonly GLBuffer<byte> _vertexBuffer;
-    private readonly GLBuffer<byte> _indexBuffer;
-
-
-    public Mesh()
-    {
-        IsReadable = true;
-        _isDirty = true;
-        IndexFormat = IndexFormat.UInt16;
-        _enabledVertexAttributes = new bool[8];
-
-        _vertexBuffer = new GLBuffer<byte>(1);
-        _indexBuffer = new GLBuffer<byte>(1);
-
-        SetVertexBufferParams(0, StandardVertex3D.Attributes);
-    }
+    /*private GLBuffer<byte>? _vertexBuffer;
+    private GLBuffer<byte>? _indexBuffer;
 
 
     public void Dispose()
     {
-        _vertexBuffer.Dispose();
-        _indexBuffer.Dispose();
+        _vertexBuffer?.Dispose();
+        _indexBuffer?.Dispose();
+    }*/
+
+
+    public Mesh()
+    {
+        SetVertexBufferLayout(StandardVertex3D.Attributes);
     }
 
 
@@ -197,7 +189,7 @@ public sealed class Mesh : IDisposable
             return;
 
         VertexAttributeCount = 0;
-        _vertexAttributes = null;
+        _vertexLayout = null;
         _enabledVertexAttributes = new bool[8];
     }
 
@@ -236,7 +228,7 @@ public sealed class Mesh : IDisposable
     public int GetPositions(Vector3[] data) => GetVertexAttributes(data, VertexAttribute.Position);
 
 
-    public void SetNormals(Vector3[] normals)
+    public void SetNormals(Vector3[]? normals)
     {
         SetVertexAttributes(normals, VertexAttribute.Normal);
     }
@@ -250,7 +242,7 @@ public sealed class Mesh : IDisposable
     public int GetNormals(Vector3[] data) => GetVertexAttributes(data, VertexAttribute.Normal);
 
 
-    public void SetTangents(Vector3[] tangents)
+    public void SetTangents(Vector3[]? tangents)
     {
         SetVertexAttributes(tangents, VertexAttribute.Tangent);
     }
@@ -264,7 +256,7 @@ public sealed class Mesh : IDisposable
     public int GetTangents(Vector3[] data) => GetVertexAttributes(data, VertexAttribute.Tangent);
 
 
-    public void SetColors(Color32[] colors)
+    public void SetColors(Color32[]? colors)
     {
         SetVertexAttributes(colors, VertexAttribute.Color);
     }
@@ -287,7 +279,7 @@ public sealed class Mesh : IDisposable
     /// </summary>
     /// <param name="channel">The UV channel in [0..7] range to set.</param>
     /// <param name="uvs">The UV data to set.</param>
-    public void SetUVs(int channel, Vector2[] uvs)
+    public void SetUVs(Vector2[]? uvs, int channel)
     {
         SetVertexAttributes(uvs, VertexAttribute.TexCoord0 + channel);
     }
@@ -299,7 +291,7 @@ public sealed class Mesh : IDisposable
     /// <param name="channel">The UV channel in [0..7] range to get.</param>
     /// <param name="data">The array to fill with UVs.</param>
     /// <returns>The number of UVs written to the array.</returns>
-    public int GetUVs(int channel, Vector2[] data) => GetVertexAttributes(data, VertexAttribute.TexCoord0 + channel);
+    public int GetUVs(Vector2[] data, int channel) => GetVertexAttributes(data, VertexAttribute.TexCoord0 + channel);
 
 
     public void SetIndices(int[] indices)
@@ -382,16 +374,8 @@ public sealed class Mesh : IDisposable
     /// <param name="attributes">The layout of the vertex attributes.</param>
     public void SetVertexBufferParams(int vertexCount, params VertexAttributeDescriptor[] attributes)
     {
-        VertexAttributeCount = attributes.Length;
-        _vertexAttributes = attributes;
-        VertexCount = vertexCount;
-        foreach (VertexAttributeDescriptor d in attributes)
-            _enabledVertexAttributes[(int)d.Attribute] = true;
-
-        // Set the vertex buffer size
-        int vertexSize = attributes.Sum(attribute => attribute.ByteSize);
-        _vertexDataBuffer = new byte[vertexCount * vertexSize];
-        _vertexSizeBytes = vertexSize;
+        SetVertexBufferLayout(attributes);
+        SetVertexBufferSize(vertexCount);
 
         _isDirty = true;
     }
@@ -410,7 +394,7 @@ public sealed class Mesh : IDisposable
     {
         ArraySegment<TVertex> data = new(vertexData, vertexDataStart, vertexDataCount);
 
-        WriteStructData(data, _vertexDataBuffer, _vertexSizeBytes);
+        WriteStructData(data, ref _vertexDataBuffer, _vertexSizeBytes);
     }
 
 
@@ -445,6 +429,26 @@ public sealed class Mesh : IDisposable
 
         return structArray;
     }
+    
+    
+    public void SetVertexBufferLayout(params VertexAttributeDescriptor[] attributes)
+    {
+        VertexAttributeCount = attributes.Length;
+        _vertexLayout = attributes;
+        foreach (VertexAttributeDescriptor d in attributes)
+            _enabledVertexAttributes[(int)d.Attribute] = true;
+
+        // Set the vertex buffer size
+        int vertexSize = attributes.Sum(attribute => attribute.ByteSize);
+        _vertexSizeBytes = vertexSize;
+    }
+
+
+    private void SetVertexBufferSize(int vertexCount)
+    {
+        VertexCount = vertexCount;
+        _vertexDataBuffer = new byte[vertexCount * _vertexSizeBytes];
+    }
 
 
     /// <summary>
@@ -475,7 +479,7 @@ public sealed class Mesh : IDisposable
         ArraySegment<TIndex> data = new(indexData, indexDataStart, indexDataCount);
 
         int stride = IndexFormat == IndexFormat.UInt16 ? 2 : 4;
-        WriteStructData(data, _indexDataBuffer, stride);
+        WriteStructData(data, ref _indexDataBuffer, stride);
     }
 
 
@@ -513,13 +517,13 @@ public sealed class Mesh : IDisposable
     /// <returns>The vertex attribute descriptor.</returns>
     public VertexAttributeDescriptor GetVertexAttribute(int index)
     {
-        if (_vertexAttributes == null)
+        if (_vertexLayout == null)
             throw new InvalidOperationException($"The vertex buffer has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
 
         if (index < 0 || index >= VertexAttributeCount)
             throw new ArgumentOutOfRangeException(nameof(index), $"The index must be in the range [0, {VertexAttributeCount - 1}].");
 
-        return _vertexAttributes[index];
+        return _vertexLayout[index];
     }
 
     #endregion
@@ -562,7 +566,7 @@ public sealed class Mesh : IDisposable
                 };
 
                 mesh.SetPositions(positions);
-                mesh.SetUVs(0, uvs);
+                mesh.SetUVs(uvs, 0);
                 mesh.SetIndices(indices);
 
                 break;
@@ -580,12 +584,14 @@ public sealed class Mesh : IDisposable
     /// Completely overwrites the destination buffer with the source data.
     /// The byte side of the source data must match the stride.
     /// </summary>
-    private static void WriteStructData<TStruct>(ArraySegment<TStruct> source, byte[]? destination, int stride) where TStruct : struct
+    private static void WriteStructData<TStruct>(ArraySegment<TStruct> source, ref byte[]? destination, int stride) where TStruct : struct
     {
         int structSizeBytes = Marshal.SizeOf(typeof(TStruct));
 
         if (structSizeBytes != stride)
             throw new ArgumentException("The size of the vertex data does not match the vertex attribute layout of the mesh.", nameof(source));
+        
+        destination = new byte[source.Count * structSizeBytes];
 
         WriteStructData(source, destination, 0, stride, structSizeBytes);
     }
@@ -651,12 +657,12 @@ public sealed class Mesh : IDisposable
     /// <exception cref="ArgumentException"></exception>
     private int GetVertexAttributeOffset(VertexAttribute attribute)
     {
-        if (_vertexAttributes == null)
+        if (_vertexLayout == null)
             throw new InvalidOperationException($"The vertex buffer has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
 
         //TODO: Cache this offset for each attribute, like the enabled attributes
         int offset = 0;
-        foreach (VertexAttributeDescriptor d in _vertexAttributes)
+        foreach (VertexAttributeDescriptor d in _vertexLayout)
         {
             if (d.Attribute == attribute)
                 return offset;
@@ -686,14 +692,22 @@ public sealed class Mesh : IDisposable
     }
 
 
-    private void SetVertexAttributes<T>(T[] data, VertexAttribute attribute) where T : struct
+    private void SetVertexAttributes<T>(T[]? data, VertexAttribute attribute) where T : struct
     {
-        if (VertexCount != 0 && VertexCount != data.Length)
+        if (VertexCount != 0 && data != null && VertexCount != data.Length)
             throw new ArgumentException($"The number of elements '{attribute}' must match the number of vertices in the mesh.", nameof(data));
 
         if (!IsVertexAttributeEnabled(attribute))
             throw new InvalidOperationException($"The '{attribute}' vertex attribute is not enabled.");
 
+        if (data == null)
+            throw new NotImplementedException("Clearing vertex attributes is not yet implemented.");
+
+        if (_vertexDataBuffer == null)
+        {
+            SetVertexBufferSize(data.Length);
+        }
+        
         int offset = GetVertexAttributeOffset(attribute);
         WriteStructData<T>(data, _vertexDataBuffer, offset, _vertexSizeBytes, Marshal.SizeOf<T>());
     }

@@ -76,11 +76,14 @@ public sealed class Entity
             // The provided type is a component, so get the native component type for it.
             // Create a new instance of the provided type using reflection, to basically call T.NativeComponentType.
             object instance = Activator.CreateInstance(typeof(T))!;
-            
-            Type nativeComponentType = ((Component)instance).NativeComponentType;   // We know 'instance' is a component, so cast it to one to access the NativeComponentType property.
+
+            Component componentInstance = (Component)instance;
+            Type nativeComponentType = componentInstance.NativeComponentType;   // We know 'instance' is a component, so cast it to one to access the NativeComponentType property.
             
             if (!HasNativeComponent(nativeComponentType))
                 return null;
+            
+            componentInstance.Bind(this);   // Attach the component to this entity.
 
             return (T)instance; // We know T is a component, so cast and return instance.
         }

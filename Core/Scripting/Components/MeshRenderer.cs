@@ -10,13 +10,16 @@ namespace KorpiEngine.Core.Scripting.Components;
 public class MeshRenderer : Component
 {
     internal override Type NativeComponentType => typeof(MeshRendererComponent);
-    
-    public Mesh? Mesh { get; private set; }
-    public Material? Material { get; private set; }
-    
-    
-    public void SetMesh(Mesh mesh)
+
+    public Mesh? Mesh
     {
-        Mesh = mesh;
+        get => Entity.GetNativeComponent<MeshRendererComponent>().Mesh;
+        set => Entity.GetNativeComponent<MeshRendererComponent>().Mesh = value;
+    }
+
+    public Material? Material
+    {
+        get => Entity.GetNativeComponent<MeshRendererComponent>().Material;
+        set => Entity.GetNativeComponent<MeshRendererComponent>().Material = value;
     }
 }

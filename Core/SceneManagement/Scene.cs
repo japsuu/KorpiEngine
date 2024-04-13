@@ -4,6 +4,7 @@ using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Scripting;
 using Entity = KorpiEngine.Core.Scripting.Entity;
 
@@ -57,7 +58,9 @@ public abstract class Scene : IDisposable
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
-        e.AddNativeComponent<MeshRendererComponent>().Mesh = Mesh.CreatePrimitive(primitiveType);
+        ref MeshRendererComponent c = ref e.AddNativeComponent<MeshRendererComponent>();
+        c.Mesh = Mesh.CreatePrimitive(primitiveType);
+        c.Material = new StandardMaterial3D();
         return e;
     }
 
