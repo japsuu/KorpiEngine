@@ -19,7 +19,7 @@ public class Behaviour : Component
     /// <summary>
     /// True if Awake and Start have been called.
     /// </summary>
-    internal bool HasBeenInitialized { get; private set; }  //TODO: Use this to call Awake & Start only once
+    internal bool HasBeenInitialized { get; private set; }
 
 
     internal override Type NativeComponentType => typeof(BehaviourComponent);
