@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All", "All\All.csproj", "{F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{D41975F3-25BE-436F-A7A1-91A7122DA069}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
