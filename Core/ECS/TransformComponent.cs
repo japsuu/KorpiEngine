@@ -6,6 +6,13 @@ public struct TransformComponent : INativeComponent
 {
     public Matrix4 Transform;
 
+
+    public TransformComponent()
+    {
+        Transform = Matrix4.Identity;
+    }
+    
+
     public Vector3 Position
     {
         get => Transform.ExtractTranslation();
@@ -23,7 +30,17 @@ public struct TransformComponent : INativeComponent
         get => Transform.ExtractRotation();
         set
         {
-            throw new NotImplementedException();
+            // Create a rotation matrix from the provided quaternion
+            Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(value);
+
+            // Extract the current translation from the Transform
+            Vector3 translation = Transform.ExtractTranslation();
+
+            // Extract the current scale from the Transform
+            Vector3 scale = Transform.ExtractScale();
+
+            // Combine the rotation, translation and scale back into the Transform
+            Transform = Matrix4.CreateScale(scale) * rotationMatrix * Matrix4.CreateTranslation(translation);
         }
     }
 
@@ -32,7 +49,7 @@ public struct TransformComponent : INativeComponent
         get => Transform.ExtractScale();
         set
         {
-            // The Transform.ExtractScale() method seems to internally call this code:
+            // The Transform.ExtractScale() method calls internally this code:
             // Vector3 xyz = this.Row0.Xyz;
             // double length1 = (double) xyz.Length;
             // xyz = this.Row1.Xyz;
@@ -50,22 +67,32 @@ public struct TransformComponent : INativeComponent
 
     public Vector3 EulerAngles
     {
-        get => Transform.ExtractRotation().ToEulerAngles();
+        get
+        {
+            Vector3 eulerAnglesInRadians = Rotation.ToEulerAngles();
+            Vector3 eulerAnglesInDegrees = eulerAnglesInRadians * (180.0f / MathF.PI);
+            return eulerAnglesInDegrees;
+        }
         set
         {
-            throw new NotImplementedException();
+            Vector3 eulerAnglesInRadians = value * (MathF.PI / 180.0f);
+            Rotation = Quaternion.FromEulerAngles(eulerAnglesInRadians);
         }
+    }
+
+    public Vector3 EulerAnglesRadians
+    {
+        get => Rotation.ToEulerAngles();
+        set => Rotation = Quaternion.FromEulerAngles(value);
     }
 
     public Vector3 Forward
     {
         get
         {
-            Vector3 vec;
-            vec.X = -Transform.M31;
-            vec.Y = -Transform.M32;
-            vec.Z = -Transform.M33;
-            return vec.Normalized();
+            // As we are using a right-handed coordinate system, the forward vector is the negated Z-axis
+            Vector3 vector = new(-Transform.M31, -Transform.M32, -Transform.M33);
+            return vector.Normalized();
         }
     }
 
@@ -73,11 +100,9 @@ public struct TransformComponent : INativeComponent
     {
         get
         {
-            Vector3 vec;
-            vec.X = Transform.M21;
-            vec.Y = Transform.M22;
-            vec.Z = Transform.M23;
-            return vec.Normalized();
+            // The up vector is the Y-axis
+            Vector3 vector = new(Transform.M21, Transform.M22, Transform.M23);
+            return vector.Normalized();
         }
     }
 
@@ -85,11 +110,8 @@ public struct TransformComponent : INativeComponent
     {
         get
         {
-            Vector3 vec;
-            vec.X = Transform.M11;
-            vec.Y = Transform.M12;
-            vec.Z = Transform.M13;
-            return vec.Normalized();
+            Vector3 vector = new(Transform.M11, Transform.M12, Transform.M13);
+            return vector.Normalized();
         }
     }
 
