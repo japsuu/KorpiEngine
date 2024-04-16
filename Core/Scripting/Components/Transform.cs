@@ -11,24 +11,40 @@ public class Transform : Component
     internal override Type NativeComponentType => typeof(TransformComponent);
 
 
+    /// <summary>
+    /// Position of the transform.
+    /// </summary>
     public Vector3 Position
     {
         get => Entity.GetNativeComponent<TransformComponent>().Position;
         set => Entity.GetNativeComponent<TransformComponent>().Position = value;
     }
 
+    /// <summary>
+    /// Rotation of the transform as a quaternion.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
+    /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
+    /// </summary>
     public Quaternion Rotation
     {
         get => Entity.GetNativeComponent<TransformComponent>().Rotation;
         set => Entity.GetNativeComponent<TransformComponent>().Rotation = value;
     }
 
+    /// <summary>
+    /// Scale of the transform.
+    /// </summary>
     public Vector3 Scale
     {
         get => Entity.GetNativeComponent<TransformComponent>().Scale;
         set => Entity.GetNativeComponent<TransformComponent>().Scale = value;
     }
-    
+
+    /// <summary>
+    /// <see cref="Rotation"/> of the transform as Euler angles in degrees.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
+    /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
+    /// </summary>
     public Vector3 EulerAngles
     {
         get => Entity.GetNativeComponent<TransformComponent>().EulerAngles;
