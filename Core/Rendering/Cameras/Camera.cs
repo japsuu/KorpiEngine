@@ -12,7 +12,7 @@ public abstract class Camera : Behaviour, IDisposable, IComparable<Camera>
     /// <summary>
     /// The current camera rendering to the screen.
     /// </summary>
-    public static Camera RenderingCamera { get; private set; } = null!;
+    public static Camera? RenderingCamera { get; private set; }
 
     /// <summary>
     /// All cameras currently active.
@@ -245,5 +245,11 @@ public abstract class Camera : Behaviour, IDisposable, IComparable<Camera>
     ~Camera()
     {
         Dispose(false);
+    }
+
+
+    public Matrix4 GetProjectionMatrix()
+    {
+        return ProjectionMatrix;
     }
 }

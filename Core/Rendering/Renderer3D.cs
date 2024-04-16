@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Scripting.Components;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -13,9 +14,12 @@ internal static class Renderer3D
     private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
 #endif
     
+    public static RenderCamera RenderCamera = null!;
+    
     
     public static void Initialize()
     {
+        RenderCamera = new RenderCamera();
 #if DEBUG
         GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
         GL.Enable(EnableCap.DebugOutput);
@@ -36,8 +40,15 @@ internal static class Renderer3D
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void StartFrame()
+    public static void StartFrame(in Matrix4 projectionMatrix, Transform cameraTransform)
     {
+        // We need to invert the camera's transform to get the view matrix.
+        Matrix4 viewMatrix = cameraTransform.Matrix.Inverted();
+        
+        RenderCamera.ProjectionMatrix = projectionMatrix;
+        RenderCamera.ViewMatrix = viewMatrix;
+        RenderCamera.ViewProjectionMatrix = viewMatrix * projectionMatrix;
+        
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
     }
 
