@@ -179,6 +179,7 @@ public abstract class Game : IDisposable
     {
         OnUnloadContent();
         
+        SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         Graphics.Shutdown();
     }

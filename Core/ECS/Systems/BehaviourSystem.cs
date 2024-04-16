@@ -81,6 +81,18 @@ internal class BehaviourSystem : NativeSystem
                 e.Remove<BehaviourComponent>();
         });
     }
+
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        
+        // Destroy all behaviours
+        World.Query(in _desc, (ref BehaviourComponent behaviours) => {
+            foreach (Behaviour behaviour in behaviours.Behaviours!)
+                behaviour.InternalDestroy();
+        });
+    }
 }
 
 /// <summary>

@@ -6,6 +6,7 @@ using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Scripting;
+using OpenTK.Mathematics;
 using Entity = KorpiEngine.Core.Scripting.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
@@ -89,6 +90,7 @@ public abstract class Scene : IDisposable
         Arch.Core.Entity entity = World.Create<IdComponent, NameComponent, TransformComponent>();
         entity.Get<IdComponent>().Id = new UUID();
         entity.Get<NameComponent>().Name = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
+        entity.Get<TransformComponent>().Transform = Matrix4.Identity;
         return new Entity(entity.Reference(), this);
     }
     
@@ -106,16 +108,6 @@ public abstract class Scene : IDisposable
         _presentationSystems.Initialize();
         
         Load();
-    }
-    
-    
-    internal void InternalUnload()
-    {
-        Unload();
-        
-        World.Destroy(World);
-        
-        Dispose();
     }
     
     
@@ -211,10 +203,13 @@ public abstract class Scene : IDisposable
     
     public void Dispose()
     {
+        Unload();
+        
         _simulationSystems.Dispose();
         _fixedSimulationSystems.Dispose();
         _presentationSystems.Dispose();
         World.Dispose();
+        //World.Destroy(World);
         GC.SuppressFinalize(this);
     }
 }

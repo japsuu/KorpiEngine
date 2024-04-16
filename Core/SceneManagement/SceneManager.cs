@@ -57,10 +57,7 @@ public static class SceneManager
     {
         // Unload the old scenes.
         foreach (Scene loadedScene in LoadedScenes)
-        {
-            loadedScene.InternalUnload();
             loadedScene.Dispose();
-        }
 
         // Set the new scene as the current scene.
         currentScene = scene;
@@ -97,5 +94,15 @@ public static class SceneManager
     internal static void Draw()
     {
         CurrentScene.InternalDraw();
+    }
+    
+    
+    internal static void UnloadAllScenes()
+    {
+        foreach (Scene loadedScene in LoadedScenes)
+            loadedScene.Dispose();
+        
+        LoadedScenes.Clear();
+        currentScene = null;
     }
 }

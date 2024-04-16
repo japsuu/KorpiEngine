@@ -151,6 +151,7 @@ public class Behaviour : Component
     internal void InternalAwake()
     {
         OnAwake();
+        Enable();
     }
     
     
@@ -184,6 +185,7 @@ public class Behaviour : Component
     
     internal void InternalDestroy()
     {
+        Disable();
         OnDestroy();
     }
 
