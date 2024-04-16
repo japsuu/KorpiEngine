@@ -75,6 +75,26 @@ public class Transform : Component
     }
     
     
+    public void Rotate(Vector3 eulerAngles, Space relativeTo = Space.Self)
+    {
+        Vector3 radians = new Vector3(MathHelper.DegreesToRadians(eulerAngles.X), MathHelper.DegreesToRadians(eulerAngles.Y), MathHelper.DegreesToRadians(eulerAngles.Z));
+        Quaternion rotation = Quaternion.FromEulerAngles(radians);
+        Rotate(rotation, relativeTo);
+    }
+
+
+    public void Rotate(Quaternion rotation, Space relativeTo)
+    {
+        Quaternion newRotation = relativeTo switch
+        {
+            Space.World => rotation * Rotation,
+            Space.Self => Rotation * rotation,
+            _ => throw new ArgumentOutOfRangeException(nameof(relativeTo), relativeTo, null)
+        };
+        Rotation = newRotation;
+    }
+
+
     /// <summary>
     /// Transforms direction from local space to world space.
     /// This operation is not affected by scale or position of the transform. The returned vector has the same length as the original vector.

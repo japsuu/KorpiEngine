@@ -11,18 +11,24 @@ internal class PlayerController : Behaviour, IDamageable
     protected override void OnUpdate()
     {
         if (Input.KeyboardState.IsKeyDown(Keys.W))
-            Entity.Transform.Translate(new Vector3(0f, 1f, 0f) * Time.DeltaTime);
+            Move(new Vector3(0f, 1f, 0f));
             
         if (Input.KeyboardState.IsKeyDown(Keys.A))
-            Entity.Transform.Translate(new Vector3(-1f, 0f, 0f) * Time.DeltaTime);
+            Move(new Vector3(-1f, 0f, 0f));
             
         if (Input.KeyboardState.IsKeyDown(Keys.S))
-            Entity.Transform.Translate(new Vector3(0f, -1f, 0f) * Time.DeltaTime);
+            Move(new Vector3(0f, -1f, 0f));
             
         if (Input.KeyboardState.IsKeyDown(Keys.D))
-            Entity.Transform.Translate(new Vector3(1f, 0f, 0f) * Time.DeltaTime);
+            Move(new Vector3(1f, 0f, 0f));
         
-        Console.WriteLine($"Position is now: {Entity.Transform.Position}");
+    }
+    
+    
+    private void Move(Vector3 direction)
+    {
+        Entity.Transform.Translate(direction * Time.DeltaTime);
+        Console.WriteLine($"Player moved to: {Entity.Transform.Position:F2}");
     }
 
 

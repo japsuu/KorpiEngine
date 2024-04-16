@@ -43,15 +43,16 @@ internal class CustomScene : Scene
     private void UpdateBlueBox()
     {
         // Rotate the entity
-        /*const float rotSpeedY = 0.1f;
-        const float rotSpeedZ = 0.2f;
+        const float rotSpeedY = 15f;
+        const float rotSpeedZ = 30f;
         Vector3 eulerAngles = _blueBoxEntity.Transform.EulerAngles;
-        _blueBoxEntity.Transform.EulerAngles = new Vector3(eulerAngles.X, eulerAngles.Y + rotSpeedY * Time.DeltaTime, eulerAngles.Z + rotSpeedZ * Time.DeltaTime);
+        Vector3 newEulerAngles = new Vector3(eulerAngles.X, eulerAngles.Y + rotSpeedY * Time.DeltaTime, eulerAngles.Z + rotSpeedZ * Time.DeltaTime);
+        _blueBoxEntity.Transform.Rotate(newEulerAngles);
             
         // Move the entity
         const float moveSpeed = 0.1f;
-        _blueBoxEntity.Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);*/
+        _blueBoxEntity.Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);
             
-        // Console.WriteLine($"Blue Box position: {_blueBoxEntity.Transform.Position}");
+        Console.WriteLine($"Blue Box position: {_blueBoxEntity.Transform.EulerAngles:F2}");
     }
 }
