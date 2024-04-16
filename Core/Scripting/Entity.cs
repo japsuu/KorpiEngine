@@ -68,6 +68,7 @@ public sealed class Entity
     public T? GetComponent<T>() where T : class // NOTE: We cannot use a Component constraint here, as we need to check if the provided type is a component or a plain C# interface.
     {
         //TODO: Better solution for this, that does not use reflection.
+        //WARN: Might not work properly with components inheriting Behaviour, since Behaviour's NativeComponentType is BehaviourComponent.
         if (IsDestroyed)
             throw new KorpiException("Cannot get a component from a destroyed Entity.");
 
