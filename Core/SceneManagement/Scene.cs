@@ -174,8 +174,7 @@ public abstract class Scene : IDisposable
     /// </summary>
     protected virtual void RegisterPresentationSystems(SceneSystemGroup systems)
     {
-        // Add the default render system.
-        systems.Add(new SpriteRenderSystem(this));
+        
     }
     
     

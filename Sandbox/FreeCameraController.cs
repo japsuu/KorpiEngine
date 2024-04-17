@@ -43,6 +43,7 @@ internal class FreeCameraController : Behaviour
 
         if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
             Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
+        Console.WriteLine("fcam move");
     }
 
 

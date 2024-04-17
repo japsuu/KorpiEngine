@@ -32,8 +32,8 @@ public abstract class Game : IDisposable
     {
         InitializeLog4Net();
 
-        Graphics.Initialize(new GLGraphicsDriver());
         _window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
+        Graphics.Initialize(new GLGraphicsDriver());
         _imGuiController = new ImGuiController(_window);
         
         _window.Load += OnLoad;
@@ -116,16 +116,6 @@ public abstract class Game : IDisposable
     private void OnRenderFrame(FrameEventArgs args)
     {
         KorpiProfiler.Begin("RenderLoop");
-
-        // We could also multiply the matrices here and then pass which is faster, but having the separate matrices available is used for some advanced effects.
-        // IMPORTANT: OpenTK's matrix types are transposed from what OpenGL would expect - rows and columns are reversed.
-        // They are then transposed properly when passed to the shader. 
-        // This means that we retain the same multiplication order in both OpenTK c# code and GLSL shader code.
-        // If you pass the individual matrices to the shader and multiply there, you have to do in the order "model * view * projection".
-        // You can think like this: first apply the modelToWorld (aka model) matrix, then apply the worldToView (aka view) matrix, 
-        // and finally apply the viewToProjectedSpace (aka projection) matrix.
-        MatrixManager.UpdateViewMatrix(Camera.MainCamera.ViewMatrix);
-        MatrixManager.UpdateProjectionMatrix(Camera.MainCamera.ProjectionMatrix);
         
         InternalRender();
         

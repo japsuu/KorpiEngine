@@ -1,7 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Scripting.Components;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -10,85 +8,82 @@ namespace KorpiEngine.Core.Rendering;
 
 internal static class Renderer3D
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Renderer3D));
-#if DEBUG
-    private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
-#endif
+    private static readonly Color DefaultClearColor = Color.Magenta;
     
-    public static RenderCamera RenderCamera = null!;
+    public static Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
+    public static Matrix4 ViewMatrix { get; private set; } = Matrix4.Identity;
+    public static Matrix4 ViewProjectionMatrix { get; private set; } = Matrix4.Identity;
     
     
     public static void Initialize()
     {
-        RenderCamera = new RenderCamera();
-#if DEBUG
-        GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
-        GL.Enable(EnableCap.DebugOutput);
-        GL.Enable(EnableCap.DebugOutputSynchronous);
-#endif
-
-        GL.Enable(EnableCap.DepthTest);
-        // GL.Enable(EnableCap.Multisample);
-        GL.ClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+        Graphics.Driver.Enable(EnableCap.DepthTest);
+        
+        Graphics.Driver.SetClearColor(DefaultClearColor);
     }
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void OnWindowResize(int width, int height)
     {
-        GL.Viewport(0, 0, width, height);
+        Graphics.Driver.UpdateViewport(0, 0, width, height);
     }
     
     
+    /// <summary>
+    /// Starts a new draw frame.
+    /// </summary>
+    /// <param name="renderingCamera">The camera to render with.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void StartFrame(Camera renderingCamera)
     {
-        Matrix4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        SetMatrices(renderingCamera);
+
+        if (renderingCamera.ClearType == CameraClearType.Nothing)
+            return;
         
-        RenderCamera.ProjectionMatrix = projectionMatrix;
-        RenderCamera.ViewMatrix = viewMatrix;
-        RenderCamera.ViewProjectionMatrix = viewMatrix * projectionMatrix;
-        
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Clear(renderingCamera.ClearColor);
     }
 
 
+    /// <summary>
+    /// Ends the current draw frame.
+    /// </summary>
+    /// <param name="korpiWindow">The window into which the frame is drawn.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EndFrame(KorpiWindow korpiWindow)
     {
         korpiWindow.SwapBuffers();
     }
-    
-    
-    public static void DrawQuad(Matrix4 transform, Color color)
+
+
+    /// <summary>
+    /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SkipFrame()
     {
-        
+        Clear(DefaultClearColor);
     }
 
 
-#if DEBUG
-    private static void OnDebugMessage(
-        DebugSource source, // Source of the debugging message.
-        DebugType type, // Type of the debugging message.
-        int id, // ID associated with the message.
-        DebugSeverity severity, // Severity of the message.
-        int length, // Length of the string in pMessage.
-        IntPtr pMessage, // Pointer to message string.
-        IntPtr pUserParam)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void SetMatrices(Camera renderingCamera)
     {
-        if (severity == DebugSeverity.DebugSeverityNotification)
-            return;
+        Matrix4 viewMatrix = renderingCamera.ViewMatrix;
+        Matrix4 projectionMatrix = renderingCamera.ProjectionMatrix;
         
-        // In order to access the string pointed to by pMessage, you can use Marshal
-        // class to copy its contents to a C# string without unsafe code. You can
-        // also use the new function Marshal.PtrToStringUTF8 since .NET Core 1.1.
-        string message = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(pMessage, length);
-        
-        Logger.OpenGl($"[{severity} source={source} type={type} id={id}] {message}");
-
-        if (type == DebugType.DebugTypeError)
-            throw new Exception(message);
+        ProjectionMatrix = projectionMatrix;
+        ViewMatrix = viewMatrix;
+        ViewProjectionMatrix = viewMatrix * projectionMatrix;
     }
-#endif
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void Clear(Color color)
+    {
+        Graphics.Driver.SetClearColor(color.R, color.G, color.B, color.A);
+
+        Graphics.Driver.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+    }
 }

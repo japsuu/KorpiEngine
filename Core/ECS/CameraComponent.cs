@@ -7,7 +7,11 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
 {
     public short RenderPriority;
     
-    public RenderTarget RenderTarget;
+    public CameraRenderTarget RenderTarget;
+    
+    public CameraClearType ClearType;
+    
+    public Color ClearColor;
     
     public float FOVRadians;
 
@@ -15,7 +19,9 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
     public CameraComponent()
     {
         RenderPriority = 0;
-        RenderTarget = RenderTarget.Screen;
+        RenderTarget = CameraRenderTarget.Screen;
+        ClearType = CameraClearType.SolidColor;
+        ClearColor = Color.Black;
         FOVRadians = MathHelper.PiOver2;
     }
 }

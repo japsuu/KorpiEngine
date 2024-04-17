@@ -3,7 +3,7 @@
 /// <summary>
 /// The render target for a camera.
 /// </summary>
-public enum RenderTarget
+public enum CameraRenderTarget
 {
     /// <summary>
     /// The camera renders to the screen.

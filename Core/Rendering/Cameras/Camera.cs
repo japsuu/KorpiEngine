@@ -67,6 +67,43 @@ public sealed class Camera : Component
             FovRadians = MathHelper.DegreesToRadians(angle);
         }
     }
+    
+    
+    public CameraClearType ClearType
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().ClearType;
+        set => Entity.GetNativeComponent<CameraComponent>().ClearType = value;
+    }
+    
+    
+    public Color ClearColor
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().ClearColor;
+        set => Entity.GetNativeComponent<CameraComponent>().ClearColor = value;
+    }
+    
+    
+    /// <returns>If the provided world position is visible on screen.</returns>
+    public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
+    {
+        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
+        
+        // Without this the coordinates are visible even when looking straight away from them.
+        if (clipSpacePosition.W <= 0)
+        {
+            screenPos = Vector2.NegativeInfinity;
+            return false;
+        }
+        
+        Vector3 normalizedDeviceCoordinates = clipSpacePosition.Xyz / clipSpacePosition.W;
+        Vector2 screenCoordinates = new Vector2(normalizedDeviceCoordinates.X, -normalizedDeviceCoordinates.Y);
+        screenCoordinates += Vector2.One;
+        screenCoordinates /= 2;
+        screenCoordinates.X *= WindowInfo.ClientWidth;
+        screenCoordinates.Y *= WindowInfo.ClientHeight;
+        screenPos = screenCoordinates;
+        return true;
+    }
 
 
     private Frustum CalculateFrustum()

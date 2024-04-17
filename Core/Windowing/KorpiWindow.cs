@@ -30,7 +30,10 @@ internal sealed class KorpiWindow : GameWindow
     {
         Camera? mainCamera = Camera.MainCamera;
         if (mainCamera == null)
+        {
+            Renderer3D.SkipFrame();
             return;
+        }
         
         Renderer3D.StartFrame(mainCamera);
         base.OnRenderFrame(args);
