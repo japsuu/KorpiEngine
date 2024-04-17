@@ -1,6 +1,7 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
@@ -26,6 +27,8 @@ internal class CustomScene : Scene
 
         _player = Instantiate<PlayerController>("Player");
         _player.Transform.Position = new Vector3(0, 0, 0);
+
+        Camera.MainCamera!.Entity.AddComponent<FreeCameraController>();
     }
 
 

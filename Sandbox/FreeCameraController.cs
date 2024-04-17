@@ -1,10 +1,12 @@
-﻿using KorpiEngine.Core.InputManagement;
+﻿using KorpiEngine.Core;
+using KorpiEngine.Core.InputManagement;
+using KorpiEngine.Core.Scripting;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace KorpiEngine.Core.Rendering.Cameras;
+namespace Sandbox;
 
-public class DefaultSceneCamera : Camera
+internal class FreeCameraController : Behaviour
 {
     private const float LOOK_SENSITIVITY = 0.2f;
     
@@ -25,34 +27,22 @@ public class DefaultSceneCamera : Camera
     private void UpdatePosition()
     {
         if (Input.KeyboardState.IsKeyDown(Keys.W))
-        {
-            SetPosition(Transform.Position + Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
-        }
+            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
 
         if (Input.KeyboardState.IsKeyDown(Keys.S))
-        {
-            SetPosition(Transform.Position - Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Backward
-        }
+            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Backward
 
         if (Input.KeyboardState.IsKeyDown(Keys.A))
-        {
-            SetPosition(Transform.Position - Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Left
-        }
+            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Left
 
         if (Input.KeyboardState.IsKeyDown(Keys.D))
-        {
-            SetPosition(Transform.Position + Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
-        }
+            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
 
         if (Input.KeyboardState.IsKeyDown(Keys.Space))
-        {
-            SetPosition(Transform.Position + Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
-        }
+            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
 
         if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
-        {
-            SetPosition(Transform.Position - Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
-        }
+            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
     }
 
 
@@ -109,7 +99,11 @@ public class DefaultSceneCamera : Camera
         float deltaX = Input.MouseState.X - Input.MouseState.PreviousX;
         float deltaY = Input.MouseState.Y - Input.MouseState.PreviousY;
 
-        YawDegrees += deltaX * LOOK_SENSITIVITY;
-        PitchDegrees -= deltaY * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
+        float yaw = deltaX * LOOK_SENSITIVITY;
+        float pitch = deltaY * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
+        
+        Vector3 eulers = new Vector3(pitch, yaw, 0f);
+        
+        Transform.Rotate(eulers);
     }
 }
