@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+﻿using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using KorpiEngine.Core.Rendering.Shaders.Variables;
 using KorpiEngine.Core.Rendering.Textures;
 using OpenTK.Graphics.OpenGL4;

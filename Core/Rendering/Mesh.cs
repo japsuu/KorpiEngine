@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Core.Rendering.Buffers;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 

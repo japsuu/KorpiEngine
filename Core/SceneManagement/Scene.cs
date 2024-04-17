@@ -3,7 +3,6 @@ using Arch.Core.Extensions;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Scripting;
 using OpenTK.Mathematics;

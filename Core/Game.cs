@@ -2,9 +2,7 @@
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.GraphicsDrivers;
-using KorpiEngine.Core.Rendering.Shaders;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
 using KorpiEngine.Core.UI.ImGui;
