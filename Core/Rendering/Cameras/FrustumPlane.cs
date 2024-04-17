@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
-public class FrustumPlane
+public struct FrustumPlane
 {
     /// <summary>
     /// Normal unit vector.

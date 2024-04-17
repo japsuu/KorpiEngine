@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Scripting.Components;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Graphics.OpenGL4;
@@ -40,10 +41,10 @@ internal static class Renderer3D
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void StartFrame(in Matrix4 projectionMatrix, Transform cameraTransform)
+    public static void StartFrame(Camera renderingCamera)
     {
-        // We need to invert the camera's transform to get the view matrix.
-        Matrix4 viewMatrix = cameraTransform.Matrix.Inverted();
+        Matrix4 viewMatrix = renderingCamera.ViewMatrix;
+        Matrix4 projectionMatrix = renderingCamera.ProjectionMatrix;
         
         RenderCamera.ProjectionMatrix = projectionMatrix;
         RenderCamera.ViewMatrix = viewMatrix;

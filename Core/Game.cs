@@ -124,8 +124,8 @@ public abstract class Game : IDisposable
         // If you pass the individual matrices to the shader and multiply there, you have to do in the order "model * view * projection".
         // You can think like this: first apply the modelToWorld (aka model) matrix, then apply the worldToView (aka view) matrix, 
         // and finally apply the viewToProjectedSpace (aka projection) matrix.
-        MatrixManager.UpdateViewMatrix(Camera.RenderingCamera.ViewMatrix);
-        MatrixManager.UpdateProjectionMatrix(Camera.RenderingCamera.ProjectionMatrix);
+        MatrixManager.UpdateViewMatrix(Camera.MainCamera.ViewMatrix);
+        MatrixManager.UpdateProjectionMatrix(Camera.MainCamera.ProjectionMatrix);
         
         InternalRender();
         

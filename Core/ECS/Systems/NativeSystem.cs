@@ -9,8 +9,10 @@ namespace KorpiEngine.Core.ECS.Systems;
 /// </summary>
 public abstract class NativeSystem : BaseSystem<World, double>
 {
+    protected Scene Scene;
     protected NativeSystem(Scene scene) : base(scene.World)
     {
+        Scene = scene;
     }
 
 

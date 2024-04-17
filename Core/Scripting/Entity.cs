@@ -32,7 +32,7 @@ public sealed class Entity
     public readonly Transform Transform;
 
 
-    public Entity(EntityReference entityRef, Scene scene)
+    internal Entity(EntityReference entityRef, Scene scene)
     {
         EntityRef = entityRef;
         Scene = scene;

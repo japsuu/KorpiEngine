@@ -28,11 +28,11 @@ internal sealed class KorpiWindow : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
-        Camera? mainCamera = Camera.RenderingCamera;
+        Camera? mainCamera = Camera.MainCamera;
         if (mainCamera == null)
             return;
         
-        Renderer3D.StartFrame(mainCamera.GetProjectionMatrix(), mainCamera.Transform);
+        Renderer3D.StartFrame(mainCamera);
         base.OnRenderFrame(args);
         Renderer3D.EndFrame(this);
     }

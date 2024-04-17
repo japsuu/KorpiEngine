@@ -39,17 +39,11 @@ public abstract class Scene : IDisposable
     /// The ESC world for this scene.
     /// </summary>
     internal readonly World World;
-    
-    /// <summary>
-    /// The main camera for this scene.
-    /// </summary>
-    public Camera MainCamera { get; protected set; }
 
 
     protected Scene()
     {
         World = World.Create();
-        MainCamera = Instantiate<DefaultSceneCamera>("Main Camera");
         _simulationSystems = new SceneSystemGroup("SimulationSystems");
         _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
         _presentationSystems = new SceneSystemGroup("PresentationSystems");
@@ -79,6 +73,15 @@ public abstract class Scene : IDisposable
     }
     
     
+    protected virtual void CreateSceneCamera()
+    {
+        Entity cameraEntity = CreateEntity("Scene Camera");
+        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent<CameraComponent>();
+        cameraComponent.FOVRadians = MathHelper.DegreesToRadians(90f);
+        cameraComponent.RenderPriority = 0;
+    }
+    
+    
     /*protected void DestroyEntity(Arch.Core.Entity entity)
     {
         World.Destroy(entity);
@@ -87,16 +90,17 @@ public abstract class Scene : IDisposable
 
     private Entity CreateEntity(string name)
     {
-        Arch.Core.Entity entity = World.Create<IdComponent, NameComponent, TransformComponent>();
-        entity.Get<IdComponent>().Id = new UUID();
-        entity.Get<NameComponent>().Name = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
-        entity.Get<TransformComponent>().Transform = Matrix4.Identity;
+        UUID uuid = new();
+        string nameString = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
+        Arch.Core.Entity entity = World.Create(new IdComponent(uuid), new NameComponent(nameString), new TransformComponent());
         return new Entity(entity.Reference(), this);
     }
     
     
     internal void InternalLoad()
     {
+        CreateSceneCamera();
+        
         // Register systems.
         RegisterSimulationSystems(_simulationSystems);
         RegisterFixedSimulationSystems(_fixedSimulationSystems);
