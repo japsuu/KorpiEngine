@@ -7,6 +7,7 @@ public static class EngineConstants
 {
     public const string ENGINE_NAME = "Korpi Engine";
     public const string ENGINE_VERSION = "Dev";
+    public const string ASSETS_BASE_PATH = "assets";
 
     #region UPDATE LOOP
 
@@ -48,7 +49,16 @@ public static class EngineConstants
     /// <summary>
     /// The base path of the internal shader files, relative to the project root.
     /// </summary>
-    public const string INTERNAL_SHADER_BASE_PATH = "assets/shaders/";
+    public const string INTERNAL_SHADER_BASE_PATH = $"{ASSETS_BASE_PATH}/shaders/";
 
+    #endregion
+    
+    #region CONFIG
+    
+    /// <summary>
+    /// The base path of the internal shader files, relative to the project root.
+    /// </summary>
+    public const string LOG_4_NET_CONFIG_PATH = $"{ASSETS_BASE_PATH}/log4net.config";
+    
     #endregion
 }

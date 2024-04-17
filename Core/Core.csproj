@@ -34,7 +34,11 @@
 
     <ItemGroup>
       <None Remove="log4net.config" />
-      <Content Include="log4net.config">
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="assets\log4net.config" />
+      <Content Include="assets\log4net.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

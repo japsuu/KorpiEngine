@@ -49,7 +49,7 @@ public abstract class Game : IDisposable
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize("log4net.config");
+        LogFactory.Initialize(EngineConstants.LOG_4_NET_CONFIG_PATH);
     }
 
 
