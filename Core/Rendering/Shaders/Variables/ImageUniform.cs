@@ -8,8 +8,7 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// </summary>
 public sealed class ImageUniform : Uniform<int>
 {
-    internal ImageUniform()
-        : base(GL.Uniform1)
+    internal ImageUniform(string shaderPropertyName) : base(GL.Uniform1, shaderPropertyName)
     {
     }
 

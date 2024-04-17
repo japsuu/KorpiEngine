@@ -1,4 +1,3 @@
-using System.Reflection;
 using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -21,7 +20,8 @@ public abstract class MaterialProperty
     /// <summary>
     /// The name of this shader variable.
     /// </summary>
-    public string Name { get; protected set; } = null!;
+    public readonly string ShaderPropertyName;
+
 
     /// <summary>
     /// Specifies whether this variable is active.<br/>
@@ -30,18 +30,24 @@ public abstract class MaterialProperty
     public bool Active { get; protected set; }
 
 
+    protected MaterialProperty(string name)
+    {
+        ShaderPropertyName = name;
+    }
+    
+
+
     /// <summary>
     /// Initializes this instance using the given ShaderProgram and PropertyInfo.
     /// </summary>
-    internal void Initialize(ShaderProgram shaderProgram, PropertyInfo property)
+    internal void Initialize(ShaderProgram shaderProgram)
     {
         ShaderProgram = shaderProgram;
-        Name = property.Name;
-        InitializeVariable(shaderProgram, property);
+        InitializeVariable();
     }
 
 
-    protected virtual void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected virtual void InitializeVariable()
     {
     }
     
@@ -60,6 +66,6 @@ public abstract class MaterialProperty
 
     public override string ToString()
     {
-        return $"{ShaderProgram.Name}.{Name}";
+        return $"{ShaderProgram.Name}.{ShaderPropertyName}";
     }
 }

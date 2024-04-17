@@ -59,8 +59,8 @@ public class Transform : Component
     
     public Matrix4 Matrix
     {
-        get => Entity.GetNativeComponent<TransformComponent>().Transform;
-        set => Entity.GetNativeComponent<TransformComponent>().Transform = value;
+        get => Entity.GetNativeComponent<TransformComponent>().Matrix;
+        set => Entity.GetNativeComponent<TransformComponent>().Matrix = value;
     }
     
     

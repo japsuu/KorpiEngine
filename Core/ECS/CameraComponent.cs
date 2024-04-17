@@ -21,7 +21,7 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
         RenderPriority = 0;
         RenderTarget = CameraRenderTarget.Screen;
         ClearType = CameraClearType.SolidColor;
-        ClearColor = Color.Black;
+        ClearColor = Color.White;
         FOVRadians = MathHelper.PiOver2;
     }
 }

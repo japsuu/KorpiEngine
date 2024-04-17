@@ -1,6 +1,4 @@
-using System.Reflection;
 using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -20,17 +18,17 @@ public sealed class FragData : MaterialProperty
     public int Location { get; private set; }
 
 
-    internal FragData()
+    internal FragData(string shaderPropertyName) : base(shaderPropertyName)
     {
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable()
     {
         //TODO: find out what GL.GetFragDataIndex(); does
-        Location = GL.GetFragDataLocation(ProgramHandle, Name);
+        Location = GL.GetFragDataLocation(ProgramHandle, ShaderPropertyName);
         if (Location == -1)
-            Logger.WarnFormat("Output variable not found or not active: {0}", Name);
+            Logger.WarnFormat("Output variable not found or not active: {0}", ShaderPropertyName);
     }
 
 

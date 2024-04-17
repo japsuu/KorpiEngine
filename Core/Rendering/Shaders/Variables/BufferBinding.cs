@@ -1,7 +1,5 @@
-using System.Reflection;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Buffers;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -36,20 +34,20 @@ public abstract class BufferBinding : MaterialProperty
     private readonly ProgramInterface _programInterface;
 
 
-    internal BufferBinding(BufferRangeTarget bindingTarget, ProgramInterface programInterface)
+    internal BufferBinding(BufferRangeTarget bindingTarget, ProgramInterface programInterface, string shaderPropertyName) : base(shaderPropertyName)
     {
         BindingTarget = bindingTarget;
         _programInterface = programInterface;
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable()
     {
-        Index = GL.GetProgramResourceIndex(ProgramHandle, _programInterface, Name);
+        Index = GL.GetProgramResourceIndex(ProgramHandle, _programInterface, ShaderPropertyName);
         Active = Index > -1;
         Binding = -1;
         if (!Active)
-            Logger.WarnFormat("Binding block not found or not active: {0}", Name);
+            Logger.WarnFormat("Binding block not found or not active: {0}", ShaderPropertyName);
     }
 
 

@@ -173,7 +173,7 @@ public abstract class Scene : IDisposable
     /// </summary>
     protected virtual void RegisterPresentationSystems(SceneSystemGroup systems)
     {
-        
+        systems.Add(new MeshRenderSystem(this));
     }
     
     

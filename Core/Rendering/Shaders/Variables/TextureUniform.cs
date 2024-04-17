@@ -12,7 +12,7 @@ public class TextureUniform<T> : Uniform<int> where T : Texture
     public TextureUnit Unit;
     
     
-    internal TextureUniform() : base(GL.Uniform1)
+    internal TextureUniform(string shaderPropertyName) : base(GL.Uniform1, shaderPropertyName)
     {
     }
 
@@ -46,4 +46,7 @@ public class TextureUniform<T> : Uniform<int> where T : Texture
 /// </summary>
 public sealed class TextureUniform : TextureUniform<Texture>
 {
+    internal TextureUniform(string shaderPropertyName) : base(shaderPropertyName)
+    {
+    }
 }

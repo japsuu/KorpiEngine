@@ -1,5 +1,3 @@
-using System.Reflection;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -9,15 +7,14 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// </summary>
 public sealed class UniformBuffer : BufferBinding
 {
-    internal UniformBuffer()
-        : base(BufferRangeTarget.UniformBuffer, ProgramInterface.UniformBlock)
+    internal UniformBuffer(string shaderPropertyName) : base(BufferRangeTarget.UniformBuffer, ProgramInterface.UniformBlock, shaderPropertyName)
     {
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable()
     {
-        base.InitializeVariable(shaderProgram, property);
+        base.InitializeVariable();
         
         // Retrieve the default binding point
         if (Active)

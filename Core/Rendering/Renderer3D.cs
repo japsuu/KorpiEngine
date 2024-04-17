@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -85,5 +86,17 @@ internal static class Renderer3D
         Graphics.Driver.SetClearColor(color.R, color.G, color.B, color.A);
 
         Graphics.Driver.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+    }
+
+
+    public static void RenderMesh(Mesh mesh, Material material, Matrix4 modelMatrix)
+    {
+        material.SetModelMatrix(modelMatrix);
+        material.SetViewMatrix(ViewMatrix);
+        material.SetProjectionMatrix(ProjectionMatrix);
+        
+        material.Bind();
+        
+        mesh.UploadMeshData();
     }
 }

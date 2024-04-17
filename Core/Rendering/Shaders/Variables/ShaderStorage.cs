@@ -1,5 +1,3 @@
-using System.Reflection;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -9,15 +7,14 @@ namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 /// </summary>
 public sealed class ShaderStorage : BufferBinding
 {
-    internal ShaderStorage()
-        : base(BufferRangeTarget.ShaderStorageBuffer, ProgramInterface.ShaderStorageBlock)
+    internal ShaderStorage(string shaderPropertyName) : base(BufferRangeTarget.ShaderStorageBuffer, ProgramInterface.ShaderStorageBlock, shaderPropertyName)
     {
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable()
     {
-        base.InitializeVariable(shaderProgram, property);
+        base.InitializeVariable();
         
         //TODO: find out if the current binding point can be queried, like it can be for uniform blocks
         // set the binding point to the blocks index

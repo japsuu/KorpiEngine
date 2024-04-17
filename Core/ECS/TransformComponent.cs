@@ -4,49 +4,49 @@ namespace KorpiEngine.Core.ECS;
 
 public struct TransformComponent : INativeComponent
 {
-    public Matrix4 Transform;
+    public Matrix4 Matrix;
 
 
     public TransformComponent()
     {
-        Transform = Matrix4.Identity;
+        Matrix = Matrix4.Identity;
     }
     
 
     public Vector3 Position
     {
-        get => Transform.ExtractTranslation();
+        get => Matrix.ExtractTranslation();
         set
         {
             // The translation is stored in the matrix at Row3.Xyz
-            Transform.M41 = value.X;
-            Transform.M42 = value.Y;
-            Transform.M43 = value.Z;
+            Matrix.M41 = value.X;
+            Matrix.M42 = value.Y;
+            Matrix.M43 = value.Z;
         }
     }
 
     public Quaternion Rotation
     {
-        get => Transform.ExtractRotation();
+        get => Matrix.ExtractRotation();
         set
         {
             // Create a rotation matrix from the provided quaternion
             Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(value);
 
             // Extract the current translation from the Transform
-            Vector3 translation = Transform.ExtractTranslation();
+            Vector3 translation = Matrix.ExtractTranslation();
 
             // Extract the current scale from the Transform
-            Vector3 scale = Transform.ExtractScale();
+            Vector3 scale = Matrix.ExtractScale();
 
             // Combine the rotation, translation and scale back into the Transform
-            Transform = Matrix4.CreateScale(scale) * rotationMatrix * Matrix4.CreateTranslation(translation);
+            Matrix = Matrix4.CreateScale(scale) * rotationMatrix * Matrix4.CreateTranslation(translation);
         }
     }
 
     public Vector3 Scale
     {
-        get => Transform.ExtractScale();
+        get => Matrix.ExtractScale();
         set
         {
             // The Transform.ExtractScale() method calls internally this code:
@@ -59,9 +59,9 @@ public struct TransformComponent : INativeComponent
             // return new Vector3((float) length1, (float) length2, (float) length3);
             
             // This means that the scale is stored in the matrix at Row0.Xyz, Row1.Xyz and Row2.Xyz
-            Transform.M11 = value.X;
-            Transform.M22 = value.Y;
-            Transform.M33 = value.Z;
+            Matrix.M11 = value.X;
+            Matrix.M22 = value.Y;
+            Matrix.M33 = value.Z;
         }
     }
 
@@ -91,7 +91,7 @@ public struct TransformComponent : INativeComponent
         get
         {
             // As we are using a right-handed coordinate system, the forward vector is the negated Z-axis
-            Vector3 vector = new(-Transform.M31, -Transform.M32, -Transform.M33);
+            Vector3 vector = new(-Matrix.M31, -Matrix.M32, -Matrix.M33);
             return vector.Normalized();
         }
     }
@@ -101,7 +101,7 @@ public struct TransformComponent : INativeComponent
         get
         {
             // The up vector is the Y-axis
-            Vector3 vector = new(Transform.M21, Transform.M22, Transform.M23);
+            Vector3 vector = new(Matrix.M21, Matrix.M22, Matrix.M23);
             return vector.Normalized();
         }
     }
@@ -110,12 +110,12 @@ public struct TransformComponent : INativeComponent
     {
         get
         {
-            Vector3 vector = new(Transform.M11, Transform.M12, Transform.M13);
+            Vector3 vector = new(Matrix.M11, Matrix.M12, Matrix.M13);
             return vector.Normalized();
         }
     }
 
 
     // Implicit conversion to Matrix4.
-    public static implicit operator Matrix4(TransformComponent t) => t.Transform;
+    public static implicit operator Matrix4(TransformComponent t) => t.Matrix;
 }

@@ -62,12 +62,6 @@ public enum VertexAttribute
     Color = 3,
     TexCoord0 = 4,
     TexCoord1 = 5,
-    TexCoord2 = 6,
-    TexCoord3 = 7,
-    TexCoord4 = 8,
-    TexCoord5 = 9,
-    TexCoord6 = 10,
-    TexCoord7 = 11
 }
 
 /// <summary>
@@ -97,8 +91,7 @@ public enum IndexFormat
 /// VertexAttribute.Tangent,
 /// VertexAttribute.Color,
 /// VertexAttribute.TexCoord0,
-/// ...,
-/// VertexAttribute.TexCoord7
+/// VertexAttribute.TexCoord1
 /// </code><br/><br/>
 ///
 /// The basic usage of the Mesh class is to set the vertex buffer data using the simple API:<br/>
@@ -145,12 +138,12 @@ public sealed class Mesh/* : IDisposable*/
     /// True if the mesh is readable, false if it is not.<br/><br/>
     ///
     /// When the mesh is marked as readable, the vertex data is also kept in CPU-accessible memory (in addition to GPU memory).<br/>
-    /// When the mesh is not marked as readable, the vertex data is uploaded to GPU memory and discarded from CPU memory.
+    /// When the mesh is NOT marked as readable, the vertex data is uploaded to GPU memory and discarded from CPU memory.
     /// </summary>
     public bool IsReadable { get; private set; } = true;
 
     private VertexAttributeDescriptor[]? _vertexLayout;
-    private bool[] _enabledVertexAttributes = new bool[8];    //TODO: Does not take in to account empty arrays.
+    private bool[] _enabledVertexAttributes = new bool[8];    //TODO: Does not take empty arrays into account.
     private bool _isDirty = true;
     private int _vertexSizeBytes;
     private byte[]? _vertexDataBuffer;
@@ -207,7 +200,7 @@ public sealed class Mesh/* : IDisposable*/
 
         _isDirty = false;
 
-        //TODO: Upload byte blob data to GPU
+        throw new NotImplementedException("TODO: Upload byte blob data to GPU");
     }
 
 

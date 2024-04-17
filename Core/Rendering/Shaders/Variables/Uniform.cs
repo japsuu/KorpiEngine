@@ -1,6 +1,4 @@
-using System.Reflection;
 using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
@@ -30,23 +28,23 @@ public class Uniform<T> : MaterialProperty where T : struct
     public T Value { get; set; }
 
 
-    public Uniform() : this(UniformSetter.Get<T>())
+    public Uniform(string shaderPropertyName) : this(UniformSetter.Get<T>(), shaderPropertyName)
     {
     }
 
 
-    protected Uniform(Action<int, T> setter)
+    protected Uniform(Action<int, T> setter, string shaderPropertyName) : base(shaderPropertyName)
     {
         _setter = setter ?? throw new ArgumentNullException(nameof(setter));
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable()
     {
-        Location = GL.GetUniformLocation(ProgramHandle, Name);
+        Location = GL.GetUniformLocation(ProgramHandle, ShaderPropertyName);
         Active = Location > -1;
         if (!Active)
-            Logger.WarnFormat("Uniform not found or not active: {0}", Name);
+            Logger.WarnFormat("Uniform not found or not active: {0}", ShaderPropertyName);
     }
 
 
