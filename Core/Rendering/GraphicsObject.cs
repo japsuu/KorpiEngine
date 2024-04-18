@@ -1,10 +1,10 @@
 ﻿namespace KorpiEngine.Core.Rendering;
 
 /// <summary>
-/// Represents an OpenGL handle.<br/>
+/// Represents a graphics resource handle.<br/>
 /// Must be disposed explicitly, otherwise there will be a memory leak which will be logged as a warning.
 /// </summary>
-public abstract class GLObject : GLResource, IEquatable<GLObject>
+public abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
 {
     /// <summary>
     /// The OpenGL handle.
@@ -13,15 +13,15 @@ public abstract class GLObject : GLResource, IEquatable<GLObject>
 
 
     /// <summary>
-    /// Initializes a new instance of the GLResource class.
+    /// Initializes a new instance of the GraphicsResource class.
     /// </summary>
-    protected GLObject(int handle)
+    protected GraphicsObject(int handle)
     {
         Handle = handle;
     }
 
 
-    public bool Equals(GLObject? other)
+    public bool Equals(GraphicsObject? other)
     {
         return other != null && Handle.Equals(other.Handle);
     }
@@ -29,7 +29,7 @@ public abstract class GLObject : GLResource, IEquatable<GLObject>
 
     public override bool Equals(object? obj)
     {
-        return obj is GLObject o && Equals(o);
+        return obj is GraphicsObject o && Equals(o);
     }
 
 

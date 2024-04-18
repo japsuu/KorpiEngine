@@ -3,14 +3,14 @@ using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.Shaders;
+namespace KorpiEngine.Core.Rendering.OpenGL;
 
 /// <summary>
 /// Represents an OpenGL shader object.
 /// </summary>
-public class GLShader : GLObject
+internal class GLGraphicsShader : GraphicsObject
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLShader));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLGraphicsShader));
 
     /// <summary>
     /// Specifies the type of this shader.
@@ -32,7 +32,7 @@ public class GLShader : GLObject
     /// Initializes a new shader object of the given type.
     /// </summary>
     /// <param name="type"></param>
-    public GLShader(ShaderType type) : base(GL.CreateShader(type))
+    public GLGraphicsShader(ShaderType type) : base(GL.CreateShader(type))
     {
         Type = type;
         SourceFiles = new List<string>();

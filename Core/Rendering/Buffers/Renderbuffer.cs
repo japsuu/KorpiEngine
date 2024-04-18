@@ -5,7 +5,7 @@ namespace KorpiEngine.Core.Rendering.Buffers;
 /// <summary>
 /// Represents a renderbuffer object.
 /// </summary>
-public class Renderbuffer : GLObject
+public class Renderbuffer : GraphicsObject
 {
     /// <summary>
     /// Creates a new renderbuffer object.

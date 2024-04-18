@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
-using KorpiEngine.Core.Rendering.Shaders.Variables;
+﻿using KorpiEngine.Core.Rendering.Shaders.Variables;
 using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering.Materials;
@@ -15,7 +14,7 @@ namespace KorpiEngine.Core.Rendering.Materials;
 /// </summary>
 public abstract class Material
 {
-    public abstract ShaderProgram GLShader { get; }
+    public abstract GraphicsProgram GLShader { get; }
 
     private List<MaterialProperty> _properties = null!;
 

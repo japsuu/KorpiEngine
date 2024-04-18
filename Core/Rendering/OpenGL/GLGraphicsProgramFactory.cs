@@ -1,35 +1,36 @@
 using System.Text;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
+using KorpiEngine.Core.Rendering.Shaders;
 
-namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+namespace KorpiEngine.Core.Rendering.OpenGL;
 
 /// <summary>
 /// Contains methods to automatically initialize shader shaderProgram objects.
 /// </summary>
-public static class ShaderProgramFactory
+internal static class GLGraphicsProgramFactory
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ShaderProgramFactory));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLGraphicsProgramFactory));
 
 
     /// <summary>
     /// Initializes a shaderProgram object using the shader sources provided.
     /// </summary>
     /// <returns>A compiled and linked shaderProgram.</returns>
-    public static ShaderProgram Create(string shaderBasePath, List<ShaderSourceDescriptor> shaders)
+    public static GLGraphicsProgram Create(string shaderBasePath, List<ShaderSourceDescriptor> shaders)
     {
         if (shaders.Count == 0)
             throw new OpenGLException("No shaders provided for shaderProgram creation.");
 
         // Create a shader shaderProgram instance
-        ShaderProgram program = new();
+        GLGraphicsProgram program = new();
         try
         {
             // compile and attach all shaders
             foreach (ShaderSourceDescriptor sourceInfo in shaders)
             {
                 // create a new shader of the appropriate type
-                using GLShader glShader = new(sourceInfo.Type);
+                using GLGraphicsShader glShader = new(sourceInfo.Type);
                 Logger?.Debug($"Compiling {sourceInfo.Type}: {sourceInfo.SourceLocation}");
 
                 // load the source

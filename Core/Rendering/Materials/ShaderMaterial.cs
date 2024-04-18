@@ -1,16 +1,14 @@
-﻿using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
-
-namespace KorpiEngine.Core.Rendering.Materials;
+﻿namespace KorpiEngine.Core.Rendering.Materials;
 
 /// <summary>
-/// A material defined by a custom <see cref="ShaderProgram"/> and the values of its shader parameters.
+/// A material defined by a custom <see cref="GraphicsProgram"/> and the values of its shader parameters.
 /// </summary>
 public abstract class ShaderMaterial : Material
 {
-    public override ShaderProgram GLShader { get; }
+    public override GraphicsProgram GLShader { get; }
 
 
-    protected ShaderMaterial(ShaderProgram glShader)
+    protected ShaderMaterial(GraphicsProgram glShader)
     {
         GLShader = glShader;
     }

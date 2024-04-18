@@ -7,7 +7,7 @@ namespace KorpiEngine.Core.Rendering.Buffers;
 /// Represents a buffer object.
 /// </summary>
 /// <typeparam name="T">The type of elements in the buffer object.</typeparam>
-public class GLBuffer<T> : GLObject where T : struct
+public class GLBuffer<T> : GraphicsObject where T : struct
 {
     /// <summary>
     /// A value indicating whether the buffer has been initialized and thus has access to allocated memory.

@@ -53,19 +53,6 @@ public readonly struct VertexAttributeDescriptor
 }
 
 /// <summary>
-/// The type of vertex attribute.
-/// </summary>
-public enum VertexAttribute
-{
-    Position = 0,
-    Normal = 1,
-    Tangent = 2,
-    Color = 3,
-    TexCoord0 = 4,
-    TexCoord1 = 5,
-}
-
-/// <summary>
 /// The format of the mesh index buffer data.
 /// </summary>
 public enum IndexFormat
@@ -147,10 +134,12 @@ public sealed class Mesh : IDisposable
     private bool[] _enabledVertexAttributes = new bool[8];    //TODO: Does not take empty arrays into account.
     private bool _isDirty = true;
     private int _vertexSizeBytes;
-    private byte[]? _vertexDataBuffer;
-    private byte[]? _indexDataBuffer;
-    private GLBuffer<byte>? _vertexBuffer;
-    private GLBuffer<byte>? _indexBuffer;
+    private byte[]? _vertexData;
+    private byte[]? _indexData;
+    
+    private GraphicsVertexArrayObject? _vao;
+    private GraphicsBuffer? _vertexBuffer;
+    private GraphicsBuffer? _indexBuffer;
 
 
     public void Dispose()
@@ -172,8 +161,8 @@ public sealed class Mesh : IDisposable
     /// <param name="keepVertexLayout"></param>
     public void Clear(bool keepVertexLayout = true)
     {
-        _vertexDataBuffer = null;
-        _indexDataBuffer = null;
+        _vertexData = null;
+        _indexData = null;
         VertexCount = 0;
         IndexCount = 0;
         _isDirty = true;
@@ -387,7 +376,7 @@ public sealed class Mesh : IDisposable
     {
         ArraySegment<TVertex> data = new(vertexData, vertexDataStart, vertexDataCount);
 
-        WriteStructData(data, ref _vertexDataBuffer, _vertexSizeBytes);
+        WriteStructData(data, ref _vertexData, _vertexSizeBytes);
     }
 
 
@@ -399,17 +388,17 @@ public sealed class Mesh : IDisposable
     /// <returns>The vertex data as an array of the specified type.</returns>
     public T[] GetVertexBufferData<T>() where T : unmanaged
     {
-        if (_vertexDataBuffer == null)
+        if (_vertexData == null)
             throw new InvalidOperationException(
-                $"The buffer '{nameof(_vertexDataBuffer)}' has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
+                $"The buffer '{nameof(_vertexData)}' has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
 
         int structSize = Marshal.SizeOf(typeof(T));
-        int numStructs = _vertexDataBuffer.Length / structSize;
+        int numStructs = _vertexData.Length / structSize;
         T[] structArray = new T[numStructs];
 
         unsafe
         {
-            fixed (byte* bytePtr = _vertexDataBuffer)
+            fixed (byte* bytePtr = _vertexData)
             {
                 byte* currentPtr = bytePtr;
                 for (int i = 0; i < numStructs; i++)
@@ -440,7 +429,7 @@ public sealed class Mesh : IDisposable
     private void SetVertexBufferSize(int vertexCount)
     {
         VertexCount = vertexCount;
-        _vertexDataBuffer = new byte[vertexCount * _vertexSizeBytes];
+        _vertexData = new byte[vertexCount * _vertexSizeBytes];
     }
 
 
@@ -453,7 +442,7 @@ public sealed class Mesh : IDisposable
     {
         IndexFormat = format;
         IndexCount = indexCount;
-        _indexDataBuffer = new byte[indexCount * (format == IndexFormat.UInt16 ? 2 : 4)];
+        _indexData = new byte[indexCount * (format == IndexFormat.UInt16 ? 2 : 4)];
 
         _isDirty = true;
     }
@@ -472,23 +461,23 @@ public sealed class Mesh : IDisposable
         ArraySegment<TIndex> data = new(indexData, indexDataStart, indexDataCount);
 
         int stride = IndexFormat == IndexFormat.UInt16 ? 2 : 4;
-        WriteStructData(data, ref _indexDataBuffer, stride);
+        WriteStructData(data, ref _indexData, stride);
     }
 
 
     public T[] GetIndexBufferData<T>() where T : unmanaged
     {
-        if (_indexDataBuffer == null)
+        if (_indexData == null)
             throw new InvalidOperationException(
-                $"The buffer '{nameof(_indexDataBuffer)}' has not been initialized. Did you forget to call {nameof(SetIndexBufferParams)}?");
+                $"The buffer '{nameof(_indexData)}' has not been initialized. Did you forget to call {nameof(SetIndexBufferParams)}?");
 
         int stride = IndexFormat == IndexFormat.UInt16 ? 2 : 4;
-        int numIndices = _indexDataBuffer.Length / stride;
+        int numIndices = _indexData.Length / stride;
         T[] indexArray = new T[numIndices];
 
         unsafe
         {
-            fixed (byte* bytePtr = _indexDataBuffer)
+            fixed (byte* bytePtr = _indexData)
             {
                 byte* currentPtr = bytePtr;
                 for (int i = 0; i < numIndices; i++)
@@ -669,7 +658,7 @@ public sealed class Mesh : IDisposable
 
     private int GetVertexAttributes<T>(T[] data, VertexAttribute attribute) where T : struct
     {
-        if (VertexCount == 0 || _vertexDataBuffer == null)
+        if (VertexCount == 0 || _vertexData == null)
             return 0;
 
         if (data.Length < VertexCount)
@@ -679,7 +668,7 @@ public sealed class Mesh : IDisposable
             throw new InvalidOperationException($"The vertex attribute '{attribute}' is not enabled.");
 
         int offset = GetVertexAttributeOffset(attribute);
-        ReadStructData(_vertexDataBuffer, offset, _vertexSizeBytes, Marshal.SizeOf<T>(), data);
+        ReadStructData(_vertexData, offset, _vertexSizeBytes, Marshal.SizeOf<T>(), data);
 
         return VertexCount;
     }
@@ -696,13 +685,13 @@ public sealed class Mesh : IDisposable
         if (data == null)
             throw new NotImplementedException("Clearing vertex attributes is not yet implemented.");
 
-        if (_vertexDataBuffer == null)
+        if (_vertexData == null)
         {
             SetVertexBufferSize(data.Length);
         }
         
         int offset = GetVertexAttributeOffset(attribute);
-        WriteStructData<T>(data, _vertexDataBuffer, offset, _vertexSizeBytes, Marshal.SizeOf<T>());
+        WriteStructData<T>(data, _vertexData, offset, _vertexSizeBytes, Marshal.SizeOf<T>());
     }
 
 
@@ -726,5 +715,94 @@ public sealed class Mesh : IDisposable
             new(VertexAttribute.Color, VertexAttribPointerType.UnsignedByte, 4),
             new(VertexAttribute.TexCoord0, VertexAttribPointerType.Float, 2)
         };
+    }
+}
+
+public class VertexFormat
+{
+    public readonly Element[] Elements;
+    public readonly int Size;
+
+
+    public VertexFormat(Element[] elements)
+    {
+        ArgumentNullException.ThrowIfNull(elements);
+
+        if (elements.Length == 0)
+            throw new Exception($"The argument '{nameof(elements)}' is null!");
+
+        Elements = elements;
+
+        foreach (Element element in Elements)
+        {
+            element.Offset = (short)Size;
+            int s = 0;
+            if ((int)element.Type > 5122)
+                s = 4 * element.Count; // Greater than short then it's either a Float or Int
+            else if ((int)element.Type > 5121)
+                s = 2 * element.Count; // Greater than byte then it's a Short
+            else
+                s = 1 * element.Count; // Byte or Unsigned Byte
+            Size += s;
+            element.Stride = (short)s;
+        }
+    }
+
+
+    public class Element
+    {
+        public readonly uint Semantic;
+        public readonly VertexType Type;
+        public readonly int Count;
+        public short Offset; // Automatically assigned in VertexFormats constructor
+        public short Stride; // Automatically assigned in VertexFormats constructor
+        public short Divisor;
+        public readonly bool Normalized;
+
+
+        public Element()
+        {
+        }
+
+
+        public Element(VertexSemantic semantic, VertexType type, byte count, short divisor = 0, bool normalized = false)
+        {
+            Semantic = (uint)semantic;
+            Type = type;
+            Count = count;
+            Divisor = divisor;
+            Normalized = normalized;
+        }
+
+
+        public Element(uint semantic, VertexType type, byte count, short divisor = 0, bool normalized = false)
+        {
+            Semantic = semantic;
+            Type = type;
+            Count = count;
+            Divisor = divisor;
+            Normalized = normalized;
+        }
+    }
+
+    public enum VertexSemantic
+    {
+        Position,
+        TexCoord0,
+        TexCoord1,
+        Normal,
+        Color,
+        Tangent
+    }
+
+    public enum VertexType
+    {
+        Byte = 5120,
+        UnsignedByte = 5121,
+        Short = 5122,
+        UnsignedShort = 5123,
+        Int = 5124,
+        UnsignedInt = 5125,
+        Float = 5126
     }
 }

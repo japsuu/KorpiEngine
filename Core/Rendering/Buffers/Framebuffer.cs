@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.Rendering.Buffers;
 /// <summary>
 /// Represents a framebuffer object.
 /// </summary>
-public class Framebuffer : GLObject
+public class Framebuffer : GraphicsObject
 {
     /// <summary>
     /// Creates a new framebuffer object.

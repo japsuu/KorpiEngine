@@ -4,13 +4,13 @@ using KorpiEngine.Core.Logging;
 namespace KorpiEngine.Core.Rendering;
 
 /// <summary>
-/// Represents an OpenGL resource.<br/>
+/// Represents a graphics (GPU) resource.<br/>
 /// Must be disposed explicitly, otherwise a warning will be logged indicating a memory leak.<br/>
 /// Can be derived to inherit the dispose pattern.
 /// </summary>
-public abstract class GLResource : IDisposable
+public abstract class GraphicsResource : IDisposable
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLResource));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsResource));
 
     /// <summary>
     /// Gets a values specifying if this resource has already been disposed.
@@ -19,9 +19,9 @@ public abstract class GLResource : IDisposable
 
 
     /// <summary>
-    /// Initializes a new instance of the GLObject class.
+    /// Initializes a new instance of the class.
     /// </summary>
-    protected GLResource()
+    protected GraphicsResource()
     {
         IsDisposed = false;
     }
@@ -30,12 +30,12 @@ public abstract class GLResource : IDisposable
     /// <summary>
     /// Called by the garbage collector and an indicator for a resource leak because the manual dispose prevents this destructor from being called.
     /// </summary>
-    ~GLResource()
+    ~GraphicsResource()
     {
-        Logger.WarnFormat("GLResource leaked: {0}", this);
+        Logger.WarnFormat("GraphicsResource leaked: {0}", this);
         Dispose(false);
 #if DEBUG
-        throw new Exceptions.OpenGLException($"GLResource leaked: {this}");
+        throw new Exceptions.OpenGLException($"GraphicsResource leaked: {this}");
 #endif
     }
 
@@ -68,7 +68,7 @@ public abstract class GLResource : IDisposable
 
 
     /// <summary>
-    /// Automatically calls <see cref="Dispose()"/> on all <see cref="GLResource"/> objects found on the given object.
+    /// Automatically calls <see cref="Dispose()"/> on all <see cref="GraphicsResource"/> objects found on the given object.
     /// </summary>
     /// <param name="obj"></param>
     public static void DisposeAll(object obj)
@@ -77,11 +77,11 @@ public abstract class GLResource : IDisposable
         foreach (FieldInfo field in obj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             // check if it should be released
-            if (!typeof(GLResource).IsAssignableFrom(field.FieldType))
+            if (!typeof(GraphicsResource).IsAssignableFrom(field.FieldType))
                 continue;
 
             // and release it
-            GLResource? resource = (GLResource?)field.GetValue(obj);
+            GraphicsResource? resource = (GraphicsResource?)field.GetValue(obj);
             resource?.Dispose();
         }
     }

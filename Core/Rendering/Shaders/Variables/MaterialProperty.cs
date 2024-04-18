@@ -1,5 +1,3 @@
-using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
-
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;
 
 /// <summary>
@@ -10,7 +8,7 @@ public abstract class MaterialProperty
     /// <summary>
     /// The handle of the shaderProgram to which this variable relates.
     /// </summary>
-    protected ShaderProgram ShaderProgram { get; private set; } = null!;
+    protected GraphicsProgram ShaderProgram { get; private set; } = null!;
 
     /// <summary>
     /// The handle of the shaderProgram to which this variable relates.
@@ -38,9 +36,9 @@ public abstract class MaterialProperty
 
 
     /// <summary>
-    /// Initializes this instance using the given ShaderProgram and PropertyInfo.
+    /// Initializes this instance using the given GraphicsProgram and PropertyInfo.
     /// </summary>
-    internal void Initialize(ShaderProgram shaderProgram)
+    internal void Initialize(GraphicsProgram shaderProgram)
     {
         ShaderProgram = shaderProgram;
         InitializeVariable();

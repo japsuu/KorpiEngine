@@ -1,29 +1,22 @@
-﻿using System.Diagnostics;
-using KorpiEngine.Core.Logging;
+﻿using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
+using KorpiEngine.Core.Rendering.Shaders;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+namespace KorpiEngine.Core.Rendering.OpenGL;
 
-/// <summary>
-/// Represents a shader shaderProgram object.
-/// </summary>
-public sealed class ShaderProgram : GLObject
+public class GLGraphicsProgram : GraphicsProgram
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ShaderProgram));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsProgram));
 
-    /// <summary>
-    /// The name of this shader shaderProgram.
-    /// </summary>
-    public string Name => GetType().Name;
-
+    public static GLGraphicsProgram? CurrentProgram { get; private set; }
 
     /// <summary>
     /// Initializes a new shaderProgram object.
     /// </summary>
-    internal ShaderProgram() : base(GL.CreateProgram())
+    internal GLGraphicsProgram() : base(GL.CreateProgram())
     {
-        Logger.InfoFormat("Creating shaderProgram: {0}", Name);
+        
     }
 
 
@@ -31,6 +24,10 @@ public sealed class ShaderProgram : GLObject
     {
         if (!manual)
             return;
+        
+        if (CurrentProgram != null && CurrentProgram.Handle == Handle)
+            CurrentProgram = null;
+        
         GL.DeleteProgram(Handle);
     }
 
@@ -40,7 +37,11 @@ public sealed class ShaderProgram : GLObject
     /// </summary>
     internal void Use()
     {
+        if (CurrentProgram != null && CurrentProgram.Handle == Handle)
+            return;
+        
         GL.UseProgram(Handle);
+        CurrentProgram = this;
     }
 
 
@@ -48,7 +49,7 @@ public sealed class ShaderProgram : GLObject
     /// Attach shader object.
     /// </summary>
     /// <param name="glShader">Specifies the shader object to attach.</param>
-    internal void AttachShader(GLShader glShader)
+    internal void AttachShader(GLGraphicsShader glShader)
     {
         GL.AttachShader(Handle, glShader.Handle);
     }
@@ -58,7 +59,7 @@ public sealed class ShaderProgram : GLObject
     /// Detach shader object.
     /// </summary>
     /// <param name="glShader">Specifies the shader object to detach.</param>
-    internal void DetachShader(GLShader glShader)
+    internal void DetachShader(GLGraphicsShader glShader)
     {
         GL.DetachShader(Handle, glShader.Handle);
     }
@@ -69,42 +70,31 @@ public sealed class ShaderProgram : GLObject
     /// </summary>
     internal void Link()
     {
-        Logger.DebugFormat("Linking shaderProgram: {0}", Name);
+        Logger.Debug($"Linking shaderProgram '{Handle}'...");
         GL.LinkProgram(Handle);
         CheckLinkStatus();
     }
 
 
     /// <summary>
-    /// Throws an <see cref="ObjectNotBoundException"/> if this shaderProgram is not the currently active one.
-    /// </summary>
-    [Conditional("DEBUG")]
-    internal void AssertActive()
-    {
-        GL.GetInteger(GetPName.CurrentProgram, out int activeHandle);
-        if (activeHandle != Handle)
-            throw new ObjectNotBoundException("ShaderProgram object is not currently active.");
-    }
-
-
-    /// <summary>
-    /// Assert that no link error occured.
+    /// Asserts that no link error occured.
     /// </summary>
     private void CheckLinkStatus()
     {
-        // check link status
+        // Check link status
         GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int linkStatus);
         Logger.DebugFormat("Link status: {0}", linkStatus);
 
-        // check shaderProgram info log
+        // Check shaderProgram info log
         string? info = GL.GetProgramInfoLog(Handle);
         if (!string.IsNullOrEmpty(info))
-            Logger.InfoFormat("Link log:\n{0}", info);
+            Logger.InfoFormat("Link  info:\n{0}", info);
 
-        // log message and throw exception on link error
+        // Log message and throw exception on link error
         if (linkStatus == 1)
             return;
-        string msg = $"Error linking shaderProgram: {Name}";
+        
+        string msg = $"Error linking shaderProgram '{Handle}'";
         Logger.Error(msg);
         throw new ProgramLinkException(msg, info);
     }

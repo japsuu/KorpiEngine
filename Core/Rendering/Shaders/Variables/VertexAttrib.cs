@@ -38,7 +38,7 @@ public sealed class VertexAttrib : MaterialProperty
     }
 
 
-    protected override void InitializeVariable(ShaderProgram shaderProgram, PropertyInfo property)
+    protected override void InitializeVariable(GraphicsProgram shaderProgram, PropertyInfo property)
     {
         VertexAttribAttribute attribute = property.GetCustomAttributes<VertexAttribAttribute>(false).FirstOrDefault() ?? new VertexAttribAttribute();
         Components = attribute.Components;

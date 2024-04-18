@@ -23,7 +23,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// TextureBuffer
 /// </code>
 /// </remarks>
-public abstract class Texture : GLObject, IHasName
+public abstract class Texture : GraphicsObject, IHasName
 {
     /// <summary>
     /// Name of this object

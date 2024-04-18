@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Core.Rendering.Shaders.ShaderPrograms;
+﻿using KorpiEngine.Core.Rendering.Shaders;
 using KorpiEngine.Core.Rendering.Shaders.Variables;
 using KorpiEngine.Core.Rendering.Textures;
 using OpenTK.Graphics.OpenGL4;
@@ -30,7 +30,7 @@ public abstract class BaseMaterial3D : Material
     private Uniform<Matrix4> _viewMatrix = null!;
     private Uniform<Matrix4> _projectionMatrix = null!;
     
-    public override ShaderProgram GLShader => ShaderManager.StandardShader3D;
+    public override GraphicsProgram GLShader => ShaderManager.StandardShader3D;
 
     
     protected override void RegisterMaterialProperties(List<MaterialProperty> properties)

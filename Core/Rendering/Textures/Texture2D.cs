@@ -48,7 +48,7 @@ public sealed class Texture2D : Texture
     {
         Texture2D texture;
         
-        // OpenGL has it's texture origin in the lower left corner instead of the top left corner,
+        // OpenGL has its texture origin in the lower left corner instead of the top left corner,
         // so we tell StbImageSharp to flip the image when loading.
         StbImage.stbi_set_flip_vertically_on_load(1);
 
