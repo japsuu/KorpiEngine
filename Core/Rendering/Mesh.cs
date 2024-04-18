@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Core.Rendering.Buffers;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -111,7 +112,7 @@ public enum IndexFormat
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh/* : IDisposable*/
+public sealed class Mesh : IDisposable
 {
     /// <summary>
     /// The format of the mesh index buffer data.
@@ -148,7 +149,7 @@ public sealed class Mesh/* : IDisposable*/
     private int _vertexSizeBytes;
     private byte[]? _vertexDataBuffer;
     private byte[]? _indexDataBuffer;
-    /*private GLBuffer<byte>? _vertexBuffer;
+    private GLBuffer<byte>? _vertexBuffer;
     private GLBuffer<byte>? _indexBuffer;
 
 
@@ -156,7 +157,7 @@ public sealed class Mesh/* : IDisposable*/
     {
         _vertexBuffer?.Dispose();
         _indexBuffer?.Dispose();
-    }*/
+    }
 
 
     public Mesh()
@@ -200,7 +201,7 @@ public sealed class Mesh/* : IDisposable*/
 
         _isDirty = false;
 
-        throw new NotImplementedException("TODO: Upload byte blob data to GPU");
+        // Upload byte blob data to the GPU
     }
 
 

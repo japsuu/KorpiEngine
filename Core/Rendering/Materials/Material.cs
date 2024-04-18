@@ -7,6 +7,11 @@ namespace KorpiEngine.Core.Rendering.Materials;
 /// <summary>
 /// A material used for rendering.
 /// Objects with a similar material may be batched together for rendering.
+///
+/// TODO: Figure out if shader preprocessor-based permutations are worth implementing, over a uniform-based branching system.
+/// https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+/// https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Shader.cs#L70
+/// https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 /// </summary>
 public abstract class Material
 {
