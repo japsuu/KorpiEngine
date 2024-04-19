@@ -19,7 +19,7 @@ internal class CustomScene : Scene
 
     protected override void Load()
     {
-        _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Box");
+        _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
         _blueBoxEntity.Transform.Position = new Vector3(0, 3, 0);
             
         StandardMaterial3D blueMaterial = (StandardMaterial3D)_blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
