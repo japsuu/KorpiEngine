@@ -7,6 +7,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// Represents a cubemap texture.<br/>
 /// There are exactly 6 distinct sets of 2D images, all of the same size. They act as 6 faces of a cube.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public sealed class TextureCubemap : LayeredTexture
 {
     public override string Name { get; }

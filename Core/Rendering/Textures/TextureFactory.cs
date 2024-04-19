@@ -5,6 +5,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// <summary>
 /// Provides methods for creating texture objects in ways not covered by constructors.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public static class TextureFactory
 {
     /// <summary>

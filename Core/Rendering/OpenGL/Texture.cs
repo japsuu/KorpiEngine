@@ -23,6 +23,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// TextureBuffer
 /// </code>
 /// </remarks>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public abstract class Texture : GraphicsObject, IHasName
 {
     /// <summary>

@@ -7,6 +7,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// Represents a 2D texture.<br/>
 /// Images in this texture all are 2-dimensional. They have width and height, but no depth.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public sealed class Texture2D : Texture
 {
     public override string Name { get; }

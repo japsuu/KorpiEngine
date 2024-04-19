@@ -7,6 +7,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// Images in this texture are all cube maps. It contains multiple sets of cube maps, all within one texture.
 /// The array length * 6 (number of cube faces) is part of the texture size.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public sealed class TextureCubemapArray : LayeredTexture
 {
     public override string Name { get; }

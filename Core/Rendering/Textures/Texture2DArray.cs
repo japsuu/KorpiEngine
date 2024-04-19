@@ -8,6 +8,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// Images in this texture all are 2-dimensional. However, it contains multiple sets of 2-dimensional images,
 /// all within one texture. The array length is part of the texture's size.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public sealed class Texture2DArray : LayeredTexture
 {
     public override string Name { get; }

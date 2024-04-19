@@ -8,6 +8,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// The image in this texture (only one image. No mipmapping) is 1-dimensional.
 /// The storage for this data comes from a Buffer Object.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public sealed class TextureBuffer : Texture
 {
     public override string Name { get; }

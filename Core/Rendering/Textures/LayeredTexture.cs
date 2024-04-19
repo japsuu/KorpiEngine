@@ -6,6 +6,7 @@ namespace KorpiEngine.Core.Rendering.Textures;
 /// Represents a layered texture.<br/>
 /// Layered textures are all array, cube map and 3D textures.
 /// </summary>
+[Obsolete("Deprecated. Use the new GraphicsTexture pipeline instead", true)]
 public abstract class LayeredTexture : Texture
 {
     public override bool SupportsLayers => true;
