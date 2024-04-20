@@ -4,7 +4,7 @@ Korpi Engine is an open-source, MIT-licensed 3D game engine written in pure C# i
 
 > The engine is still under development and is not yet feature-complete.
 
-> ⚠️ Development happens on the `dev` branch [(link)](https://github.com/japsuu/KorpiEngine/tree/dev). This branch is reserved for releases ⚠️
+> ⚠️ Development happens on the `dev` branch [(link)](https://github.com/japsuu/KorpiEngine/tree/dev). **This branch is reserved for releases** ⚠️
 
 ## Table of Contents
 
@@ -12,6 +12,7 @@ Korpi Engine is an open-source, MIT-licensed 3D game engine written in pure C# i
 - [Project status](#project-status)
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
+- [Contributing](CONTRIBUTING.md)
 
 ## Project goals
 
@@ -24,11 +25,23 @@ The engine is designed to be modular and extensible, allowing for easy integrati
 A non-exhaustive list of currently implemented engine features. Updated every once in a while:
 
 - [ ] Runtime
-  - [x] Unity-like scripting API
-  - [x] C# Scripting
-  - [x] Entity & Component structure
-  - [x] Native Dear ImGUI support
-  - [ ] Physics
+	- [x] Unity-like scripting API
+	- [x] C# Scripting
+	- [x] Entity & Component structure
+	- [x] Graphics-API agnostic backend
+		- [x] OpenGL renderer
+		- [ ] DirectX renderer
+		- [ ] Vulcan renderer
+		- [ ] Point, spot & directional lights
+		- [ ] Post-processing pipeline
+	- [x] Native Dear ImGUI support
+	- [ ] Physics
+		- [ ] Colliders
+		- [ ] Rigidbodies
+	- [ ] Unity-like Corourines
+	- [ ] Toggleable full 64-bit coordinate system support
+	- [ ] Scene system
+	- [ ] OpenAL audio backend
 - [ ] Editor layer
 
 ## Documentation
