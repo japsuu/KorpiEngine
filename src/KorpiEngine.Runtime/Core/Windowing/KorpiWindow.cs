@@ -15,7 +15,8 @@ internal sealed class KorpiWindow : GameWindow
 
     protected override void OnLoad()
     {
-        SystemInfo.Initialize();
+        SystemInfo.ProcessorCount = Environment.ProcessorCount;
+        SystemInfo.MainThreadId = Environment.CurrentManagedThreadId;
         WindowInfo.Initialize(this);
         InputManagement.Cursor.Initialize(this);
         InputManagement.Cursor.SetGrabbed(false);

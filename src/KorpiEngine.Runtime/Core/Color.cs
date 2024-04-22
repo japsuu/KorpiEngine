@@ -26,4 +26,13 @@ public readonly struct Color
     public static Color Cyan => new Color(0, 1, 1, 1);
     public static Color Magenta => new Color(1, 0, 1, 1);
     public static Color Transparent => new Color(0, 0, 0, 0);
+
+
+    public void Deconstruct(out float r, out float g, out float b, out float a)
+    {
+        r = R;
+        g = G;
+        b = B;
+        a = A;
+    }
 }

@@ -1,0 +1,23 @@
+﻿namespace KorpiEngine.Core.Rendering.Primitives;
+
+public struct RasterizerState
+{
+    public bool EnableDepthTest = true;
+    public bool EnableDepthWrite = true;
+    public DepthMode DepthMode = DepthMode.LessOrEqual;
+
+    public bool EnableBlend = true;
+    public Blending BlendSrc = Blending.SrcAlpha;
+    public Blending BlendDst = Blending.OneMinusSrcAlpha;
+    public BlendMode BlendMode = BlendMode.Add;
+
+    public bool EnableCulling = true;
+    public PolyFace FaceCulling = PolyFace.Back;
+
+    public WindingOrder WindingOrder = WindingOrder.CW;
+
+
+    public RasterizerState()
+    {
+    }
+}

@@ -108,38 +108,38 @@ public sealed class GLTexture : GraphicsTexture
     }
 
 
-    public unsafe void GetTexImage(int level, void* ptr)
+    public unsafe void GetTexImage(int level, void* data)
     {
         Bind(false);
-        GL.GetTexImage(Target, level, PixelFormat, PixelType, (IntPtr)ptr);
+        GL.GetTexImage(Target, level, PixelFormat, PixelType, (IntPtr)data);
     }
 
 
-    public unsafe void TexImage2D(TextureTarget type, int mip, int width, int height, int v2, void* data)
+    public unsafe void TexImage2D(TextureTarget type, int mipLevel, int width, int height, int border, void* data)
     {
         Bind(false);
-        GL.TexImage2D(type, mip, InternalFormat, width, height, v2, PixelFormat, PixelType, (IntPtr)data);
+        GL.TexImage2D(type, mipLevel, InternalFormat, width, height, border, PixelFormat, PixelType, (IntPtr)data);
     }
 
 
-    public unsafe void TexImage3D(TextureTarget type, int mip, int width, int height, int depth, int v2, void* data)
+    public unsafe void TexImage3D(TextureTarget type, int mipLevel, int width, int height, int depth, int border, void* data)
     {
         Bind(false);
-        GL.TexImage3D(type, mip, InternalFormat, width, height, depth, v2, PixelFormat, PixelType, (IntPtr)data);
+        GL.TexImage3D(type, mipLevel, InternalFormat, width, height, depth, border, PixelFormat, PixelType, (IntPtr)data);
     }
 
 
-    internal unsafe void TexSubImage2D(TextureTarget type, int mip, int x, int y, int width, int height, void* data)
+    internal unsafe void TexSubImage2D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int width, int height, void* data)
     {
         Bind(false);
-        GL.TexSubImage2D(type, mip, x, y, width, height, PixelFormat, PixelType, (IntPtr)data);
+        GL.TexSubImage2D(type, mipLevel, xOffset, yOffset, width, height, PixelFormat, PixelType, (IntPtr)data);
     }
 
 
-    internal unsafe void TexSubImage3D(TextureTarget type, int mip, int x, int y, int z, int width, int height, int depth, void* data)
+    internal unsafe void TexSubImage3D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, void* data)
     {
         Bind(false);
-        GL.TexSubImage3D(type, mip, x, y, z, width, height, depth, PixelFormat, PixelType, (IntPtr)data);
+        GL.TexSubImage3D(type, mipLevel, xOffset, yOffset, zOffset, width, height, depth, PixelFormat, PixelType, (IntPtr)data);
     }
 
 

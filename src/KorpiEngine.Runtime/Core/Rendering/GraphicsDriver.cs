@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Rendering.Shaders;
-using KorpiEngine.Core.Rendering.Textures;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -39,10 +38,15 @@ public abstract class GraphicsDriver
 
 
     #region State
+    
+    public abstract void SetState(RasterizerState state, bool force = false);
+    
+    public abstract RasterizerState GetState();
 
     public abstract void UpdateViewport(int x, int y, int width, int height);
 
-    public abstract void Clear(float r, float g, float b, float a, ClearFlags v);
+    public abstract void Clear(float r, float g, float b, float a, ClearFlags flags);
+    public abstract void Clear(Color color, ClearFlags flags);
 
     public abstract void Enable(EnableCap mask);
 
@@ -69,6 +73,17 @@ public abstract class GraphicsDriver
 
     public abstract GraphicsVertexArrayObject CreateVertexArray(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices);
     public abstract void BindVertexArray(GraphicsVertexArrayObject? vertexArrayObject);
+
+    #endregion
+    
+    
+    #region Frame Buffers
+
+    public abstract GraphicsFrameBuffer CreateFramebuffer(GraphicsFrameBuffer.Attachment[] attachments);
+    public abstract void UnbindFramebuffer();
+    public abstract void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget readFramebuffer = FBOTarget.Framebuffer);
+    public abstract void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags depthBufferBit, BlitFilter nearest);
+    public abstract T ReadPixel<T>(int attachment, int x, int y, TextureImageFormat format) where T : unmanaged;
 
     #endregion
 
@@ -108,22 +123,22 @@ public abstract class GraphicsDriver
     public abstract void SetTextureFilters(GraphicsTexture texture, TextureMin min, TextureMag mag);
     public abstract void GenerateMipmap(GraphicsTexture texture);
 
-    public abstract unsafe void GetTexImage(GraphicsTexture texture, int mip, void* data);
+    public abstract unsafe void GetTexImage(GraphicsTexture texture, int mipLevel, void* data);
 
-    public abstract unsafe void TexImage2D(GraphicsTexture texture, int v1, uint size1, uint size2, int v2, void* v3);
-    public abstract unsafe void TexImage2D(GraphicsTexture texture, TextureCubemap.CubemapFace face, int v1, uint size1, uint size2, int v2, void* v3);
-    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, int v, int rectX, int rectY, uint rectWidth, uint rectHeight, void* ptr);
-    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, TextureCubemap.CubemapFace face, int v, int rectX, int rectY, uint rectWidth, uint rectHeight, void* ptr);
-    public abstract unsafe void TexSubImage3D(GraphicsTexture texture, int v, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, void* ptr);
-    public abstract unsafe void TexImage3D(GraphicsTexture texture, int v1nt, uint width, uint height, uint depth, int v2, void* v3);
+    public abstract unsafe void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, void* data);
+    public abstract unsafe void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, void* data);
+    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, void* data);
+    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, void* data);
+    public abstract unsafe void TexSubImage3D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, void* data);
+    public abstract unsafe void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, void* data);
 
     #endregion
 
 
     #region Drawing
 
-    public abstract void DrawArrays(Topology primitiveType, int v, uint count);
-    public abstract unsafe void DrawElements(Topology triangles, uint indexCount, bool isIndex32Bit, void* value);
+    public abstract void DrawArrays(Topology primitiveType, int startIndex, int count);
+    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* data);
 
     #endregion
 }

@@ -20,7 +20,7 @@ internal static class Renderer3D
     {
         Graphics.Driver.Enable(EnableCap.DepthTest);
         
-        Graphics.Driver.SetClearColor(DefaultClearColor);
+        Graphics.Driver.Clear(DefaultClearColor);
     }
     
     
