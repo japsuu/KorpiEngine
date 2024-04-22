@@ -2,8 +2,8 @@
 
 public enum TextureWrap
 {
-    Repeat,
-    ClampToBorder,
-    ClampToEdge,
-    MirroredRepeat
+    Repeat = 10497,
+    ClampToBorder = 33069,
+    ClampToEdge = 33071,
+    MirroredRepeat = 33648
 }
