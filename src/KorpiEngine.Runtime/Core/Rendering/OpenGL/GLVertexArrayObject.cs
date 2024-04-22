@@ -4,14 +4,8 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 
 public sealed class GLVertexArrayObject : GraphicsVertexArrayObject
 {
-    public readonly int Handle;
-
-    public override bool IsDisposed { get; protected set; }
-
-
-    public GLVertexArrayObject(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices)
+    public GLVertexArrayObject(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices) : base(GL.GenVertexArray())
     {
-        Handle = GL.GenVertexArray();
         GL.BindVertexArray(Handle);
 
         BindFormat(format);
@@ -37,16 +31,12 @@ public sealed class GLVertexArrayObject : GraphicsVertexArrayObject
         }
     }
 
-
-    public override void Dispose()
+    
+    protected override void Dispose(bool manual)
     {
-        if (IsDisposed)
+        if (!manual)
             return;
-
+        
         GL.DeleteVertexArray(Handle);
-        IsDisposed = true;
     }
-
-
-    public override string ToString() => Handle.ToString();
 }
