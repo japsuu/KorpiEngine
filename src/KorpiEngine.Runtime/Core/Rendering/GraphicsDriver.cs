@@ -81,9 +81,9 @@ public abstract class GraphicsDriver
 
     public abstract GraphicsFrameBuffer CreateFramebuffer(GraphicsFrameBuffer.Attachment[] attachments);
     public abstract void UnbindFramebuffer();
-    public abstract void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget readFramebuffer = FBOTarget.Framebuffer);
+    public abstract void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget target = FBOTarget.Framebuffer);
     public abstract void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags depthBufferBit, BlitFilter nearest);
-    public abstract T ReadPixel<T>(int attachment, int x, int y, TextureImageFormat format) where T : unmanaged;
+    public abstract void ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output) where T : unmanaged;
 
     #endregion
 

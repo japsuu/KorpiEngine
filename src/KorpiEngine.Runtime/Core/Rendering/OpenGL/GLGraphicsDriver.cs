@@ -236,29 +236,49 @@ public sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.BindVertexArray((vertexArrayObject as GLVertexArrayObject)?.Handle ?? 0);
     }
 
+    #endregion
 
-    public override GraphicsFrameBuffer CreateFramebuffer(Attachment[] attachments) => throw new NotImplementedException();
+
+    #region Frame Buffers
+
+    public override GraphicsFrameBuffer CreateFramebuffer(GraphicsFrameBuffer.Attachment[] attachments) => new GLFrameBuffer(attachments);
+
+    public override void UnbindFramebuffer() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
 
-    public override void UnbindFramebuffer()
+    public override void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget target = FBOTarget.Framebuffer)
     {
-        throw new NotImplementedException();
+        GL.BindFramebuffer((FramebufferTarget)target, (frameBuffer as GLFrameBuffer)!.Handle);
     }
 
 
-    public override void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget readFramebuffer)
+    public override void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags v, BlitFilter filter)
     {
-        throw new NotImplementedException();
+        ClearBufferMask clearBufferMask = 0;
+        if (v.HasFlag(ClearFlags.Color))
+            clearBufferMask |= ClearBufferMask.ColorBufferBit;
+        if (v.HasFlag(ClearFlags.Depth))
+            clearBufferMask |= ClearBufferMask.DepthBufferBit;
+        if (v.HasFlag(ClearFlags.Stencil))
+            clearBufferMask |= ClearBufferMask.StencilBufferBit;
+
+        BlitFramebufferFilter nearest = filter switch
+        {
+            BlitFilter.Nearest => BlitFramebufferFilter.Nearest,
+            BlitFilter.Linear => BlitFramebufferFilter.Linear,
+            _ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+        };
+
+        GL.BlitFramebuffer(v1, v2, width, height, v3, v4, v5, v6, clearBufferMask, nearest);
     }
 
 
-    public override void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags depthBufferBit, BlitFilter nearest)
+    public override void ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output)
     {
-        throw new NotImplementedException();
+        GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
+        GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat internalFormat, out PixelType pixelType, out PixelFormat pixelFormat);
+        GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, output);
     }
-
-
-    public override T ReadPixel<T>(int attachment, int x, int y, TextureImageFormat format) => throw new NotImplementedException();
 
     #endregion
 
