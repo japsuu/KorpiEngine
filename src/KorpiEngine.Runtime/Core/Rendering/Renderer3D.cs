@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Materials;
+using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -9,6 +10,7 @@ namespace KorpiEngine.Core.Rendering;
 
 internal static class Renderer3D
 {
+    private const ClearFlags CLEAR_FLAGS = ClearFlags.Color | ClearFlags.Depth;
     private static readonly Color DefaultClearColor = Color.Magenta;
     
     public static Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
@@ -20,7 +22,7 @@ internal static class Renderer3D
     {
         Graphics.Driver.Enable(EnableCap.DepthTest);
         
-        Graphics.Driver.Clear(DefaultClearColor);
+        Clear(DefaultClearColor);
     }
     
     
@@ -83,9 +85,7 @@ internal static class Renderer3D
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Clear(Color color)
     {
-        Graphics.Driver.SetClearColor(color.R, color.G, color.B, color.A);
-
-        Graphics.Driver.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Graphics.Driver.Clear(color, CLEAR_FLAGS);
     }
 
 
