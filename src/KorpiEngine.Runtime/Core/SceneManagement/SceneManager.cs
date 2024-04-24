@@ -81,6 +81,7 @@ public static class SceneManager
     
     internal static void Update()
     {
+        EngineObject.HandleDestroyed();
         CurrentScene.InternalUpdate();
     }
     
@@ -99,8 +100,14 @@ public static class SceneManager
     
     internal static void UnloadAllScenes()
     {
+#warning TODO: Implement DontDestroyOnLoad
+        
+        // Unload all scenes and destroy all objects in them.
         foreach (Scene loadedScene in LoadedScenes)
             loadedScene.Dispose();
+        
+        // Handle all objects that were just destroyed.
+        EngineObject.HandleDestroyed();
         
         LoadedScenes.Clear();
         currentScene = null;
