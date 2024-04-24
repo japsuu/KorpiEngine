@@ -30,12 +30,12 @@ public static class Time
     /// <summary>
     /// Total number of frames that have passed since the start of the game.
     /// </summary>
-    public static uint TotalFrameCount { get; private set; }
+    public static int TotalFrameCount { get; private set; }
     
     /// <summary>
     /// Total number of fixed frames that have passed since the start of the game.
     /// </summary>
-    public static uint TotalFixedFrameCount { get; private set; }
+    public static int TotalFixedFrameCount { get; private set; }
 
     /// <summary>
     /// This value stores how far we are in the current update frame, relative to the fixed update loop.

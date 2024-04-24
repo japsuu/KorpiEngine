@@ -137,7 +137,7 @@ public abstract class GraphicsDriver
     #region Drawing
 
     public abstract void DrawArrays(Topology primitiveType, int startIndex, int count);
-    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* data);
+    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* indexOffset);
 
     #endregion
 }

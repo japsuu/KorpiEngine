@@ -507,7 +507,7 @@ public sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* data)
+    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* indexOffset)
     {
         PType mode = triangles switch
         {
@@ -521,7 +521,7 @@ public sealed unsafe class GLGraphicsDriver : GraphicsDriver
             Topology.Quads => PType.Quads,
             _ => throw new ArgumentOutOfRangeException(nameof(triangles), triangles, null)
         };
-        GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, (IntPtr)data);
+        GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, (IntPtr)indexOffset);
     }
 
     #endregion

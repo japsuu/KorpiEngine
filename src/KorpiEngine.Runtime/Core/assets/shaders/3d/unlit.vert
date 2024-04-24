@@ -9,9 +9,10 @@ layout (location = 4) in vec2 a_Uv0;
 layout (location = 5) in vec2 a_Uv1;
 
 // Uniforms
-uniform mat4 u_ModelMatrix;
-uniform mat4 u_ViewMatrix;
-uniform mat4 u_ProjectionMatrix;
+uniform mat4 u_MatModel;
+uniform mat4 u_MatView;
+uniform mat4 u_MatProjection;
+uniform mat4 u_MatMVP;
 
 // Outputs
 out vec2 texCoord0;

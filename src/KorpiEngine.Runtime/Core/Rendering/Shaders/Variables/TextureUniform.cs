@@ -1,4 +1,3 @@
-using KorpiEngine.Core.Rendering.Textures;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders.Variables;

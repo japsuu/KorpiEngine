@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.Rendering.OpenGL;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Shaders;
 

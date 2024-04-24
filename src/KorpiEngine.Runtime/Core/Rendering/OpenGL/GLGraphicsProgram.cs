@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Exceptions;
-using KorpiEngine.Core.Rendering.Shaders;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
