@@ -1,6 +1,7 @@
 ﻿using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
@@ -21,9 +22,17 @@ internal sealed class KorpiWindow : GameWindow
         InputManagement.Cursor.Initialize(this);
         InputManagement.Cursor.SetGrabbed(false);
 
-        Renderer3D.Initialize();
+        Graphics.Initialize<GLGraphicsDriver>(this);
         
         base.OnLoad();
+    }
+
+
+    protected override void OnUnload()
+    {
+        base.OnUnload();
+        
+        Graphics.Shutdown();
     }
 
 
@@ -32,19 +41,21 @@ internal sealed class KorpiWindow : GameWindow
         Camera? mainCamera = Camera.MainCamera;
         if (mainCamera == null)
         {
-            Renderer3D.SkipFrame();
+            Graphics.SkipFrame();
             return;
         }
         
-        Renderer3D.StartFrame(mainCamera);
+        Graphics.StartFrame(mainCamera);
         base.OnRenderFrame(args);
-        Renderer3D.EndFrame(this);
+        Graphics.EndFrame();
+        
+        SwapBuffers();
     }
 
 
     protected override void OnResize(ResizeEventArgs e)
     {
-        Renderer3D.OnWindowResize(e.Width, e.Height);
+        Graphics.UpdateViewport(e.Width, e.Height);
         
         base.OnResize(e);
     }

@@ -1,34 +1,101 @@
 ﻿using System.Net.Mime;
+using System.Runtime.CompilerServices;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Materials;
+using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Rendering.Textures;
+using KorpiEngine.Core.Windowing;
 using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    public static GraphicsDriver Driver { get; private set; } = null!;
+    private static GraphicsDriver driver = null!;
+    private static KorpiWindow Window { get; set; } = null!;
+    
+    public static Vector2i Resolution { get; private set; } = Vector2i.Zero;
+    public static Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
+    public static Matrix4 ViewMatrix { get; private set; } = Matrix4.Identity;
+    public static Matrix4 ViewProjectionMatrix { get; private set; } = Matrix4.Identity;
 
 
-    public static void Initialize(GraphicsDriver driver)
+    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
     {
-        Driver = driver;
-        Driver.Initialize();
+        driver = new T();
+        Window = korpiWindow;
+        driver.Initialize();
     }
 
 
-    public static void Shutdown()
+    internal static void Shutdown()
     {
-        Driver.Shutdown();
+        driver.Shutdown();
+    }
+    
+
+    public static void UpdateViewport(int width, int height)
+    {
+        driver.UpdateViewport(0, 0, width, height);
+        Resolution = new Vector2i(width, height);
+    }
+    
+
+    public static void Clear(float r = 1, float g = 0, float b = 1, float a = 1, bool color = true, bool depth = true, bool stencil = true)
+    {
+        ClearFlags flags = 0;
+        if (color) flags |= ClearFlags.Color;
+        if (depth) flags |= ClearFlags.Depth;
+        if (stencil) flags |= ClearFlags.Stencil;
+        driver.Clear(r, g, b, a, flags);
+    }
+    
+    
+    /// <summary>
+    /// Starts a new draw frame.
+    /// </summary>
+    /// <param name="renderingCamera">The camera to render with.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void StartFrame(Camera renderingCamera)
+    {
+        SetMatrices(renderingCamera);
+
+        if (renderingCamera.ClearType == CameraClearType.Nothing)
+            return;
+        
+        renderingCamera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
+        
+        Clear(r, g, b, a);
+
+        driver.SetState(new RasterizerState(), true);
+    }
+
+
+    /// <summary>
+    /// Ends the current draw frame.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void EndFrame()
+    {
+        
+    }
+
+
+    /// <summary>
+    /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SkipFrame()
+    {
+        Clear();
     }
 
 
     public static void DrawMeshNow(Mesh mesh, Matrix4 transform, Material material, Matrix4? oldTransform = null)
     {
-        if (Camera.Current == null)
+        if (Camera.MainCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
-        if (Graphics.Device.CurrentProgram == null)
+        if (driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         oldTransform ??= transform;
@@ -107,6 +174,18 @@ public static class Graphics
 
         DrawMeshNowDirect(mesh);
     }
+    
+    
+    /*public static void RenderMesh(Mesh mesh, Material material, Matrix4 modelMatrix)
+    {
+        material.SetModelMatrix(modelMatrix);
+        material.SetViewMatrix(ViewMatrix);
+        material.SetProjectionMatrix(ProjectionMatrix);
+        
+        material.Bind();
+        
+        mesh.UploadMeshData();
+    }*/
 
 
     public static void DrawMeshNowDirect(Mesh mesh)
@@ -134,5 +213,17 @@ public static class Graphics
     {
         mat.SetPass(pass);
         DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4.Identity, mat);
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void SetMatrices(Camera renderingCamera)
+    {
+        Matrix4 viewMatrix = renderingCamera.ViewMatrix;
+        Matrix4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        
+        ProjectionMatrix = projectionMatrix;
+        ViewMatrix = viewMatrix;
+        ViewProjectionMatrix = viewMatrix * projectionMatrix;
     }
 }

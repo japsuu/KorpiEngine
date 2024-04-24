@@ -171,14 +171,6 @@ public sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void Clear(Color color, ClearFlags flags)
-    {
-        color.Deconstruct(out float r, out float g, out float b, out float a);
-
-        Clear(r, g, b, a, flags);
-    }
-
-
     public override void Enable(EnableCap mask)
     {
         GL.Enable(mask);

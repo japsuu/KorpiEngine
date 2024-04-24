@@ -2,7 +2,6 @@
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.OpenGL;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
 using KorpiEngine.Core.UI.ImGui;
@@ -31,7 +30,6 @@ public abstract class Game : IDisposable
         InitializeLog4Net();
 
         _window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        Graphics.Initialize(new GLGraphicsDriver());
         _imGuiController = new ImGuiController(_window);
         
         _window.Load += OnLoad;
@@ -169,7 +167,6 @@ public abstract class Game : IDisposable
         
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
-        Graphics.Shutdown();
     }
 
 
