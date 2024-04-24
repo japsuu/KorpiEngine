@@ -5,7 +5,7 @@ using OpenTK.Windowing.Desktop;
 namespace KorpiEngine.Core.Windowing;
 
 /// <summary>
-/// Contains the initial windowing configuration for a <see cref="Game"/>.
+/// Contains the initial windowing configuration for a <see cref="Application"/>.
 /// </summary>
 public struct WindowingSettings
 {

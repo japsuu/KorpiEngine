@@ -1,5 +1,4 @@
 ﻿using KorpiEngine.Core;
-using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Mathematics;
 
@@ -9,8 +8,8 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        using Game game = new CustomGame(new WindowingSettings(new Vector2i(1280, 720), "KorpiEngine Sandbox"));
-        
-        game.Run();
+        Application.Run(
+            new WindowingSettings(new Vector2i(1280, 720), "KorpiEngine Sandbox"),
+            new CustomScene());
     }
 }
