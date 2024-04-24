@@ -58,6 +58,7 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame(Camera renderingCamera)
     {
+        Camera.RenderingCamera = renderingCamera;
         SetMatrices(renderingCamera);
 
         if (renderingCamera.ClearType == CameraClearType.Nothing)
@@ -77,7 +78,7 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        
+        Camera.RenderingCamera = null;
     }
 
 
@@ -93,8 +94,9 @@ public static class Graphics
 
     public static void DrawMeshNow(Mesh mesh, Matrix4 transform, Material material, Matrix4? oldTransform = null)
     {
-        if (Camera.MainCamera == null)
+        if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
+        
         if (driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 

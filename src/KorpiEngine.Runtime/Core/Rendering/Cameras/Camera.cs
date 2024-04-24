@@ -15,6 +15,8 @@ public sealed class Camera : Component
     public const float NEAR_CLIP_PLANE = 0.01f;
     public const float FAR_CLIP_PLANE = 1000f;
 
+    internal static Camera? RenderingCamera;
+
     /// <summary>
     /// Finds the camera with the highest priority, currently rendering to the screen.
     /// Expensive call, because it iterates through all scenes and entities.
