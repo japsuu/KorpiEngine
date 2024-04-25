@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Core;
+﻿using KorpiEngine.Core.Internal.Serializer;
+
+namespace KorpiEngine.Core;
 
 public abstract class EngineObject : IDisposable
 {
@@ -98,20 +100,26 @@ public abstract class EngineObject : IDisposable
     }
 
 
-    [Obsolete("This method is not implemented yet")]
-    public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false) => throw new NotImplementedException();
-    /*
-    if (obj.IsDestroyed) throw new Exception(obj.Name + " has been destroyed.");
-    // Serialize and deserialize to get a new object
-    var serialized = Serializer.Serialize(obj);
-    // dont need to assign ID or add it to objects list the constructor will do that automatically
-    var newObj = Serializer.Deserialize<EngineObject>(serialized);
-    // Some objects might have a readonly name (like components) in that case it should remain the same, so if name is different set it
-    newObj.Name = obj.Name;
-    // Need to make sure to set GUID to empty so the engine knows this isn't the original Asset file
-    if(!keepAssetID) newObj.AssetID = Guid.Empty;
-    return newObj;
-    */
+    public static EngineObject Instantiate(EngineObject obj/*, bool keepAssetID = false*/)
+    {
+        if (obj.IsDestroyed)
+            throw new Exception(obj.Name + " has been destroyed.");
+
+        // Serialize and deserialize to get a new object
+        SerializedProperty serialized = Serializer.Serialize(obj);
+
+        // dont need to assign ID or add it to objects list the constructor will do that automatically
+        EngineObject? newObj = Serializer.Deserialize<EngineObject>(serialized);
+
+        // Some objects might have a readonly name (like components) in that case it should remain the same, so if name is different set it
+        newObj!.Name = obj.Name;
+
+        // // Need to make sure to set GUID to empty so the engine knows this isn't the original Asset file
+        // if (!keepAssetID)
+        //     newObj.AssetID = Guid.Empty;
+        return newObj;
+    }
+    
 
 
     /// <summary>
