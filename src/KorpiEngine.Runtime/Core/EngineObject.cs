@@ -127,9 +127,7 @@ public abstract class EngineObject : IDisposable
     }
 
 
-    public virtual void OnDispose()
-    {
-    }
+    protected virtual void OnDispose() { }
 
 
     public override string ToString() => Name;

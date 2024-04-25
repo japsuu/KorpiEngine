@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    private static GraphicsDriver driver = null!;
+    internal static GraphicsDriver Driver = null!;
     private static KorpiWindow Window { get; set; } = null!;
     
     public static Vector2i Resolution { get; private set; } = Vector2i.Zero;
@@ -20,32 +20,32 @@ public static class Graphics
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
     {
-        driver = new T();
+        Driver = new T();
         Window = korpiWindow;
-        driver.Initialize();
+        Driver.Initialize();
     }
 
 
     internal static void Shutdown()
     {
-        driver.Shutdown();
+        Driver.Shutdown();
     }
     
 
-    public static void UpdateViewport(int width, int height)
+    internal static void UpdateViewport(int width, int height)
     {
-        driver.UpdateViewport(0, 0, width, height);
+        Driver.UpdateViewport(0, 0, width, height);
         Resolution = new Vector2i(width, height);
     }
     
 
-    public static void Clear(float r = 1, float g = 0, float b = 1, float a = 1, bool color = true, bool depth = true, bool stencil = true)
+    internal static void Clear(float r = 1, float g = 0, float b = 1, float a = 1, bool color = true, bool depth = true, bool stencil = true)
     {
         ClearFlags flags = 0;
         if (color) flags |= ClearFlags.Color;
         if (depth) flags |= ClearFlags.Depth;
         if (stencil) flags |= ClearFlags.Stencil;
-        driver.Clear(r, g, b, a, flags);
+        Driver.Clear(r, g, b, a, flags);
     }
     
     
@@ -66,7 +66,7 @@ public static class Graphics
         
         Clear(r, g, b, a);
 
-        driver.SetState(new RasterizerState(), true);
+        Driver.SetState(new RasterizerState(), true);
     }
 
 
@@ -84,7 +84,7 @@ public static class Graphics
     /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SkipFrame()
+    internal static void SkipFrame()
     {
         Clear();
     }
@@ -95,7 +95,7 @@ public static class Graphics
         if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
-        if (driver.CurrentProgram == null)
+        if (Driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         // Upload the default uniforms available to all shaders.
@@ -146,16 +146,16 @@ public static class Graphics
         if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
-        if (driver.CurrentProgram == null)
+        if (Driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         mesh.UploadMeshData();
 
         unsafe
         {
-            driver.BindVertexArray(mesh.VertexArrayObject);
-            driver.DrawElements(Topology.Triangles, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
-            driver.BindVertexArray(null);
+            Driver.BindVertexArray(mesh.VertexArrayObject);
+            Driver.DrawElements(Topology.Triangles, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
+            Driver.BindVertexArray(null);
         }
     }
 
