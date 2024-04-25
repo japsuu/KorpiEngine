@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering;
 
-public abstract class GraphicsDriver
+internal abstract class GraphicsDriver
 {
     protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDriver));
 

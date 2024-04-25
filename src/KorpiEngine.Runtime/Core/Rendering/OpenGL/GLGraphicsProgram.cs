@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
 
-public class GLGraphicsProgram : GraphicsProgram
+internal class GLGraphicsProgram : GraphicsProgram
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsProgram));
 

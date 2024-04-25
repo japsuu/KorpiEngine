@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
 
-public sealed class GLVertexArrayObject : GraphicsVertexArrayObject
+internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
 {
     public GLVertexArrayObject(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices) : base(GL.GenVertexArray())
     {

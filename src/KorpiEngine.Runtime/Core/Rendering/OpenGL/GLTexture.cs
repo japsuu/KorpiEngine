@@ -23,7 +23,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 /// TextureBuffer
 /// </code>
 /// </remarks>
-public sealed class GLTexture : GraphicsTexture
+internal sealed class GLTexture : GraphicsTexture
 {
     public override TextureType Type { get; protected set; }
 

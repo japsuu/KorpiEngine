@@ -8,7 +8,7 @@ namespace KorpiEngine.Core.Rendering;
 /// Must be disposed explicitly, otherwise a warning will be logged indicating a memory leak.<br/>
 /// Can be derived to inherit the dispose pattern.
 /// </summary>
-public abstract class GraphicsResource : IDisposable
+internal abstract class GraphicsResource : IDisposable
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsResource));
 
