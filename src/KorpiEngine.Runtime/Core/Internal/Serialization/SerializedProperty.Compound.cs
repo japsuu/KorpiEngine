@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Internal.Serializer
+﻿namespace KorpiEngine.Core.Internal.Serialization
 {
     public sealed partial class SerializedProperty
     {

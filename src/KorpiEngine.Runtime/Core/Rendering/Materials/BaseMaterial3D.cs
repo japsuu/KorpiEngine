@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.Rendering.Shaders;
+﻿using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.Rendering.Shaders;
 using KorpiEngine.Core.Rendering.Shaders.Variables;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;

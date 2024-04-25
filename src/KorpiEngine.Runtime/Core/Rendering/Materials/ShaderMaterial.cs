@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Core.Rendering.Materials;
+﻿using KorpiEngine.Core.API.Rendering.Materials;
+
+namespace KorpiEngine.Core.Rendering.Materials;
 
 /// <summary>
 /// A material defined by a custom <see cref="GraphicsProgram"/> and the values of its shader parameters.
