@@ -1,6 +1,7 @@
-﻿using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Primitives;
 
-namespace KorpiEngine.Core.Rendering.Textures;
+namespace KorpiEngine.Core.API.Textures;
 
 public abstract class Texture : EngineObject
 {
@@ -22,7 +23,7 @@ public abstract class Texture : EngineObject
     public readonly TextureImageFormat ImageFormat;
 
     /// <summary>Gets whether this <see cref="Texture"/> is mipmapped.</summary>
-    public bool HasMipmaps { get; private set; }
+    public bool IsMipmapped { get; private set; }
 
     /// <summary>False if this <see cref="Texture"/> can be mipmapped (depends on texture type).</summary>
     private readonly bool _isNotMipmappable;
@@ -46,7 +47,7 @@ public abstract class Texture : EngineObject
 
         Type = type;
         ImageFormat = imageFormat;
-        HasMipmaps = false;
+        IsMipmapped = false;
         _isNotMipmappable = !IsTextureTypeMipmappable(type);
         Handle = Graphics.Driver.CreateTexture(type, imageFormat);
         Graphics.Driver.SetWrapS(Handle, TextureWrap.Repeat);
@@ -81,7 +82,7 @@ public abstract class Texture : EngineObject
             throw new InvalidOperationException(string.Concat("This texture type is not mipmappable! Type: ", Type.ToString()));
 
         Graphics.Driver.GenerateMipmap(Handle);
-        HasMipmaps = true;
+        IsMipmapped = true;
     }
 
 

@@ -2,20 +2,67 @@
 
 public enum TextureImageFormat
 {
-    #region COMMON RGBA formats
+    #region BYTE formats
 
     /// <summary>
     /// Red, Green, Blue, and Alpha.
     /// Unsigned 8-bit per channel.
     /// </summary>
-    RGBA_8,
+    RGBA_8_B,
+
+    #endregion
+    
+    
+    #region SHORT formats
+    
+    /// <summary>
+    /// Red.
+    /// Signed 16-bit per channel.
+    /// </summary>
+    R_16_S,
+    
+    /// <summary>
+    /// Red and Green.
+    /// Signed 16-bit per channel.
+    /// </summary>
+    RG_16_S,
+    
+    /// <summary>
+    /// Red, Green and Blue.
+    /// Signed 16-bit per channel.
+    /// </summary>
+    RGB_16_S,
+    
+    /// <summary>
+    /// Red, Green, Blue, and Alpha.
+    /// Signed 16-bit per channel.
+    /// </summary>
+    RGBA_16_S,
+    
+    /// <summary>
+    /// Red.
+    /// Unsigned 16-bit per channel.
+    /// </summary>
+    R_16_US,
+    
+    /// <summary>
+    /// Red and Green.
+    /// Unsigned 16-bit per channel.
+    /// </summary>
+    RG_16_US,
+    
+    /// <summary>
+    /// Red, Green and Blue.
+    /// Unsigned 16-bit per channel.
+    /// </summary>
+    RGB_16_US,
     
     /// <summary>
     /// Red, Green, Blue, and Alpha.
     /// Unsigned 16-bit per channel.
     /// </summary>
-    RGBA_16,
-
+    RGBA_16_US,
+    
     #endregion
 
 
