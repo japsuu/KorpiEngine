@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Core.Internal.Serializer;
+﻿using KorpiEngine.Core.Internal.Serialization;
 
 namespace KorpiEngine.Core;
 
@@ -10,6 +10,12 @@ public abstract class EngineObject : IDisposable
 
     public readonly int InstanceID;
     public string Name;
+    
+    // Asset path if we have one
+    public Guid AssetID = Guid.Empty;
+
+    // Asset path if we have one
+    public ushort FileID = 0;
     
     /// <summary>
     /// Whether the underlying object has been destroyed.
@@ -100,7 +106,7 @@ public abstract class EngineObject : IDisposable
     }
 
 
-    public static EngineObject Instantiate(EngineObject obj/*, bool keepAssetID = false*/)
+    public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
     {
         if (obj.IsDestroyed)
             throw new Exception(obj.Name + " has been destroyed.");
@@ -114,9 +120,9 @@ public abstract class EngineObject : IDisposable
         // Some objects might have a readonly name (like components) in that case it should remain the same, so if name is different set it
         newObj!.Name = obj.Name;
 
-        // // Need to make sure to set GUID to empty so the engine knows this isn't the original Asset file
-        // if (!keepAssetID)
-        //     newObj.AssetID = Guid.Empty;
+        // Need to make sure to set GUID to empty so the engine knows this isn't the original Asset file
+        if (!keepAssetID)
+            newObj.AssetID = Guid.Empty;
         return newObj;
     }
     

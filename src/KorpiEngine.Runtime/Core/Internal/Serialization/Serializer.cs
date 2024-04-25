@@ -3,7 +3,7 @@ using System.Reflection;
 using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Logging;
 
-namespace KorpiEngine.Core.Internal.Serializer;
+namespace KorpiEngine.Core.Internal.Serialization;
 
 // Strongly based on the MIT-licenced Prowl engine serializer by michaelsakharov:
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Serializer/Serializer.cs

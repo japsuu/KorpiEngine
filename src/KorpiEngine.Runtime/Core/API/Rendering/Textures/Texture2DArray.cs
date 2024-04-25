@@ -2,7 +2,7 @@
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
 
-namespace KorpiEngine.Core.API.Textures;
+namespace KorpiEngine.Core.API.Rendering.Textures;
 
 /// <summary>
 /// A <see cref="Texture"/> containing an array of two-dimensional images and support for multisampling

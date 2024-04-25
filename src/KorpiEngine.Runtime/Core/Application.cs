@@ -1,5 +1,6 @@
 ﻿using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
+using KorpiEngine.Core.Internal.Assets;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -20,6 +21,8 @@ public static class Application
     private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
+    
+    internal static IAssetProvider AssetProvider { get; private set; } = null!;
 
 
     private static void InitializeLog4Net()
@@ -35,10 +38,11 @@ public static class Application
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run(WindowingSettings settings, Scene scene)
+    public static void Run(WindowingSettings settings, IAssetProvider assetProvider, Scene scene)
     {
         InitializeLog4Net();
-
+        
+        AssetProvider = assetProvider;
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         imGuiController = new ImGuiController(window);
         initialScene = scene;
@@ -49,6 +53,12 @@ public static class Application
         window.Unload += OnUnload;
         
         window.Run();
+    }
+    
+    
+    public static void Quit()
+    {
+        window.Close();
     }
 
 
