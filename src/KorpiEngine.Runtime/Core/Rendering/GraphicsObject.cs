@@ -4,7 +4,7 @@
 /// Represents a graphics resource handle.<br/>
 /// Must be disposed explicitly, otherwise there will be a memory leak which will be logged as a warning.
 /// </summary>
-public abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
+internal abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
 {
     /// <summary>
     /// The OpenGL handle.

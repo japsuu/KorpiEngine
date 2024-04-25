@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using KorpiEngine.Core.Debugging.OpenGL;
 using KorpiEngine.Core.Rendering.Exceptions;
-using KorpiEngine.Core.Rendering.Textures;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.Buffers;

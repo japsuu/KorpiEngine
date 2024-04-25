@@ -23,7 +23,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 /// TextureBuffer
 /// </code>
 /// </remarks>
-public sealed class GLTexture : GraphicsTexture
+internal sealed class GLTexture : GraphicsTexture
 {
     public override TextureType Type { get; protected set; }
 
@@ -156,8 +156,15 @@ public sealed class GLTexture : GraphicsTexture
     {
         pixelType = imageFormat switch
         {
-            TextureImageFormat.RGBA_8 => PixelType.UnsignedByte,
-            TextureImageFormat.RGBA_16 => PixelType.UnsignedShort,
+            TextureImageFormat.RGBA_8_B => PixelType.UnsignedByte,
+            TextureImageFormat.R_16_S => PixelType.Short,
+            TextureImageFormat.RG_16_S => PixelType.Short,
+            TextureImageFormat.RGB_16_S => PixelType.Short,
+            TextureImageFormat.RGBA_16_S => PixelType.Short,
+            TextureImageFormat.R_16_US => PixelType.UnsignedShort,
+            TextureImageFormat.RG_16_US => PixelType.UnsignedShort,
+            TextureImageFormat.RGB_16_US => PixelType.UnsignedShort,
+            TextureImageFormat.RGBA_16_US => PixelType.UnsignedShort,
             TextureImageFormat.R_32_F => PixelType.Float,
             TextureImageFormat.RG_32_F => PixelType.Float,
             TextureImageFormat.RGB_32_F => PixelType.Float,
@@ -179,8 +186,15 @@ public sealed class GLTexture : GraphicsTexture
 
         pixelInternalFormat = imageFormat switch
         {
-            TextureImageFormat.RGBA_8 => PixelInternalFormat.Rgba8,
-            TextureImageFormat.RGBA_16 => PixelInternalFormat.Rgba16,
+            TextureImageFormat.RGBA_8_B => PixelInternalFormat.Rgba8,
+            TextureImageFormat.R_16_S => PixelInternalFormat.R16,
+            TextureImageFormat.RG_16_S => PixelInternalFormat.Rg16,
+            TextureImageFormat.RGB_16_S => PixelInternalFormat.Rgb16,
+            TextureImageFormat.RGBA_16_S => PixelInternalFormat.Rgba16,
+            TextureImageFormat.R_16_US => PixelInternalFormat.R16,
+            TextureImageFormat.RG_16_US => PixelInternalFormat.Rg16,
+            TextureImageFormat.RGB_16_US => PixelInternalFormat.Rgb16,
+            TextureImageFormat.RGBA_16_US => PixelInternalFormat.Rgba16,
             TextureImageFormat.R_32_F => PixelInternalFormat.R32f,
             TextureImageFormat.RG_32_F => PixelInternalFormat.Rg32f,
             TextureImageFormat.RGB_32_F => PixelInternalFormat.Rgb32f,
@@ -202,8 +216,15 @@ public sealed class GLTexture : GraphicsTexture
 
         pixelFormat = imageFormat switch
         {
-            TextureImageFormat.RGBA_8 => PixelFormat.Rgba,
-            TextureImageFormat.RGBA_16 => PixelFormat.Rgba,
+            TextureImageFormat.RGBA_8_B => PixelFormat.Rgba,
+            TextureImageFormat.R_16_S => PixelFormat.Red,
+            TextureImageFormat.RG_16_S => PixelFormat.Rg,
+            TextureImageFormat.RGB_16_S => PixelFormat.Rgb,
+            TextureImageFormat.RGBA_16_S => PixelFormat.Rgba,
+            TextureImageFormat.R_16_US => PixelFormat.Red,
+            TextureImageFormat.RG_16_US => PixelFormat.Rg,
+            TextureImageFormat.RGB_16_US => PixelFormat.Rgb,
+            TextureImageFormat.RGBA_16_US => PixelFormat.Rgba,
             TextureImageFormat.R_32_F => PixelFormat.Red,
             TextureImageFormat.RG_32_F => PixelFormat.Rg,
             TextureImageFormat.RGB_32_F => PixelFormat.Rgb,

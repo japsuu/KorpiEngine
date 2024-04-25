@@ -13,7 +13,7 @@ namespace KorpiEngine.Core.Scripting;
 /// When a component is being constructed, it is not yet attached to an entity, or the entity might not even be initialized yet.<br/>
 /// This is also the reason why you should not create components directly or use the constructor, but instead use the <see cref="Entity.AddComponent{T}"/> method.
 /// </summary>
-public abstract class Component
+public abstract class Component : EngineObject
 {
     /// <summary>
     /// The entity this component is attached to.

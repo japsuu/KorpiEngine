@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
 
-public sealed class GLBuffer : GraphicsBuffer
+internal sealed class GLBuffer : GraphicsBuffer
 {
     public readonly BufferType OriginalType;
     public readonly BufferTarget Target;

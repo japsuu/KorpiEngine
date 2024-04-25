@@ -12,7 +12,7 @@ namespace KorpiEngine.Core.Scripting;
 /// <summary>
 /// High-level wrapper around an <see cref="EntityRef"/>.
 /// </summary>
-public sealed class Entity
+public sealed class Entity : EngineObject
 {
     /// <summary>
     /// The scene this entity is a part of.
@@ -23,11 +23,6 @@ public sealed class Entity
     /// Reference to the underlying entity.
     /// </summary>
     public readonly EntityReference EntityRef;
-
-    /// <summary>
-    /// Whether the underlying entity has been destroyed.
-    /// </summary>
-    public bool IsDestroyed => !EntityRef.IsAlive();
 
     public readonly Transform Transform;
 
@@ -56,7 +51,10 @@ public sealed class Entity
     public T AddComponent<T>() where T : Component, new()
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot add a component to a destroyed Entity.");
+            throw new KorpiException("Cannot add a component to a destroyed object.");
+        
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
         
         T component = new();
         component.Bind(this);     // Automatically attaches the component to this entity
@@ -70,7 +68,10 @@ public sealed class Entity
         //TODO: Better solution for this, that does not use reflection.
         //WARN: Might not work properly with components inheriting Behaviour, since Behaviour's NativeComponentType is BehaviourComponent.
         if (IsDestroyed)
-            throw new KorpiException("Cannot get a component from a destroyed Entity.");
+            throw new KorpiException("Cannot get a component from a destroyed object.");
+        
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
 
         if (typeof(T).IsSubclassOf(typeof(Component)))
         {
@@ -110,8 +111,11 @@ public sealed class Entity
     internal ref T AddNativeComponent<T>() where T : INativeComponent, new()
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot add a component to a destroyed Entity.");
+            throw new KorpiException("Cannot add a component to a destroyed object.");
         
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
+
         if (EntityRef.Entity.Has<T>())
             throw new KorpiException("Cannot add a component to an Entity that already has it.");
 
@@ -126,7 +130,10 @@ public sealed class Entity
     internal bool HasNativeComponent<T>() where T : INativeComponent
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot check for a component in a destroyed Entity.");
+            throw new KorpiException("Cannot check for a component in a destroyed object.");
+
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
 
         return EntityRef.Entity.Has<T>();
     }
@@ -137,7 +144,10 @@ public sealed class Entity
     internal bool HasNativeComponent(Type type)
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot check for a component in a destroyed Entity.");
+            throw new KorpiException("Cannot check for a component in a destroyed object.");
+
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
 
         return EntityRef.Entity.Has(type);
     }
@@ -148,7 +158,10 @@ public sealed class Entity
     internal ref T GetNativeComponent<T>() where T : INativeComponent
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot get a component from a destroyed Entity.");
+            throw new KorpiException("Cannot get a component from a destroyed object.");
+        
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
 
         return ref EntityRef.Entity.Get<T>();
     }
@@ -159,7 +172,10 @@ public sealed class Entity
     internal bool TryGetNativeComponent<T>([NotNullWhen(true)] out T? component) where T : INativeComponent
     {
         if (IsDestroyed)
-            throw new KorpiException("Cannot get a component from a destroyed Entity.");
+            throw new KorpiException("Cannot get a component from a destroyed object.");
+        
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
 
         return EntityRef.Entity.TryGet(out component);
     }

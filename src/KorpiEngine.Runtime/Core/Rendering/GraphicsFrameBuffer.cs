@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Core.Rendering;
 
-public abstract class GraphicsFrameBuffer : GraphicsObject
+internal abstract class GraphicsFrameBuffer : GraphicsObject
 {
     public struct Attachment
     {
