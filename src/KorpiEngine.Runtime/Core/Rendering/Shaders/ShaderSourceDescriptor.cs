@@ -10,21 +10,19 @@ public class ShaderSourceDescriptor
     public ShaderType Type { get; private set; }
 
     /// <summary>
-    /// Specifies the location of this shader.<br/>
-    /// Usually the path to the shader relative to the shaders' folder.<br/>
-    /// Example: 'core/pass.vert'.
+    /// Specifies the raw source code for this shader.
     /// </summary>
-    public string SourceLocation { get; private set; }
+    public string SourceRaw { get; private set; }  //NOTE: This could be a TextAsset?
 
 
     /// <summary>
     /// Initializes a new instance of the ShaderSourceDescriptor.
     /// </summary>
     /// <param name="type">Specifies the type of the shader.</param>
-    /// <param name="sourceLocation">Specifies the location of this shader.<br/>Usually the path to the shader relative to the shaders folder.<br/>Example: 'core/pass.vert'</param>
-    public ShaderSourceDescriptor(ShaderType type, string sourceLocation)
+    /// <param name="sourceRaw">The raw source code for this shader.</param>
+    public ShaderSourceDescriptor(ShaderType type, string sourceRaw)
     {
         Type = type;
-        SourceLocation = sourceLocation;
+        SourceRaw = sourceRaw;
     }
 }

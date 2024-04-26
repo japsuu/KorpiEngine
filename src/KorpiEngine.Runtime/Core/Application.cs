@@ -1,7 +1,8 @@
-﻿using KorpiEngine.Core.API;
+﻿using System.Reflection;
+using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
-using KorpiEngine.Core.Internal.Assets;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -23,7 +24,11 @@ public static class Application
     private static Scene initialScene = null!;
     
     internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
-    internal static IAssetProvider AssetProvider { get; private set; } = null!;
+    
+    public static string ExecutingDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+    public static string ExecutingAssetDirectory => Path.Combine(ExecutingDirectory, EngineConstants.ASSET_FOLDER_NAME);
+    public static string ExecutingDefaultsDirectory => Path.Combine(ExecutingDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
+    public static string ExecutingPackagesDirectory => Path.Combine(ExecutingDirectory, EngineConstants.PACKAGES_FOLDER_NAME);
 
 
     private static void InitializeLog4Net()
@@ -32,18 +37,17 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(EngineConstants.LOG_4_NET_CONFIG_PATH);
+        LogFactory.Initialize(Path.Combine(ExecutingDirectory, "log4net.config"));
     }
 
 
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run(WindowingSettings settings, IAssetProvider assetProvider, Scene scene)
+    public static void Run(WindowingSettings settings, Scene scene)
     {
         InitializeLog4Net();
         
-        AssetProvider = assetProvider;
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         imGuiController = new ImGuiController(window);
         initialScene = scene;
@@ -65,6 +69,11 @@ public static class Application
 
     private static void OnLoad()
     {
+        AssetDatabase.AddRootFolder(EngineConstants.ASSET_FOLDER_NAME);
+        AssetDatabase.AddRootFolder(EngineConstants.DEFAULTS_FOLDER_NAME);
+        AssetDatabase.AddRootFolder(EngineConstants.PACKAGES_FOLDER_NAME);
+        AssetDatabase.DiscoverAll();
+        
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
         
