@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.Debugging.Profiling;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Internal.Assets;
 using KorpiEngine.Core.Logging;
@@ -16,12 +17,12 @@ namespace KorpiEngine.Core;
 /// </summary>
 public static class Application
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     private static ImGuiController imGuiController = null!;
     private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
     
+    internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     internal static IAssetProvider AssetProvider { get; private set; } = null!;
 
 
@@ -72,6 +73,9 @@ public static class Application
         window.IsVisible = true;
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
+        
+        AssemblyManager.Initialize();
+        OnAssemblyLoadAttribute.Invoke();
     }
 
 
@@ -160,6 +164,7 @@ public static class Application
 
     private static void OnUnload()
     {
+        OnAssemblyUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         
