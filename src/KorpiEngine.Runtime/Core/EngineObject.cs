@@ -13,9 +13,6 @@ public abstract class EngineObject : IDisposable
     
     // Asset path if we have one
     public Guid AssetID = Guid.Empty;
-
-    // Asset path if we have one
-    public ushort FileID = 0;
     
     /// <summary>
     /// Whether the underlying object has been destroyed.
@@ -108,6 +105,7 @@ public abstract class EngineObject : IDisposable
 
     public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
     {
+#warning TODO: Implement custom serialization for EngineObject
         if (obj.IsDestroyed)
             throw new Exception(obj.Name + " has been destroyed.");
 
