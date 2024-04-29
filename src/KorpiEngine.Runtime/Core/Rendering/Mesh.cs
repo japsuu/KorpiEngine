@@ -1,64 +1,8 @@
 ﻿using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL4;
+using KorpiEngine.Core.Rendering.Primitives;
 using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering;
-
-/// <summary>
-/// Describes how a single <see cref="VertexAttribute"/> is laid out in a mesh vertex buffer.
-/// </summary>
-public readonly struct VertexAttributeDescriptor
-{
-    /// <summary>
-    /// The attribute this descriptor describes.
-    /// </summary>
-    public VertexAttribute Attribute { get; }
-
-    /// <summary>
-    /// The data type of the attribute.
-    /// </summary>
-    public VertexAttribPointerType Type { get; }
-
-    /// <summary>
-    /// How many elements of the specified type are used for this attribute.
-    /// </summary>
-    public int Size { get; }
-
-    public int ByteSize => Size * Type switch
-    {
-        VertexAttribPointerType.Byte => 1,
-        VertexAttribPointerType.UnsignedByte => 1,
-        VertexAttribPointerType.Short => 2,
-        VertexAttribPointerType.UnsignedShort => 2,
-        VertexAttribPointerType.Int => 4,
-        VertexAttribPointerType.UnsignedInt => 4,
-        VertexAttribPointerType.Float => 4,
-        VertexAttribPointerType.Double => 8,
-        VertexAttribPointerType.HalfFloat => 2,
-        VertexAttribPointerType.Fixed => 4,
-        VertexAttribPointerType.UnsignedInt2101010Rev => 4,
-        VertexAttribPointerType.UnsignedInt10F11F11FRev => 4,
-        VertexAttribPointerType.Int2101010Rev => 4,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-
-    public VertexAttributeDescriptor(VertexAttribute attribute, VertexAttribPointerType type, int size)
-    {
-        Attribute = attribute;
-        Type = type;
-        Size = size;
-    }
-}
-
-/// <summary>
-/// The format of the mesh index buffer data.
-/// </summary>
-public enum IndexFormat
-{
-    UInt16,
-    UInt32
-}
 
 /// <summary>
 /// Represents a 3D mesh.<br/><br/>
@@ -73,12 +17,12 @@ public enum IndexFormat
 /// 
 /// Attributes of a vertex are laid out one after another, in the following order:
 /// <code>
-/// VertexAttribute.Position,
-/// VertexAttribute.Normal,
-/// VertexAttribute.Tangent,
-/// VertexAttribute.Color,
-/// VertexAttribute.TexCoord0,
-/// VertexAttribute.TexCoord1
+/// VertexFormat.VertexSemanticPosition,
+/// VertexFormat.VertexSemanticNormal,
+/// VertexFormat.VertexSemanticTangent,
+/// VertexFormat.VertexSemanticColor,
+/// VertexFormat.VertexSemanticTexCoord0,
+/// VertexFormat.VertexSemanticTexCoord1
 /// </code><br/><br/>
 ///
 /// The basic usage of the Mesh class is to set the vertex buffer data using the simple API:<br/>
@@ -98,7 +42,7 @@ public enum IndexFormat
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh : IDisposable
+public sealed class Mesh : EngineObject
 {
     /// <summary>
     /// The format of the mesh index buffer data.
@@ -128,23 +72,51 @@ public sealed class Mesh : IDisposable
     /// When the mesh is NOT marked as readable, the vertex data is uploaded to GPU memory and discarded from CPU memory.
     /// </summary>
     public bool IsReadable { get; private set; } = true;
+    
+    /// <summary>
+    /// The current topology of the mesh.
+    /// </summary>
+    public Topology Topology
+    {
+        get => _topology;
+        set
+        {
+            _topology = value;
+            _isDirty = true;
+        }
+    }
+    
+    internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
+    private static Mesh? fullScreenQuadCached;
+    private Topology _topology = Topology.TriangleStrip;
     private VertexAttributeDescriptor[]? _vertexLayout;
-    private bool[] _enabledVertexAttributes = new bool[8];    //TODO: Does not take empty arrays into account.
     private bool _isDirty = true;
     private int _vertexSizeBytes;
+    private bool[] _enabledVertexAttributes = new bool[6];
     private byte[]? _vertexData;
     private byte[]? _indexData;
-    
-    private GraphicsVertexArrayObject? _vao;
+
     private GraphicsBuffer? _vertexBuffer;
     private GraphicsBuffer? _indexBuffer;
 
 
-    public void Dispose()
+    protected override void OnDispose()
     {
+        DeleteGPUBuffers();
+    }
+
+
+    private void DeleteGPUBuffers()
+    {
+        VertexArrayObject?.Dispose();
+        VertexArrayObject = null;
+        
         _vertexBuffer?.Dispose();
+        _vertexBuffer = null;
+        
         _indexBuffer?.Dispose();
+        _indexBuffer = null;
     }
 
 
@@ -165,13 +137,15 @@ public sealed class Mesh : IDisposable
         VertexCount = 0;
         IndexCount = 0;
         _isDirty = true;
+        
+        DeleteGPUBuffers();
 
         if (keepVertexLayout)
             return;
 
         VertexAttributeCount = 0;
         _vertexLayout = null;
-        _enabledVertexAttributes = new bool[8];
+        _enabledVertexAttributes = new bool[6];
     }
 
 
@@ -184,12 +158,47 @@ public sealed class Mesh : IDisposable
     /// </summary>
     public void UploadMeshData()
     {
-        if (!_isDirty)
+        if (!_isDirty && VertexArrayObject != null)
             return;
 
         _isDirty = false;
+        
+        DeleteGPUBuffers();
 
-        // Upload byte blob data to the GPU
+        switch (_topology)
+        {
+            case Topology.Triangles:
+                if (IndexCount % 3 != 0)
+                    throw new InvalidOperationException($"Triangle mesh doesn't have the right amount of indices. Has: {IndexCount}. Should be a multiple of 3");
+                break;
+            case Topology.TriangleStrip:
+                if (IndexCount < 3)
+                    throw new InvalidOperationException($"Triangle Strip mesh doesn't have the right amount of indices. Has: {IndexCount}. Should have at least 3");
+                break;
+
+            case Topology.Lines:
+                if (IndexCount % 2 != 0)
+                    throw new InvalidOperationException($"Line mesh doesn't have the right amount of indices. Has: {IndexCount}. Should be a multiple of 2");
+                break;
+
+            case Topology.LineStrip:
+                if (IndexCount < 2)
+                    throw new InvalidOperationException($"Line Strip mesh doesn't have the right amount of indices. Has: {IndexCount}. Should have at least 2");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+        if (_vertexData == null || _indexData == null)
+            return;
+
+        _vertexBuffer = Graphics.Driver.CreateBuffer(BufferType.VertexBuffer, _vertexData);
+        _indexBuffer = Graphics.Driver.CreateBuffer(BufferType.ElementsBuffer, _indexData);
+        VertexArrayObject = Graphics.Driver.CreateVertexArray(layout, vertexBuffer, indexBuffer);
+
+        Application.Logger.Debug($"[VAO ID={VertexArrayObject}] Mesh uploaded successfully to VRAM (GPU)");
+
+        Graphics.Driver.BindVertexArray(null);
     }
 
 
@@ -291,7 +300,12 @@ public sealed class Mesh : IDisposable
             {
                 ushort[] indices16 = new ushort[indices.Length];
                 for (int i = 0; i < indices.Length; i++)
-                    indices16[i] = (ushort)indices[i];
+                {
+                    int index = indices[i];
+                    if (index >= ushort.MaxValue)
+                        throw new InvalidOperationException($"[Mesh] Invalid value '{index}' for 16-bit indices");
+                    indices16[i] = (ushort)index;
+                }
 
                 SetIndexBufferData(indices16, 0, indices16.Length);
                 break;
@@ -557,13 +571,74 @@ public sealed class Mesh : IDisposable
 
         return mesh;
     }
+    
+    public static Mesh GetFullscreenQuad()
+    {
+        if (fullScreenQuadCached != null) return fullScreenQuadCached;
+        Mesh mesh = new Mesh();
+        Vector3[] positions = new Vector3[4];
+        positions[0] = new Vector3(-1, -1, 0);
+        positions[1] = new Vector3(1, -1, 0);
+        positions[2] = new Vector3(-1, 1, 0);
+        positions[3] = new Vector3(1, 1, 0);
+
+        int[] indices = new int[6];
+        indices[0] = 0;
+        indices[1] = 2;
+        indices[2] = 1;
+        indices[3] = 2;
+        indices[4] = 3;
+        indices[5] = 1;
+
+        Vector2[] uvs = new Vector2[4];
+        uvs[0] = new Vector2(0, 0);
+        uvs[1] = new Vector2(1, 0);
+        uvs[2] = new Vector2(0, 1);
+        uvs[3] = new Vector2(1, 1);
+        
+        mesh.SetPositions(positions);
+        mesh.SetIndices(indices);
+        mesh.SetUVs(uvs, 0);
+
+        fullScreenQuadCached = mesh;
+        return mesh;
+    }
+    
+    /*private static VertexFormat GetVertexLayout(Mesh mesh)
+    {
+        List<VertexAttributeDescriptor> elements = new();
+        elements.Add(new VertexAttributeDescriptor(VertexAttribute.Position, VertexType.Float, 3));
+
+        if (mesh.HasUV)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexType.Float, 2));
+
+        if (mesh.HasUV2)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexType.Float, 2));
+
+        if (mesh.HasNormals)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.Normal, VertexType.Float, 3, 0, true));
+
+        if (mesh.HasColors || mesh.HasColors32)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.Color, VertexType.Float, 4));
+
+        if (mesh.HasTangents)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexType.Float, 3, 0, true));
+
+        if (mesh.HasBoneIndices)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.BoneIndex, VertexType.Float, 4));
+
+        if (mesh.HasBoneWeights)
+            elements.Add(new VertexAttributeDescriptor(VertexAttribute.BoneWeight, VertexType.Float, 4));
+
+        return new VertexFormat(elements.ToArray());
+    }*/
 
     #endregion
 
 
     /// <summary>
     /// Completely overwrites the destination buffer with the source data.
-    /// The byte side of the source data must match the stride.
+    /// The byte size of the source data must match the stride.
     /// </summary>
     private static void WriteStructData<TStruct>(ArraySegment<TStruct> source, ref byte[]? destination, int stride) where TStruct : struct
     {
@@ -624,7 +699,7 @@ public sealed class Mesh : IDisposable
     }
 
 
-    private bool IsVertexAttributeEnabled(VertexAttribute attribute) => _enabledVertexAttributes[(int)attribute];
+    public bool IsVertexAttributeEnabled(VertexAttribute attribute) => _enabledVertexAttributes[(int)attribute];
 
 
     /// <summary>
@@ -657,6 +732,9 @@ public sealed class Mesh : IDisposable
 
     private int GetVertexAttributes<T>(T[] data, VertexAttribute attribute) where T : struct
     {
+        if (!IsReadable)
+            throw new InvalidOperationException("The mesh is not readable.");
+        
         if (VertexCount == 0 || _vertexData == null)
             return 0;
 
@@ -708,22 +786,68 @@ public sealed class Mesh : IDisposable
 
         public static readonly VertexAttributeDescriptor[] Attributes =
         {
-            new(VertexAttribute.Position, VertexAttribPointerType.Float, 3),
-            new(VertexAttribute.Normal, VertexAttribPointerType.Float, 3),
-            new(VertexAttribute.Tangent, VertexAttribPointerType.Float, 3),
-            new(VertexAttribute.Color, VertexAttribPointerType.UnsignedByte, 4),
-            new(VertexAttribute.TexCoord0, VertexAttribPointerType.Float, 2)
+            new(VertexAttribute.Position, VertexType.Float, 3),
+            new(VertexAttribute.Normal, VertexType.Float, 3),
+            new(VertexAttribute.Tangent, VertexType.Float, 3),
+            new(VertexAttribute.Color, VertexType.UnsignedByte, 4),
+            new(VertexAttribute.TexCoord0, VertexType.Float, 2)
         };
+    }
+}
+
+/*/// <summary>
+/// Describes how a single <see cref="VertexAttribute"/> is laid out in a mesh vertex buffer.
+/// </summary>
+public readonly struct VertexAttributeDescriptor
+{
+    /// <summary>
+    /// The attribute this descriptor describes.
+    /// </summary>
+    public VertexAttribute Attribute { get; }
+
+    /// <summary>
+    /// The data type of the attribute.
+    /// </summary>
+    public VertexType Type { get; }
+
+    /// <summary>
+    /// How many elements of the specified type are used for this attribute.
+    /// </summary>
+    public int Count { get; }
+
+    public int ByteSize => Count * Type switch
+    {
+        VertexType.Byte => 1,
+        VertexType.UnsignedByte => 1,
+        VertexType.Short => 2,
+        VertexType.UnsignedShort => 2,
+        VertexType.Int => 4,
+        VertexType.UnsignedInt => 4,
+        VertexType.Float => 4,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+
+    public VertexAttributeDescriptor(VertexAttribute attribute, VertexType type, int count)
+    {
+        Attribute = attribute;
+        Type = type;
+        Count = count;
     }
 }
 
 public class VertexFormat
 {
-    public readonly Element[] Elements;
-    public readonly int Size;
+    public VertexAttributeDescriptor[] Attributes { get; }
+}*/
+
+public class VertexFormat
+{
+    public readonly VertexAttributeDescriptor[] Elements;
+    public readonly int VertexSize;
 
 
-    public VertexFormat(Element[] elements)
+    public VertexFormat(VertexAttributeDescriptor[] elements)
     {
         ArgumentNullException.ThrowIfNull(elements);
 
@@ -732,76 +856,56 @@ public class VertexFormat
 
         Elements = elements;
 
-        foreach (Element element in Elements)
+        foreach (VertexAttributeDescriptor element in Elements)
         {
-            element.Offset = (short)Size;
-            int s = 0;
-            if ((int)element.Type > 5122)
-                s = 4 * element.Count; // Greater than short then it's either a Float or Int
-            else if ((int)element.Type > 5121)
-                s = 2 * element.Count; // Greater than byte then it's a Short
-            else
-                s = 1 * element.Count; // Byte or Unsigned Byte
-            Size += s;
-            element.Stride = (short)s;
+            element.Offset = (short)VertexSize;
+            int attributeSize = element.Count * element.Type switch
+            {
+                VertexType.Byte => 1,
+                VertexType.UnsignedByte => 1,
+                VertexType.Short => 2,
+                VertexType.UnsignedShort => 2,
+                VertexType.Int => 4,
+                VertexType.UnsignedInt => 4,
+                VertexType.Float => 4,
+                _ => throw new ArgumentOutOfRangeException(nameof(elements))
+            };
+            VertexSize += attributeSize;
+            element.Stride = (short)attributeSize;
         }
     }
 
 
-    public class Element
+    public class VertexAttributeDescriptor
     {
-        public readonly uint Semantic;
+        public readonly int Semantic;
         public readonly VertexType Type;
         public readonly int Count;
         public short Offset; // Automatically assigned in VertexFormats constructor
         public short Stride; // Automatically assigned in VertexFormats constructor
-        public short Divisor;
         public readonly bool Normalized;
 
 
-        public Element()
+        public VertexAttributeDescriptor()
         {
         }
 
 
-        public Element(VertexSemantic semantic, VertexType type, byte count, short divisor = 0, bool normalized = false)
+        public VertexAttributeDescriptor(VertexAttribute attribute, VertexType type, byte count, bool normalized = false)
         {
-            Semantic = (uint)semantic;
+            Semantic = (int)attribute;
             Type = type;
             Count = count;
-            Divisor = divisor;
             Normalized = normalized;
         }
 
 
-        public Element(uint semantic, VertexType type, byte count, short divisor = 0, bool normalized = false)
+        public VertexAttributeDescriptor(int semantic, VertexType type, byte count, bool normalized = false)
         {
             Semantic = semantic;
             Type = type;
             Count = count;
-            Divisor = divisor;
             Normalized = normalized;
         }
-    }
-
-    public enum VertexSemantic
-    {
-        Position,
-        TexCoord0,
-        TexCoord1,
-        Normal,
-        Color,
-        Tangent
-    }
-
-    public enum VertexType
-    {
-        Byte = 5120,
-        UnsignedByte = 5121,
-        Short = 5122,
-        UnsignedShort = 5123,
-        Int = 5124,
-        UnsignedInt = 5125,
-        Float = 5126
     }
 }

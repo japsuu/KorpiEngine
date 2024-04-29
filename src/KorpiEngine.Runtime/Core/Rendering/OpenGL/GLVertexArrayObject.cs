@@ -25,9 +25,9 @@ internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
             IntPtr offset = (IntPtr)element.Offset;
 
             if (element.Type == VertexFormat.VertexType.Float)
-                GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.Type, element.Normalized, format.Size, offset);
+                GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.Type, element.Normalized, format.VertexSize, offset);
             else
-                GL.VertexAttribIPointer(index, element.Count, (VertexAttribIntegerType)element.Type, format.Size, offset);
+                GL.VertexAttribIPointer(index, element.Count, (VertexAttribIntegerType)element.Type, format.VertexSize, offset);
         }
     }
 

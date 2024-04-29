@@ -9,8 +9,8 @@ namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    internal static GraphicsDriver Driver = null!;
     private static KorpiWindow Window { get; set; } = null!;
+    internal static GraphicsDriver Driver = null!;
     
     public static Vector2i Resolution { get; private set; } = Vector2i.Zero;
     public static Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
@@ -116,29 +116,17 @@ public static class Graphics
         material.SetMatrix("u_MatProjection", ProjectionMatrix);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
-        material.SetKeyword("HAS_UV", mesh.HasUV);
-        material.SetKeyword("HAS_UV2", mesh.HasUV2);
-        material.SetKeyword("HAS_NORMALS", mesh.HasNormals);
-        material.SetKeyword("HAS_COLORS", mesh.HasColors || mesh.HasColors32);
-        material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
+        material.SetKeyword("HAS_UV", mesh.IsVertexAttributeEnabled(VertexAttribute.TexCoord0));
+        material.SetKeyword("HAS_UV2", mesh.IsVertexAttributeEnabled(VertexAttribute.TexCoord1));
+        material.SetKeyword("HAS_NORMALS", mesh.IsVertexAttributeEnabled(VertexAttribute.Normal));
+        material.SetKeyword("HAS_COLORS", mesh.IsVertexAttributeEnabled(VertexAttribute.Color));
+        material.SetKeyword("HAS_TANGENTS", mesh.IsVertexAttributeEnabled(VertexAttribute.Tangent));
 
         // All material uniforms have been assigned, it's time to buffer them
-        MaterialPropertyBlock.Apply(material.PropertyBlock, Graphics.Device.CurrentProgram);
+        material.PropertyBlock.Apply(Driver.CurrentProgram);
 
         DrawMeshNowDirect(mesh);
     }
-    
-    
-    /*public static void RenderMesh(Mesh mesh, Material material, Matrix4 modelMatrix)
-    {
-        material.SetModelMatrix(modelMatrix);
-        material.SetViewMatrix(ViewMatrix);
-        material.SetProjectionMatrix(ProjectionMatrix);
-        
-        material.Bind();
-        
-        mesh.UploadMeshData();
-    }*/
 
 
     public static void DrawMeshNowDirect(Mesh mesh)
