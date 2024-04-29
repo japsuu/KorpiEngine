@@ -1,5 +1,6 @@
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering.Exceptions;
+using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
 
@@ -25,7 +26,7 @@ internal static class GLGraphicsProgramFactory
             foreach (ShaderSourceDescriptor sourceInfo in shaders)
             {
                 // create a new shader of the appropriate type
-                using GLGraphicsShader glShader = new(sourceInfo.Type);
+                using GLGraphicsShader glShader = new((ShaderType)sourceInfo.Type);
 
                 // compile shader source
                 glShader.CompileSource(sourceInfo.Source);
