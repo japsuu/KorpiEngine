@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Mathematics;

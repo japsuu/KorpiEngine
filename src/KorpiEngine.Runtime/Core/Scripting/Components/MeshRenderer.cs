@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Materials;
 
 namespace KorpiEngine.Core.Scripting.Components;
 

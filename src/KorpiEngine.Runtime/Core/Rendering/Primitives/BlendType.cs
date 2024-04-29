@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Core.Rendering.Primitives;
 
-public enum Blending
+public enum BlendType
 {
     Zero = 0,
     One = 1,

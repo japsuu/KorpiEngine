@@ -1,9 +1,10 @@
 ﻿using Arch.Core;
 using Arch.Core.Extensions;
+using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.Scripting;
 using OpenTK.Mathematics;
 using Entity = KorpiEngine.Core.Scripting.Entity;
@@ -54,7 +55,7 @@ public abstract class Scene : IDisposable
         Entity e = CreateEntity(name);
         ref MeshRendererComponent c = ref e.AddNativeComponent<MeshRendererComponent>();
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
-        c.Material = new StandardMaterial3D();
+        c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
         return e;
     }
 

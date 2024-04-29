@@ -7,8 +7,8 @@ public struct RasterizerState
     public DepthMode DepthMode = DepthMode.LessOrEqual;
 
     public bool EnableBlend = true;
-    public Blending BlendSrc = Blending.SrcAlpha;
-    public Blending BlendDst = Blending.OneMinusSrcAlpha;
+    public BlendType BlendSrc = BlendType.SrcAlpha;
+    public BlendType BlendDst = BlendType.OneMinusSrcAlpha;
     public BlendMode BlendMode = BlendMode.Add;
 
     public bool EnableCulling = true;

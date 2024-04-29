@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
-using KorpiEngine.Core.Rendering.Shaders;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
@@ -28,8 +28,8 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     private DepthMode _depthMode = DepthMode.LessOrEqual;
 
     private bool _doBlend = true;
-    private Blending _blendSrc = Blending.SrcAlpha;
-    private Blending _blendDst = Blending.OneMinusSrcAlpha;
+    private BlendType _blendSrc = BlendType.SrcAlpha;
+    private BlendType _blendDst = BlendType.OneMinusSrcAlpha;
     private BlendMode _blendEquation = BlendMode.Add;
 
     private bool _doCull = true;
@@ -277,14 +277,10 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Shaders
 
-    public override GraphicsProgram CompileProgram(List<ShaderSourceDescriptor> shaders) =>
-        GLGraphicsProgramFactory.Create(EngineConstants.INTERNAL_SHADER_BASE_PATH, shaders);
+    public override GraphicsProgram CompileProgram(List<ShaderSourceDescriptor> shaders) => GLGraphicsProgramFactory.Create(shaders);
 
 
-    public override void BindProgram(GraphicsProgram program)
-    {
-        (program as GLGraphicsProgram)!.Use();
-    }
+    public override void BindProgram(GraphicsProgram program) => (program as GLGraphicsProgram)!.Use();
 
 
     public override int GetUniformLocation(GraphicsProgram program, string name)

@@ -1,6 +1,7 @@
-﻿using KorpiEngine.Core.Internal.Serialization;
+﻿using KorpiEngine.Core.API.AssetManagement;
+using KorpiEngine.Core.Internal.Serialization;
 
-namespace KorpiEngine.Core.Internal.Assets;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 // Taken and modified from Prowl's AssetRef.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/AssetRef.cs,
@@ -9,16 +10,15 @@ namespace KorpiEngine.Core.Internal.Assets;
 
 /// <summary>
 /// This lightweight struct references an <see cref="EngineObject"/> in an abstract way. It
-/// is tightly connected to the <see cref="IAssetProvider"/>, and takes care of keeping or making 
+/// is tightly connected to the AssetDatabase, and takes care of keeping or making 
 /// the referenced content available when needed. Never store actual Resource references permanently,
 /// instead use a ContentRef to it. However, you may retrieve and store a direct Resource reference
 /// temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
+public struct AssetRef<T> : ISerializable where T : EngineObject
 {
     private T? _instance;
     private Guid _assetID = Guid.Empty;
-    private ushort _fileID = 0;
 
     /// <summary>
     /// The actual <see cref="EngineObject"/>. If currently unavailable, it is loaded and then returned.
@@ -33,10 +33,9 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
                 RetrieveInstance();
             return _instance;
         }
-        set
+        private set
         {
             _assetID = value?.AssetID ?? Guid.Empty;
-            _fileID = value?.FileID ?? 0;
             _instance = value;
         }
     }
@@ -59,15 +58,6 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
             if (_instance != null && _instance.AssetID != value)
                 _instance = null;
         }
-    }
-
-    /// <summary>
-    /// The Asset index inside the asset file. 0 is the Main Asset
-    /// </summary>
-    public ushort FileID
-    {
-        get => _fileID;
-        set => _fileID = value;
     }
 
     /// <summary>
@@ -98,7 +88,7 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
         {
             if (_instance != null && !_instance.IsDestroyed)
                 return true;
-            return Application.AssetProvider.HasAsset(_assetID);
+            return AssetDatabase.Contains(_assetID);
         }
     }
 
@@ -129,19 +119,6 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
     {
         _instance = null;
         _assetID = id;
-        FileID = 0;
-    }
-
-
-    /// <summary>
-    /// Creates a AssetRef pointing to the <see cref="EngineObject"/> at the specified id / using 
-    /// the specified alias.
-    /// </summary>
-    public AssetRef(Guid id, ushort fileId)
-    {
-        _instance = null;
-        _assetID = id;
-        _fileID = fileId;
     }
 
 
@@ -153,7 +130,6 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
     {
         _instance = res;
         _assetID = res?.AssetID ?? Guid.Empty;
-        _fileID = res?.FileID ?? 0;
     }
 
 
@@ -194,9 +170,9 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
     private void RetrieveInstance()
     {
         if (_assetID != Guid.Empty)
-            _instance = (T)Application.AssetProvider.LoadAsset<T>(_assetID, _fileID);
+            _instance = (T)AssetDatabase.LoadAsset<T>(_assetID);
         else if (_instance != null && _instance.AssetID != Guid.Empty)
-            _instance = (T)Application.AssetProvider.LoadAsset<T>(_instance.AssetID, _instance.FileID);
+            _instance = (T)AssetDatabase.LoadAsset<T>(_instance.AssetID);
         else
             _instance = null;
     }
@@ -231,7 +207,7 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
     public override int GetHashCode()
     {
         if (_assetID != Guid.Empty)
-            return _assetID.GetHashCode() + _fileID.GetHashCode();
+            return _assetID.GetHashCode();
         if (_instance != null)
             return _instance.GetHashCode();
         return 0;
@@ -279,7 +255,7 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
         // Path comparison
         Guid? firstPath = first._instance?.AssetID ?? first._assetID;
         Guid? secondPath = second._instance?.AssetID ?? second._assetID;
-        return firstPath == secondPath && first._fileID == second._fileID;
+        return firstPath == secondPath;
     }
 
 
@@ -297,8 +273,6 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
         compoundTag.Add("AssetID", new SerializedProperty(_assetID.ToString()));
         if (_assetID != Guid.Empty)
             ctx.AddDependency(_assetID);
-        if (_fileID != 0)
-            compoundTag.Add("FileID", new SerializedProperty(_fileID));
         if (IsRuntimeResource)
             compoundTag.Add("Instance", Serializer.Serialize(_instance, ctx));
         return compoundTag;
@@ -308,7 +282,6 @@ public struct AssetRef<T> : IAssetRef, ISerializable where T : EngineObject
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
         _assetID = Guid.Parse(value["AssetID"].StringValue);
-        _fileID = value.TryGet("FileID", out SerializedProperty? fileTag) ? fileTag!.UShortValue : (ushort)0;
         if (_assetID == Guid.Empty && value.TryGet("Instance", out SerializedProperty? tag))
             _instance = Serializer.Deserialize<T?>(tag!, ctx);
     }

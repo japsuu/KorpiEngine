@@ -1,6 +1,7 @@
-﻿using KorpiEngine.Core.Debugging.Profiling;
+﻿using System.Reflection;
+using KorpiEngine.Core.API;
+using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
-using KorpiEngine.Core.Internal.Assets;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -16,13 +17,17 @@ namespace KorpiEngine.Core;
 /// </summary>
 public static class Application
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     private static ImGuiController imGuiController = null!;
     private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
     
-    internal static IAssetProvider AssetProvider { get; private set; } = null!;
+    internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
+    
+    public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+    public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
+    public static string DefaultsDirectory => Path.Combine(Directory, EngineConstants.DEFAULTS_FOLDER_NAME);
+    public static string PackagesDirectory => Path.Combine(Directory, EngineConstants.PACKAGES_FOLDER_NAME);
 
 
     private static void InitializeLog4Net()
@@ -31,18 +36,17 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(EngineConstants.LOG_4_NET_CONFIG_PATH);
+        LogFactory.Initialize(Path.Combine(Directory, "log4net.config"));
     }
 
 
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run(WindowingSettings settings, IAssetProvider assetProvider, Scene scene)
+    public static void Run(WindowingSettings settings, Scene scene)
     {
         InitializeLog4Net();
         
-        AssetProvider = assetProvider;
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         imGuiController = new ImGuiController(window);
         initialScene = scene;
@@ -72,6 +76,9 @@ public static class Application
         window.IsVisible = true;
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
+        
+        AssemblyManager.Initialize();
+        OnAssemblyLoadAttribute.Invoke();
     }
 
 
@@ -160,6 +167,7 @@ public static class Application
 
     private static void OnUnload()
     {
+        OnAssemblyUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         
