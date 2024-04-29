@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
@@ -25,10 +24,10 @@ public static class Application
     
     internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
-    public static string ExecutingDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-    public static string ExecutingAssetDirectory => Path.Combine(ExecutingDirectory, EngineConstants.ASSET_FOLDER_NAME);
-    public static string ExecutingDefaultsDirectory => Path.Combine(ExecutingDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
-    public static string ExecutingPackagesDirectory => Path.Combine(ExecutingDirectory, EngineConstants.PACKAGES_FOLDER_NAME);
+    public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+    public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
+    public static string DefaultsDirectory => Path.Combine(Directory, EngineConstants.DEFAULTS_FOLDER_NAME);
+    public static string PackagesDirectory => Path.Combine(Directory, EngineConstants.PACKAGES_FOLDER_NAME);
 
 
     private static void InitializeLog4Net()
@@ -37,7 +36,7 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(ExecutingDirectory, "log4net.config"));
+        LogFactory.Initialize(Path.Combine(Directory, "log4net.config"));
     }
 
 
@@ -69,11 +68,6 @@ public static class Application
 
     private static void OnLoad()
     {
-        AssetDatabase.AddRootFolder(EngineConstants.ASSET_FOLDER_NAME);
-        AssetDatabase.AddRootFolder(EngineConstants.DEFAULTS_FOLDER_NAME);
-        AssetDatabase.AddRootFolder(EngineConstants.PACKAGES_FOLDER_NAME);
-        AssetDatabase.DiscoverAll();
-        
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
         

@@ -7,7 +7,7 @@ public static partial class AssetDatabase
     /// </summary>
     /// <param name="file">The file to convert to a relative path.</param>
     /// <returns>The relative path of the file within the project.</returns>
-    public static string ToRelativePath(FileInfo file) => Path.GetRelativePath(Application.ExecutingDirectory, file.FullName);
+    public static string ToRelativePath(FileInfo file) => Path.GetRelativePath(Application.Directory, file.FullName);
 
 
     /// <summary>
@@ -15,7 +15,7 @@ public static partial class AssetDatabase
     /// </summary>
     /// <param name="relativePath">The relative path to convert to a full file path.</param>
     /// <returns>The full file path of the relative path.</returns>
-    public static FileInfo GetFileInfoFromRelativePath(string relativePath) => new(Path.Combine(Application.ExecutingDirectory, relativePath));
+    public static FileInfo GetFileInfoFromRelativePath(string relativePath) => new(Path.Combine(Application.Directory, relativePath));
 
 
     /// <summary>

@@ -1,6 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-
-namespace KorpiEngine.Core.API.Rendering.Shaders;
+﻿namespace KorpiEngine.Core.API.Rendering.Shaders;
 
 /// <summary>
 /// Describes a shader source file.

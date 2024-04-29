@@ -28,8 +28,8 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     private DepthMode _depthMode = DepthMode.LessOrEqual;
 
     private bool _doBlend = true;
-    private Blending _blendSrc = Blending.SrcAlpha;
-    private Blending _blendDst = Blending.OneMinusSrcAlpha;
+    private BlendType _blendSrc = BlendType.SrcAlpha;
+    private BlendType _blendDst = BlendType.OneMinusSrcAlpha;
     private BlendMode _blendEquation = BlendMode.Add;
 
     private bool _doCull = true;

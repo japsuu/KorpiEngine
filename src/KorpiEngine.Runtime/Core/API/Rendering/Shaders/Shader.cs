@@ -42,10 +42,10 @@ public sealed class Shader : EngineObject
     public class ShaderPass
     {
         public readonly RasterizerState State;
-        public readonly List<ShaderSourceDescriptor> ShadersSources;
+        public readonly ShaderSourceDescriptor[] ShadersSources;
 
 
-        public ShaderPass(RasterizerState state, List<ShaderSourceDescriptor> shadersSources)
+        public ShaderPass(RasterizerState state, params ShaderSourceDescriptor[] shadersSources)
         {
             State = state;
             ShadersSources = shadersSources;
@@ -80,13 +80,15 @@ public sealed class Shader : EngineObject
     
     internal static readonly HashSet<string> GlobalKeywords = new();
 
-    // public readonly List<Property> Properties = new();
+    public readonly List<Property> Properties;  //TODO: Use to detect properties in the shader and set them in the material.
     public readonly List<ShaderPass> Passes;
     public readonly ShaderPass? ShadowPass;
 
 
-    internal Shader(List<ShaderPass> passes, ShaderPass? shadowPass = null)
+    internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null)
     {
+        Name = name;
+        Properties = properties;
         Passes = passes;
         ShadowPass = shadowPass;
     }
