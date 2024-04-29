@@ -1,7 +1,7 @@
 ﻿using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Internal.Serialization;
 
-namespace KorpiEngine.Core.Internal.Assets;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 // Taken and modified from Prowl's AssetRef.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/AssetRef.cs,

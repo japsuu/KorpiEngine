@@ -1,8 +1,7 @@
-﻿using KorpiEngine.Core.Internal.Assets;
-using KorpiEngine.Core.Internal.Serialization;
+﻿using KorpiEngine.Core.API.AssetManagement;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
-using KorpiEngine.Core.Rendering.Shaders;
 
 namespace KorpiEngine.Core.API.Rendering.Shaders;
 
@@ -12,6 +11,10 @@ namespace KorpiEngine.Core.API.Rendering.Shaders;
 /// </summary>
 public sealed class Shader : EngineObject
 {
+    /// <summary>
+    /// Represents a property of a shader, used to set values in the shader.
+    /// Basically a uniform.
+    /// </summary>
     public class Property
     {
         public string Name = "";
@@ -33,33 +36,23 @@ public sealed class Shader : EngineObject
         }
     }
 
+    /// <summary>
+    /// Represents a single shader pass, which is a combination of shaders that make up a shader program, and a rasterizer state.
+    /// </summary>
     public class ShaderPass
     {
         public readonly RasterizerState State;
-        public readonly List<ShaderSourceDescriptor> Shaders;
+        public readonly List<ShaderSourceDescriptor> ShadersSources;
 
 
-        public ShaderPass(RasterizerState state, List<ShaderSourceDescriptor> shaders)
+        public ShaderPass(RasterizerState state, List<ShaderSourceDescriptor> shadersSources)
         {
             State = state;
-            Shaders = shaders;
+            ShadersSources = shadersSources;
         }
     }
 
-    public class ShaderShadowPass
-    {
-        public readonly RasterizerState State;
-        public readonly List<ShaderSourceDescriptor> Shaders;
-
-
-        public ShaderShadowPass(RasterizerState state, List<ShaderSourceDescriptor> shaders)
-        {
-            State = state;
-            Shaders = shaders;
-        }
-    }
-
-    internal struct CompiledShader
+    internal readonly struct CompiledShader
     {
         public struct Pass
         {
@@ -74,8 +67,8 @@ public sealed class Shader : EngineObject
             }
         }
 
-        public Pass[] Passes;
-        public Pass ShadowPass;
+        public readonly Pass[] Passes;
+        public readonly Pass ShadowPass;
 
 
         public CompiledShader(Pass[] passes, Pass shadowPass)
@@ -84,13 +77,25 @@ public sealed class Shader : EngineObject
             ShadowPass = shadowPass;
         }
     }
-
     
     internal static readonly HashSet<string> GlobalKeywords = new();
 
-    public readonly List<Property> Properties = new();
-    public readonly List<ShaderPass> Passes = new();
-    public ShaderShadowPass? ShadowPass;
+    // public readonly List<Property> Properties = new();
+    public readonly List<ShaderPass> Passes;
+    public readonly ShaderPass? ShadowPass;
+
+
+    internal Shader(List<ShaderPass> passes, ShaderPass? shadowPass = null)
+    {
+        Passes = passes;
+        ShadowPass = shadowPass;
+    }
+
+
+    public static AssetRef<Shader> Find(string path)
+    {
+        return AssetDatabase.LoadAsset<Shader>(path) ?? throw new InvalidOperationException($"Failed to load shader: {path}");
+    }
 
 
     #region GLOBAL KEYWORDS
@@ -118,53 +123,47 @@ public sealed class Shader : EngineObject
     {
         try
         {
+            // Compile the normal passes
             CompiledShader.Pass[] compiledPasses = new CompiledShader.Pass[Passes.Count];
             for (int i = 0; i < Passes.Count; i++)
             {
-                string frag = Passes[i].Fragment;
-                string vert = Passes[i].Vertex;
                 try
                 {
-                    PrepareShaderSource(ref frag, ref vert, defines);
-                    GraphicsProgram program = Graphics.Driver.CompileProgram(frag, vert, "");
-                    compiledPasses[i] = new CompiledShader.Pass(Passes[i].State, program);
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(Passes[i], defines);
+                    compiledPasses[i] = new CompiledShader.Pass(Passes[i].State, Graphics.Driver.CompileProgram(sources));
                 }
                 catch (Exception e)
                 {
-                    Application.Logger.Error("Shader compilation failed using fallback shader, Reason: " + e.Message);
-
-                    // We Assume Invalid exists, if it doesn't we have a bigger problem
+                    Application.Logger.Error($"Shader compilation failed, using fallback shader. Reason: {e.Message}");
+                    
                     AssetRef<Shader> fallback = Find("Defaults/Invalid.shader");
-                    frag = fallback.Res!.Passes[0].Fragment;
-                    vert = fallback.Res!.Passes[0].Vertex;
-                    PrepareShaderSource(ref frag, ref vert, defines);
-                    compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(frag, vert, ""));
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!.Passes[0], defines);
+                    compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
                 }
             }
 
-            CompiledShader compiledShader = new()
-            {
-                Passes = compiledPasses
-            };
-
+            // Compile the shadow pass
+            CompiledShader.Pass compiledShadowPass;
             if (ShadowPass != null)
             {
-                string frag = ShadowPass.Fragment;
-                string vert = ShadowPass.Vertex;
-                PrepareShaderSource(ref frag, ref vert, defines);
-                GraphicsProgram program = Graphics.Driver.CompileProgram(frag, vert, "");
-                compiledShader.ShadowPass = new CompiledShader.Pass(ShadowPass.State, program);
+                List<ShaderSourceDescriptor> sources = new();
+                foreach (ShaderSourceDescriptor d in ShadowPass.ShadersSources)
+                {
+                    string source = d.Source;
+                    PrepareShaderSource(ref source, defines);
+                    sources.Add(new ShaderSourceDescriptor(d.Type, source));
+                }
+                compiledShadowPass = new CompiledShader.Pass(ShadowPass.State, Graphics.Driver.CompileProgram(sources));
             }
             else
             {
-                // We Assume Depth exists, if it doesn't we have a bigger problem
                 AssetRef<Shader> depth = Find("Defaults/Depth.shader");
-                string frag = depth.Res!.Passes[0].Fragment;
-                string vert = depth.Res!.Passes[0].Vertex;
-                PrepareShaderSource(ref frag, ref vert, defines);
-                compiledShader.ShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(frag, vert, ""));
+                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!.Passes[0], defines);
+                compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
             }
 
+            // Return the compiled shader
+            CompiledShader compiledShader = new(compiledPasses, compiledShadowPass);
             return compiledShader;
         }
         catch (Exception e)
@@ -175,8 +174,23 @@ public sealed class Shader : EngineObject
     }
 
 
+    private List<ShaderSourceDescriptor> PrepareShaderPass(ShaderPass pass, string[] defines)
+    {
+        List<ShaderSourceDescriptor> sources = new();
+        foreach (ShaderSourceDescriptor d in pass.ShadersSources)
+        {
+            string source = d.Source;
+            PrepareShaderSource(ref source, defines);
+            sources.Add(new ShaderSourceDescriptor(d.Type, source));
+        }
+
+        return sources;
+    }
+
+
     private void PrepareShaderSource(ref string source, IEnumerable<string> defines)
     {
+        //TODO: Handle includes.
         if (string.IsNullOrWhiteSpace(source))
             throw new Exception($"Failed to compile shader pass of {Name}. Shader source is null or empty.");
 
@@ -185,117 +199,9 @@ public sealed class Shader : EngineObject
 
         // Insert keywords
         foreach (string define in defines)
-        {
             source = source.Insert(0, $"#define {define}\n");
-        }
 
         // Insert the GLSL version at the start
         source = source.Insert(0, "#version 420\n");
-    }
-
-
-    private Shader()
-    {
-        
-    }
-
-
-    public static AssetRef<Shader> Find(string path)
-    {
-        return Application.AssetProvider.LoadAsset<Shader>(path);
-    }
-
-
-    public SerializedProperty Serialize(Serializer.SerializationContext ctx)
-    {
-        SerializedProperty compoundTag = SerializedProperty.NewCompound();
-        compoundTag.Add("Name", new SerializedProperty(Name));
-
-        if (AssetID != Guid.Empty)
-        {
-            compoundTag.Add("AssetID", new SerializedProperty(AssetID.ToString()));
-            if (FileID != 0)
-                compoundTag.Add("FileID", new SerializedProperty(FileID));
-        }
-
-        SerializedProperty propertiesTag = SerializedProperty.NewList();
-        foreach (Property property in Properties)
-        {
-            SerializedProperty propertyTag = SerializedProperty.NewCompound();
-            propertyTag.Add("Name", new SerializedProperty(property.Name));
-            propertyTag.Add("DisplayName", new SerializedProperty(property.DisplayName));
-            propertyTag.Add("Type", new SerializedProperty((byte)property.Type));
-            propertiesTag.ListAdd(propertyTag);
-        }
-
-        compoundTag.Add("Properties", propertiesTag);
-        SerializedProperty passesTag = SerializedProperty.NewList();
-        foreach (ShaderPass pass in Passes)
-        {
-            SerializedProperty passTag = SerializedProperty.NewCompound();
-            passTag.Add("State", Serializer.Serialize(pass.State, ctx));
-            passTag.Add("Vertex", new(pass.Vertex));
-            passTag.Add("Fragment", new(pass.Fragment));
-            passesTag.ListAdd(passTag);
-        }
-
-        compoundTag.Add("Passes", passesTag);
-        if (ShadowPass != null)
-        {
-            SerializedProperty shadowPassTag = SerializedProperty.NewCompound();
-            shadowPassTag.Add("State", Serializer.Serialize(ShadowPass.State, ctx));
-            shadowPassTag.Add("Vertex", new(ShadowPass.Vertex));
-            shadowPassTag.Add("Fragment", new(ShadowPass.Fragment));
-            compoundTag.Add("ShadowPass", shadowPassTag);
-        }
-
-        return compoundTag;
-    }
-
-
-    public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
-    {
-        Name = value.Get("Name")?.StringValue!;
-
-        if (value.TryGet("AssetID", out SerializedProperty? assetIDTag))
-        {
-            AssetID = Guid.Parse(assetIDTag!.StringValue);
-            FileID = value.Get("FileID")!.UShortValue;
-        }
-
-        Properties.Clear();
-        SerializedProperty? propertiesTag = value.Get("Properties");
-        foreach (SerializedProperty propertyTag in propertiesTag!.List)
-        {
-            Property property = new()
-            {
-                Name = propertyTag.Get("Name")!.StringValue,
-                DisplayName = propertyTag.Get("DisplayName")!.StringValue,
-                Type = (Property.PropertyType)propertyTag.Get("Type")!.ByteValue
-            };
-            Properties.Add(property);
-        }
-
-        Passes.Clear();
-        SerializedProperty? passesTag = value.Get("Passes");
-        foreach (SerializedProperty passTag in passesTag!.List)
-        {
-            RasterizerState state = Serializer.Deserialize<RasterizerState>(passTag.Get("State")!, ctx);
-            ShaderPass pass = new(state);
-            pass.Vertex = passTag.Get("Vertex")!.StringValue;
-            pass.Fragment = passTag.Get("Fragment")!.StringValue;
-            Passes.Add(pass);
-        }
-
-        if (value.TryGet("ShadowPass", out SerializedProperty? shadowPassTag))
-        {
-            ShaderShadowPass shadowPass = new()
-            {
-                State = Serializer.Deserialize<RasterizerState>(shadowPassTag!.Get("State")!, ctx)
-            };
-            shadowPass.Vertex = shadowPassTag.Get("Vertex")!.StringValue;
-            shadowPass.Fragment = shadowPassTag.Get("Fragment")!.StringValue;
-            ShadowPass = shadowPass;
-        }
     }
 }

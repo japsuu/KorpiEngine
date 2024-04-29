@@ -6,7 +6,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 
 internal class GLGraphicsProgram : GraphicsProgram
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsProgram));
+    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLGraphicsProgram));
 
     public static GLGraphicsProgram? CurrentProgram { get; private set; }
 

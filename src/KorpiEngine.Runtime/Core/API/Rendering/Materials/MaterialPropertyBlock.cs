@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Internal.Assets;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using OpenTK.Mathematics;
 

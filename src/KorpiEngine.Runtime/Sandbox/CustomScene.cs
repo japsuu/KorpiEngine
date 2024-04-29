@@ -1,8 +1,8 @@
 ﻿using KorpiEngine.Core;
+using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Materials;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
 using KorpiEngine.Core.Scripting.Components;
@@ -22,8 +22,8 @@ internal class CustomScene : Scene
         _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
         _blueBoxEntity.Transform.Position = new Vector3(0, 3, 0);
             
-        StandardMaterial3D blueMaterial = (StandardMaterial3D)_blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
-        blueMaterial.Color = Color.Blue;
+        Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
+        blueMaterial.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
 
         _player = Instantiate<PlayerController>("Player");
         _player.Transform.Position = new Vector3(0, 0, 0);
