@@ -29,11 +29,6 @@ public sealed class Material : EngineObject
     public int PassCount => Shader.IsAvailable ? GetVariant(_keywords.ToArray()).Passes.Length : 0;
 
 
-    public Material()
-    {
-    }
-
-
     public Material(AssetRef<Shader> shader)
     {
         if (shader.AssetID == Guid.Empty)
