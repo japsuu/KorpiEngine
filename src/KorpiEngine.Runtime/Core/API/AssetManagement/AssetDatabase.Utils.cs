@@ -53,25 +53,4 @@ public static partial class AssetDatabase
         string relativePath = ToRelativePath(file);
         return RelativePathToGuid.TryGetValue(relativePath, out guid);
     }
-
-
-    // /// <summary>
-    // /// Tries to get the file with the specified GUID.
-    // /// </summary>
-    // /// <param name="guid">The GUID of the file.</param>
-    // /// <param name="file">The file with the specified GUID.</param>
-    // /// <returns>True if the file was found, false otherwise.</returns>
-    // public static bool TryGetAssetFile(Guid guid, out FileInfo? file)
-    // {
-    //     file = null;
-    //     if (guid == Guid.Empty)
-    //         throw new ArgumentException("Asset Guid cannot be empty", nameof(guid));
-    //
-    //     if (!GuidToMetadata.TryGetValue(guid, out AssetMetadata? asset))
-    //         return false;
-    //     
-    //     file = asset.AssetPath;
-    //     return true;
-    //
-    // }
 }
