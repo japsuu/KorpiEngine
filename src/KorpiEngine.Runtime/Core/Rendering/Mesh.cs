@@ -45,25 +45,58 @@ namespace KorpiEngine.Core.Rendering;
 public sealed class Mesh : EngineObject
 {
     /// <summary>
-    /// The format of the mesh index buffer data.
+    /// The format of the vertex data.
+    /// Changing the format usually requires resetting of the vertex buffer data.
     /// </summary>
-    public IndexFormat IndexFormat { get; private set; } = IndexFormat.UInt16;
-
+    public VertexFormat? VertexFormat
+    {
+        get => _vertexFormat;
+        set
+        {
+            _vertexFormat = value;
+            _isDirty = true;
+        }
+    }
+    
     /// <summary>
-    /// The number of active vertex attributes (see <see cref="VertexAttributeDescriptor"/>).
-    /// Together with <see cref="GetVertexAttribute"/> it can be used to query information about which vertex attributes are present in the mesh.
+    /// The format of the mesh index buffer data.
+    /// Changing the format usually requires resetting of the index buffer data.
     /// </summary>
-    public int VertexAttributeCount { get; private set; }
+    public IndexFormat IndexFormat
+    {
+        get => _indexFormat;
+        private set
+        {
+            _indexFormat = value;
+            _isDirty = true;
+        }
+    }
 
     /// <summary>
     /// The number of vertices in the mesh.
     /// </summary>
-    public int VertexCount { get; private set; }
+    public int VertexCount
+    {
+        get => _vertexCount;
+        private set
+        {
+            _vertexCount = value;
+            _isDirty = true;
+        }
+    }
 
     /// <summary>
     /// The number of indices in the mesh.
     /// </summary>
-    public int IndexCount { get; private set; }
+    public int IndexCount
+    {
+        get => _indexCount;
+        private set
+        {
+            _indexCount = value;
+            _isDirty = true;
+        }
+    }
 
     /// <summary>
     /// True if the mesh is readable, false if it is not.<br/><br/>
@@ -71,7 +104,7 @@ public sealed class Mesh : EngineObject
     /// When the mesh is marked as readable, the vertex data is also kept in CPU-accessible memory (in addition to GPU memory).<br/>
     /// When the mesh is NOT marked as readable, the vertex data is uploaded to GPU memory and discarded from CPU memory.
     /// </summary>
-    public bool IsReadable { get; private set; } = true;
+    public bool IsReadable { get; private set; } = true;    //TODO: Use to determine if data is discarded after upload
     
     /// <summary>
     /// The current topology of the mesh.
@@ -90,13 +123,13 @@ public sealed class Mesh : EngineObject
 
     private static Mesh? fullScreenQuadCached;
     private Topology _topology = Topology.TriangleStrip;
-    private VertexAttributeDescriptor[]? _vertexLayout;
+    private VertexFormat? _vertexFormat;
+    private IndexFormat _indexFormat = IndexFormat.UInt16;
     private bool _isDirty = true;
-    private int _vertexSizeBytes;
-    private bool[] _enabledVertexAttributes = new bool[6];
+    private int _vertexCount;
+    private int _indexCount;
     private byte[]? _vertexData;
     private byte[]? _indexData;
-
     private GraphicsBuffer? _vertexBuffer;
     private GraphicsBuffer? _indexBuffer;
 
@@ -120,12 +153,6 @@ public sealed class Mesh : EngineObject
     }
 
 
-    public Mesh()
-    {
-        SetVertexBufferLayout(StandardVertex3D.Attributes);
-    }
-
-
     /// <summary>
     /// Clears all vertex data and all triangle indices from the mesh.
     /// </summary>
@@ -143,9 +170,7 @@ public sealed class Mesh : EngineObject
         if (keepVertexLayout)
             return;
 
-        VertexAttributeCount = 0;
-        _vertexLayout = null;
-        _enabledVertexAttributes = new bool[6];
+        VertexFormat = null;
     }
 
 
@@ -165,7 +190,7 @@ public sealed class Mesh : EngineObject
         
         DeleteGPUBuffers();
 
-        switch (_topology)
+        switch (Topology)
         {
             case Topology.Triangles:
                 if (IndexCount % 3 != 0)
@@ -189,16 +214,19 @@ public sealed class Mesh : EngineObject
                 throw new ArgumentOutOfRangeException();
         }
         
+        if (VertexFormat == null)
+            throw new InvalidOperationException("The vertex format has not been defined!");
+        
         if (_vertexData == null || _indexData == null)
             return;
 
         _vertexBuffer = Graphics.Driver.CreateBuffer(BufferType.VertexBuffer, _vertexData);
         _indexBuffer = Graphics.Driver.CreateBuffer(BufferType.ElementsBuffer, _indexData);
-        VertexArrayObject = Graphics.Driver.CreateVertexArray(layout, vertexBuffer, indexBuffer);
-
-        Application.Logger.Debug($"[VAO ID={VertexArrayObject}] Mesh uploaded successfully to VRAM (GPU)");
+        VertexArrayObject = Graphics.Driver.CreateVertexArray(VertexFormat, _vertexBuffer, _indexBuffer);
 
         Graphics.Driver.BindVertexArray(null);
+
+        Application.Logger.Debug($"[VAO ID={VertexArrayObject}] Mesh uploaded successfully to VRAM (GPU)");
     }
 
 
@@ -366,13 +394,12 @@ public sealed class Mesh : EngineObject
     /// Sets the vertex buffer size and layout for this mesh.
     /// </summary>
     /// <param name="vertexCount">The number of vertices in the buffer.</param>
-    /// <param name="attributes">The layout of the vertex attributes.</param>
-    public void SetVertexBufferParams(int vertexCount, params VertexAttributeDescriptor[] attributes)
+    /// <param name="format">The layout of the vertex attributes.</param>
+    public void SetVertexBufferParams(int vertexCount, VertexFormat format)
     {
-        SetVertexBufferLayout(attributes);
-        SetVertexBufferSize(vertexCount);
-
-        _isDirty = true;
+        VertexFormat = format;
+        VertexCount = vertexCount;
+        _vertexData = new byte[VertexCount * VertexFormat?.VertexSize ?? 0];
     }
 
 
@@ -423,26 +450,6 @@ public sealed class Mesh : EngineObject
         }
 
         return structArray;
-    }
-    
-    
-    public void SetVertexBufferLayout(params VertexAttributeDescriptor[] attributes)
-    {
-        VertexAttributeCount = attributes.Length;
-        _vertexLayout = attributes;
-        foreach (VertexAttributeDescriptor d in attributes)
-            _enabledVertexAttributes[(int)d.Attribute] = true;
-
-        // Set the vertex buffer size
-        int vertexSize = attributes.Sum(attribute => attribute.ByteSize);
-        _vertexSizeBytes = vertexSize;
-    }
-
-
-    private void SetVertexBufferSize(int vertexCount)
-    {
-        VertexCount = vertexCount;
-        _vertexData = new byte[vertexCount * _vertexSizeBytes];
     }
 
 
@@ -510,15 +517,15 @@ public sealed class Mesh : EngineObject
     /// </summary>
     /// <param name="index">The index of the vertex attribute.</param>
     /// <returns>The vertex attribute descriptor.</returns>
-    public VertexAttributeDescriptor GetVertexAttribute(int index)
+    public VertexFormat.VertexAttributeDescriptor GetVertexAttribute(int index)
     {
-        if (_vertexLayout == null)
+        if (VertexFormat == null)
             throw new InvalidOperationException($"The vertex buffer has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
 
         if (index < 0 || index >= VertexAttributeCount)
             throw new ArgumentOutOfRangeException(nameof(index), $"The index must be in the range [0, {VertexAttributeCount - 1}].");
 
-        return _vertexLayout[index];
+        return VertexFormat.Attributes[index];
     }
 
     #endregion
@@ -702,7 +709,7 @@ public sealed class Mesh : EngineObject
     public bool IsVertexAttributeEnabled(VertexAttribute attribute) => _enabledVertexAttributes[(int)attribute];
 
 
-    /// <summary>
+    /*/// <summary>
     /// Gets the byte offset of a vertex attribute in the vertex buffer.
     /// Because the vertex attributes are "interleaved" in the byte buffer,
     /// we need to calculate the offset for each vertex attribute to be able to read/write data there.
@@ -713,12 +720,12 @@ public sealed class Mesh : EngineObject
     /// <exception cref="ArgumentException"></exception>
     private int GetVertexAttributeOffset(VertexAttribute attribute)
     {
-        if (_vertexLayout == null)
+        if (VertexFormat == null)
             throw new InvalidOperationException($"The vertex buffer has not been initialized. Did you forget to call {nameof(SetVertexBufferParams)}?");
 
         //TODO: Cache this offset for each attribute, like the enabled attributes
         int offset = 0;
-        foreach (VertexAttributeDescriptor d in _vertexLayout)
+        foreach (VertexFormat.VertexAttributeDescriptor d in VertexFormat)
         {
             if (d.Attribute == attribute)
                 return offset;
@@ -727,7 +734,7 @@ public sealed class Mesh : EngineObject
         }
 
         throw new ArgumentException($"The vertex attribute '{attribute}' is not present in the vertex buffer.");
-    }
+    }*/
 
 
     private int GetVertexAttributes<T>(T[] data, VertexAttribute attribute) where T : struct
@@ -769,29 +776,6 @@ public sealed class Mesh : EngineObject
         
         int offset = GetVertexAttributeOffset(attribute);
         WriteStructData<T>(data, _vertexData, offset, _vertexSizeBytes, Marshal.SizeOf<T>());
-    }
-
-
-    /// <summary>
-    /// The mesh standard vertex layout.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private struct StandardVertex3D
-    {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public Vector3 Tangent;
-        public Color32 Color;
-        public Vector2 TexCoord0;
-
-        public static readonly VertexAttributeDescriptor[] Attributes =
-        {
-            new(VertexAttribute.Position, VertexType.Float, 3),
-            new(VertexAttribute.Normal, VertexType.Float, 3),
-            new(VertexAttribute.Tangent, VertexType.Float, 3),
-            new(VertexAttribute.Color, VertexType.UnsignedByte, 4),
-            new(VertexAttribute.TexCoord0, VertexType.Float, 2)
-        };
     }
 }
 
@@ -843,22 +827,25 @@ public class VertexFormat
 
 public class VertexFormat
 {
-    public readonly VertexAttributeDescriptor[] Elements;
+    public readonly VertexAttributeDescriptor[] Attributes;
     public readonly int VertexSize;
+    public readonly int VertexAttributeCount;
+    
+    private readonly bool[] _enabledVertexAttributes = new bool[6];
+    private readonly int[] _vertexAttributeOffsets = new int[6];
 
 
-    public VertexFormat(VertexAttributeDescriptor[] elements)
+    public VertexFormat(VertexAttributeDescriptor[] attributes)
     {
-        ArgumentNullException.ThrowIfNull(elements);
+        ArgumentNullException.ThrowIfNull(attributes);
 
-        if (elements.Length == 0)
-            throw new Exception($"The argument '{nameof(elements)}' is null!");
+        if (attributes.Length == 0)
+            throw new Exception($"The argument '{nameof(attributes)}' is null!");
 
-        Elements = elements;
+        Attributes = attributes;
 
-        foreach (VertexAttributeDescriptor element in Elements)
+        foreach (VertexAttributeDescriptor element in Attributes)
         {
-            element.Offset = (short)VertexSize;
             int attributeSize = element.Count * element.Type switch
             {
                 VertexType.Byte => 1,
@@ -868,11 +855,28 @@ public class VertexFormat
                 VertexType.Int => 4,
                 VertexType.UnsignedInt => 4,
                 VertexType.Float => 4,
-                _ => throw new ArgumentOutOfRangeException(nameof(elements))
+                _ => throw new ArgumentOutOfRangeException(nameof(attributes))
             };
+            
+            element.SetOffset((short)VertexSize);
+            element.SetStride((short)attributeSize);
             VertexSize += attributeSize;
-            element.Stride = (short)attributeSize;
+            
+            _enabledVertexAttributes[element.Semantic] = true;
+            _vertexAttributeOffsets[element.Semantic] = element.Offset;
         }
+        
+        VertexAttributeCount = Attributes.Length;
+    }
+    
+    
+    public bool IsVertexAttributeEnabled(VertexAttribute attribute) => _enabledVertexAttributes[(int)attribute];
+    public int GetVertexAttributeOffset(VertexAttribute attribute)
+    {
+        if (!IsVertexAttributeEnabled(attribute))
+            throw new InvalidOperationException($"The vertex attribute '{attribute}' is not enabled.");
+        
+        return _vertexAttributeOffsets[(int)attribute];
     }
 
 
@@ -881,16 +885,11 @@ public class VertexFormat
         public readonly int Semantic;
         public readonly VertexType Type;
         public readonly int Count;
-        public short Offset; // Automatically assigned in VertexFormats constructor
-        public short Stride; // Automatically assigned in VertexFormats constructor
+        public short Offset { get; private set; }
+        public short Stride { get; private set; }
         public readonly bool Normalized;
 
-
-        public VertexAttributeDescriptor()
-        {
-        }
-
-
+        
         public VertexAttributeDescriptor(VertexAttribute attribute, VertexType type, byte count, bool normalized = false)
         {
             Semantic = (int)attribute;
@@ -907,5 +906,9 @@ public class VertexFormat
             Count = count;
             Normalized = normalized;
         }
+        
+        
+        public void SetOffset(short offset) => Offset = offset;
+        public void SetStride(short stride) => Stride = stride;
     }
 }

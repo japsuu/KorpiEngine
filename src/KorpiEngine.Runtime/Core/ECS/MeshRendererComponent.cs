@@ -7,11 +7,4 @@ public struct MeshRendererComponent : INativeComponent
 {
     public Mesh? Mesh;
     public Material? Material;
-
-
-    public MeshRendererComponent()
-    {
-        Mesh = null;
-        Material = new StandardMaterial3D();
-    }
 }

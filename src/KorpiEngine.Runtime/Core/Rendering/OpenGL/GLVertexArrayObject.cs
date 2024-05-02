@@ -18,13 +18,13 @@ internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
 
     private static void BindFormat(VertexFormat format)
     {
-        foreach (VertexFormat.Element element in format.Elements)
+        foreach (VertexFormat.VertexAttributeDescriptor element in format.Attributes)
         {
-            uint index = element.Semantic;
+            int index = element.Semantic;
             GL.EnableVertexAttribArray(index);
             IntPtr offset = (IntPtr)element.Offset;
 
-            if (element.Type == VertexFormat.VertexType.Float)
+            if (element.Type == VertexType.Float)
                 GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.Type, element.Normalized, format.VertexSize, offset);
             else
                 GL.VertexAttribIPointer(index, element.Count, (VertexAttribIntegerType)element.Type, format.VertexSize, offset);

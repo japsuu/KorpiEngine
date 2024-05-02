@@ -1,5 +1,7 @@
 ﻿using Arch.Core;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.SceneManagement;
 
 namespace KorpiEngine.Core.ECS.Systems;
@@ -21,9 +23,9 @@ internal class MeshRenderSystem : NativeSystem
             if (mesh.Mesh == null)
                 return;
             
-            Material mat = mesh.Material ?? MaterialManager.MissingMaterial3D;
+            Material mat = mesh.Material ?? new Material(Shader.Find("Defaults/Standard.shader"));
             
-            Renderer3D.RenderMesh(mesh.Mesh, mat, transform.Matrix);
+            Graphics.DrawMeshNow(mesh.Mesh, transform.Matrix, mat);
         });
     }
 }
