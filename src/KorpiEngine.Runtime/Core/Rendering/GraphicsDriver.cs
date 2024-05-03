@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Primitives;
 using OpenTK.Graphics.OpenGL4;
@@ -70,7 +71,7 @@ internal abstract class GraphicsDriver
     
     #region Vertex Arrays
 
-    public abstract GraphicsVertexArrayObject CreateVertexArray(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices);
+    public abstract GraphicsVertexArrayObject CreateVertexArray(MeshVertexLayout layout, GraphicsBuffer vertices, GraphicsBuffer? indices);
     public abstract void BindVertexArray(GraphicsVertexArrayObject? vertexArrayObject);
 
     #endregion

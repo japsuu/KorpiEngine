@@ -1,14 +1,15 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using KorpiEngine.Core.Internal.Rendering;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
 
 internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
 {
-    public GLVertexArrayObject(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices) : base(GL.GenVertexArray())
+    public GLVertexArrayObject(MeshVertexLayout layout, GraphicsBuffer vertices, GraphicsBuffer? indices) : base(GL.GenVertexArray())
     {
         GL.BindVertexArray(Handle);
 
-        BindFormat(format);
+        BindFormat(layout);
 
         GL.BindBuffer(BufferTarget.ArrayBuffer, (vertices as GLBuffer)!.Handle);
         if (indices != null)
@@ -16,18 +17,18 @@ internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
     }
 
 
-    private static void BindFormat(VertexFormat format)
+    private static void BindFormat(MeshVertexLayout layout)
     {
-        foreach (VertexFormat.VertexAttributeDescriptor element in format.Attributes)
+        foreach (MeshVertexLayout.VertexAttributeDescriptor element in layout.Attributes)
         {
             int index = element.Semantic;
             GL.EnableVertexAttribArray(index);
             IntPtr offset = (IntPtr)element.Offset;
 
-            if (element.Type == VertexType.Float)
-                GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.Type, element.Normalized, format.VertexSize, offset);
+            if (element.AttributeType == VertexAttributeType.Float)
+                GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.AttributeType, element.Normalized, layout.VertexSize, offset);
             else
-                GL.VertexAttribIPointer(index, element.Count, (VertexAttribIntegerType)element.Type, format.VertexSize, offset);
+                GL.VertexAttribIPointer(index, element.Count, (VertexAttribIntegerType)element.AttributeType, layout.VertexSize, offset);
         }
     }
 

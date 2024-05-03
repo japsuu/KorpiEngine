@@ -3,7 +3,7 @@ namespace KorpiEngine.Core.Rendering;
 /// <summary>
 /// The data-type of a vertex attribute.
 /// </summary>
-public enum VertexType
+public enum VertexAttributeType
 {
     Byte = 5120,
     UnsignedByte = 5121,

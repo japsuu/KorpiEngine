@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
 using OpenTK.Graphics.OpenGL4;
@@ -219,8 +220,8 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Vertex Arrays
 
-    public override GraphicsVertexArrayObject CreateVertexArray(VertexFormat format, GraphicsBuffer vertices, GraphicsBuffer? indices) =>
-        new GLVertexArrayObject(format, vertices, indices);
+    public override GraphicsVertexArrayObject CreateVertexArray(MeshVertexLayout layout, GraphicsBuffer vertices, GraphicsBuffer? indices) =>
+        new GLVertexArrayObject(layout, vertices, indices);
 
 
     public override void BindVertexArray(GraphicsVertexArrayObject? vertexArrayObject)

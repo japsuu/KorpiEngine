@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -116,11 +117,11 @@ public static class Graphics
         material.SetMatrix("u_MatProjection", ProjectionMatrix);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
-        material.SetKeyword("HAS_UV", mesh.IsVertexAttributeEnabled(VertexAttribute.TexCoord0));
-        material.SetKeyword("HAS_UV2", mesh.IsVertexAttributeEnabled(VertexAttribute.TexCoord1));
-        material.SetKeyword("HAS_NORMALS", mesh.IsVertexAttributeEnabled(VertexAttribute.Normal));
-        material.SetKeyword("HAS_COLORS", mesh.IsVertexAttributeEnabled(VertexAttribute.Color));
-        material.SetKeyword("HAS_TANGENTS", mesh.IsVertexAttributeEnabled(VertexAttribute.Tangent));
+        material.SetKeyword("HAS_UV", mesh.HasUV0);
+        material.SetKeyword("HAS_UV2", mesh.HasUV1);
+        material.SetKeyword("HAS_NORMALS", mesh.HasNormals);
+        material.SetKeyword("HAS_COLORS", mesh.HasColors);
+        material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
 
         // All material uniforms have been assigned, it's time to buffer them
         material.PropertyBlock.Apply(Driver.CurrentProgram);
