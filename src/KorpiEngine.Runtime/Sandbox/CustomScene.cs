@@ -7,6 +7,7 @@ using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
 using KorpiEngine.Core.Scripting.Components;
+using Random = KorpiEngine.Core.API.Random;
 
 namespace Sandbox;
 
@@ -14,12 +15,20 @@ internal class CustomScene : Scene
 {
     private Entity _blueBoxEntity = null!;  // Automatically moves and rotates
     private PlayerController _player = null!;   // Controlled by the player
+    private readonly List<Entity> _balls = [];
 
 
     protected override void Load()
     {
         _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
         _blueBoxEntity.Transform.Position = new Vector3(0, 3, 0);
+
+        for (int i = 0; i < 20; i++)
+        {
+            Entity e = CreatePrimitive(PrimitiveType.Quad, "Ball Entity");
+            e.Transform.Position = Random.InUnitSphere * 20;
+            _balls.Add(e);
+        }
             
         Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
         blueMaterial.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
