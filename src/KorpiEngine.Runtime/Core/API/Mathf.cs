@@ -25,22 +25,22 @@ public static class Mathf
     public const double SQRT2 = 1.41421356237;
 
     /// <summary>Multiply an angle in degrees by this, to convert it to radians</summary>
-    public const double Deg2Rad = TAU / 360;
+    public const double DEG_2_RAD = TAU / 360;
 
     /// <summary>Multiply an angle in radians by this, to convert it to degrees</summary>
-    public const double Rad2Deg = 360 / TAU;
+    public const double RAD_2_DEG = 360 / TAU;
 
     /// A small but not tiny value, Used in places like ApproximatelyEquals, where there is some tolerance (0.00001)
-    public static readonly double Small = 0.000001;
+    public const double SMALL = 0.000001;
 
     /// <inheritdoc cref="double.MinValue"/>
-    public static readonly double Epsilon = double.MinValue;
+    public const double EPSILON = double.MinValue;
 
     /// <inheritdoc cref="double.PositiveInfinity"/>
-    public const double Infinity = double.PositiveInfinity;
+    public const double INFINITY = double.PositiveInfinity;
 
     /// <inheritdoc cref="double.NegativeInfinity"/>
-    public const double NegativeInfinity = double.NegativeInfinity;
+    public const double NEGATIVE_INFINITY = double.NegativeInfinity;
 
     #endregion
 
@@ -172,7 +172,7 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static double Round(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven) => (double)Math.Round(value, midpointRounding);
+    public static double Round(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven) => Math.Round(value, midpointRounding);
 
 
     [MethodImpl(IN)]
@@ -271,11 +271,11 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static uint Pack4f(this Vector4 color) => Pack4u((uint)(color.w * 255), (uint)(color.x * 255), (uint)(color.y * 255), (uint)(color.z * 255));
+    public static uint Pack4F(this Vector4 color) => Pack4U((uint)(color.w * 255), (uint)(color.x * 255), (uint)(color.y * 255), (uint)(color.z * 255));
 
 
     [MethodImpl(IN)]
-    public static uint Pack4u(uint a, uint r, uint g, uint b) => (a << 24) + (r << 16) + (g << 8) + b;
+    public static uint Pack4U(uint a, uint r, uint g, uint b) => (a << 24) + (r << 16) + (g << 8) + b;
 
 
     [MethodImpl(IN)]
@@ -329,29 +329,29 @@ public static class Mathf
     {
         result = Vector2.zero;
 
-        Vector2 AB = endA - startA;
-        Vector2 AC = startB - startA;
-        Vector2 AD = endB - startA;
+        Vector2 ab = endA - startA;
+        Vector2 ac = startB - startA;
+        Vector2 ad = endB - startA;
 
-        double ABlen = Vector2.Dot(AB, AB);
-        if (ABlen <= 0)
+        double abLen = Vector2.Dot(ab, ab);
+        if (abLen <= 0)
             return false;
-        Vector2 AB_norm = AB / ABlen;
-        AC = new Vector2(AC.x * AB_norm.x + AC.y * AB_norm.y, AC.y * AB_norm.x - AC.x * AB_norm.y);
-        AD = new Vector2(AD.x * AB_norm.x + AD.y * AB_norm.y, AD.y * AB_norm.x - AD.x * AB_norm.y);
+        Vector2 abNorm = ab / abLen;
+        ac = new Vector2(ac.x * abNorm.x + ac.y * abNorm.y, ac.y * abNorm.x - ac.x * abNorm.y);
+        ad = new Vector2(ad.x * abNorm.x + ad.y * abNorm.y, ad.y * abNorm.x - ad.x * abNorm.y);
 
         // segments don't intersect
-        if ((AC.y < -Small && AD.y < -Small) || (AC.y > Small && AD.y > Small))
+        if ((ac.y < -SMALL && ad.y < -SMALL) || (ac.y > SMALL && ad.y > SMALL))
             return false;
 
-        if (Abs(AD.y - AC.y) < Small)
+        if (Abs(ad.y - ac.y) < SMALL)
             return false;
 
-        double ABpos = AD.x + (AC.x - AD.x) * AD.y / (AD.y - AC.y);
-        if (ABpos < 0 || ABpos > 1)
+        double abPos = ad.x + (ac.x - ad.x) * ad.y / (ad.y - ac.y);
+        if (abPos < 0 || abPos > 1)
             return false;
 
-        result = startA + AB * ABpos;
+        result = startA + ab * abPos;
         return true;
     }
 
@@ -363,20 +363,20 @@ public static class Mathf
     {
         Vector2 segment1 = endA - startA;
         Vector2 segment2 = endB - startB;
-        double segment1_length2 = Vector2.Dot(segment1, segment1);
-        double segment2_length2 = Vector2.Dot(segment2, segment2);
-        double segment_onto_segment = Vector2.Dot(segment2, segment1);
+        double segment1Length2 = Vector2.Dot(segment1, segment1);
+        double segment2Length2 = Vector2.Dot(segment2, segment2);
+        double segmentOntoSegment = Vector2.Dot(segment2, segment1);
 
-        if (segment1_length2 < tolerance || segment2_length2 < tolerance)
+        if (segment1Length2 < tolerance || segment2Length2 < tolerance)
             return true;
 
-        double max_separation2;
-        if (segment1_length2 > segment2_length2)
-            max_separation2 = segment2_length2 - segment_onto_segment * segment_onto_segment / segment1_length2;
+        double maxSeparation2;
+        if (segment1Length2 > segment2Length2)
+            maxSeparation2 = segment2Length2 - segmentOntoSegment * segmentOntoSegment / segment1Length2;
         else
-            max_separation2 = segment1_length2 - segment_onto_segment * segment_onto_segment / segment2_length2;
+            maxSeparation2 = segment1Length2 - segmentOntoSegment * segmentOntoSegment / segment2Length2;
 
-        return max_separation2 < tolerance;
+        return maxSeparation2 < tolerance;
     }
 
 
@@ -393,18 +393,18 @@ public static class Mathf
         double dot = Vector3.Dot(edge1, h);
 
         // Check if ray is parallel to triangle.
-        if (Abs(dot) < Small)
+        if (Abs(dot) < SMALL)
             return false;
         double f = 1.0f / dot;
 
         Vector3 s = origin - a;
         double u = f * Vector3.Dot(s, h);
-        if (u < 0.0 - Small || u > 1.0 + Small)
+        if (u < 0.0 - SMALL || u > 1.0 + SMALL)
             return false;
 
         Vector3 q = Vector3.Cross(s, edge1);
         double v = f * Vector3.Dot(dir, q);
-        if (v < 0.0 - Small || u + v > 1.0 + Small)
+        if (v < 0.0 - SMALL || u + v > 1.0 + SMALL)
             return false;
 
         // Ray intersects triangle.
@@ -412,7 +412,7 @@ public static class Mathf
         double t = f * Vector3.Dot(edge2, q);
 
         // Confirm triangle is in front of ray.
-        if (t >= Small)
+        if (t >= SMALL)
         {
             intersection = origin + dir * t;
             return true;
@@ -435,15 +435,15 @@ public static class Mathf
         double det = Vector3.Dot(a, Vector3.Cross(b, c));
 
         // If determinant is, zero try shift the triangle and the point.
-        if (Abs(det) < Small)
+        if (Abs(det) < SMALL)
         {
             if (shifted > 2)
                 return false; // Triangle appears degenerate, so ignore it.
 
-            Vector3 shift_by = Vector3.zero;
-            shift_by[shifted] = 1;
-            Vector3 shifted_point = point + shift_by;
-            return Internal_IsPointInTriangle(shifted_point, a + shift_by, b + shift_by, c + shift_by, shifted + 1);
+            Vector3 shiftBy = Vector3.zero;
+            shiftBy[shifted] = 1;
+            Vector3 shiftedPoint = point + shiftBy;
+            return Internal_IsPointInTriangle(shiftedPoint, a + shiftBy, b + shiftBy, c + shiftBy, shifted + 1);
         }
 
         // Find the barycentric coordinates of the point with respect to the vertices.
@@ -455,7 +455,7 @@ public static class Mathf
         ];
 
         // Point is in the plane if all lambdas sum to 1.
-        if (!(Abs(lambda[0] + lambda[1] + lambda[2] - 1) < Small))
+        if (!(Abs(lambda[0] + lambda[1] + lambda[2] - 1) < SMALL))
             return false;
 
         // Point is inside the triangle if all lambdas are positive.
@@ -542,27 +542,27 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static Vector3 ToDeg(this Vector3 v) => new((double)(v.x * Rad2Deg), (double)(v.y * Rad2Deg), (double)(v.z * Rad2Deg));
+    public static Vector3 ToDeg(this Vector3 v) => new(v.x * RAD_2_DEG, v.y * RAD_2_DEG, v.z * RAD_2_DEG);
 
 
     [MethodImpl(IN)]
-    public static Vector3 ToRad(this Vector3 v) => new((double)(v.x * Deg2Rad), (double)(v.y * Deg2Rad), (double)(v.z * Deg2Rad));
+    public static Vector3 ToRad(this Vector3 v) => new(v.x * DEG_2_RAD, v.y * DEG_2_RAD, v.z * DEG_2_RAD);
 
 
     [MethodImpl(IN)]
-    public static double ToDeg(this double v) => (double)(v * Rad2Deg);
+    public static double ToDeg(this double v) => v * RAD_2_DEG;
 
 
     [MethodImpl(IN)]
-    public static double ToRad(this double v) => (double)(v * Deg2Rad);
+    public static double ToRad(this double v) => v * DEG_2_RAD;
 
 
     [MethodImpl(IN)]
-    public static float ToDeg(this float v) => (float)(v * Rad2Deg);
+    public static float ToDeg(this float v) => (float)(v * RAD_2_DEG);
 
 
     [MethodImpl(IN)]
-    public static float ToRad(this float v) => (float)(v * Deg2Rad);
+    public static float ToRad(this float v) => (float)(v * DEG_2_RAD);
 
 
     [MethodImpl(IN)]
