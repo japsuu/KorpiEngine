@@ -76,7 +76,8 @@ public abstract class Scene : IDisposable
     protected virtual void CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
-        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent<CameraComponent>();
+        CameraComponent comp = new CameraComponent();
+        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
         cameraComponent.FOVDegrees = 60;
         cameraComponent.RenderPriority = 0;
     }

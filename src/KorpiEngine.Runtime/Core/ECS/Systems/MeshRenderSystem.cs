@@ -18,6 +18,7 @@ internal class MeshRenderSystem : NativeSystem
 
     protected override void SystemUpdate(in double deltaTime)
     {
+        #warning Switch to inline queries for zero-allocation
         World.Query(in _queryDescription, (ref TransformComponent transform, ref MeshRendererComponent mesh) =>
         {
             if (mesh.Mesh == null)
