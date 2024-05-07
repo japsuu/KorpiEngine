@@ -10,25 +10,12 @@ namespace KorpiEngine.Core.Rendering.Cameras;
 /// </summary>
 public sealed class Camera : Component
 {
-    public enum CameraProjectionType { Perspective, Orthographic }
-    
     internal override Type NativeComponentType => typeof(CameraComponent);
 
     public const float NEAR_CLIP_PLANE = 0.01f;
     public const float FAR_CLIP_PLANE = 1000f;
 
     internal static Camera? RenderingCamera;
-
-    /// <summary>
-    /// The field of view (FOV degrees, the vertical angle of the camera view).
-    /// </summary>
-    public float FieldOfView
-    {
-        get => Entity.GetNativeComponent<CameraComponent>().FOVDegrees;
-        set => Entity.GetNativeComponent<CameraComponent>().FOVDegrees = value;
-    }
-    
-    public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
 
     /// <summary>
     /// Finds the camera with the highest priority, currently rendering to the screen.
@@ -59,12 +46,18 @@ public sealed class Camera : Component
         set => Entity.GetNativeComponent<CameraComponent>().RenderPriority = value;
     }
 
+    public CameraProjectionType ProjectionType
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().ProjectionType;
+        set => Entity.GetNativeComponent<CameraComponent>().ProjectionType = value;
+    }
+
     public Frustum ViewFrustum => CalculateFrustum();
 
     /// <summary>
-    /// The field of view of the camera (radians)
+    /// The field of view (FOV degrees, the vertical angle of the camera view).
     /// </summary>
-    public float FovRadians
+    public float FieldOfView
     {
         get => Entity.GetNativeComponent<CameraComponent>().FOVDegrees;
         set => Entity.GetNativeComponent<CameraComponent>().FOVDegrees = value;
