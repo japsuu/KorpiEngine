@@ -2,6 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text;
+
 namespace KorpiEngine.Core.API;
 
 /// <summary>
@@ -82,7 +86,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         }
     }
 
-    private static readonly Matrix4x4 _identity = new(
+    private static readonly Matrix4x4 IdentityMatrix = new(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -92,7 +96,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     /// <summary>
     /// Returns the multiplicative identity matrix.
     /// </summary>
-    public static Matrix4x4 Identity => _identity;
+    public static Matrix4x4 Identity => IdentityMatrix;
 
     /// <summary>
     /// Returns whether the matrix is the identity matrix.
@@ -250,8 +254,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     }
 
 
-    public static Matrix4x4 TRS(Vector3 m_LocalPosition, Quaternion m_LocalRotation, Vector3 m_LocalScale)
-        => CreateScale(m_LocalScale) * CreateFromQuaternion(m_LocalRotation) * CreateTranslation(m_LocalPosition);
+    public static Matrix4x4 TRS(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
+        => CreateScale(localScale) * CreateFromQuaternion(localRotation) * CreateTranslation(localPosition);
 
 
     public Vector3 MultiplyPoint(Vector3 v) => Vector3.Transform(v, this);
