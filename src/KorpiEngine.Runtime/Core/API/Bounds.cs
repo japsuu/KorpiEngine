@@ -28,8 +28,6 @@ SOFTWARE.
 */
 #endregion License
 
-using OpenTK.Mathematics;
-
 namespace KorpiEngine.Core.API;
 
 public enum ContainmentType
@@ -43,48 +41,48 @@ public struct Bounds : IEquatable<Bounds>
 {
     #region Public Fields
 
-    public Vector3 min;
+    public Vector3 Min;
 
-    public Vector3 max;
+    public Vector3 Max;
 
-    public const int CornerCount = 8;
+    public const int CORNER_COUNT = 8;
 
     #endregion Public Fields
 
 
     #region Public Properties
 
-    public Vector3 center
+    public Vector3 Center
     {
-        get => (min + max) * 0.5f;
+        get => (Min + Max) * 0.5f;
         set
         {
-            var s = size * 0.5f;
-            min = value - s;
-            max = value + s;
+            Vector3 s = Size * 0.5f;
+            Min = value - s;
+            Max = value + s;
         }
     }
 
-    public Vector3 extents
+    public Vector3 Extents
     {
-        get => (max - min) * 0.5f;
+        get => (Max - Min) * 0.5f;
         set
         {
-            var c = center;
-            min = c - value;
-            max = c + value;
+            Vector3 c = Center;
+            Min = c - value;
+            Max = c + value;
         }
     }
 
-    public Vector3 size
+    public Vector3 Size
     {
-        get => max - min;
+        get => Max - Min;
         set
         {
-            var c = center;
-            var s = value * 0.5f;
-            min = c - s;
-            max = c + s;
+            Vector3 c = Center;
+            Vector3 s = value * 0.5f;
+            Min = c - s;
+            Max = c + s;
         }
     }
 
@@ -95,9 +93,9 @@ public struct Bounds : IEquatable<Bounds>
 
     public Bounds(Vector3 center, Vector3 size)
     {
-        var hs = size * 0.5f;
-        min = center - hs;
-        max = center + hs;
+        Vector3 hs = size * 0.5f;
+        Min = center - hs;
+        Max = center + hs;
     }
 
     #endregion Public Constructors
@@ -108,21 +106,21 @@ public struct Bounds : IEquatable<Bounds>
     public ContainmentType Contains(Bounds box)
     {
         //test if all corner is in the same side of a face by just checking min and max
-        if (box.max.X < min.X
-            || box.min.X > max.X
-            || box.max.Y < min.Y
-            || box.min.Y > max.Y
-            || box.max.Z < min.Z
-            || box.min.Z > max.Z)
+        if (box.Max.X < Min.X
+            || box.Min.X > Max.X
+            || box.Max.Y < Min.Y
+            || box.Min.Y > Max.Y
+            || box.Max.Z < Min.Z
+            || box.Min.Z > Max.Z)
             return ContainmentType.Disjoint;
 
 
-        if (box.min.X >= min.X
-            && box.max.X <= max.X
-            && box.min.Y >= min.Y
-            && box.max.Y <= max.Y
-            && box.min.Z >= min.Z
-            && box.max.Z <= max.Z)
+        if (box.Min.X >= Min.X
+            && box.Max.X <= Max.X
+            && box.Min.Y >= Min.Y
+            && box.Max.Y <= Max.Y
+            && box.Min.Z >= Min.Z
+            && box.Max.Z <= Max.Z)
             return ContainmentType.Contains;
 
         return ContainmentType.Intersects;
@@ -185,21 +183,21 @@ public struct Bounds : IEquatable<Bounds>
     public void Contains(ref Vector3 point, out ContainmentType result)
     {
         //first we get if point is out of box
-        if (point.X < min.X
-            || point.X > max.X
-            || point.Y < min.Y
-            || point.Y > max.Y
-            || point.Z < min.Z
-            || point.Z > max.Z)
+        if (point.X < Min.X
+            || point.X > Max.X
+            || point.Y < Min.Y
+            || point.Y > Max.Y
+            || point.Z < Min.Z
+            || point.Z > Max.Z)
             result = ContainmentType.Disjoint;
 
-        //or if point is on box because coordonate of point is lesser or equal
-        else if (point.X == min.X
-                 || point.X == max.X
-                 || point.Y == min.Y
-                 || point.Y == max.Y
-                 || point.Z == min.Z
-                 || point.Z == max.Z)
+        //or if point is on box because coordinate of point is lesser or equal
+        else if (point.X == Min.X
+                 || point.X == Max.X
+                 || point.Y == Min.Y
+                 || point.Y == Max.Y
+                 || point.Z == Min.Z
+                 || point.Z == Max.Z)
             result = ContainmentType.Intersects;
         else
             result = ContainmentType.Contains;
@@ -222,9 +220,9 @@ public struct Bounds : IEquatable<Bounds>
             throw new ArgumentNullException();
 
         bool empty = true;
-        var minVec = MaxVector3;
-        var maxVec = MinVector3;
-        foreach (var ptVector in points)
+        Vector3 minVec = MaxVector3;
+        Vector3 maxVec = MinVector3;
+        foreach (Vector3 ptVector in points)
         {
             minVec.X = minVec.X < ptVector.X ? minVec.X : ptVector.X;
             minVec.Y = minVec.Y < ptVector.Y ? minVec.Y : ptVector.Y;
@@ -246,27 +244,27 @@ public struct Bounds : IEquatable<Bounds>
 
     public void Encapsulate(Vector3 point)
     {
-        min = Vector3.Min(min, point);
-        max = Vector3.Max(max, point);
+        Min = Vector3.Min(Min, point);
+        Max = Vector3.Max(Max, point);
     }
 
 
     public void Encapsulate(Bounds bounds)
     {
-        Encapsulate(bounds.center - bounds.extents);
-        Encapsulate(bounds.center + bounds.extents);
+        Encapsulate(bounds.Center - bounds.Extents);
+        Encapsulate(bounds.Center + bounds.Extents);
     }
 
 
     public void Expand(double amount)
     {
-        extents += new Vector3(amount, amount, amount) * .5;
+        Extents += new Vector3(amount, amount, amount) * .5;
     }
 
 
     public void Expand(Vector3 amount)
     {
-        extents += amount * .5;
+        Extents += amount * .5;
     }
 
 
@@ -280,16 +278,16 @@ public struct Bounds : IEquatable<Bounds>
 
     public static void CreateMerged(ref Bounds original, ref Bounds additional, out Bounds result)
     {
-        result.min.X = Math.Min(original.min.X, additional.min.X);
-        result.min.Y = Math.Min(original.min.Y, additional.min.Y);
-        result.min.Z = Math.Min(original.min.Z, additional.min.Z);
-        result.max.X = Math.Max(original.max.X, additional.max.X);
-        result.max.Y = Math.Max(original.max.Y, additional.max.Y);
-        result.max.Z = Math.Max(original.max.Z, additional.max.Z);
+        result.Min.X = Math.Min(original.Min.X, additional.Min.X);
+        result.Min.Y = Math.Min(original.Min.Y, additional.Min.Y);
+        result.Min.Z = Math.Min(original.Min.Z, additional.Min.Z);
+        result.Max.X = Math.Max(original.Max.X, additional.Max.X);
+        result.Max.Y = Math.Max(original.Max.Y, additional.Max.Y);
+        result.Max.Z = Math.Max(original.Max.Z, additional.Max.Z);
     }
 
 
-    public bool Equals(Bounds other) => min == other.min && max == other.max;
+    public bool Equals(Bounds other) => Min == other.Min && Max == other.Max;
 
     public override bool Equals(object? obj) => obj is Bounds bounds ? Equals(bounds) : false;
 
@@ -298,14 +296,14 @@ public struct Bounds : IEquatable<Bounds>
     {
         return new Vector3[]
         {
-            new Vector3(min.X, max.Y, max.Z),
-            new Vector3(max.X, max.Y, max.Z),
-            new Vector3(max.X, min.Y, max.Z),
-            new Vector3(min.X, min.Y, max.Z),
-            new Vector3(min.X, max.Y, min.Z),
-            new Vector3(max.X, max.Y, min.Z),
-            new Vector3(max.X, min.Y, min.Z),
-            new Vector3(min.X, min.Y, min.Z)
+            new Vector3(Min.X, Max.Y, Max.Z),
+            new Vector3(Max.X, Max.Y, Max.Z),
+            new Vector3(Max.X, Min.Y, Max.Z),
+            new Vector3(Min.X, Min.Y, Max.Z),
+            new Vector3(Min.X, Max.Y, Min.Z),
+            new Vector3(Max.X, Max.Y, Min.Z),
+            new Vector3(Max.X, Min.Y, Min.Z),
+            new Vector3(Min.X, Min.Y, Min.Z)
         };
     }
 
@@ -316,34 +314,34 @@ public struct Bounds : IEquatable<Bounds>
             throw new ArgumentNullException("corners");
         if (corners.Length < 8)
             throw new ArgumentOutOfRangeException("corners", "Not Enought Corners");
-        corners[0].X = min.X;
-        corners[0].Y = max.Y;
-        corners[0].Z = max.Z;
-        corners[1].X = max.X;
-        corners[1].Y = max.Y;
-        corners[1].Z = max.Z;
-        corners[2].X = max.X;
-        corners[2].Y = min.Y;
-        corners[2].Z = max.Z;
-        corners[3].X = min.X;
-        corners[3].Y = min.Y;
-        corners[3].Z = max.Z;
-        corners[4].X = min.X;
-        corners[4].Y = max.Y;
-        corners[4].Z = min.Z;
-        corners[5].X = max.X;
-        corners[5].Y = max.Y;
-        corners[5].Z = min.Z;
-        corners[6].X = max.X;
-        corners[6].Y = min.Y;
-        corners[6].Z = min.Z;
-        corners[7].X = min.X;
-        corners[7].Y = min.Y;
-        corners[7].Z = min.Z;
+        corners[0].X = Min.X;
+        corners[0].Y = Max.Y;
+        corners[0].Z = Max.Z;
+        corners[1].X = Max.X;
+        corners[1].Y = Max.Y;
+        corners[1].Z = Max.Z;
+        corners[2].X = Max.X;
+        corners[2].Y = Min.Y;
+        corners[2].Z = Max.Z;
+        corners[3].X = Min.X;
+        corners[3].Y = Min.Y;
+        corners[3].Z = Max.Z;
+        corners[4].X = Min.X;
+        corners[4].Y = Max.Y;
+        corners[4].Z = Min.Z;
+        corners[5].X = Max.X;
+        corners[5].Y = Max.Y;
+        corners[5].Z = Min.Z;
+        corners[6].X = Max.X;
+        corners[6].Y = Min.Y;
+        corners[6].Z = Min.Z;
+        corners[7].X = Min.X;
+        corners[7].Y = Min.Y;
+        corners[7].Z = Min.Z;
     }
 
 
-    public override int GetHashCode() => min.GetHashCode() + max.GetHashCode();
+    public override int GetHashCode() => Min.GetHashCode() + Max.GetHashCode();
 
 
     public bool Intersects(Bounds box)
@@ -356,20 +354,19 @@ public struct Bounds : IEquatable<Bounds>
 
     public void Intersects(ref Bounds box, out bool result)
     {
-        if (max.X >= box.min.X && min.X <= box.max.X)
+        if (Max.X >= box.Min.X && Min.X <= box.Max.X)
         {
-            if (max.Y < box.min.Y || min.Y > box.max.Y)
+            if (Max.Y < box.Min.Y || Min.Y > box.Max.Y)
             {
                 result = false;
                 return;
             }
 
-            result = max.Z >= box.min.Z && min.Z <= box.max.Z;
+            result = Max.Z >= box.Min.Z && Min.Z <= box.Max.Z;
             return;
         }
 
         result = false;
-        return;
     }
 
 
@@ -391,41 +388,41 @@ public struct Bounds : IEquatable<Bounds>
         Vector3 positiveVertex;
         Vector3 negativeVertex;
 
-        if (plane.normal.X >= 0)
+        if (plane.Normal.X >= 0)
         {
-            positiveVertex.X = max.X;
-            negativeVertex.X = min.X;
+            positiveVertex.X = Max.X;
+            negativeVertex.X = Min.X;
         }
         else
         {
-            positiveVertex.X = min.X;
-            negativeVertex.X = max.X;
+            positiveVertex.X = Min.X;
+            negativeVertex.X = Max.X;
         }
 
-        if (plane.normal.Y >= 0)
+        if (plane.Normal.Y >= 0)
         {
-            positiveVertex.Y = max.Y;
-            negativeVertex.Y = min.Y;
+            positiveVertex.Y = Max.Y;
+            negativeVertex.Y = Min.Y;
         }
         else
         {
-            positiveVertex.Y = min.Y;
-            negativeVertex.Y = max.Y;
+            positiveVertex.Y = Min.Y;
+            negativeVertex.Y = Max.Y;
         }
 
-        if (plane.normal.Z >= 0)
+        if (plane.Normal.Z >= 0)
         {
-            positiveVertex.Z = max.Z;
-            negativeVertex.Z = min.Z;
+            positiveVertex.Z = Max.Z;
+            negativeVertex.Z = Min.Z;
         }
         else
         {
-            positiveVertex.Z = min.Z;
-            negativeVertex.Z = max.Z;
+            positiveVertex.Z = Min.Z;
+            negativeVertex.Z = Max.Z;
         }
 
         // Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;
-        var distance = plane.normal.X * negativeVertex.X + plane.normal.Y * negativeVertex.Y + plane.normal.Z * negativeVertex.Z + plane.distance;
+        double distance = plane.Normal.X * negativeVertex.X + plane.Normal.Y * negativeVertex.Y + plane.Normal.Z * negativeVertex.Z + plane.Distance;
         if (distance > 0)
         {
             result = PlaneIntersectionType.Front;
@@ -433,7 +430,7 @@ public struct Bounds : IEquatable<Bounds>
         }
 
         // Inline Vector3.Dot(plane.Normal, positiveVertex) + plane.D;
-        distance = plane.normal.X * positiveVertex.X + plane.normal.Y * positiveVertex.Y + plane.normal.Z * positiveVertex.Z + plane.distance;
+        distance = plane.Normal.X * positiveVertex.X + plane.Normal.Y * positiveVertex.Y + plane.Normal.Z * positiveVertex.Z + plane.Distance;
         if (distance < 0)
         {
             result = PlaneIntersectionType.Back;
@@ -459,11 +456,11 @@ public struct Bounds : IEquatable<Bounds>
 
     internal string DebugDisplayString =>
         string.Concat(
-            "Min( ", min.ToString(), " )  \r\n",
-            "Max( ", max.ToString(), " )"
+            "Min( ", Min.ToString(), " )  \r\n",
+            "Max( ", Max.ToString(), " )"
         );
 
-    public override string ToString() => "{{Min:" + min.ToString() + " Max:" + max.ToString() + "}}";
+    public override string ToString() => "{{Min:" + Min.ToString() + " Max:" + Max.ToString() + "}}";
 
     #endregion Public Methods
 }
