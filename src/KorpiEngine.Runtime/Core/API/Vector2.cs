@@ -2,6 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text;
+
 namespace KorpiEngine.Core.API;
 
 /// <summary>
@@ -9,8 +13,8 @@ namespace KorpiEngine.Core.API;
 /// </summary>
 public struct Vector2 : IEquatable<Vector2>, IFormattable
 {
-    public double x;
-    public double y;
+    public double X;
+    public double Y;
 
 
     #region Constructors
@@ -24,8 +28,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <summary> Constructs a vector with the given individual elements. </summary>
     public Vector2(double x, double y)
     {
-        this.x = x;
-        this.y = y;
+        X = x;
+        Y = y;
     }
 
     #endregion Constructors
@@ -33,11 +37,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
     #region Public Instance Properties
 
-    public Vector2 normalized => Normalize(this);
+    public Vector2 Normalized => Normalize(this);
 
-    public double magnitude => Mathf.Sqrt(x * x + y * y);
+    public double Magnitude => Mathf.Sqrt(X * X + Y * Y);
 
-    public double sqrMagnitude => x * x + y * y;
+    public double SqrMagnitude => X * X + Y * Y;
 
     public double this[int index]
     {
@@ -46,9 +50,9 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
             switch (index)
             {
                 case 0:
-                    return x;
+                    return X;
                 case 1:
-                    return y;
+                    return Y;
                 default:
                     throw new IndexOutOfRangeException("Invalid Vector2 index!");
             }
@@ -59,10 +63,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
             switch (index)
             {
                 case 0:
-                    x = value;
+                    X = value;
                     break;
                 case 1:
-                    y = value;
+                    Y = value;
                     break;
                 default:
                     throw new IndexOutOfRangeException("Invalid Vector2 index!");
@@ -75,23 +79,23 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
     #region Public Instance methods
 
-    public System.Numerics.Vector2 ToFloat() => new((float)x, (float)y);
+    public System.Numerics.Vector2 ToFloat() => new((float)X, (float)Y);
 
 
     public void Scale(Vector2 scale)
     {
-        x *= scale.x;
-        y *= scale.y;
+        X *= scale.X;
+        Y *= scale.Y;
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Normalize()
     {
-        double ls = x * x + y * y;
+        double ls = X * X + Y * Y;
         double invNorm = 1.0 / (double)Math.Sqrt((double)ls);
-        x *= invNorm;
-        y *= invNorm;
+        X *= invNorm;
+        Y *= invNorm;
     }
 
 
@@ -101,8 +105,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The hash code.</returns>
     public override int GetHashCode()
     {
-        int hash = x.GetHashCode();
-        hash = HashCode.Combine(hash, y.GetHashCode());
+        int hash = X.GetHashCode();
+        hash = HashCode.Combine(hash, Y.GetHashCode());
         return hash;
     }
 
@@ -126,7 +130,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </summary>
     /// <param name="other">The Vector2 to compare this instance to.</param>
     /// <returns>True if the other Vector2 is equal to this instance; False otherwise.</returns>
-    public bool Equals(Vector2 other) => x == other.x && y == other.y;
+    public bool Equals(Vector2 other) => X == other.X && Y == other.Y;
 
 
     /// <summary>
@@ -156,16 +160,16 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
         StringBuilder sb = new StringBuilder();
         string separator = NumberFormatInfo.GetInstance(formatProvider).NumberGroupSeparator;
         sb.Append('<');
-        sb.Append(x.ToString(format, formatProvider));
+        sb.Append(X.ToString(format, formatProvider));
         sb.Append(separator);
         sb.Append(' ');
-        sb.Append(y.ToString(format, formatProvider));
+        sb.Append(Y.ToString(format, formatProvider));
         sb.Append('>');
         return sb.ToString();
     }
 
 
-    public bool IsFinate() => Mathf.IsValid(x) && Mathf.IsValid(y);
+    public bool IsFinate() => Mathf.IsValid(X) && Mathf.IsValid(Y);
 
     #endregion Public Instance Methods
 
@@ -179,7 +183,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     public static Vector2 up => new(0.0, 1.0);
     public static Vector2 down => new(0.0, 1.0);
 
-    public static Vector2 infinity = new(Mathf.Infinity, Mathf.Infinity);
+    public static Vector2 infinity = new(Mathf.INFINITY, Mathf.INFINITY);
 
     #endregion Public Static Properties
 
@@ -187,7 +191,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     #region Public Static Methods
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double AngleBetween(Vector2 from, Vector2 to) => Mathf.Acos(Mathf.Clamp(Dot(from.normalized, to.normalized), -1, 1)) * Mathf.Rad2Deg;
+    public static double AngleBetween(Vector2 from, Vector2 to) => Mathf.Acos(Mathf.Clamp(Dot(from.Normalized, to.Normalized), -1, 1)) * Mathf.RAD_2_DEG;
 
 
     /// <summary>
@@ -199,8 +203,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Distance(Vector2 value1, Vector2 value2)
     {
-        double dx = value1.x - value2.x;
-        double dy = value1.y - value2.y;
+        double dx = value1.X - value2.X;
+        double dy = value1.Y - value2.Y;
 
         double ls = dx * dx + dy * dy;
 
@@ -212,7 +216,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     public static Vector2 MoveTowards(Vector2 current, Vector2 target, float maxDistanceDelta)
     {
         Vector2 toVector = target - current;
-        double dist = toVector.magnitude;
+        double dist = toVector.Magnitude;
         if (dist <= maxDistanceDelta || dist == 0)
             return target;
         return current + toVector / dist * maxDistanceDelta;
@@ -227,12 +231,12 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Normalize(Vector2 value)
     {
-        double ls = value.x * value.x + value.y * value.y;
+        double ls = value.X * value.X + value.Y * value.Y;
         double invNorm = 1.0 / (double)Math.Sqrt((double)ls);
 
         return new Vector2(
-            value.x * invNorm,
-            value.y * invNorm);
+            value.X * invNorm,
+            value.Y * invNorm);
     }
 
 
@@ -245,11 +249,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Reflect(Vector2 vector, Vector2 normal)
     {
-        double dot = vector.x * normal.x + vector.y * normal.y;
+        double dot = vector.X * normal.X + vector.Y * normal.Y;
 
         return new Vector2(
-            vector.x - 2.0 * dot * normal.x,
-            vector.y - 2.0 * dot * normal.y);
+            vector.X - 2.0 * dot * normal.X,
+            vector.Y - 2.0 * dot * normal.Y);
     }
 
 
@@ -264,13 +268,13 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     {
         // This compare order is very important!!!
         // We must follow HLSL behavior in the case user specified min value is bigger than max value.
-        double x = value1.x;
-        x = x > max.x ? max.x : x;
-        x = x < min.x ? min.x : x;
+        double x = value1.X;
+        x = x > max.X ? max.X : x;
+        x = x < min.X ? min.X : x;
 
-        double y = value1.y;
-        y = y > max.y ? max.y : y;
-        y = y < min.y ? min.y : y;
+        double y = value1.Y;
+        y = y > max.Y ? max.Y : y;
+        y = y < min.Y ? min.Y : y;
 
         return new Vector2(x, y);
     }
@@ -286,8 +290,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Lerp(Vector2 value1, Vector2 value2, double amount) =>
         new(
-            value1.x + (value2.x - value1.x) * amount,
-            value1.y + (value2.y - value1.y) * amount);
+            value1.X + (value2.X - value1.X) * amount,
+            value1.Y + (value2.Y - value1.Y) * amount);
 
 
     /// <summary>
@@ -299,8 +303,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Transform(Vector2 position, Matrix4x4 matrix) =>
         new(
-            position.x * matrix.M11 + position.y * matrix.M21 + matrix.M41,
-            position.x * matrix.M12 + position.y * matrix.M22 + matrix.M42);
+            position.X * matrix.M11 + position.Y * matrix.M21 + matrix.M41,
+            position.X * matrix.M12 + position.Y * matrix.M22 + matrix.M42);
 
 
     /// <summary>
@@ -312,8 +316,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 TransformNormal(Vector2 normal, Matrix4x4 matrix) =>
         new(
-            normal.x * matrix.M11 + normal.y * matrix.M21,
-            normal.x * matrix.M12 + normal.y * matrix.M22);
+            normal.X * matrix.M11 + normal.Y * matrix.M21,
+            normal.X * matrix.M12 + normal.Y * matrix.M22);
 
 
     /// <summary>
@@ -325,19 +329,19 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Transform(Vector2 value, Quaternion rotation)
     {
-        double x2 = rotation.x + rotation.x;
-        double y2 = rotation.y + rotation.y;
-        double z2 = rotation.z + rotation.z;
+        double x2 = rotation.X + rotation.X;
+        double y2 = rotation.Y + rotation.Y;
+        double z2 = rotation.Z + rotation.Z;
 
-        double wz2 = rotation.w * z2;
-        double xx2 = rotation.x * x2;
-        double xy2 = rotation.x * y2;
-        double yy2 = rotation.y * y2;
-        double zz2 = rotation.z * z2;
+        double wz2 = rotation.W * z2;
+        double xx2 = rotation.X * x2;
+        double xy2 = rotation.X * y2;
+        double yy2 = rotation.Y * y2;
+        double zz2 = rotation.Z * z2;
 
         return new Vector2(
-            value.x * (1.0 - yy2 - zz2) + value.y * (xy2 - wz2),
-            value.x * (xy2 + wz2) + value.y * (1.0 - xx2 - zz2));
+            value.X * (1.0 - yy2 - zz2) + value.Y * (xy2 - wz2),
+            value.X * (xy2 + wz2) + value.Y * (1.0 - xx2 - zz2));
     }
 
 
@@ -349,8 +353,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The dot product.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Dot(Vector2 value1, Vector2 value2) =>
-        value1.x * value2.x +
-        value1.y * value2.y;
+        value1.X * value2.X +
+        value1.Y * value2.Y;
 
 
     /// <summary>
@@ -362,8 +366,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Min(Vector2 value1, Vector2 value2) =>
         new(
-            value1.x < value2.x ? value1.x : value2.x,
-            value1.y < value2.y ? value1.y : value2.y);
+            value1.X < value2.X ? value1.X : value2.X,
+            value1.Y < value2.Y ? value1.Y : value2.Y);
 
 
     /// <summary>
@@ -375,8 +379,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Max(Vector2 value1, Vector2 value2) =>
         new(
-            value1.x > value2.x ? value1.x : value2.x,
-            value1.y > value2.y ? value1.y : value2.y);
+            value1.X > value2.X ? value1.X : value2.X,
+            value1.Y > value2.Y ? value1.Y : value2.Y);
 
 
     /// <summary>
@@ -385,7 +389,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The absolute value vector.</returns>        
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 Abs(Vector2 value) => new(Math.Abs(value.x), Math.Abs(value.y));
+    public static Vector2 Abs(Vector2 value) => new(Math.Abs(value.X), Math.Abs(value.Y));
 
 
     /// <summary>
@@ -394,7 +398,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The square root vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 SquareRoot(Vector2 value) => new((double)Math.Sqrt(value.x), (double)Math.Sqrt(value.y));
+    public static Vector2 SquareRoot(Vector2 value) => new((double)Math.Sqrt(value.X), (double)Math.Sqrt(value.Y));
 
     #endregion Public Static Methods
 
@@ -408,7 +412,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="right">The second source vector.</param>
     /// <returns>The summed vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 operator +(Vector2 left, Vector2 right) => new(left.x + right.x, left.y + right.y);
+    public static Vector2 operator +(Vector2 left, Vector2 right) => new(left.X + right.X, left.Y + right.Y);
 
 
     /// <summary>
@@ -418,7 +422,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="right">The second source vector.</param>
     /// <returns>The difference vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 operator -(Vector2 left, Vector2 right) => new(left.x - right.x, left.y - right.y);
+    public static Vector2 operator -(Vector2 left, Vector2 right) => new(left.X - right.X, left.Y - right.Y);
 
 
     /// <summary>
@@ -428,7 +432,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="right">The second source vector.</param>
     /// <returns>The product vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 operator *(Vector2 left, Vector2 right) => new(left.x * right.x, left.y * right.y);
+    public static Vector2 operator *(Vector2 left, Vector2 right) => new(left.X * right.X, left.Y * right.Y);
 
 
     /// <summary>
@@ -458,7 +462,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="right">The second source vector.</param>
     /// <returns>The vector resulting from the division.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 operator /(Vector2 left, Vector2 right) => new(left.x / right.x, left.y / right.y);
+    public static Vector2 operator /(Vector2 left, Vector2 right) => new(left.X / right.X, left.Y / right.Y);
 
 
     /// <summary>
@@ -472,8 +476,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     {
         double invDiv = 1.0 / value2;
         return new Vector2(
-            value1.x * invDiv,
-            value1.y * invDiv);
+            value1.X * invDiv,
+            value1.Y * invDiv);
     }
 
 
@@ -507,7 +511,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator System.Numerics.Vector2(Vector2 value) => new((float)value.x, (float)value.y);
+    public static implicit operator System.Numerics.Vector2(Vector2 value) => new((float)value.X, (float)value.Y);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
