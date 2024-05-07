@@ -32,7 +32,6 @@ SOFTWARE.
 
 
 using System.Runtime.CompilerServices;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.API;
 
@@ -47,9 +46,9 @@ public struct Plane : IEquatable<Plane>
 {
     #region Public Fields
 
-    public double distance;
+    public double Distance;
 
-    public Vector3 normal;
+    public Vector3 Normal;
 
     #endregion Public Fields
 
@@ -64,16 +63,14 @@ public struct Plane : IEquatable<Plane>
 
     public Plane(Vector3 normal, double d)
     {
-        this.normal = normal;
-        distance = d;
+        Normal = normal;
+        Distance = d;
     }
 
 
     public Plane(Vector3 a, Vector3 b, Vector3 c)
     {
-        normal = Vector3.Normalize(Vector3.Cross(a - c, a - b));
-        distance = Vector3.Dot(normal, a);
-        //TODO: Replace with Set3Points(a, b, c);
+        Set3Points(a, b, c);
 
         //normal = Vector3.Cross(a - c, a - b);
         //normal = Vector3.Normalize(normal);
@@ -92,60 +89,60 @@ public struct Plane : IEquatable<Plane>
     #region Public Methods
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Dot(Vector4 value) => normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z + distance * value.W;
+    public double Dot(Vector4 value) => Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z + Distance * value.W;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Dot(ref Vector4 value, out double result) => result = normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z + distance * value.W;
+    public void Dot(ref Vector4 value, out double result) => result = Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z + Distance * value.W;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double DotCoordinate(Vector3 value) => normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z + distance;
+    public double DotCoordinate(Vector3 value) => Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z + Distance;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DotCoordinate(ref Vector3 value, out double result) => result = normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z + distance;
+    public void DotCoordinate(ref Vector3 value, out double result) => result = Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z + Distance;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double DotNormal(Vector3 value) => normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z;
+    public double DotNormal(Vector3 value) => Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DotNormal(ref Vector3 value, out double result) => result = normal.X * value.X + normal.Y * value.Y + normal.Z * value.Z;
+    public void DotNormal(ref Vector3 value, out double result) => result = Normal.X * value.X + Normal.Y * value.Y + Normal.Z * value.Z;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool GetSide(Vector3 inPt) => Vector3.Dot(normal, inPt) + distance > 0.0;
+    public bool GetSide(Vector3 inPt) => Vector3.Dot(Normal, inPt) + Distance > 0.0;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsOnPositiveSide(Vector3 point) => Vector3.Dot(normal, point) > distance;
+    public bool IsOnPositiveSide(Vector3 point) => Vector3.Dot(Normal, point) > Distance;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double GetDistanceToPoint(Vector3 inPt) => Math.Abs(Vector3.Dot(normal, inPt) + distance);
+    public double GetDistanceToPoint(Vector3 inPt) => Math.Abs(Vector3.Dot(Normal, inPt) + Distance);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsOnPlane(Vector3 point, double tolerance = 0) => Mathf.Abs(Vector3.Dot(normal, point) - distance) <= tolerance;
+    public bool IsOnPlane(Vector3 point, double tolerance = 0) => Mathf.Abs(Vector3.Dot(Normal, point) - Distance) <= tolerance;
 
 
     public void Normalize()
     {
         double factor;
-        Vector3 normal = this.normal;
-        this.normal = Vector3.Normalize(this.normal);
-        factor = (double)Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z) /
-                 (double)Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
-        distance = distance * factor;
+        Vector3 normal = Normal;
+        Normal = Vector3.Normalize(Normal);
+        factor = Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z) /
+                 Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
+        Distance = Distance * factor;
     }
 
 
     public void Set3Points(Vector3 a, Vector3 b, Vector3 c)
     {
-        normal = Vector3.Normalize(Vector3.Cross(a - c, a - b));
-        distance = Vector3.Dot(normal, a);
+        Normal = Vector3.Normalize(Vector3.Cross(a - c, a - b));
+        Distance = Vector3.Dot(Normal, a);
     }
 
 
@@ -160,10 +157,10 @@ public struct Plane : IEquatable<Plane>
     public static void Normalize(ref Plane value, out Plane result)
     {
         double factor;
-        result.normal = Vector3.Normalize(value.normal);
-        factor = (double)Math.Sqrt(result.normal.X * result.normal.X + result.normal.Y * result.normal.Y + result.normal.Z * result.normal.Z) /
-                 (double)Math.Sqrt(value.normal.X * value.normal.X + value.normal.Y * value.normal.Y + value.normal.Z * value.normal.Z);
-        result.distance = value.distance * factor;
+        result.Normal = Vector3.Normalize(value.Normal);
+        factor = Math.Sqrt(result.Normal.X * result.Normal.X + result.Normal.Y * result.Normal.Y + result.Normal.Z * result.Normal.Z) /
+                 Math.Sqrt(value.Normal.X * value.Normal.X + value.Normal.Y * value.Normal.Y + value.Normal.Z * value.Normal.Z);
+        result.Distance = value.Distance * factor;
     }
 
 
@@ -173,9 +170,9 @@ public struct Plane : IEquatable<Plane>
 
     public override bool Equals(object? other) => other is Plane plane ? Equals(plane) : false;
 
-    public bool Equals(Plane other) => normal == other.normal && distance == other.distance;
+    public bool Equals(Plane other) => Normal == other.Normal && Distance == other.Distance;
 
-    public override int GetHashCode() => normal.GetHashCode() ^ distance.GetHashCode();
+    public override int GetHashCode() => Normal.GetHashCode() ^ Distance.GetHashCode();
 
     public PlaneIntersectionType Intersects(Bounds box) => box.Intersects(this);
 
@@ -202,14 +199,14 @@ public struct Plane : IEquatable<Plane>
         result = Vector3.Zero;
 
         Vector3 segment = lineStart - lineEnd;
-        double den = Vector3.Dot(normal, segment);
+        double den = Vector3.Dot(Normal, segment);
 
-        if (Mathf.Abs(den) < Mathf.Small)
+        if (Mathf.Abs(den) < Mathf.SMALL)
             return false;
 
-        double dist = (Vector3.Dot(normal, lineStart) - distance) / den;
+        double dist = (Vector3.Dot(Normal, lineStart) - Distance) / den;
 
-        if (dist < (double)-Mathf.Small || dist > 1.0f + (double)Mathf.Small)
+        if (dist < -Mathf.SMALL || dist > 1.0f + Mathf.SMALL)
             return false;
 
         dist = -dist;
@@ -219,9 +216,9 @@ public struct Plane : IEquatable<Plane>
     }
 
 
-    internal string DebugDisplayString => string.Concat(normal.ToString(), "  ", distance.ToString());
+    internal string DebugDisplayString => string.Concat(Normal.ToString(), "  ", Distance.ToString());
 
-    public override string ToString() => "{Normal:" + normal + " Distance:" + distance + "}";
+    public override string ToString() => "{Normal:" + Normal + " Distance:" + Distance + "}";
 
     #endregion
 }

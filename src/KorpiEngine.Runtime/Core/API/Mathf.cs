@@ -213,15 +213,15 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static Vector2 Lerp(Vector2 a, Vector2 b, Vector2 t) => new(Lerp(a.x, b.x, t.x), Lerp(a.y, b.y, t.y));
+    public static Vector2 Lerp(Vector2 a, Vector2 b, Vector2 t) => new(Lerp(a.X, b.X, t.X), Lerp(a.Y, b.Y, t.Y));
 
 
     [MethodImpl(IN)]
-    public static Vector3 Lerp(Vector3 a, Vector3 b, Vector3 t) => new(Lerp(a.x, b.x, t.x), Lerp(a.y, b.y, t.y), Lerp(a.z, b.z, t.z));
+    public static Vector3 Lerp(Vector3 a, Vector3 b, Vector3 t) => new(Lerp(a.X, b.X, t.X), Lerp(a.Y, b.Y, t.Y), Lerp(a.Z, b.Z, t.Z));
 
 
     [MethodImpl(IN)]
-    public static Vector4 Lerp(Vector4 a, Vector4 b, Vector4 t) => new(Lerp(a.x, b.x, t.x), Lerp(a.y, b.y, t.y), Lerp(a.z, b.z, t.z), Lerp(a.w, b.w, t.w));
+    public static Vector4 Lerp(Vector4 a, Vector4 b, Vector4 t) => new(Lerp(a.X, b.X, t.X), Lerp(a.Y, b.Y, t.Y), Lerp(a.Z, b.Z, t.Z), Lerp(a.W, b.W, t.W));
 
 
     [MethodImpl(IN)]
@@ -242,14 +242,14 @@ public static class Mathf
 
     public static Vector2 ClampMagnitude(Vector2 v, double min, double max)
     {
-        double mag = v.magnitude;
+        double mag = v.Magnitude;
         return mag < min ? v / mag * min : mag > max ? v / mag * max : v;
     }
 
 
     public static Vector3 ClampMagnitude(Vector3 v, double min, double max)
     {
-        double mag = v.magnitude;
+        double mag = v.Magnitude;
         return mag < min ? v / mag * min : mag > max ? v / mag * max : v;
     }
 
@@ -271,7 +271,7 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static uint Pack4F(this Vector4 color) => Pack4U((uint)(color.w * 255), (uint)(color.x * 255), (uint)(color.y * 255), (uint)(color.z * 255));
+    public static uint Pack4F(this Vector4 color) => Pack4U((uint)(color.W * 255), (uint)(color.X * 255), (uint)(color.Y * 255), (uint)(color.Z * 255));
 
 
     [MethodImpl(IN)]
@@ -287,17 +287,17 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static bool ApproximatelyEquals(Vector2 a, Vector2 b) => ApproximatelyEquals(a.x, b.x) && ApproximatelyEquals(a.y, b.y);
+    public static bool ApproximatelyEquals(Vector2 a, Vector2 b) => ApproximatelyEquals(a.X, b.X) && ApproximatelyEquals(a.Y, b.Y);
 
 
     [MethodImpl(IN)]
     public static bool ApproximatelyEquals(Vector3 a, Vector3 b) =>
-        ApproximatelyEquals(a.x, b.x) && ApproximatelyEquals(a.y, b.y) && ApproximatelyEquals(a.z, b.z);
+        ApproximatelyEquals(a.X, b.X) && ApproximatelyEquals(a.Y, b.Y) && ApproximatelyEquals(a.Z, b.Z);
 
 
     [MethodImpl(IN)]
-    public static bool ApproximatelyEquals(Vector4 a, Vector4 b) => ApproximatelyEquals(a.x, b.x) && ApproximatelyEquals(a.y, b.y) &&
-                                                                    ApproximatelyEquals(a.z, b.z) && ApproximatelyEquals(a.w, b.w);
+    public static bool ApproximatelyEquals(Vector4 a, Vector4 b) => ApproximatelyEquals(a.X, b.X) && ApproximatelyEquals(a.Y, b.Y) &&
+                                                                    ApproximatelyEquals(a.Z, b.Z) && ApproximatelyEquals(a.W, b.W);
 
 
     /// <summary> 
@@ -307,7 +307,7 @@ public static class Mathf
     {
         Vector2 p = point - lineStart;
         Vector2 n = lineEnd - lineStart;
-        double l2 = n.sqrMagnitude;
+        double l2 = n.SqrMagnitude;
         if (l2 < 1e-20f)
             return lineStart; // Both points are the same, just give any.
 
@@ -337,17 +337,17 @@ public static class Mathf
         if (abLen <= 0)
             return false;
         Vector2 abNorm = ab / abLen;
-        ac = new Vector2(ac.x * abNorm.x + ac.y * abNorm.y, ac.y * abNorm.x - ac.x * abNorm.y);
-        ad = new Vector2(ad.x * abNorm.x + ad.y * abNorm.y, ad.y * abNorm.x - ad.x * abNorm.y);
+        ac = new Vector2(ac.X * abNorm.X + ac.Y * abNorm.Y, ac.Y * abNorm.X - ac.X * abNorm.Y);
+        ad = new Vector2(ad.X * abNorm.X + ad.Y * abNorm.Y, ad.Y * abNorm.X - ad.X * abNorm.Y);
 
         // segments don't intersect
-        if ((ac.y < -SMALL && ad.y < -SMALL) || (ac.y > SMALL && ad.y > SMALL))
+        if ((ac.Y < -SMALL && ad.Y < -SMALL) || (ac.Y > SMALL && ad.Y > SMALL))
             return false;
 
-        if (Abs(ad.y - ac.y) < SMALL)
+        if (Abs(ad.Y - ac.Y) < SMALL)
             return false;
 
-        double abPos = ad.x + (ac.x - ad.x) * ad.y / (ad.y - ac.y);
+        double abPos = ad.X + (ac.X - ad.X) * ad.Y / (ad.Y - ac.Y);
         if (abPos < 0 || abPos > 1)
             return false;
 
@@ -385,7 +385,7 @@ public static class Mathf
     /// </summary>
     public static bool RayIntersectsTriangle(Vector3 origin, Vector3 dir, Vector3 a, Vector3 b, Vector3 c, out Vector3 intersection)
     {
-        intersection = Vector3.zero;
+        intersection = Vector3.Zero;
 
         Vector3 edge1 = b - a;
         Vector3 edge2 = c - a;
@@ -440,7 +440,7 @@ public static class Mathf
             if (shifted > 2)
                 return false; // Triangle appears degenerate, so ignore it.
 
-            Vector3 shiftBy = Vector3.zero;
+            Vector3 shiftBy = Vector3.Zero;
             shiftBy[shifted] = 1;
             Vector3 shiftedPoint = point + shiftBy;
             return Internal_IsPointInTriangle(shiftedPoint, a + shiftBy, b + shiftBy, c + shiftBy, shifted + 1);
@@ -475,12 +475,12 @@ public static class Mathf
         Vector2 bn = b - point;
         Vector2 cn = c - point;
 
-        bool orientation = an.x * bn.y - an.y * bn.x > 0;
+        bool orientation = an.X * bn.Y - an.Y * bn.X > 0;
 
-        if (bn.x * cn.y - bn.y * cn.x > 0 != orientation)
+        if (bn.X * cn.Y - bn.Y * cn.X > 0 != orientation)
             return false;
 
-        return cn.x * an.y - cn.y * an.x > 0 == orientation;
+        return cn.X * an.Y - cn.Y * an.X > 0 == orientation;
     }
 
     #endregion
@@ -526,9 +526,9 @@ public static class Mathf
     [MethodImpl(IN)]
     public static Vector3 GetRotation(this Quaternion r)
     {
-        double yaw = Math.Atan2(2.0 * (r.y * r.w + r.x * r.z), 1.0 - 2.0 * (r.x * r.x + r.y * r.y));
-        double pitch = Math.Asin(2.0 * (r.x * r.w - r.y * r.z));
-        double roll = Math.Atan2(2.0 * (r.x * r.y + r.z * r.w), 1.0 - 2.0 * (r.x * r.x + r.z * r.z));
+        double yaw = Math.Atan2(2.0 * (r.Y * r.W + r.X * r.Z), 1.0 - 2.0 * (r.X * r.X + r.Y * r.Y));
+        double pitch = Math.Asin(2.0 * (r.X * r.W - r.Y * r.Z));
+        double roll = Math.Atan2(2.0 * (r.X * r.Y + r.Z * r.W), 1.0 - 2.0 * (r.X * r.X + r.Z * r.Z));
 
         // If any nan or inf, set that value to 0
         if (double.IsNaN(yaw) || double.IsInfinity(yaw))
@@ -542,11 +542,11 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static Vector3 ToDeg(this Vector3 v) => new(v.x * RAD_2_DEG, v.y * RAD_2_DEG, v.z * RAD_2_DEG);
+    public static Vector3 ToDeg(this Vector3 v) => new(v.X * RAD_2_DEG, v.Y * RAD_2_DEG, v.Z * RAD_2_DEG);
 
 
     [MethodImpl(IN)]
-    public static Vector3 ToRad(this Vector3 v) => new(v.x * DEG_2_RAD, v.y * DEG_2_RAD, v.z * DEG_2_RAD);
+    public static Vector3 ToRad(this Vector3 v) => new(v.X * DEG_2_RAD, v.Y * DEG_2_RAD, v.Z * DEG_2_RAD);
 
 
     [MethodImpl(IN)]
@@ -566,15 +566,15 @@ public static class Mathf
 
 
     [MethodImpl(IN)]
-    public static Quaternion GetQuaternion(this Vector3 vector) => Quaternion.CreateFromYawPitchRoll(vector.y, vector.x, vector.z);
+    public static Quaternion GetQuaternion(this Vector3 vector) => Quaternion.CreateFromYawPitchRoll(vector.Y, vector.X, vector.Z);
 
 
     [MethodImpl(IN)]
     public static Vector3 NormalizeEulerAngleDegrees(this Vector3 angle)
     {
-        double normalizedX = angle.x % 360;
-        double normalizedY = angle.y % 360;
-        double normalizedZ = angle.z % 360;
+        double normalizedX = angle.X % 360;
+        double normalizedY = angle.Y % 360;
+        double normalizedZ = angle.Z % 360;
         if (normalizedX < 0)
             normalizedX += 360;
 

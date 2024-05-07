@@ -43,10 +43,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         get => new(M11, M12, M13, M14);
         set
         {
-            M11 = value.x;
-            M12 = value.y;
-            M13 = value.z;
-            M14 = value.w;
+            M11 = value.X;
+            M12 = value.Y;
+            M13 = value.Z;
+            M14 = value.W;
         }
     }
 
@@ -55,10 +55,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         get => new(M21, M22, M23, M24);
         set
         {
-            M21 = value.x;
-            M22 = value.y;
-            M23 = value.z;
-            M24 = value.w;
+            M21 = value.X;
+            M22 = value.Y;
+            M23 = value.Z;
+            M24 = value.W;
         }
     }
 
@@ -67,10 +67,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         get => new(M31, M32, M33, M34);
         set
         {
-            M31 = value.x;
-            M32 = value.y;
-            M33 = value.z;
-            M34 = value.w;
+            M31 = value.X;
+            M32 = value.Y;
+            M33 = value.Z;
+            M34 = value.W;
         }
     }
 
@@ -79,10 +79,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         get => new(M41, M42, M43, M44);
         set
         {
-            M41 = value.x;
-            M42 = value.y;
-            M43 = value.z;
-            M44 = value.w;
+            M41 = value.X;
+            M42 = value.Y;
+            M43 = value.Z;
+            M44 = value.W;
         }
     }
 
@@ -206,9 +206,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         get => new(M41, M42, M43);
         set
         {
-            M41 = value.x;
-            M42 = value.y;
-            M43 = value.z;
+            M41 = value.X;
+            M42 = value.Y;
+            M43 = value.Z;
         }
     }
 
@@ -274,11 +274,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         const double epsilon = 1e-4;
 
         Vector3 zaxis = new(
-            objectPosition.x - cameraPosition.x,
-            objectPosition.y - cameraPosition.y,
-            objectPosition.z - cameraPosition.z);
+            objectPosition.X - cameraPosition.X,
+            objectPosition.Y - cameraPosition.Y,
+            objectPosition.Z - cameraPosition.Z);
 
-        double norm = zaxis.sqrMagnitude;
+        double norm = zaxis.SqrMagnitude;
 
         if (norm < epsilon)
             zaxis = -cameraForwardVector;
@@ -289,10 +289,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         Vector3 yaxis = Vector3.Cross(zaxis, xaxis);
 
         Matrix4x4 result = new();
-        result.M1 = new Vector4(xaxis.x, xaxis.y, xaxis.z, 0.0);
-        result.M2 = new Vector4(yaxis.x, yaxis.y, yaxis.z, 0.0);
-        result.M3 = new Vector4(zaxis.x, zaxis.y, zaxis.z, 0.0);
-        result.M4 = new Vector4(objectPosition.x, objectPosition.y, objectPosition.z, 1.0);
+        result.M1 = new Vector4(xaxis.X, xaxis.Y, xaxis.Z, 0.0);
+        result.M2 = new Vector4(yaxis.X, yaxis.Y, yaxis.Z, 0.0);
+        result.M3 = new Vector4(zaxis.X, zaxis.Y, zaxis.Z, 0.0);
+        result.M4 = new Vector4(objectPosition.X, objectPosition.Y, objectPosition.Z, 1.0);
         return result;
     }
 
@@ -314,11 +314,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
 
         // Treat the case when object and camera positions are too close.
         Vector3 faceDir = new(
-            objectPosition.x - cameraPosition.x,
-            objectPosition.y - cameraPosition.y,
-            objectPosition.z - cameraPosition.z);
+            objectPosition.X - cameraPosition.X,
+            objectPosition.Y - cameraPosition.Y,
+            objectPosition.Z - cameraPosition.Z);
 
-        double norm = faceDir.sqrMagnitude;
+        double norm = faceDir.SqrMagnitude;
 
         if (norm < epsilon)
             faceDir = -cameraForwardVector;
@@ -340,7 +340,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
             dot = Vector3.Dot(rotateAxis, zaxis);
 
             if (Math.Abs(dot) > minAngle)
-                zaxis = Math.Abs(rotateAxis.z) > minAngle ? new Vector3(1, 0, 0) : new Vector3(0, 0, -1);
+                zaxis = Math.Abs(rotateAxis.Z) > minAngle ? new Vector3(1, 0, 0) : new Vector3(0, 0, -1);
 
             xaxis = Vector3.Normalize(Vector3.Cross(rotateAxis, zaxis));
             zaxis = Vector3.Normalize(Vector3.Cross(xaxis, rotateAxis));
@@ -352,10 +352,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         }
 
         Matrix4x4 result = new();
-        result.M1 = new Vector4(xaxis.x, xaxis.y, xaxis.z, 0.0);
-        result.M2 = new Vector4(yaxis.x, yaxis.y, yaxis.z, 0.0);
-        result.M3 = new Vector4(zaxis.x, zaxis.y, zaxis.z, 0.0);
-        result.M4 = new Vector4(objectPosition.x, objectPosition.y, objectPosition.z, 1.0);
+        result.M1 = new Vector4(xaxis.X, xaxis.Y, xaxis.Z, 0.0);
+        result.M2 = new Vector4(yaxis.X, yaxis.Y, yaxis.Z, 0.0);
+        result.M3 = new Vector4(zaxis.X, zaxis.Y, zaxis.Z, 0.0);
+        result.M4 = new Vector4(objectPosition.X, objectPosition.Y, objectPosition.Z, 1.0);
 
         return result;
     }
@@ -372,7 +372,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         result.M1 = new Vector4(1f, 0, 0, 0);
         result.M2 = new Vector4(0, 1f, 0, 0);
         result.M3 = new Vector4(0, 0, 1f, 0);
-        result.M4 = new Vector4(position.x, position.y, position.z, 1f);
+        result.M4 = new Vector4(position.X, position.Y, position.Z, 1f);
         return result;
     }
 
@@ -427,9 +427,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         Matrix4x4 result = new();
 
-        double tx = centerPoint.x * (1 - xScale);
-        double ty = centerPoint.y * (1 - yScale);
-        double tz = centerPoint.z * (1 - zScale);
+        double tx = centerPoint.X * (1 - xScale);
+        double ty = centerPoint.Y * (1 - yScale);
+        double tz = centerPoint.Z * (1 - zScale);
 
         result.M1 = new Vector4(xScale, 0, 0, 0);
         result.M2 = new Vector4(0, yScale, 0, 0);
@@ -448,9 +448,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     public static Matrix4x4 CreateScale(Vector3 scales)
     {
         Matrix4x4 result = new();
-        result.M1 = new Vector4(scales.x, 0, 0, 0);
-        result.M2 = new Vector4(0, scales.y, 0, 0);
-        result.M3 = new Vector4(0, 0, scales.z, 0);
+        result.M1 = new Vector4(scales.X, 0, 0, 0);
+        result.M2 = new Vector4(0, scales.Y, 0, 0);
+        result.M3 = new Vector4(0, 0, scales.Z, 0);
         result.M4 = new Vector4(0, 0, 0, 1);
         return result;
     }
@@ -466,13 +466,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         Matrix4x4 result = new();
 
-        double tx = centerPoint.x * (1 - scales.x);
-        double ty = centerPoint.y * (1 - scales.y);
-        double tz = centerPoint.z * (1 - scales.z);
+        double tx = centerPoint.X * (1 - scales.X);
+        double ty = centerPoint.Y * (1 - scales.Y);
+        double tz = centerPoint.Z * (1 - scales.Z);
 
-        result.M1 = new Vector4(scales.x, 0, 0, 0);
-        result.M2 = new Vector4(0, scales.y, 0, 0);
-        result.M3 = new Vector4(0, 0, scales.z, 0);
+        result.M1 = new Vector4(scales.X, 0, 0, 0);
+        result.M2 = new Vector4(0, scales.Y, 0, 0);
+        result.M3 = new Vector4(0, 0, scales.Z, 0);
         result.M4 = new Vector4(tx, ty, tz, 1);
 
         return result;
@@ -505,9 +505,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     public static Matrix4x4 CreateScale(double scale, Vector3 centerPoint)
     {
         Matrix4x4 result = new();
-        double tx = centerPoint.x * (1 - scale);
-        double ty = centerPoint.y * (1 - scale);
-        double tz = centerPoint.z * (1 - scale);
+        double tx = centerPoint.X * (1 - scale);
+        double ty = centerPoint.Y * (1 - scale);
+        double tz = centerPoint.Z * (1 - scale);
         result.M1 = new Vector4(scale, 0, 0, 0);
         result.M2 = new Vector4(0, scale, 0, 0);
         result.M3 = new Vector4(0, 0, scale, 0);
@@ -554,8 +554,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         double c = (double)Math.Cos(radians);
         double s = (double)Math.Sin(radians);
 
-        double y = centerPoint.y * (1 - c) + centerPoint.z * s;
-        double z = centerPoint.z * (1 - c) - centerPoint.y * s;
+        double y = centerPoint.Y * (1 - c) + centerPoint.Z * s;
+        double z = centerPoint.Z * (1 - c) - centerPoint.Y * s;
 
         // [  1  0  0  0 ]
         // [  0  c  s  0 ]
@@ -608,8 +608,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         double c = (double)Math.Cos(radians);
         double s = (double)Math.Sin(radians);
 
-        double x = centerPoint.x * (1 - c) - centerPoint.z * s;
-        double z = centerPoint.z * (1 - c) + centerPoint.x * s;
+        double x = centerPoint.X * (1 - c) - centerPoint.Z * s;
+        double z = centerPoint.Z * (1 - c) + centerPoint.X * s;
 
         // [  c  0 -s  0 ]
         // [  0  1  0  0 ]
@@ -662,8 +662,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         double c = (double)Math.Cos(radians);
         double s = (double)Math.Sin(radians);
 
-        double x = centerPoint.x * (1 - c) + centerPoint.y * s;
-        double y = centerPoint.y * (1 - c) - centerPoint.x * s;
+        double x = centerPoint.X * (1 - c) + centerPoint.Y * s;
+        double y = centerPoint.Y * (1 - c) - centerPoint.X * s;
 
         // [  c  s  0  0 ]
         // [ -s  c  0  0 ]
@@ -711,9 +711,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         // M = [ xy-cosa*yx+sina*z    yy+cosa(1-yy)  yz-cosa*yz-sina*x ]
         //     [ zx-cosa*zx-sina*y zy-cosa*zy+sina*x   zz+cosa*(1-zz)  ]
         //
-        double x = axis.x,
-            y = axis.y,
-            z = axis.z;
+        double x = axis.X,
+            y = axis.Y,
+            z = axis.Z;
         double sa = (double)Math.Sin(angle),
             ca = (double)Math.Cos(angle);
         double xx = x * x,
@@ -938,9 +938,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
 
         Matrix4x4 result = new();
 
-        result.M1 = new Vector4(axisX.x, axisY.x, axisZ.x, 0.0);
-        result.M2 = new Vector4(axisX.y, axisY.y, axisZ.y, 0.0);
-        result.M3 = new Vector4(axisX.z, axisY.z, axisZ.z, 0.0);
+        result.M1 = new Vector4(axisX.X, axisY.X, axisZ.X, 0.0);
+        result.M2 = new Vector4(axisX.Y, axisY.Y, axisZ.Y, 0.0);
+        result.M3 = new Vector4(axisX.Z, axisY.Z, axisZ.Z, 0.0);
 
         result.M41 = Vector3.Dot(axisX, negativeCameraPosition);
         result.M42 = Vector3.Dot(axisY, negativeCameraPosition);
@@ -966,9 +966,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
 
         Matrix4x4 result = new();
 
-        result.M1 = new Vector4(xaxis.x, yaxis.x, zaxis.x, 0.0);
-        result.M2 = new Vector4(xaxis.y, yaxis.y, zaxis.y, 0.0);
-        result.M3 = new Vector4(xaxis.z, yaxis.z, zaxis.z, 0.0);
+        result.M1 = new Vector4(xaxis.X, yaxis.X, zaxis.X, 0.0);
+        result.M2 = new Vector4(xaxis.Y, yaxis.Y, zaxis.Y, 0.0);
+        result.M3 = new Vector4(xaxis.Z, yaxis.Z, zaxis.Z, 0.0);
 
         result.M41 = -Vector3.Dot(xaxis, cameraPosition);
         result.M42 = -Vector3.Dot(yaxis, cameraPosition);
@@ -994,10 +994,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
 
         Matrix4x4 result = new();
 
-        result.M1 = new Vector4(xaxis.x, xaxis.y, xaxis.z, 0.0);
-        result.M2 = new Vector4(yaxis.x, yaxis.y, yaxis.z, 0.0);
-        result.M3 = new Vector4(zaxis.x, zaxis.y, zaxis.z, 0.0);
-        result.M4 = new Vector4(position.x, position.y, position.z, 1.0);
+        result.M1 = new Vector4(xaxis.X, xaxis.Y, xaxis.Z, 0.0);
+        result.M2 = new Vector4(yaxis.X, yaxis.Y, yaxis.Z, 0.0);
+        result.M3 = new Vector4(zaxis.X, zaxis.Y, zaxis.Z, 0.0);
+        result.M4 = new Vector4(position.X, position.Y, position.Z, 1.0);
 
         return result;
     }
@@ -1012,16 +1012,16 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         Matrix4x4 result = new();
 
-        double xx = quaternion.x * quaternion.x;
-        double yy = quaternion.y * quaternion.y;
-        double zz = quaternion.z * quaternion.z;
+        double xx = quaternion.X * quaternion.X;
+        double yy = quaternion.Y * quaternion.Y;
+        double zz = quaternion.Z * quaternion.Z;
 
-        double xy = quaternion.x * quaternion.y;
-        double wz = quaternion.z * quaternion.w;
-        double xz = quaternion.z * quaternion.x;
-        double wy = quaternion.y * quaternion.w;
-        double yz = quaternion.y * quaternion.z;
-        double wx = quaternion.x * quaternion.w;
+        double xy = quaternion.X * quaternion.Y;
+        double wz = quaternion.Z * quaternion.W;
+        double xz = quaternion.Z * quaternion.X;
+        double wy = quaternion.Y * quaternion.W;
+        double yz = quaternion.Y * quaternion.Z;
+        double wx = quaternion.X * quaternion.W;
 
         result.M11 = 1.0 - 2.0 * (yy + zz);
         result.M12 = 2.0 * (xy + wz);
@@ -1067,28 +1067,28 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         Plane p = Plane.Normalize(plane);
 
-        double dot = p.normal.x * lightDirection.x + p.normal.y * lightDirection.y + p.normal.z * lightDirection.z;
-        double a = -p.normal.x;
-        double b = -p.normal.y;
-        double c = -p.normal.z;
-        double d = -p.distance;
+        double dot = p.Normal.X * lightDirection.X + p.Normal.Y * lightDirection.Y + p.Normal.Z * lightDirection.Z;
+        double a = -p.Normal.X;
+        double b = -p.Normal.Y;
+        double c = -p.Normal.Z;
+        double d = -p.Distance;
 
         Matrix4x4 result = new();
 
-        result.M11 = a * lightDirection.x + dot;
-        result.M21 = b * lightDirection.x;
-        result.M31 = c * lightDirection.x;
-        result.M41 = d * lightDirection.x;
+        result.M11 = a * lightDirection.X + dot;
+        result.M21 = b * lightDirection.X;
+        result.M31 = c * lightDirection.X;
+        result.M41 = d * lightDirection.X;
 
-        result.M12 = a * lightDirection.y;
-        result.M22 = b * lightDirection.y + dot;
-        result.M32 = c * lightDirection.y;
-        result.M42 = d * lightDirection.y;
+        result.M12 = a * lightDirection.Y;
+        result.M22 = b * lightDirection.Y + dot;
+        result.M32 = c * lightDirection.Y;
+        result.M42 = d * lightDirection.Y;
 
-        result.M13 = a * lightDirection.z;
-        result.M23 = b * lightDirection.z;
-        result.M33 = c * lightDirection.z + dot;
-        result.M43 = d * lightDirection.z;
+        result.M13 = a * lightDirection.Z;
+        result.M23 = b * lightDirection.Z;
+        result.M33 = c * lightDirection.Z + dot;
+        result.M43 = d * lightDirection.Z;
 
         result.M4 = new Vector4(0.0, 0.0, 0.0, dot);
 
@@ -1105,9 +1105,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         value = Plane.Normalize(value);
 
-        double a = value.normal.x;
-        double b = value.normal.y;
-        double c = value.normal.z;
+        double a = value.Normal.X;
+        double b = value.Normal.Y;
+        double c = value.Normal.Z;
 
         double fa = -2.0 * a;
         double fb = -2.0 * b;
@@ -1130,9 +1130,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         result.M33 = fc * c + 1.0;
         result.M34 = 0.0;
 
-        result.M41 = fa * value.distance;
-        result.M42 = fb * value.distance;
-        result.M43 = fc * value.distance;
+        result.M41 = fa * value.Distance;
+        result.M42 = fb * value.Distance;
+        result.M43 = fc * value.Distance;
         result.M44 = 1.0;
 
         return result;
@@ -1451,9 +1451,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
                 *pVectorBasis[1] = new Vector3(matrix.M21, matrix.M22, matrix.M23);
                 *pVectorBasis[2] = new Vector3(matrix.M31, matrix.M32, matrix.M33);
 
-                scale.x = pVectorBasis[0]->magnitude;
-                scale.y = pVectorBasis[1]->magnitude;
-                scale.z = pVectorBasis[2]->magnitude;
+                scale.X = pVectorBasis[0]->Magnitude;
+                scale.Y = pVectorBasis[1]->Magnitude;
+                scale.Z = pVectorBasis[2]->Magnitude;
 
                 uint a,
                     b,
@@ -1529,9 +1529,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
                         fAbsY,
                         fAbsZ;
 
-                    fAbsX = (double)Math.Abs(pVectorBasis[a]->x);
-                    fAbsY = (double)Math.Abs(pVectorBasis[a]->y);
-                    fAbsZ = (double)Math.Abs(pVectorBasis[a]->z);
+                    fAbsX = (double)Math.Abs(pVectorBasis[a]->X);
+                    fAbsY = (double)Math.Abs(pVectorBasis[a]->Y);
+                    fAbsZ = (double)Math.Abs(pVectorBasis[a]->Z);
 
 
                     #region Ranking
@@ -1620,19 +1620,19 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     public static Matrix4x4 Transform(Matrix4x4 value, Quaternion rotation)
     {
         // Compute rotation matrix.
-        double x2 = rotation.x + rotation.x;
-        double y2 = rotation.y + rotation.y;
-        double z2 = rotation.z + rotation.z;
+        double x2 = rotation.X + rotation.X;
+        double y2 = rotation.Y + rotation.Y;
+        double z2 = rotation.Z + rotation.Z;
 
-        double wx2 = rotation.w * x2;
-        double wy2 = rotation.w * y2;
-        double wz2 = rotation.w * z2;
-        double xx2 = rotation.x * x2;
-        double xy2 = rotation.x * y2;
-        double xz2 = rotation.x * z2;
-        double yy2 = rotation.y * y2;
-        double yz2 = rotation.y * z2;
-        double zz2 = rotation.z * z2;
+        double wx2 = rotation.W * x2;
+        double wy2 = rotation.W * y2;
+        double wz2 = rotation.W * z2;
+        double xx2 = rotation.X * x2;
+        double xy2 = rotation.X * y2;
+        double xz2 = rotation.X * z2;
+        double yy2 = rotation.Y * y2;
+        double yz2 = rotation.Y * z2;
+        double zz2 = rotation.Z * z2;
 
         double q11 = 1.0 - yy2 - zz2;
         double q21 = xy2 - wz2;
@@ -1684,10 +1684,10 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     public static Matrix4x4 Transpose(Matrix4x4 matrix)
     {
         Matrix4x4 result = new();
-        result.M1 = new Vector4(matrix.M1.x, matrix.M2.x, matrix.M3.x, matrix.M4.x);
-        result.M2 = new Vector4(matrix.M1.y, matrix.M2.y, matrix.M3.y, matrix.M4.y);
-        result.M3 = new Vector4(matrix.M1.z, matrix.M2.z, matrix.M3.z, matrix.M4.z);
-        result.M4 = new Vector4(matrix.M1.w, matrix.M2.w, matrix.M3.w, matrix.M4.w);
+        result.M1 = new Vector4(matrix.M1.X, matrix.M2.X, matrix.M3.X, matrix.M4.X);
+        result.M2 = new Vector4(matrix.M1.Y, matrix.M2.Y, matrix.M3.Y, matrix.M4.Y);
+        result.M3 = new Vector4(matrix.M1.Z, matrix.M2.Z, matrix.M3.Z, matrix.M4.Z);
+        result.M4 = new Vector4(matrix.M1.W, matrix.M2.W, matrix.M3.W, matrix.M4.W);
 
         return result;
     }

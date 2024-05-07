@@ -346,41 +346,41 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
             v3;
         Vector3 cross;
 
-        cross = Vector3.Cross(b.normal, c.normal);
+        cross = Vector3.Cross(b.Normal, c.Normal);
 
-        double f = Vector3.Dot(a.normal, cross);
+        double f = Vector3.Dot(a.Normal, cross);
         f *= -1.0f;
 
-        cross = Vector3.Cross(b.normal, c.normal);
-        v1 = cross * a.distance;
+        cross = Vector3.Cross(b.Normal, c.Normal);
+        v1 = cross * a.Distance;
 
         //v1 = (a.D * (Vector3.Cross(b.Normal, c.Normal)));
 
 
-        cross = Vector3.Cross(c.normal, a.normal);
-        v2 = cross * b.distance;
+        cross = Vector3.Cross(c.Normal, a.Normal);
+        v2 = cross * b.Distance;
 
         //v2 = (b.D * (Vector3.Cross(c.Normal, a.Normal)));
 
 
-        cross = Vector3.Cross(a.normal, b.normal);
-        v3 = cross * c.distance;
+        cross = Vector3.Cross(a.Normal, b.Normal);
+        v3 = cross * c.Distance;
 
         //v3 = (c.D * (Vector3.Cross(a.Normal, b.Normal)));
 
-        result.x = (v1.x + v2.x + v3.x) / f;
-        result.y = (v1.y + v2.y + v3.y) / f;
-        result.z = (v1.z + v2.z + v3.z) / f;
+        result.X = (v1.X + v2.X + v3.X) / f;
+        result.Y = (v1.Y + v2.Y + v3.Y) / f;
+        result.Z = (v1.Z + v2.Z + v3.Z) / f;
     }
 
 
     private void NormalizePlane(ref Plane p)
     {
-        double factor = 1 / p.normal.magnitude;
-        p.normal.x *= factor;
-        p.normal.y *= factor;
-        p.normal.z *= factor;
-        p.distance *= factor;
+        double factor = 1 / p.Normal.Magnitude;
+        p.Normal.X *= factor;
+        p.Normal.Y *= factor;
+        p.Normal.Z *= factor;
+        p.Distance *= factor;
     }
 
     #endregion

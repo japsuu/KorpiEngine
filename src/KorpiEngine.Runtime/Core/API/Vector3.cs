@@ -201,16 +201,16 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
     #region Public Static Properties
 
-    public static Vector3 zero => new();
-    public static Vector3 one => new(1.0, 1.0, 1.0);
-    public static Vector3 right => new(1.0, 0.0, 0.0);
-    public static Vector3 left => new(-1.0, 0.0, 0.0);
-    public static Vector3 up => new(0.0, 1.0, 0.0);
-    public static Vector3 down => new(0.0, -1.0, 0.0);
-    public static Vector3 forward => new(0.0, 0.0, 1.0);
-    public static Vector3 backward => new(0.0, 0.0, -1.0);
+    public static Vector3 Zero => new();
+    public static Vector3 One => new(1.0, 1.0, 1.0);
+    public static Vector3 Right => new(1.0, 0.0, 0.0);
+    public static Vector3 Left => new(-1.0, 0.0, 0.0);
+    public static Vector3 Up => new(0.0, 1.0, 0.0);
+    public static Vector3 Down => new(0.0, -1.0, 0.0);
+    public static Vector3 Forward => new(0.0, 0.0, 1.0);
+    public static Vector3 Backward => new(0.0, 0.0, -1.0);
 
-    public static Vector3 infinity = new(Mathf.INFINITY, Mathf.INFINITY, Mathf.INFINITY);
+    public static Vector3 Infinity = new(Mathf.INFINITY, Mathf.INFINITY, Mathf.INFINITY);
 
     #endregion Public Static Properties
 
@@ -591,7 +591,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The negated vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 operator -(Vector3 value) => zero - value;
+    public static Vector3 operator -(Vector3 value) => Zero - value;
 
 
     /// <summary>
