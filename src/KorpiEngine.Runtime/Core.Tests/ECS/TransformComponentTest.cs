@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.ECS;
 using NUnit.Framework;
-using OpenTK.Mathematics;
 
 namespace Core.Tests.ECS;
 
@@ -28,11 +28,11 @@ public class TransformComponentTest
     public void Rotation_Set_Get_ReturnsCorrectValue()
     {
         TransformComponent component = new();
-        Quaternion expectedRotation = Quaternion.FromEulerAngles(new Vector3(0, 90, 45));
+        Quaternion expectedRotation = Quaternion.Euler(new Vector3(0, 90, 45));
 
         component.Rotation = expectedRotation;
         
-        Assert.That(component.Rotation.ToEulerAngles(), Is.EqualTo(expectedRotation.ToEulerAngles()));
+        Assert.That(component.Rotation.ToEuler(), Is.EqualTo(expectedRotation.ToEuler()));
     }
 
 
@@ -57,7 +57,7 @@ public class TransformComponentTest
     {
         TransformComponent component = new();
         Vector3 expectedEulerAngles = new(35, 125, 45);
-        Quaternion expectedRotation = Quaternion.FromEulerAngles(expectedEulerAngles * (MathF.PI / 180.0f));
+        Quaternion expectedRotation = Quaternion.Euler(expectedEulerAngles * (MathF.PI / 180.0f));
 
         component.EulerAngles = expectedEulerAngles;
     
@@ -72,7 +72,7 @@ public class TransformComponentTest
         }
 
 
-        private static float QuaternionDot(Quaternion a, Quaternion b)
+        private static double QuaternionDot(Quaternion a, Quaternion b)
         {
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         }
@@ -172,12 +172,12 @@ public class TransformComponentTest
     #region CONVERSIONS
 
     [Test]
-    public void ImplicitConversionToMatrix4_ReturnsCorrectMatrix()
+    public void ImplicitConversionToMatrix4x4_ReturnsCorrectMatrix()
     {
         TransformComponent component = new();
-        Matrix4 expectedMatrix = Matrix4.Identity;
+        Matrix4x4 expectedMatrix = Matrix4x4.Identity;
 
-        Matrix4 resultMatrix = component;
+        Matrix4x4 resultMatrix = component;
 
         Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
     }

@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering;
 
@@ -13,10 +13,10 @@ public static class Graphics
     private static KorpiWindow Window { get; set; } = null!;
     internal static GraphicsDriver Driver = null!;
     
-    public static Vector2i Resolution { get; private set; } = Vector2i.Zero;
-    public static Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
-    public static Matrix4 ViewMatrix { get; private set; } = Matrix4.Identity;
-    public static Matrix4 ViewProjectionMatrix { get; private set; } = Matrix4.Identity;
+    public static Vector2 Resolution { get; private set; } = Vector2.Zero;
+    public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
+    public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
+    public static Matrix4x4 ViewProjectionMatrix { get; private set; } = Matrix4x4.Identity;
 
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
@@ -36,7 +36,7 @@ public static class Graphics
     internal static void UpdateViewport(int width, int height)
     {
         Driver.UpdateViewport(0, 0, width, height);
-        Resolution = new Vector2i(width, height);
+        Resolution = new Vector2(width, height);
     }
     
 
@@ -91,7 +91,7 @@ public static class Graphics
     }
 
 
-    public static void DrawMeshNow(Mesh mesh, Matrix4 transform, Material material)
+    public static void DrawMeshNow(Mesh mesh, Matrix4x4 transform, Material material)
     {
         if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
@@ -110,7 +110,7 @@ public static class Graphics
         material.SetVector("u_Camera_Forward", Camera.RenderingCamera.Transform.Forward);
         
         // Matrices
-        Matrix4 matMVP = Matrix4.Identity * transform * ViewMatrix * ProjectionMatrix;
+        Matrix4x4 matMVP = Matrix4x4.Identity * transform * ViewMatrix * ProjectionMatrix;
         material.SetMatrix("u_MatMVP", matMVP);
         material.SetMatrix("u_MatModel", transform);
         material.SetMatrix("u_MatView", ViewMatrix);
@@ -155,15 +155,15 @@ public static class Graphics
     public static void Blit(Material mat, int pass = 0)
     {
         mat.SetPass(pass);
-        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4.Identity, mat);
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void SetMatrices(Camera renderingCamera)
     {
-        Matrix4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        Matrix4x4 viewMatrix = renderingCamera.ViewMatrix;
+        Matrix4x4 projectionMatrix = renderingCamera.ProjectionMatrix;
         
         ProjectionMatrix = projectionMatrix;
         ViewMatrix = viewMatrix;

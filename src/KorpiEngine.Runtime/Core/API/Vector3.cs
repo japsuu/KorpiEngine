@@ -47,7 +47,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
     public Vector3 Normalized => Normalize(this);
 
-    public double Magnitude => Mathf.Sqrt(X * X + Y * Y + Z * Z);
+    public double Magnitude => Maths.Sqrt(X * X + Y * Y + Z * Z);
 
     public double SqrMagnitude => X * X + Y * Y + Z * Z;
 
@@ -194,7 +194,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     }
 
 
-    public bool IsFinate() => Mathf.IsValid(X) && Mathf.IsValid(Y) && Mathf.IsValid(Z);
+    public bool IsFinate() => Maths.IsValid(X) && Maths.IsValid(Y) && Maths.IsValid(Z);
 
     #endregion Public Instance Methods
 
@@ -210,7 +210,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public static Vector3 Forward => new(0.0, 0.0, 1.0);
     public static Vector3 Backward => new(0.0, 0.0, -1.0);
 
-    public static Vector3 Infinity = new(Mathf.INFINITY, Mathf.INFINITY, Mathf.INFINITY);
+    public static Vector3 Infinity = new(Maths.INFINITY, Maths.INFINITY, Maths.INFINITY);
 
     #endregion Public Static Properties
 
@@ -218,7 +218,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     #region Public Static Methods
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double AngleBetween(Vector3 from, Vector3 to) => Mathf.Acos(Mathf.Clamp(Dot(from.Normalized, to.Normalized), -1f, 1f));
+    public static double AngleBetween(Vector3 from, Vector3 to) => Maths.Acos(Maths.Clamp(Dot(from.Normalized, to.Normalized), -1f, 1f));
 
 
     /// <summary> Returns the Euclidean distance between the two given points. </summary>
@@ -246,11 +246,11 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     }
 
 
-    public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, double smoothTime, double maxSpeed = Mathf.INFINITY,
+    public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, double smoothTime, double maxSpeed = Maths.INFINITY,
         double deltaTime = 0.02)
     {
         // Based on Game Programming Gems 4 Chapter 1.10
-        smoothTime = Mathf.Max(0.0001F, smoothTime);
+        smoothTime = Maths.Max(0.0001F, smoothTime);
         double omega = 2 / smoothTime;
 
         double x = omega * deltaTime;

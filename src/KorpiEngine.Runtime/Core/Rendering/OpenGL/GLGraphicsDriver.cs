@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
@@ -171,12 +171,6 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.Clear(clearBufferMask);
     }
 
-
-    public override void Enable(EnableCap mask)
-    {
-        GL.Enable(mask);
-    }
-
     #endregion
 
 
@@ -269,7 +263,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     public override void ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output)
     {
         GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
-        GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat internalFormat, out PixelType pixelType, out PixelFormat pixelFormat);
+        GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
         GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, output);
     }
 
@@ -387,7 +381,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             return;
 
         BindProgram(program);
-        GL.Uniform2(loc, value);
+        GL.Uniform2(loc, new OpenTK.Mathematics.Vector2((float)value.X, (float)value.Y));
     }
 
 
@@ -397,7 +391,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             return;
 
         BindProgram(program);
-        GL.Uniform3(loc, value);
+        GL.Uniform3(loc, new OpenTK.Mathematics.Vector3((float)value.X, (float)value.Y, (float)value.Z));
     }
 
 
@@ -407,7 +401,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             return;
 
         BindProgram(program);
-        GL.Uniform4(loc, value);
+        GL.Uniform4(loc, new OpenTK.Mathematics.Vector4((float)value.X, (float)value.Y, (float)value.Z, (float)value.W));
     }
 
 

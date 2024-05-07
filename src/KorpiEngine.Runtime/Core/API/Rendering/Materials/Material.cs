@@ -2,10 +2,6 @@
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
-using OpenTK.Mathematics;
-using Vector2 = OpenTK.Mathematics.Vector2;
-using Vector3 = OpenTK.Mathematics.Vector3;
-using Vector4 = OpenTK.Mathematics.Vector4;
 
 namespace KorpiEngine.Core.API.Rendering.Materials;
 
@@ -158,8 +154,8 @@ public sealed class Material : EngineObject
     public void SetVector(string name, Vector4 value) => PropertyBlock.SetVector(name, value);
     public void SetFloat(string name, float value) => PropertyBlock.SetFloat(name, value);
     public void SetInt(string name, int value) => PropertyBlock.SetInt(name, value);
-    public void SetMatrix(string name, Matrix4 value) => PropertyBlock.SetMatrix(name, value);
-    public void SetMatrices(string name, IEnumerable<Matrix4> value) => PropertyBlock.SetMatrices(name, value);
+    public void SetMatrix(string name, Matrix4x4 value) => PropertyBlock.SetMatrix(name, value);
+    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value) => PropertyBlock.SetMatrices(name, value);
     public void SetTexture(string name, Texture2D value) => PropertyBlock.SetTexture(name, value);
     public void SetTexture(string name, AssetRef<Texture2D> value) => PropertyBlock.SetTexture(name, value);
 

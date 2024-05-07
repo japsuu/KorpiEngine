@@ -39,7 +39,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
     public Vector2 Normalized => Normalize(this);
 
-    public double Magnitude => Mathf.Sqrt(X * X + Y * Y);
+    public double Magnitude => Maths.Sqrt(X * X + Y * Y);
 
     public double SqrMagnitude => X * X + Y * Y;
 
@@ -169,21 +169,22 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
 
-    public bool IsFinate() => Mathf.IsValid(X) && Mathf.IsValid(Y);
+    public bool IsFinate() => Maths.IsValid(X) && Maths.IsValid(Y);
 
     #endregion Public Instance Methods
 
 
     #region Public Static Properties
 
-    public static Vector2 zero => new();
-    public static Vector2 one => new(1.0, 1.0);
-    public static Vector2 right => new(1.0, 0.0);
-    public static Vector2 left => new(1.0, 0.0);
-    public static Vector2 up => new(0.0, 1.0);
-    public static Vector2 down => new(0.0, 1.0);
+    public static Vector2 Zero => new();
+    public static Vector2 One => new(1.0, 1.0);
+    public static Vector2 Right => new(1.0, 0.0);
+    public static Vector2 Left => new(1.0, 0.0);
+    public static Vector2 Up => new(0.0, 1.0);
+    public static Vector2 Down => new(0.0, 1.0);
 
-    public static Vector2 infinity = new(Mathf.INFINITY, Mathf.INFINITY);
+    public static readonly Vector2 Infinity = new(Maths.INFINITY, Maths.INFINITY);
+    public static readonly Vector2 NegativeInfinity = new(-Maths.INFINITY, -Maths.INFINITY);
 
     #endregion Public Static Properties
 
@@ -191,7 +192,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     #region Public Static Methods
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double AngleBetween(Vector2 from, Vector2 to) => Mathf.Acos(Mathf.Clamp(Dot(from.Normalized, to.Normalized), -1, 1)) * Mathf.RAD_2_DEG;
+    public static double AngleBetween(Vector2 from, Vector2 to) => Maths.Acos(Maths.Clamp(Dot(from.Normalized, to.Normalized), -1, 1)) * Maths.RAD_2_DEG;
 
 
     /// <summary>
@@ -487,7 +488,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The negated vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 operator -(Vector2 value) => zero - value;
+    public static Vector2 operator -(Vector2 value) => Zero - value;
 
 
     /// <summary>

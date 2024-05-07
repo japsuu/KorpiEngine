@@ -1,8 +1,8 @@
 ﻿using KorpiEngine.Core;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Scripting;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using Vector3 = KorpiEngine.Core.API.Vector3;
 
 namespace Sandbox;
 
@@ -10,7 +10,7 @@ internal class FreeCameraController : Behaviour
 {
     private const float LOOK_SENSITIVITY = 0.2f;
     
-    private float _cameraFlySpeed = 1.5f;
+    private double _cameraFlySpeed = 1.5f;
 
 
     protected override void OnUpdate()
@@ -19,29 +19,29 @@ internal class FreeCameraController : Behaviour
         
         UpdateRotation();
 
-        if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
+        if (Input.IsKeyDown(KeyCode.LeftShift))
             UpdateFlySpeed();
     }
 
 
     private void UpdatePosition()
     {
-        if (Input.KeyboardState.IsKeyDown(Keys.W))
+        if (Input.IsKeyDown(KeyCode.W))
             Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
 
-        if (Input.KeyboardState.IsKeyDown(Keys.S))
+        if (Input.IsKeyDown(KeyCode.S))
             Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Backward
 
-        if (Input.KeyboardState.IsKeyDown(Keys.A))
+        if (Input.IsKeyDown(KeyCode.A))
             Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Left
 
-        if (Input.KeyboardState.IsKeyDown(Keys.D))
+        if (Input.IsKeyDown(KeyCode.D))
             Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
 
-        if (Input.KeyboardState.IsKeyDown(Keys.Space))
+        if (Input.IsKeyDown(KeyCode.Space))
             Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
 
-        if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
+        if (Input.IsKeyDown(KeyCode.LeftShift))
             Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
     }
 
@@ -52,11 +52,11 @@ internal class FreeCameraController : Behaviour
         {
             // Changing the fly speed should be accurate at the lower end, but fast when at the upper end.
             case <= 1f:
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 0.05f;
+                _cameraFlySpeed += Input.ScrollDelta.Y * 0.05f;
                 break;
             case <= 5f:
             {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 0.5f;
+                _cameraFlySpeed += Input.ScrollDelta.Y * 0.5f;
 
                 if (_cameraFlySpeed < 1f)
                 {
@@ -67,7 +67,7 @@ internal class FreeCameraController : Behaviour
             }
             case <= 10f:
             {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 1f;
+                _cameraFlySpeed += Input.ScrollDelta.Y * 1f;
 
                 if (_cameraFlySpeed < 5f)
                 {
@@ -78,7 +78,7 @@ internal class FreeCameraController : Behaviour
             }
             default:
             {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 5f;
+                _cameraFlySpeed += Input.ScrollDelta.Y * 5f;
 
                 if (_cameraFlySpeed < 10f)
                 {
@@ -89,15 +89,15 @@ internal class FreeCameraController : Behaviour
             }
         }
 
-        _cameraFlySpeed = MathHelper.Clamp(_cameraFlySpeed, 0.05f, 50f);
+        _cameraFlySpeed = Maths.Clamp(_cameraFlySpeed, 0.05f, 50f);
     }
 
 
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        float deltaX = Input.MouseState.X - Input.MouseState.PreviousX;
-        float deltaY = Input.MouseState.Y - Input.MouseState.PreviousY;
+        float deltaX = Input.MouseX - Input.MousePreviousX;
+        float deltaY = Input.MouseY - Input.MousePreviousY;
 
         float yaw = deltaX * LOOK_SENSITIVITY;
         float pitch = deltaY * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top

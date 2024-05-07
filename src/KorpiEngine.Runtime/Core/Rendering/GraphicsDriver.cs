@@ -1,9 +1,8 @@
-﻿using KorpiEngine.Core.API.Rendering.Shaders;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.Rendering.Primitives;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering;
 
@@ -47,8 +46,6 @@ internal abstract class GraphicsDriver
     public abstract void UpdateViewport(int x, int y, int width, int height);
 
     public abstract void Clear(float r, float g, float b, float a, ClearFlags flags);
-
-    public abstract void Enable(EnableCap mask);
 
     #endregion
     

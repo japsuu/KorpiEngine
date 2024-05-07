@@ -12,7 +12,7 @@ using Vector4 = System.Numerics.Vector4;
 
 namespace KorpiEngine.Core.UI.ImGui;
 
-public class ImGuiController : IDisposable
+internal class ImGuiController : IDisposable
 {
     private readonly GameWindow _window;
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ImGuiController));

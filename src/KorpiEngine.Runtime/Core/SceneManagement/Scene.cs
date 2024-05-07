@@ -7,7 +7,6 @@ using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Scripting;
-using OpenTK.Mathematics;
 using Entity = KorpiEngine.Core.Scripting.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
@@ -78,7 +77,7 @@ public abstract class Scene : IDisposable
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
         ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent<CameraComponent>();
-        cameraComponent.FOVRadians = MathHelper.DegreesToRadians(90f);
+        cameraComponent.FOVDegrees = 60;
         cameraComponent.RenderPriority = 0;
     }
     

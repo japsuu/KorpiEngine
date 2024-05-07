@@ -73,7 +73,7 @@ public struct Quaternion : IEquatable<Quaternion>
         }
     }
 
-    public Vector3 eulerAngles
+    public Vector3 EulerAngles
     {
         get => this.GetRotation().ToDeg().NormalizeEulerAngleDegrees();
         set => this = value.NormalizeEulerAngleDegrees().ToRad().GetQuaternion();
@@ -82,7 +82,7 @@ public struct Quaternion : IEquatable<Quaternion>
     /// <summary>
     /// Returns a Quaternion representing no rotation. 
     /// </summary>
-    public static Quaternion identity => new(0, 0, 0, 1);
+    public static Quaternion Identity => new(0, 0, 0, 1);
 
 
     /// <summary>
@@ -139,8 +139,8 @@ public struct Quaternion : IEquatable<Quaternion>
     public static Quaternion NormalizeSafe(Quaternion q)
     {
         double mag = q.Magnitude();
-        if (mag < Mathf.EPSILON)
-            return identity;
+        if (mag < Maths.EPSILON)
+            return Identity;
         else
             return q / mag;
     }
@@ -454,13 +454,13 @@ public struct Quaternion : IEquatable<Quaternion>
     /// <summary>
     /// Returns the angle in degrees between two rotations.</para>
     /// </summary>
-    public static double Angle(Quaternion a, Quaternion b) => Mathf.Acos(Mathf.Min(Mathf.Abs(Dot(a, b)), 1.0)) * 2.0 * Mathf.RAD_2_DEG;
+    public static double Angle(Quaternion a, Quaternion b) => Maths.Acos(Maths.Min(Maths.Abs(Dot(a, b)), 1.0)) * 2.0 * Maths.RAD_2_DEG;
 
 
     public static Quaternion RotateTowards(Quaternion from, Quaternion to, double maxDegreesDelta)
     {
         double angle = Angle(from, to);
-        return angle == 0.0 ? to : Slerp(from, to, Mathf.Min(1.0, maxDegreesDelta / angle));
+        return angle == 0.0 ? to : Slerp(from, to, Maths.Min(1.0, maxDegreesDelta / angle));
     }
 
 

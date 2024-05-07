@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Core.ECS;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Scripting;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
@@ -10,12 +10,25 @@ namespace KorpiEngine.Core.Rendering.Cameras;
 /// </summary>
 public sealed class Camera : Component
 {
+    public enum CameraProjectionType { Perspective, Orthographic }
+    
     internal override Type NativeComponentType => typeof(CameraComponent);
 
     public const float NEAR_CLIP_PLANE = 0.01f;
     public const float FAR_CLIP_PLANE = 1000f;
 
     internal static Camera? RenderingCamera;
+
+    /// <summary>
+    /// The field of view (FOV degrees, the vertical angle of the camera view).
+    /// </summary>
+    public float FieldOfView
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().FOVDegrees;
+        set => Entity.GetNativeComponent<CameraComponent>().FOVDegrees = value;
+    }
+    
+    public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
 
     /// <summary>
     /// Finds the camera with the highest priority, currently rendering to the screen.
@@ -27,12 +40,14 @@ public sealed class Camera : Component
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
     /// </summary>
-    public Matrix4 ViewMatrix => Transform.Matrix.Inverted();   // Could also use Matrix4.LookAt(Transform.Position, Transform.Position + Transform.Forward, Transform.Up);
-
+    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
+#warning Ignores camera position, FIX ASAP!
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>
-    public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(FovRadians, WindowInfo.ClientAspectRatio, NEAR_CLIP_PLANE, FAR_CLIP_PLANE);
+    public Matrix4x4 ProjectionMatrix => ProjectionType == CameraProjectionType.Orthographic ?
+        System.Numerics.Matrix4x4.CreateOrthographicLeftHanded(WindowInfo.ClientWidth, WindowInfo.ClientHeight, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble() :
+        System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FieldOfView.ToRad(), WindowInfo.ClientAspectRatio, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble();
 
     /// <summary>
     /// The render priority of this camera.
@@ -51,23 +66,8 @@ public sealed class Camera : Component
     /// </summary>
     public float FovRadians
     {
-        get => Entity.GetNativeComponent<CameraComponent>().FOVRadians;
-        set => Entity.GetNativeComponent<CameraComponent>().FOVRadians = value;
-    }
-
-    /// <summary>
-    /// The field of view (FOV degrees, the vertical angle of the camera view).
-    /// </summary>
-    public float FovDegrees
-    {
-        get => MathHelper.RadiansToDegrees(FovRadians);
-        set
-        {
-            float angle = MathHelper.Clamp(value, 1f, 90f);
-
-            // We convert from degrees to radians as soon as the property is set to improve performance.
-            FovRadians = MathHelper.DegreesToRadians(angle);
-        }
+        get => Entity.GetNativeComponent<CameraComponent>().FOVDegrees;
+        set => Entity.GetNativeComponent<CameraComponent>().FOVDegrees = value;
     }
     
     
@@ -88,6 +88,7 @@ public sealed class Camera : Component
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
+        
         Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
         
         // Without this the coordinates are visible even when looking straight away from them.
@@ -110,7 +111,7 @@ public sealed class Camera : Component
 
     private Frustum CalculateFrustum()
     {
-        Matrix4 viewProjection = ViewMatrix * ProjectionMatrix;
+        Matrix4x4 viewProjection = ViewMatrix * ProjectionMatrix;
         FrustumPlane[] planes = new FrustumPlane[6];
 
         // Top plane.
@@ -166,7 +167,7 @@ public sealed class Camera : Component
         // Normalize the planes.
         for (int i = 0; i < 6; i++)
         {
-            float length = frustum.Planes[i].Normal.Length;
+            double length = frustum.Planes[i].Normal.Magnitude;
             frustum.Planes[i].Normal /= length;
             frustum.Planes[i].Distance /= length;
         }

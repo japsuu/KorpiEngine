@@ -1,5 +1,4 @@
 ﻿using KorpiEngine.Core.Rendering.Cameras;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.ECS;
 
@@ -13,7 +12,7 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
     
     public Color ClearColor;
     
-    public float FOVRadians;
+    public float FOVDegrees;
 
 
     public CameraComponent()
@@ -22,6 +21,6 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
         RenderTarget = CameraRenderTarget.Screen;
         ClearType = CameraClearType.SolidColor;
         ClearColor = Color.White;
-        FOVRadians = MathHelper.PiOver2;
+        FOVDegrees = 60;
     }
 }

@@ -125,7 +125,7 @@ public struct Plane : IEquatable<Plane>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsOnPlane(Vector3 point, double tolerance = 0) => Mathf.Abs(Vector3.Dot(Normal, point) - Distance) <= tolerance;
+    public bool IsOnPlane(Vector3 point, double tolerance = 0) => Maths.Abs(Vector3.Dot(Normal, point) - Distance) <= tolerance;
 
 
     public void Normalize()
@@ -201,12 +201,12 @@ public struct Plane : IEquatable<Plane>
         Vector3 segment = lineStart - lineEnd;
         double den = Vector3.Dot(Normal, segment);
 
-        if (Mathf.Abs(den) < Mathf.SMALL)
+        if (Maths.Abs(den) < Maths.SMALL)
             return false;
 
         double dist = (Vector3.Dot(Normal, lineStart) - Distance) / den;
 
-        if (dist < -Mathf.SMALL || dist > 1.0f + Mathf.SMALL)
+        if (dist < -Maths.SMALL || dist > 1.0f + Maths.SMALL)
             return false;
 
         dist = -dist;

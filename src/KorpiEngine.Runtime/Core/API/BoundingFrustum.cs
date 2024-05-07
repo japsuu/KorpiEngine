@@ -32,8 +32,6 @@ SOFTWARE.
 
 
 using System.Text;
-using OpenTK.Mathematics;
-using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace KorpiEngine.Core.API;
 
@@ -41,27 +39,27 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 {
     #region Private Fields
 
-    private Matrix4 matrix;
-    private readonly Vector3[] corners = new Vector3[CornerCount];
-    private readonly Plane[] planes = new Plane[PlaneCount];
+    private Matrix4x4 _matrix;
+    private readonly Vector3[] _corners = new Vector3[CORNER_COUNT];
+    private readonly Plane[] _planes = new Plane[PLANE_COUNT];
 
-    private const int PlaneCount = 6;
+    private const int PLANE_COUNT = 6;
 
     #endregion Private Fields
 
 
     #region Public Fields
 
-    public const int CornerCount = 8;
+    public const int CORNER_COUNT = 8;
 
     #endregion
 
 
     #region Public Constructors
 
-    public BoundingFrustum(Matrix4 value)
+    public BoundingFrustum(Matrix4x4 value)
     {
-        matrix = value;
+        _matrix = value;
         CreatePlanes();
         CreateCorners();
     }
@@ -71,28 +69,28 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     #region Public Properties
 
-    public Matrix4 Matrix
+    public Matrix4x4 Matrix
     {
-        get => matrix;
+        get => _matrix;
         set
         {
-            matrix = value;
+            _matrix = value;
             CreatePlanes(); // FIXME: The odds are the planes will be used a lot more often than the matrix
             CreateCorners(); // is updated, so this should help performance. I hope ;)
         }
     }
 
-    public Plane Near => planes[0];
+    public Plane Near => _planes[0];
 
-    public Plane Far => planes[1];
+    public Plane Far => _planes[1];
 
-    public Plane Left => planes[2];
+    public Plane Left => _planes[2];
 
-    public Plane Right => planes[3];
+    public Plane Right => _planes[3];
 
-    public Plane Top => planes[4];
+    public Plane Top => _planes[4];
 
-    public Plane Bottom => planes[5];
+    public Plane Bottom => _planes[5];
 
     #endregion Public Properties
 
@@ -107,7 +105,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
         if (Equals(b, null))
             return Equals(a, null);
 
-        return a.matrix == b.matrix;
+        return a._matrix == b._matrix;
     }
 
 
@@ -125,10 +123,10 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     public void Contains(ref Bounds box, out ContainmentType result)
     {
         bool intersects = false;
-        for (int i = 0; i < PlaneCount; ++i)
+        for (int i = 0; i < PLANE_COUNT; ++i)
         {
             var planeIntersectionType = default(PlaneIntersectionType);
-            box.Intersects(ref planes[i], out planeIntersectionType);
+            box.Intersects(ref _planes[i], out planeIntersectionType);
             switch (planeIntersectionType)
             {
                 case PlaneIntersectionType.Front:
@@ -150,10 +148,10 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
             return ContainmentType.Contains; // If they are, there's no need to go any further.
 
         bool intersects = false;
-        for (int i = 0; i < PlaneCount; ++i)
+        for (int i = 0; i < PLANE_COUNT; ++i)
         {
             PlaneIntersectionType planeIntersectionType;
-            frustum.Intersects(ref planes[i], out planeIntersectionType);
+            frustum.Intersects(ref _planes[i], out planeIntersectionType);
             switch (planeIntersectionType)
             {
                 case PlaneIntersectionType.Front:
@@ -178,10 +176,10 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public void Contains(ref Vector3 point, out ContainmentType result)
     {
-        for (int i = 0; i < PlaneCount; ++i)
+        for (int i = 0; i < PLANE_COUNT; ++i)
 
             // TODO: we might want to inline this for performance reasons
-            if (planes[i].GetSide(point))
+            if (_planes[i].GetSide(point))
             {
                 result = ContainmentType.Disjoint;
                 return;
@@ -201,21 +199,21 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     }
 
 
-    public Vector3[] GetCorners() => (Vector3[])corners.Clone();
+    public Vector3[] GetCorners() => (Vector3[])_corners.Clone();
 
 
     public void GetCorners(Vector3[] corners)
     {
         if (corners == null)
             throw new ArgumentNullException("corners");
-        if (corners.Length < CornerCount)
+        if (corners.Length < CORNER_COUNT)
             throw new ArgumentOutOfRangeException("corners");
 
-        this.corners.CopyTo(corners, 0);
+        this._corners.CopyTo(corners, 0);
     }
 
 
-    public override int GetHashCode() => matrix.GetHashCode();
+    public override int GetHashCode() => _matrix.GetHashCode();
 
 
     public bool Intersects(Bounds box)
@@ -247,9 +245,9 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public void Intersects(ref Plane plane, out PlaneIntersectionType result)
     {
-        result = plane.Intersects(ref corners[0]);
-        for (int i = 1; i < corners.Length; i++)
-            if (plane.Intersects(ref corners[i]) != result)
+        result = plane.Intersects(ref _corners[0]);
+        for (int i = 1; i < _corners.Length; i++)
+            if (plane.Intersects(ref _corners[i]) != result)
                 result = PlaneIntersectionType.Intersecting;
     }
 
@@ -268,12 +266,12 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     internal string DebugDisplayString =>
         string.Concat(
-            "Near( ", planes[0].DebugDisplayString, " )  \r\n",
-            "Far( ", planes[1].DebugDisplayString, " )  \r\n",
-            "Left( ", planes[2].DebugDisplayString, " )  \r\n",
-            "Right( ", planes[3].DebugDisplayString, " )  \r\n",
-            "Top( ", planes[4].DebugDisplayString, " )  \r\n",
-            "Bottom( ", planes[5].DebugDisplayString, " )  "
+            "Near( ", _planes[0].DebugDisplayString, " )  \r\n",
+            "Far( ", _planes[1].DebugDisplayString, " )  \r\n",
+            "Left( ", _planes[2].DebugDisplayString, " )  \r\n",
+            "Right( ", _planes[3].DebugDisplayString, " )  \r\n",
+            "Top( ", _planes[4].DebugDisplayString, " )  \r\n",
+            "Bottom( ", _planes[5].DebugDisplayString, " )  "
         );
 
 
@@ -281,17 +279,17 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     {
         StringBuilder sb = new StringBuilder(256);
         sb.Append("{Near:");
-        sb.Append(planes[0].ToString());
+        sb.Append(_planes[0].ToString());
         sb.Append(" Far:");
-        sb.Append(planes[1].ToString());
+        sb.Append(_planes[1].ToString());
         sb.Append(" Left:");
-        sb.Append(planes[2].ToString());
+        sb.Append(_planes[2].ToString());
         sb.Append(" Right:");
-        sb.Append(planes[3].ToString());
+        sb.Append(_planes[3].ToString());
         sb.Append(" Top:");
-        sb.Append(planes[4].ToString());
+        sb.Append(_planes[4].ToString());
         sb.Append(" Bottom:");
-        sb.Append(planes[5].ToString());
+        sb.Append(_planes[5].ToString());
         sb.Append("}");
         return sb.ToString();
     }
@@ -303,32 +301,32 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     private void CreateCorners()
     {
-        IntersectionPoint(ref planes[0], ref planes[2], ref planes[4], out corners[0]);
-        IntersectionPoint(ref planes[0], ref planes[3], ref planes[4], out corners[1]);
-        IntersectionPoint(ref planes[0], ref planes[3], ref planes[5], out corners[2]);
-        IntersectionPoint(ref planes[0], ref planes[2], ref planes[5], out corners[3]);
-        IntersectionPoint(ref planes[1], ref planes[2], ref planes[4], out corners[4]);
-        IntersectionPoint(ref planes[1], ref planes[3], ref planes[4], out corners[5]);
-        IntersectionPoint(ref planes[1], ref planes[3], ref planes[5], out corners[6]);
-        IntersectionPoint(ref planes[1], ref planes[2], ref planes[5], out corners[7]);
+        IntersectionPoint(ref _planes[0], ref _planes[2], ref _planes[4], out _corners[0]);
+        IntersectionPoint(ref _planes[0], ref _planes[3], ref _planes[4], out _corners[1]);
+        IntersectionPoint(ref _planes[0], ref _planes[3], ref _planes[5], out _corners[2]);
+        IntersectionPoint(ref _planes[0], ref _planes[2], ref _planes[5], out _corners[3]);
+        IntersectionPoint(ref _planes[1], ref _planes[2], ref _planes[4], out _corners[4]);
+        IntersectionPoint(ref _planes[1], ref _planes[3], ref _planes[4], out _corners[5]);
+        IntersectionPoint(ref _planes[1], ref _planes[3], ref _planes[5], out _corners[6]);
+        IntersectionPoint(ref _planes[1], ref _planes[2], ref _planes[5], out _corners[7]);
     }
 
 
     private void CreatePlanes()
     {
-        planes[0] = new Plane(-matrix.M13, -matrix.M23, -matrix.M33, -matrix.M43);
-        planes[1] = new Plane(matrix.M13 - matrix.M14, matrix.M23 - matrix.M24, matrix.M33 - matrix.M34, matrix.M43 - matrix.M44);
-        planes[2] = new Plane(-matrix.M14 - matrix.M11, -matrix.M24 - matrix.M21, -matrix.M34 - matrix.M31, -matrix.M44 - matrix.M41);
-        planes[3] = new Plane(matrix.M11 - matrix.M14, matrix.M21 - matrix.M24, matrix.M31 - matrix.M34, matrix.M41 - matrix.M44);
-        planes[4] = new Plane(matrix.M12 - matrix.M14, matrix.M22 - matrix.M24, matrix.M32 - matrix.M34, matrix.M42 - matrix.M44);
-        planes[5] = new Plane(-matrix.M14 - matrix.M12, -matrix.M24 - matrix.M22, -matrix.M34 - matrix.M32, -matrix.M44 - matrix.M42);
+        _planes[0] = new Plane(-_matrix.M13, -_matrix.M23, -_matrix.M33, -_matrix.M43);
+        _planes[1] = new Plane(_matrix.M13 - _matrix.M14, _matrix.M23 - _matrix.M24, _matrix.M33 - _matrix.M34, _matrix.M43 - _matrix.M44);
+        _planes[2] = new Plane(-_matrix.M14 - _matrix.M11, -_matrix.M24 - _matrix.M21, -_matrix.M34 - _matrix.M31, -_matrix.M44 - _matrix.M41);
+        _planes[3] = new Plane(_matrix.M11 - _matrix.M14, _matrix.M21 - _matrix.M24, _matrix.M31 - _matrix.M34, _matrix.M41 - _matrix.M44);
+        _planes[4] = new Plane(_matrix.M12 - _matrix.M14, _matrix.M22 - _matrix.M24, _matrix.M32 - _matrix.M34, _matrix.M42 - _matrix.M44);
+        _planes[5] = new Plane(-_matrix.M14 - _matrix.M12, -_matrix.M24 - _matrix.M22, -_matrix.M34 - _matrix.M32, -_matrix.M44 - _matrix.M42);
 
-        NormalizePlane(ref planes[0]);
-        NormalizePlane(ref planes[1]);
-        NormalizePlane(ref planes[2]);
-        NormalizePlane(ref planes[3]);
-        NormalizePlane(ref planes[4]);
-        NormalizePlane(ref planes[5]);
+        NormalizePlane(ref _planes[0]);
+        NormalizePlane(ref _planes[1]);
+        NormalizePlane(ref _planes[2]);
+        NormalizePlane(ref _planes[3]);
+        NormalizePlane(ref _planes[4]);
+        NormalizePlane(ref _planes[5]);
     }
 
 

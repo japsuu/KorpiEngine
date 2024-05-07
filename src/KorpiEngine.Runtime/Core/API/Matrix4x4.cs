@@ -440,7 +440,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
     }
 
 
-    /// <summary>f
+    /// <summary>
     /// Creates a scaling matrix.
     /// </summary>
     /// <param name="scales">The vector containing the amount to scale by on each axis.</param>
@@ -1404,6 +1404,85 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
         public unsafe Vector3* Element1;
         public unsafe Vector3* Element2;
     }
+    
+    
+    /// <summary>Returns the translation component of this instance.</summary>
+    /// <returns>The translation.</returns>
+    public Vector3 ExtractTranslation() => new Vector3(M41, M42, M43);
+
+    /// <summary>Returns the scale component of this instance.</summary>
+    /// <returns>The scale.</returns>
+    public Vector3 ExtractScale()
+    {
+      Vector3 xyz = new Vector3(M11, M12, M13);
+      double length1 = xyz.Magnitude;
+      xyz = new Vector3(M21, M22, M23);
+      double length2 = xyz.Magnitude;
+      xyz = new Vector3(M31, M32, M33);
+      double length3 = xyz.Magnitude;
+      return new Vector3((float) length1, (float) length2, (float) length3);
+    }
+
+    /// <summary>
+    /// Returns the rotation component of this instance. Quite slow.
+    /// </summary>
+    /// <param name="rowNormalize">
+    /// Whether the method should row-normalize (i.e. remove scale from) the Matrix. Pass false if
+    /// you know it's already normalized.
+    /// </param>
+    /// <returns>The rotation.</returns>
+    public Quaternion ExtractRotation(bool rowNormalize = true)
+    {
+      Vector3 vector3_1 = new(M11, M12, M13);
+      Vector3 vector3_2 = new(M21, M22, M23);
+      Vector3 vector3_3 = new(M31, M32, M33);
+      if (rowNormalize)
+      {
+        vector3_1 = vector3_1.Normalized;
+        vector3_2 = vector3_2.Normalized;
+        vector3_3 = vector3_3.Normalized;
+      }
+      Quaternion rotation = new();
+      double d = 0.25 * (vector3_1[0] + vector3_2[1] + vector3_3[2] + 1.0);
+      if (d > 0.0)
+      {
+        double num1 = Math.Sqrt(d);
+        rotation.W = (float) num1;
+        double num2 = 1.0 / (4.0 * num1);
+        rotation.X = (float) ((vector3_2[2] - vector3_3[1]) * num2);
+        rotation.Y = (float) ((vector3_3[0] - vector3_1[2]) * num2);
+        rotation.Z = (float) ((vector3_1[1] - vector3_2[0]) * num2);
+      }
+      else if (vector3_1[0] > vector3_2[1] && vector3_1[0] > vector3_3[2])
+      {
+        double num3 = 2.0 * Math.Sqrt(1.0 + vector3_1[0] - vector3_2[1] - vector3_3[2]);
+        rotation.X = (float) (0.25 * num3);
+        double num4 = 1.0 / num3;
+        rotation.W = (float) ((vector3_3[1] - vector3_2[2]) * num4);
+        rotation.Y = (float) ((vector3_2[0] + vector3_1[1]) * num4);
+        rotation.Z = (float) ((vector3_3[0] + vector3_1[2]) * num4);
+      }
+      else if (vector3_2[1] > vector3_3[2])
+      {
+        double num5 = 2.0 * Math.Sqrt(1.0 + vector3_2[1] - vector3_1[0] - vector3_3[2]);
+        rotation.Y = (float) (0.25 * num5);
+        double num6 = 1.0 / num5;
+        rotation.W = (float) ((vector3_3[0] - vector3_1[2]) * num6);
+        rotation.X = (float) ((vector3_2[0] + vector3_1[1]) * num6);
+        rotation.Z = (float) ((vector3_3[1] + vector3_2[2]) * num6);
+      }
+      else
+      {
+        double num7 = 2.0 * Math.Sqrt(1.0 + vector3_3[2] - vector3_1[0] - vector3_2[1]);
+        rotation.Z = (float) (0.25 * num7);
+        double num8 = 1.0 / num7;
+        rotation.W = (float) ((vector3_2[0] - vector3_1[1]) * num8);
+        rotation.X = (float) ((vector3_3[0] + vector3_1[2]) * num8);
+        rotation.Y = (float) ((vector3_3[1] + vector3_2[2]) * num8);
+      }
+
+      return Quaternion.Normalize(rotation);
+    }
 
 
     /// <summary>
@@ -1596,7 +1675,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>
                 if (EPSILON < det)
                 {
                     // Non-SRT matrix encountered
-                    rotation = Quaternion.identity;
+                    rotation = Quaternion.Identity;
                     result = false;
                 }
                 else

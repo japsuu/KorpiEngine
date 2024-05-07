@@ -63,7 +63,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
 
     public Vector4 Normalized => Normalize(this);
 
-    public double Magnitude => Mathf.Sqrt(X * X + Y * Y + Z * Z + W * W);
+    public double Magnitude => Maths.Sqrt(X * X + Y * Y + Z * Z + W * W);
 
     public double SqrMagnitude => X * X + Y * Y + Z * Z + W * W;
 
@@ -115,14 +115,14 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
 
     #region Public Static Properties
 
-    public static Vector4 zero => new();
-    public static Vector4 one => new(1.0, 1.0, 1.0, 1.0);
-    public static Vector4 right => new(1.0, 0.0, 0.0, 0.0);
-    public static Vector4 up => new(0.0, 1.0, 0.0, 0.0);
-    public static Vector4 forward => new(0.0, 0.0, 1.0, 0.0);
-    public static Vector4 unitw => new(0.0, 0.0, 0.0, 1.0);
+    public static Vector4 Zero => new();
+    public static Vector4 One => new(1.0, 1.0, 1.0, 1.0);
+    public static Vector4 Right => new(1.0, 0.0, 0.0, 0.0);
+    public static Vector4 Up => new(0.0, 1.0, 0.0, 0.0);
+    public static Vector4 Forward => new(0.0, 0.0, 1.0, 0.0);
+    public static Vector4 UnitW => new(0.0, 0.0, 0.0, 1.0);
 
-    public static Vector4 infinity = new(Mathf.INFINITY, Mathf.INFINITY, Mathf.INFINITY, Mathf.INFINITY);
+    public static readonly Vector4 Infinity = new(Maths.INFINITY, Maths.INFINITY, Maths.INFINITY, Maths.INFINITY);
 
     #endregion Public Static Properties
 
@@ -216,7 +216,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     /// <param name="format">The format of individual elements.</param>
     /// <param name="formatProvider">The format provider to use when formatting elements.</param>
     /// <returns>The string representation.</returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         StringBuilder sb = new StringBuilder();
         string separator = NumberFormatInfo.GetInstance(formatProvider).NumberGroupSeparator;
@@ -236,7 +236,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     }
 
 
-    public bool IsFinate() => Mathf.IsValid(X) && Mathf.IsValid(Y) && Mathf.IsValid(Z) && Mathf.IsValid(W);
+    public bool IsFinate() => Maths.IsValid(X) && Maths.IsValid(Y) && Maths.IsValid(Z) && Maths.IsValid(W);
 
     #endregion Public Instance Methods
 
@@ -616,6 +616,26 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
 
 
     /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The matrix value.</param>
+    /// <param name="right">The source vector.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector4 operator *(Matrix4x4 left, Vector4 right) => Transform(right, left);
+
+
+    /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The source vector.</param>
+    /// <param name="right">The matrix value.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector4 operator *(Vector4 left, Matrix4x4 right) => Transform(left, right);
+
+
+    /// <summary>
     /// Divides the first vector by the second.
     /// </summary>
     /// <param name="left">The first source vector.</param>
@@ -650,7 +670,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The negated vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector4 operator -(Vector4 value) => zero - value;
+    public static Vector4 operator -(Vector4 value) => Zero - value;
 
 
     /// <summary>

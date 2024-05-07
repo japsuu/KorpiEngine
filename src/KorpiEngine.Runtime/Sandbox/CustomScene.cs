@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.Core;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Rendering;
@@ -6,8 +7,6 @@ using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
 using KorpiEngine.Core.Scripting.Components;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Sandbox;
 
@@ -36,7 +35,7 @@ internal class CustomScene : Scene
     {
         UpdateBlueBox();
 
-        if (Input.KeyboardState.IsKeyPressed(Keys.Space))
+        if (Input.IsKeyPressed(KeyCode.Space))
         {
             _player.Entity.GetComponent<IDamageable>()!.TakeDamage(10);
         }

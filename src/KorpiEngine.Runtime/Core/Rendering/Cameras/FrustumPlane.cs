@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using KorpiEngine.Core.API;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
@@ -12,5 +12,5 @@ public struct FrustumPlane
     /// <summary>
     /// Distance from origin to the nearest point in the plane.
     /// </summary>
-    public float Distance;
+    public double Distance;
 }

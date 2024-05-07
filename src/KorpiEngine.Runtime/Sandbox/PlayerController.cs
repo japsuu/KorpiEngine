@@ -1,8 +1,7 @@
 ﻿using KorpiEngine.Core;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Scripting;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Sandbox;
 
@@ -10,16 +9,16 @@ internal class PlayerController : Behaviour, IDamageable
 {
     protected override void OnUpdate()
     {
-        if (Input.KeyboardState.IsKeyDown(Keys.W))
+        if (Input.IsKeyDown(KeyCode.W))
             Move(new Vector3(0f, 1f, 0f));
             
-        if (Input.KeyboardState.IsKeyDown(Keys.A))
+        if (Input.IsKeyDown(KeyCode.A))
             Move(new Vector3(-1f, 0f, 0f));
             
-        if (Input.KeyboardState.IsKeyDown(Keys.S))
+        if (Input.IsKeyDown(KeyCode.S))
             Move(new Vector3(0f, -1f, 0f));
             
-        if (Input.KeyboardState.IsKeyDown(Keys.D))
+        if (Input.IsKeyDown(KeyCode.D))
             Move(new Vector3(1f, 0f, 0f));
         
     }

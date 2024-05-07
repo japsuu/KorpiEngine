@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.API;
 
-public static class Mathf
+public static class Maths
 {
     private const MethodImplOptions IN = MethodImplOptions.AggressiveInlining;
 
@@ -323,11 +323,11 @@ public static class Mathf
 
 
     /// <summary>
-    /// Checks if two Lines Intersect (Mathf.Small Tolerance)
+    /// Checks if two Lines Intersect (Maths.Small Tolerance)
     /// </summary>
     public static bool DoesLineIntersectLine(Vector2 startA, Vector2 endA, Vector2 startB, Vector2 endB, out Vector2 result)
     {
-        result = Vector2.zero;
+        result = Vector2.Zero;
 
         Vector2 ab = endA - startA;
         Vector2 ac = startB - startA;
@@ -381,7 +381,7 @@ public static class Mathf
 
 
     /// <summary>
-    /// Checks if a Ray intersects a triangle (Uses Mathf.Small for Error)
+    /// Checks if a Ray intersects a triangle (Uses Maths.Small for Error)
     /// </summary>
     public static bool RayIntersectsTriangle(Vector3 origin, Vector3 dir, Vector3 a, Vector3 b, Vector3 c, out Vector3 intersection)
     {
