@@ -42,12 +42,13 @@ internal sealed class KorpiWindow : GameWindow
         if (mainCamera == null)
         {
             Graphics.SkipFrame();
-            return;
         }
-        
-        Graphics.StartFrame(mainCamera);
-        base.OnRenderFrame(args);
-        Graphics.EndFrame();
+        else
+        {
+            Graphics.StartFrame(mainCamera);
+            base.OnRenderFrame(args);
+            Graphics.EndFrame();
+        }
         
         SwapBuffers();
     }
