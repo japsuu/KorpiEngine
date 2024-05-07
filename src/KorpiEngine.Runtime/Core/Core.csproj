@@ -33,7 +33,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="assets\**">
+      <Content Include="Assets\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Defaults\**">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

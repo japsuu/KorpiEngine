@@ -32,7 +32,7 @@ public class OnAssemblyUnloadAttribute : Attribute
                 foreach (MethodInfo method in methods)
                 {
                     IEnumerable<OnAssemblyUnloadAttribute> attributes = method.GetCustomAttributes<OnAssemblyUnloadAttribute>();
-                    if (attributes.Count() > 0)
+                    if (attributes.Any())
                         MethodInfos.Add(method);
                 }
             }

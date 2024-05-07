@@ -216,6 +216,123 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     }
 
 
+    public void RecalculateBounds()
+    {
+        if (_vertexPositions == null)
+            throw new ArgumentNullException();
+
+        bool empty = true;
+        Vector3 minVec = Vector3.One * 99999f;
+        Vector3 maxVec = Vector3.One * -99999f;
+        foreach (Vector3 ptVector in GetPositions()!)
+        {
+            minVec.X = minVec.X < ptVector.X ? minVec.X : ptVector.X;
+            minVec.Y = minVec.Y < ptVector.Y ? minVec.Y : ptVector.Y;
+            minVec.Z = minVec.Z < ptVector.Z ? minVec.Z : ptVector.Z;
+
+            maxVec.X = maxVec.X > ptVector.X ? maxVec.X : ptVector.X;
+            maxVec.Y = maxVec.Y > ptVector.Y ? maxVec.Y : ptVector.Y;
+            maxVec.Z = maxVec.Z > ptVector.Z ? maxVec.Z : ptVector.Z;
+
+            empty = false;
+        }
+
+        if (empty)
+            throw new ArgumentException();
+
+        bounds = new Bounds(minVec, maxVec);
+    }
+
+
+    public void RecalculateNormals()
+    {
+        if (_vertexPositions == null || _indexData == null)
+            return;
+        
+        Vector3[] vertices = GetPositions()!;
+        if (vertices.Length < 3)
+            return;
+        
+        int[] indices = GetIndices()!;
+        if (indices.Length < 3)
+            return;
+
+        Vector3[] normals = new Vector3[vertices.Length];
+
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            int ai = indices[i];
+            int bi = indices[i + 1];
+            int ci = indices[i + 2];
+
+            Vector3 n = Vector3.Normalize(
+                Vector3.Cross(
+                    vertices[bi] - vertices[ai],
+                    vertices[ci] - vertices[ai]
+                ));
+
+            normals[ai] += n;
+            normals[bi] += n;
+            normals[ci] += n;
+        }
+
+        for (int i = 0; i < vertices.Length; i++)
+            normals[i] = -Vector3.Normalize(normals[i]);
+
+        SetNormals(normals);
+    }
+
+
+    public void RecalculateTangents()
+    {
+        if (_vertexPositions == null || _indexData == null)
+            return;
+        
+        Vector3[] vertices = GetPositions()!;
+        if (vertices.Length < 3)
+            return;
+        
+        int[] indices = GetIndices()!;
+        if (indices.Length < 3)
+            return;
+        
+        if (_vertexTexCoord0 == null)
+            return;
+        Vector2[] uv = GetUVs(0)!;
+
+        Vector3[] tangents = new Vector3[vertices.Length];
+
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            int ai = indices[i];
+            int bi = indices[i + 1];
+            int ci = indices[i + 2];
+
+            Vector3 edge1 = vertices[bi] - vertices[ai];
+            Vector3 edge2 = vertices[ci] - vertices[ai];
+
+            Vector2 deltaUV1 = uv[bi] - uv[ai];
+            Vector2 deltaUV2 = uv[ci] - uv[ai];
+
+            float f = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV2.X * deltaUV1.Y);
+
+            Vector3 tangent;
+            tangent.X = f * (deltaUV2.Y * edge1.X - deltaUV1.Y * edge2.X);
+            tangent.Y = f * (deltaUV2.Y * edge1.Y - deltaUV1.Y * edge2.Y);
+            tangent.Z = f * (deltaUV2.Y * edge1.Z - deltaUV1.Y * edge2.Z);
+
+            tangents[ai] += tangent;
+            tangents[bi] += tangent;
+            tangents[ci] += tangent;
+        }
+
+        for (int i = 0; i < vertices.Length; i++)
+            tangents[i] = Vector3.Normalize(tangents[i]);
+
+        SetTangents(tangents);
+    }
+
+
     #region SIMPLE API
 
     public int GetPositionsNonAlloc(IList<Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
@@ -572,11 +689,10 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
 
     public static Mesh CreatePrimitive(PrimitiveType primitiveType)
     {
-        Mesh mesh = new();
-
         switch (primitiveType)
         {
             case PrimitiveType.Quad:
+            {
                 Vector3[] positions =
                 {
                     new(-0.5f, -0.5f, 0),
@@ -603,16 +719,74 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
                     3
                 };
 
+                Mesh mesh = new();
                 mesh.SetPositions(positions);
                 mesh.SetUVs(uvs, 0);
                 mesh.SetIndices(indices);
+                return mesh;
+            }
+            case PrimitiveType.Cube:
+                return null;
+                break;
+            case PrimitiveType.Sphere:
+            {
+                const float radius = 0.5f;
+                const int rings = 8;
+                const int slices = 16;
+                List<Vector3> vertices = new();
+                List<Vector2> uvs = new();
+                List<int> indices = new();
 
+                for (int i = 0; i <= rings; i++)
+                {
+                    float v = 1 - (float)i / rings;
+                    float phi = v * MathF.PI;
+
+                    for (int j = 0; j <= slices; j++)
+                    {
+                        float u = (float)j / slices;
+                        float theta = u * MathF.PI * 2;
+
+                        float x = MathF.Sin(phi) * MathF.Cos(theta);
+                        float y = MathF.Cos(phi);
+                        float z = MathF.Sin(phi) * MathF.Sin(theta);
+
+                        vertices.Add(new Vector3(x, y, z) * radius);
+                        uvs.Add(new Vector2(u, v));
+                    }
+                }
+
+                for (int i = 0; i < rings; i++)
+                for (int j = 0; j < slices; j++)
+                {
+                    int a = i * (slices + 1) + j;
+                    int b = a + slices + 1;
+
+                    indices.Add(a);
+                    indices.Add(b);
+                    indices.Add(a + 1);
+
+                    indices.Add(b);
+                    indices.Add(b + 1);
+                    indices.Add(a + 1);
+                }
+
+                Mesh mesh = new();
+                mesh.SetPositions(vertices.ToArray());
+                mesh.SetUVs(uvs.ToArray(), 0);
+                mesh.SetIndices(indices.ToArray());
+
+                mesh.RecalculateBounds();
+                mesh.RecalculateNormals();
+                mesh.RecalculateTangents();
+                return mesh;
+            }
+            case PrimitiveType.Capsule:
+                return null;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
-
-        return mesh;
     }
 
 
@@ -662,21 +836,25 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
 
         foreach (MeshVertexLayout.VertexAttributeDescriptor attribute in vertexLayout.Attributes)
         {
-            byte[]? data = GetVertexAttributeBytes(attribute.Semantic);
-            if (data == null)
+            byte[]? attributeBytes = GetVertexAttributeBytes(attribute.Semantic);
+            if (attributeBytes == null)
                 continue;
 
-            if (data.Length % attribute.Stride != 0)
+            if (attributeBytes.Length % attribute.Stride != 0)
                 throw new InvalidOperationException(
-                    $"The vertex attribute '{(VertexAttribute)attribute.Semantic}' has an invalid stride. Expected a multiple of {attribute.Stride}, but got {data.Length}.");
+                    $"The vertex attribute '{(VertexAttribute)attribute.Semantic}' has an invalid stride. Expected a multiple of {attribute.Stride}, but got {attributeBytes.Length}.");
 
-            for (int i = 0; i < data.Length; i++)
+            for (int vertexIndex = 0; vertexIndex < VertexCount; vertexIndex++)
             {
-                int bufferIndex = i * vertexLayout.VertexSize + attribute.Offset;
-                int attributeIndex = i * attribute.Stride;
+                int bufferIndex = vertexIndex * vertexLayout.VertexSize + attribute.Offset;
+                int attributeIndex = vertexIndex * attribute.Stride;
 
                 for (int j = 0; j < attribute.Stride; j++)
-                    buffer[bufferIndex + j] = data[attributeIndex + j];
+                {
+                    int sourceIndex = attributeIndex + j;
+                    int destinationIndex = bufferIndex + j;
+                    buffer[destinationIndex] = attributeBytes[sourceIndex];
+                }
             }
         }
 

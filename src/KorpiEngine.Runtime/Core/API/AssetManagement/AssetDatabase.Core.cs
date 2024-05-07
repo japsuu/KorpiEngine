@@ -55,12 +55,6 @@ public static partial class AssetDatabase
         }
     }
 
-
-    /// <summary>
-    /// Gets the asset with the specified GUID.
-    /// </summary>
-    private static Asset? GetAssetWithId(Guid assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
-
     #endregion
 
 
@@ -130,10 +124,16 @@ public static partial class AssetDatabase
             Application.Logger.Info($"Successfully imported {relativePath}");
             return asset;
         }
-        catch
+        catch (Exception e)
         {
-            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}! Is the file in use?");
+            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}! Is the file in use? Reason: {e.Message}");
             return null;
         }
     }
+
+
+    /// <summary>
+    /// Gets the asset with the specified GUID.
+    /// </summary>
+    private static Asset? GetAssetWithId(Guid assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
 }

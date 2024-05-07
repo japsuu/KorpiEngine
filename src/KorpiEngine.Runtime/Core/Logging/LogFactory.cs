@@ -18,9 +18,16 @@ public static class LogFactory
             return;
         }
         string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeConfigFilePath);
+        FileInfo configFile = new FileInfo(configFilePath);
+        
+        if (!configFile.Exists)
+        {
+            Console.WriteLine($"Log4Net configuration file not found at {configFilePath}!");
+            return;
+        }
         
         ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-        XmlConfigurator.Configure(logRepository, new FileInfo(configFilePath));
+        XmlConfigurator.Configure(logRepository, configFile);
     }
 
 

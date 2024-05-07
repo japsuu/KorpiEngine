@@ -24,8 +24,12 @@ internal class MeshRenderSystem : NativeSystem
                 return;
             
             Material mat = mesh.Material ?? new Material(Shader.Find("Defaults/Standard.shader"));
-            
-            Graphics.DrawMeshNow(mesh.Mesh, transform.Matrix, mat);
+
+            for (int i = 0; i < mat.PassCount; i++)
+            {
+                mat.SetPass(i);
+                Graphics.DrawMeshNow(mesh.Mesh, transform.Matrix, mat);
+            }
         });
     }
 }

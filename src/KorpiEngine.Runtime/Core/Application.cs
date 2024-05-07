@@ -36,7 +36,7 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(Directory, "log4net.config"));
+        LogFactory.Initialize(Path.Combine(AssetDirectory, "log4net.config"));
     }
 
 
@@ -75,10 +75,10 @@ public static class Application
         window.CenterWindow();
         window.IsVisible = true;
         
-        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
-        
         AssemblyManager.Initialize();
         OnAssemblyLoadAttribute.Invoke();
+        
+        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
     }
 
 
