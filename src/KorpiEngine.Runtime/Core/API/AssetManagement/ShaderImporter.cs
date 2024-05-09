@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -8,14 +9,16 @@ namespace KorpiEngine.Core.API.AssetManagement;
 public class ShaderImporter : AssetImporter
 {
     private static readonly Regex PreprocessorIncludeRegex = new(@"^\s*#include\s*[""<](.+?)["">]\s*$", RegexOptions.Multiline);
+    private static readonly List<string> ImportErrors = [];
     private static FileInfo? currentAssetPath;
     
 #warning TODO: get Uniforms via regex as well, so we can skip setting uniforms that do not exist in the shader
 
 
-    public override EngineObject Import(FileInfo assetPath)
+    public override EngineObject? Import(FileInfo assetPath)
     {
         currentAssetPath = assetPath;
+        ImportErrors.Clear();
         string shaderScript = File.ReadAllText(assetPath.FullName);
 
         // Strip out comments and Multi-like Comments
@@ -23,12 +26,22 @@ public class ShaderImporter : AssetImporter
 
         // Parse the shader
         ParsedShader parsedShader = ParseShader(shaderScript);
+        
+        if (ImportErrors.Count > 0)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine("Shader importing failed because of the following errors:");
+            foreach (string error in ImportErrors)
+                sb.AppendLine(error);
+            Application.Logger.Error(sb.ToString());
+            return null;
+        }
 
         // Sort passes to be in order
         parsedShader.Passes = parsedShader.Passes.OrderBy(p => p.Order).ToArray();
 
         // Create normal shader passes
-        List<Shader.ShaderPass> passes = new();
+        List<Shader.ShaderPass> passes = [];
         foreach (ParsedShaderPass parsedPass in parsedShader.Passes)
         {
             ShaderSourceDescriptor vertexDescriptor = new(ShaderType.Vertex, parsedPass.Vertex);
@@ -73,7 +86,7 @@ public class ShaderImporter : AssetImporter
 
     private static List<Shader.Property> ParseProperties(string input)
     {
-        List<Shader.Property> propertiesList = new();
+        List<Shader.Property> propertiesList = [];
 
         Match propertiesBlockMatch = Regex.Match(input, @"Properties\s*{([^{}]*?)}", RegexOptions.Singleline);
         
@@ -106,14 +119,14 @@ public class ShaderImporter : AssetImporter
         }
         catch (ArgumentException)
         {
-            throw new ArgumentException($"Unknown property type: {typeStr}");
+            throw new ArgumentException($"Unknown shader property type: {typeStr}");
         }
     }
 
 
     private static ParsedShaderPass[] ParsePasses(string input)
     {
-        List<ParsedShaderPass> passesList = new();
+        List<ParsedShaderPass> passesList = [];
 
         MatchCollection passMatches = Regex.Matches(input, @"\bPass (\d+)\s+({(?:[^{}]|(?<o>{)|(?<-o>}))+(?(o)(?!))})");
         foreach (Match passMatch in passMatches)
@@ -158,15 +171,14 @@ public class ShaderImporter : AssetImporter
     {
         Match blockMatch = Regex.Match(input, $@"{blockName}\s*({{(?:[^{{}}]|(?<o>{{)|(?<-o>}}))+(?(o)(?!))}})");
 
-        if (blockMatch.Success)
-        {
-            string content = blockMatch.Groups[1].Value;
+        if (!blockMatch.Success)
+            return "";
+        
+        string content = blockMatch.Groups[1].Value;
 
-            // Strip off the enclosing braces and return
-            return content.Substring(1, content.Length - 2).Trim();
-        }
+        // Strip off the enclosing braces and return
+        return content.Substring(1, content.Length - 2).Trim();
 
-        return "";
     }
 
 
@@ -256,7 +268,7 @@ public class ShaderImporter : AssetImporter
 
         if (!file.Exists)
         {
-            Application.Logger.Error($"Failed to Import Shader, include not found: {file.FullName}");
+            ImportErrors.Add($"Include not found: {file.FullName}");
             return "";
         }
 

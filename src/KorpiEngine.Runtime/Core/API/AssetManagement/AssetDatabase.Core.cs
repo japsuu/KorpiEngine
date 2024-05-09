@@ -111,7 +111,7 @@ public static partial class AssetDatabase
             EngineObject? instance = importer?.Import(assetFile);
             
             if (instance == null)
-                throw new Exception($"The importer for {assetFile.FullName} failed to import the asset.");
+                throw new Exception("The importer failed.");
             
             // Generate a new GUID for the asset
             Guid assetID = Guid.NewGuid();
@@ -126,7 +126,7 @@ public static partial class AssetDatabase
         }
         catch (Exception e)
         {
-            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}! Is the file in use? Reason: {e.Message}");
+            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}. Reason: {e.Message}");
             return null;
         }
     }

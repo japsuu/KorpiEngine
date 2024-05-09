@@ -15,6 +15,13 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 public sealed class Material : EngineObject
 {
     public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
+    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
+    public const string DEFAULT_NORMAL_TEX_PROPERTY = "u_NormalTex";
+    public const string DEFAULT_SURFACE_TEX_PROPERTY = "u_SurfaceTex";
+    public const string DEFAULT_EMISSION_TEX_PROPERTY = "u_EmissionTex";
+    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
+    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
+    
     public readonly AssetRef<Shader> Shader;
     public readonly MaterialPropertyBlock PropertyBlock;
 
@@ -116,7 +123,9 @@ public sealed class Material : EngineObject
             throw new Exception("Cannot compile without a valid shader assigned");
 
         string keywords = string.Join("-", allKeywords);
-        string key = Shader.Res!.InstanceID + "-" + keywords + "-" + Shaders.Shader.GlobalKeywords;
+#warning Fix Shaders.Shader.GlobalKeywords appending to key
+        string key = $"{Shader.Res!.InstanceID}-{keywords}-{Shaders.Shader.GlobalKeywords}";
+//        Application.Logger.Debug($"Compiling Shader Variant: {key}");
         if (PassVariants.TryGetValue(key, out Shader.CompiledShader s))
             return s;
 
