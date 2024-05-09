@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Debugging.Profiling;
-using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;

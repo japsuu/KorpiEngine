@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.InputManagement;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Scripting;
 
 namespace Sandbox;
@@ -9,45 +9,57 @@ internal class FreeCameraController : Behaviour
 {
     private const float LOOK_SENSITIVITY = 0.2f;
     
-    private double _cameraFlySpeed = 1.5f;
+    private const double SLOW_FLY_SPEED = 1.5f;
+    private const double FAST_FLY_SPEED = 3.0f;
+    
+    private bool isCursorLocked = false;
 
 
     protected override void OnUpdate()
     {
+        UpdateCursorLock();
+        
         UpdatePosition();
         
-        UpdateRotation();
+        if (isCursorLocked)
+            UpdateRotation();
+    }
 
-        if (Input.IsKeyDown(KeyCode.LeftShift))
-            UpdateFlySpeed();
+
+    private void UpdateCursorLock()
+    {
+        if (Input.GetMouseDown(MouseButton.Right))
+        {
+            StartLooking();
+        }
+        else if (Input.GetMouseUp(MouseButton.Right))
+        {
+            StopLooking();
+        }
     }
 
 
     private void UpdatePosition()
     {
-        if (Input.IsKeyDown(KeyCode.W))
-            Transform.Position += Transform.Forward * _cameraFlySpeed * Time.DeltaTime; // Forward
+        double flySpeed = Input.GetKey(KeyCode.LeftShift) ? FAST_FLY_SPEED : SLOW_FLY_SPEED;
+        
+        if (Input.GetKey(KeyCode.W)) // Forward
+            Transform.Position += Transform.Forward * flySpeed * Time.DeltaTime;
 
-        if (Input.IsKeyDown(KeyCode.S))
-            Transform.Position += Transform.Backward * _cameraFlySpeed * Time.DeltaTime; // Backward
+        if (Input.GetKey(KeyCode.S)) // Backward
+            Transform.Position += Transform.Backward * flySpeed * Time.DeltaTime;
 
-        if (Input.IsKeyDown(KeyCode.A))
-            Transform.Position += Transform.Left * _cameraFlySpeed * Time.DeltaTime; // Left
+        if (Input.GetKey(KeyCode.A)) // Left
+            Transform.Position += Transform.Left * flySpeed * Time.DeltaTime;
 
-        if (Input.IsKeyDown(KeyCode.D))
-            Transform.Position += Transform.Right * _cameraFlySpeed * Time.DeltaTime; // Right
+        if (Input.GetKey(KeyCode.D)) // Right
+            Transform.Position += Transform.Right * flySpeed * Time.DeltaTime;
 
-        if (Input.IsKeyDown(KeyCode.E))
-            Transform.Position += Transform.Up * _cameraFlySpeed * Time.DeltaTime; // Up
+        if (Input.GetKey(KeyCode.E)) // Up
+            Transform.Position += Transform.Up * flySpeed * Time.DeltaTime;
 
-        if (Input.IsKeyDown(KeyCode.Q))
-            Transform.Position += Transform.Down * _cameraFlySpeed * Time.DeltaTime; // Down
-    }
-
-
-    private void UpdateFlySpeed()
-    {
-        _cameraFlySpeed = Input.IsKeyDown(KeyCode.LeftShift) ? 3.0f : 1.5f;
+        if (Input.GetKey(KeyCode.Q)) // Down
+            Transform.Position += Transform.Down * flySpeed * Time.DeltaTime;
     }
 
 
@@ -60,5 +72,27 @@ internal class FreeCameraController : Behaviour
         Vector3 eulers = new Vector3(pitch, yaw, 0f);
         
         Transform.Rotate(eulers);
+    }
+
+
+    protected override void OnDisable()
+    {
+        StopLooking();
+    }
+
+
+    private void StartLooking()
+    {
+        isCursorLocked = true;
+        Cursor.LockState = CursorLockState.Locked;
+    }
+
+    /// <summary>
+    /// Disable free looking.
+    /// </summary>
+    private void StopLooking()
+    {
+        isCursorLocked = false;
+        Cursor.LockState = CursorLockState.None;
     }
 }

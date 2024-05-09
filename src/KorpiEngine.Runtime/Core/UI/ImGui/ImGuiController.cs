@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ImGuiNET;
-using KorpiEngine.Core.InputManagement;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -8,6 +8,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
+using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using Vector4 = System.Numerics.Vector4;
 
 namespace KorpiEngine.Core.UI.ImGui;

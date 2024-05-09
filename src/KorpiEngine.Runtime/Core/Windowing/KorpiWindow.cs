@@ -19,8 +19,7 @@ internal sealed class KorpiWindow : GameWindow
         SystemInfo.ProcessorCount = Environment.ProcessorCount;
         SystemInfo.MainThreadId = Environment.CurrentManagedThreadId;
         WindowInfo.Initialize(this);
-        InputManagement.Cursor.Initialize(this);
-        InputManagement.Cursor.SetGrabbed(false);
+        Core.API.InputManagement.Cursor.Initialize(this);
 
         Graphics.Initialize<GLGraphicsDriver>(this);
         

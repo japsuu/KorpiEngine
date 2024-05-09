@@ -114,8 +114,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public ContainmentType Contains(Bounds box)
     {
-        ContainmentType result = default(ContainmentType);
-        Contains(ref box, out result);
+        Contains(ref box, out ContainmentType result);
         return result;
     }
 
@@ -125,8 +124,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
         bool intersects = false;
         for (int i = 0; i < PLANE_COUNT; ++i)
         {
-            var planeIntersectionType = default(PlaneIntersectionType);
-            box.Intersects(ref _planes[i], out planeIntersectionType);
+            box.Intersects(ref _planes[i], out PlaneIntersectionType planeIntersectionType);
             switch (planeIntersectionType)
             {
                 case PlaneIntersectionType.Front:
@@ -150,8 +148,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
         bool intersects = false;
         for (int i = 0; i < PLANE_COUNT; ++i)
         {
-            PlaneIntersectionType planeIntersectionType;
-            frustum.Intersects(ref _planes[i], out planeIntersectionType);
+            frustum.Intersects(ref _planes[i], out PlaneIntersectionType planeIntersectionType);
             switch (planeIntersectionType)
             {
                 case PlaneIntersectionType.Front:
@@ -168,8 +165,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public ContainmentType Contains(Vector3 point)
     {
-        ContainmentType result = default(ContainmentType);
-        Contains(ref point, out result);
+        Contains(ref point, out ContainmentType result);
         return result;
     }
 
@@ -218,16 +214,14 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public bool Intersects(Bounds box)
     {
-        bool result = false;
-        Intersects(ref box, out result);
+        Intersects(ref box, out bool result);
         return result;
     }
 
 
     public void Intersects(ref Bounds box, out bool result)
     {
-        ContainmentType containment = default(ContainmentType);
-        Contains(ref box, out containment);
+        Contains(ref box, out ContainmentType containment);
         result = containment != ContainmentType.Disjoint;
     }
 
@@ -237,8 +231,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public PlaneIntersectionType Intersects(Plane plane)
     {
-        PlaneIntersectionType result;
-        Intersects(ref plane, out result);
+        Intersects(ref plane, out PlaneIntersectionType result);
         return result;
     }
 

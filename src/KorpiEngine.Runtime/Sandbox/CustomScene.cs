@@ -1,7 +1,7 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -48,7 +48,7 @@ internal class CustomScene : Scene
     {
         UpdateBlueBox();
 
-        if (Input.IsKeyPressed(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             _player.Entity.GetComponent<IDamageable>()!.TakeDamage(10);
         }
@@ -64,7 +64,7 @@ internal class CustomScene : Scene
         _blueBoxEntity.Transform.Rotate(newEulerAngles);
         
         // Move the entity
-        const float moveSpeed = 0.1f;
+        const float moveSpeed = 0.5f;
         _blueBoxEntity.Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);
     }
 }
