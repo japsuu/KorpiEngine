@@ -26,22 +26,22 @@ internal class FreeCameraController : Behaviour
     private void UpdatePosition()
     {
         if (Input.IsKeyDown(KeyCode.W))
-            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
+            Transform.Position += Transform.Forward * _cameraFlySpeed * Time.DeltaTime; // Forward
 
         if (Input.IsKeyDown(KeyCode.S))
-            Transform.Translate(Transform.Backward * _cameraFlySpeed * Time.DeltaTime); // Backward
+            Transform.Position += Transform.Backward * _cameraFlySpeed * Time.DeltaTime; // Backward
 
         if (Input.IsKeyDown(KeyCode.A))
-            Transform.Translate(Transform.Left * _cameraFlySpeed * Time.DeltaTime); // Left
+            Transform.Position += Transform.Left * _cameraFlySpeed * Time.DeltaTime; // Left
 
         if (Input.IsKeyDown(KeyCode.D))
-            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
+            Transform.Position += Transform.Right * _cameraFlySpeed * Time.DeltaTime; // Right
 
         if (Input.IsKeyDown(KeyCode.E))
-            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
+            Transform.Position += Transform.Up * _cameraFlySpeed * Time.DeltaTime; // Up
 
         if (Input.IsKeyDown(KeyCode.Q))
-            Transform.Translate(Transform.Down * _cameraFlySpeed * Time.DeltaTime); // Down
+            Transform.Position += Transform.Down * _cameraFlySpeed * Time.DeltaTime; // Down
     }
 
 
