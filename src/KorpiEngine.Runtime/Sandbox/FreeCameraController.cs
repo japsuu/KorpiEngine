@@ -54,11 +54,8 @@ internal class FreeCameraController : Behaviour
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        float deltaX = Input.MouseX - Input.MousePreviousX;
-        float deltaY = Input.MouseY - Input.MousePreviousY;
-
-        float yaw = deltaX * LOOK_SENSITIVITY;
-        float pitch = deltaY * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
+        double yaw = Input.MouseDelta.X * LOOK_SENSITIVITY;
+        double pitch = Input.MouseDelta.Y * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
         
         Vector3 eulers = new Vector3(pitch, yaw, 0f);
         
