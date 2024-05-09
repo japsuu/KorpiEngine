@@ -55,8 +55,7 @@ public abstract class Scene : IDisposable
         Entity e = CreateEntity(name);
         ref MeshRendererComponent c = ref e.AddNativeComponent<MeshRendererComponent>();
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
-        c.Material = new Material(Shader.Find("Defaults/Invalid.shader"));
-        #warning TODO: Only for testing, remove later
+        c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
         return e;
     }
 
