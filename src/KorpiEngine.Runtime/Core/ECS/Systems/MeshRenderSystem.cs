@@ -12,14 +12,20 @@ namespace KorpiEngine.Core.ECS.Systems;
 internal class MeshRenderSystem : NativeSystem
 {
     private readonly QueryDescription _queryDescription = new QueryDescription().WithAll<TransformComponent, MeshRendererComponent>();
+    private MeshRenderQuery _query;
     
     public MeshRenderSystem(Scene scene) : base(scene) { }
 
 
     protected override void SystemUpdate(in double deltaTime)
     {
-        #warning Switch to inline queries for zero-allocation
-        World.Query(in _queryDescription, (ref TransformComponent transform, ref MeshRendererComponent mesh) =>
+        World.InlineQuery<MeshRenderQuery, TransformComponent, MeshRendererComponent>(in _queryDescription, ref _query);
+    }
+    
+    
+    private struct MeshRenderQuery : IForEach<TransformComponent, MeshRendererComponent>
+    {
+        public void Update(ref TransformComponent transform, ref MeshRendererComponent mesh)
         {
             if (mesh.Mesh == null)
                 return;
@@ -31,6 +37,6 @@ internal class MeshRenderSystem : NativeSystem
                 mat.SetPass(i);
                 Graphics.DrawMeshNow(mesh.Mesh, transform.Matrix, mat);
             }
-        });
+        }
     }
 }
