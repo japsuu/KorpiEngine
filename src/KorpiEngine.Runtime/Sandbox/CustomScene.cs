@@ -1,7 +1,9 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -33,6 +35,7 @@ internal class CustomScene : Scene
         _blueBoxEntity.Transform.Position = new Vector3(0, 3, 0);
         Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
         blueMaterial.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
+        blueMaterial.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
         
         // Create a player entity
         _player = Instantiate<TestPlayer>("Player");

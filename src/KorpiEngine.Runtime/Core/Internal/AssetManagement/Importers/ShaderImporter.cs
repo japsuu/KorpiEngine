@@ -13,9 +13,7 @@ internal class ShaderImporter : AssetImporter
     private static readonly List<string> ImportErrors = [];
     private static FileInfo? currentAssetPath;
     
-#warning TODO: get Uniforms via regex as well, so we can skip setting uniforms that do not exist in the shader
-
-
+    
     public override EngineObject? Import(FileInfo assetPath)
     {
         currentAssetPath = assetPath;
