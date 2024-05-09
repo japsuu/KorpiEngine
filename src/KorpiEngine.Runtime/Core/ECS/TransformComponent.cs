@@ -4,6 +4,13 @@ namespace KorpiEngine.Core.ECS;
 
 public struct TransformComponent : INativeComponent
 {
+    public static readonly Vector3 ForwardAxis = new(0, 0, 1);
+    public static readonly Vector3 BackwardAxis = new(0, 0, -1);
+    public static readonly Vector3 UpAxis = new(0, 1, 0);
+    public static readonly Vector3 DownAxis = new(0, -1, 0);
+    public static readonly Vector3 RightAxis = new(1, 0, 0);
+    public static readonly Vector3 LeftAxis = new(-1, 0, 0);
+    
     public Matrix4x4 Matrix;
 
 
