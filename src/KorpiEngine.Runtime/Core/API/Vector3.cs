@@ -110,7 +110,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public void Normalize()
     {
         double ls = X * X + Y * Y + Z * Z;
-        double invNorm = 1.0 / (double)Math.Sqrt((double)ls);
+        double invNorm = 1.0 / Math.Sqrt(ls);
         X *= invNorm;
         Y *= invNorm;
         Z *= invNorm;
@@ -159,7 +159,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// Returns a String representing this Vector3 instance.
     /// </summary>
     /// <returns>The string representation.</returns>
-    public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
+    public override string ToString() => ToString("F2", CultureInfo.CurrentCulture);
 
 
     /// <summary>
@@ -177,18 +177,20 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <param name="format">The format of individual elements.</param>
     /// <param name="formatProvider">The format provider to use when formatting elements.</param>
     /// <returns>The string representation.</returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
-        StringBuilder sb = new StringBuilder();
+        if (string.IsNullOrEmpty(format))
+            format = "F8";
+        StringBuilder sb = new();
         string separator = NumberFormatInfo.GetInstance(formatProvider).NumberGroupSeparator;
         sb.Append('<');
-        sb.Append(((IFormattable)X).ToString(format, formatProvider));
+        sb.Append(X.ToString(format, formatProvider));
         sb.Append(separator);
         sb.Append(' ');
-        sb.Append(((IFormattable)Y).ToString(format, formatProvider));
+        sb.Append(Y.ToString(format, formatProvider));
         sb.Append(separator);
         sb.Append(' ');
-        sb.Append(((IFormattable)Z).ToString(format, formatProvider));
+        sb.Append(Z.ToString(format, formatProvider));
         sb.Append('>');
         return sb.ToString();
     }
@@ -231,7 +233,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
         double ls = dx * dx + dy * dy + dz * dz;
 
-        return (double)Math.Sqrt((double)ls);
+        return Math.Sqrt(ls);
     }
 
 
@@ -283,7 +285,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public static Vector3 Normalize(Vector3 value)
     {
         double ls = value.X * value.X + value.Y * value.Y + value.Z * value.Z;
-        double length = (double)Math.Sqrt(ls);
+        double length = Math.Sqrt(ls);
         return new Vector3(value.X / length, value.Y / length, value.Z / length);
     }
 
@@ -485,7 +487,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <param name="value">The source vector.</param>
     /// <returns>The square root vector.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 SquareRoot(Vector3 value) => new((double)Math.Sqrt(value.X), (double)Math.Sqrt(value.Y), (double)Math.Sqrt(value.Z));
+    public static Vector3 SquareRoot(Vector3 value) => new(Math.Sqrt(value.X), Math.Sqrt(value.Y), Math.Sqrt(value.Z));
 
 
     public static Vector3 ProjectOnPlane(Vector3 vector, Vector3 planeNormal)
@@ -501,6 +503,19 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
         return projectedVector;
     }
+
+
+    /// <summary>
+    /// Returns a boolean indicating whether the two given vectors are approximately equal.
+    /// </summary>
+    /// <param name="v1">The first Vector3 to compare.</param>
+    /// <param name="v2">The second Vector3 to compare.</param>
+    /// <param name="tolerance">The tolerance value used to determine approximate equality. 0-1 range.</param>
+    /// <returns>True if the vectors are approximately equal; False otherwise.</returns>
+    public static bool Approximately(Vector3 v1, Vector3 v2, float tolerance) =>
+        Math.Abs(v1.X - v2.X) < tolerance &&
+        Math.Abs(v1.Y - v2.Y) < tolerance &&
+        Math.Abs(v1.Z - v2.Z) < tolerance;
 
     #endregion Public Static Methods
 

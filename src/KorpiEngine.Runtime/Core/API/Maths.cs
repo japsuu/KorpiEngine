@@ -30,7 +30,7 @@ public static class Maths
     /// <summary>Multiply an angle in radians by this, to convert it to degrees</summary>
     public const double RAD_2_DEG = 360 / TAU;
 
-    /// A small but not tiny value, Used in places like ApproximatelyEquals, where there is some tolerance (0.00001)
+    /// A small but not tiny value, Used in places like ApproximatelyEquals, where there is some tolerance (0.000001)
     public const double SMALL = 0.000001;
 
     /// <inheritdoc cref="double.MinValue"/>

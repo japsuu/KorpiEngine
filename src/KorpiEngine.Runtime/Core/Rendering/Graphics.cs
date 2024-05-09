@@ -143,7 +143,7 @@ public static class Graphics
         unsafe
         {
             Driver.BindVertexArray(mesh.VertexArrayObject);
-            Driver.DrawElements(Topology.Triangles, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, (void*)0);
+            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, (void*)0);
             Driver.BindVertexArray(null);
         }
     }

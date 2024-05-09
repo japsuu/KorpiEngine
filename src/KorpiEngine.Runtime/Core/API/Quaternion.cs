@@ -217,6 +217,16 @@ public struct Quaternion : IEquatable<Quaternion>
 
     public Vector3 ToEuler() => this.GetRotation().ToDeg().NormalizeEulerAngleDegrees();
 
+    
+    /// <summary>
+    /// Compares two Quaternions for approximate equality, using a default tolerance value.
+    /// </summary>
+    /// <param name="q1">First Quaternion to compare.</param>
+    /// <param name="q2">Second Quaternion to compare.</param>
+    /// <param name="tolerance">The tolerance value used to determine if the Quaternions are close. 0-1 range.</param>
+    /// <returns>If the Quaternions are approximately equal.</returns>
+    public static bool Approximately(Quaternion q1, Quaternion q2, float tolerance) => Dot(q1, q2) > 1f - tolerance;
+
 
     /// <summary>
     /// Creates a Quaternion from a normalized vector axis and an angle to rotate about the vector.

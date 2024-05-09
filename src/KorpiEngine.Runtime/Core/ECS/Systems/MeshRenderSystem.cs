@@ -24,7 +24,7 @@ internal class MeshRenderSystem : NativeSystem
             if (mesh.Mesh == null)
                 return;
             
-            Material mat = mesh.Material ?? new Material(Shader.Find("Defaults/Standard.shader"));
+            Material mat = mesh.Material ?? new Material(Shader.Find("Defaults/Invalid.shader"));
 
             for (int i = 0; i < mat.PassCount; i++)
             {

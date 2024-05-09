@@ -52,10 +52,13 @@ public class Transform : Component
     }
     
     public Vector3 Forward => Entity.GetNativeComponent<TransformComponent>().Forward;
+    public Vector3 Backward => -Forward;
     
     public Vector3 Up => Entity.GetNativeComponent<TransformComponent>().Up;
+    public Vector3 Down => -Up;
     
     public Vector3 Right => Entity.GetNativeComponent<TransformComponent>().Right;
+    public Vector3 Left => -Right;
     
     public Matrix4x4 Matrix
     {

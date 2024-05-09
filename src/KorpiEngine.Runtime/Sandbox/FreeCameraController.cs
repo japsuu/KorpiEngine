@@ -2,7 +2,6 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Scripting;
-using Vector3 = KorpiEngine.Core.API.Vector3;
 
 namespace Sandbox;
 
@@ -30,66 +29,25 @@ internal class FreeCameraController : Behaviour
             Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
 
         if (Input.IsKeyDown(KeyCode.S))
-            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Backward
+            Transform.Translate(Transform.Backward * _cameraFlySpeed * Time.DeltaTime); // Backward
 
         if (Input.IsKeyDown(KeyCode.A))
-            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Left
+            Transform.Translate(Transform.Left * _cameraFlySpeed * Time.DeltaTime); // Left
 
         if (Input.IsKeyDown(KeyCode.D))
             Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
 
-        if (Input.IsKeyDown(KeyCode.Space))
+        if (Input.IsKeyDown(KeyCode.E))
             Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
 
-        if (Input.IsKeyDown(KeyCode.LeftShift))
-            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
+        if (Input.IsKeyDown(KeyCode.Q))
+            Transform.Translate(Transform.Down * _cameraFlySpeed * Time.DeltaTime); // Down
     }
 
 
     private void UpdateFlySpeed()
     {
-        switch (_cameraFlySpeed)
-        {
-            // Changing the fly speed should be accurate at the lower end, but fast when at the upper end.
-            case <= 1f:
-                _cameraFlySpeed += Input.ScrollDelta.Y * 0.05f;
-                break;
-            case <= 5f:
-            {
-                _cameraFlySpeed += Input.ScrollDelta.Y * 0.5f;
-
-                if (_cameraFlySpeed < 1f)
-                {
-                    _cameraFlySpeed = 0.95f;
-                }
-
-                break;
-            }
-            case <= 10f:
-            {
-                _cameraFlySpeed += Input.ScrollDelta.Y * 1f;
-
-                if (_cameraFlySpeed < 5f)
-                {
-                    _cameraFlySpeed = 4.5f;
-                }
-
-                break;
-            }
-            default:
-            {
-                _cameraFlySpeed += Input.ScrollDelta.Y * 5f;
-
-                if (_cameraFlySpeed < 10f)
-                {
-                    _cameraFlySpeed = 9f;
-                }
-
-                break;
-            }
-        }
-
-        _cameraFlySpeed = Maths.Clamp(_cameraFlySpeed, 0.05f, 50f);
+        _cameraFlySpeed = Input.IsKeyDown(KeyCode.LeftShift) ? 3.0f : 1.5f;
     }
 
 

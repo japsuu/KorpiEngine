@@ -27,8 +27,8 @@ public sealed class Camera : Component
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
     /// </summary>
-    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
-#warning Ignores camera position, FIX ASAP!
+    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Transform.Position, Transform.Forward, Transform.Up);
+    
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>

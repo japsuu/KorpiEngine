@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.ECS;
 
-public struct CameraComponent : INativeComponent    //TODO: Add cached view/projection matrices for performance.
+public struct CameraComponent : INativeComponent
 {
     public short RenderPriority;
 
@@ -23,7 +23,7 @@ public struct CameraComponent : INativeComponent    //TODO: Add cached view/proj
         ProjectionType = CameraProjectionType.Perspective;
         RenderTarget = CameraRenderTarget.Screen;
         ClearType = CameraClearType.SolidColor;
-        ClearColor = Color.White;
-        FOVDegrees = 60;
+        ClearColor = Color.Gray;
+        FOVDegrees = 90;
     }
 }
