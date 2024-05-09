@@ -1,15 +1,22 @@
-﻿using OpenTK.Mathematics;
+﻿using KorpiEngine.Core.API;
 
 namespace KorpiEngine.Core.ECS;
 
 public struct TransformComponent : INativeComponent
 {
-    public Matrix4 Matrix;
+    public static readonly Vector3 ForwardAxis = new(0, 0, 1);
+    public static readonly Vector3 BackwardAxis = new(0, 0, -1);
+    public static readonly Vector3 UpAxis = new(0, 1, 0);
+    public static readonly Vector3 DownAxis = new(0, -1, 0);
+    public static readonly Vector3 RightAxis = new(1, 0, 0);
+    public static readonly Vector3 LeftAxis = new(-1, 0, 0);
+    
+    public Matrix4x4 Matrix;
 
 
     public TransformComponent()
     {
-        Matrix = Matrix4.Identity;
+        Matrix = Matrix4x4.Identity;
     }
     
 
@@ -31,7 +38,7 @@ public struct TransformComponent : INativeComponent
         set
         {
             // Create a rotation matrix from the provided quaternion
-            Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(value);
+            Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(value);
 
             // Extract the current translation from the Transform
             Vector3 translation = Matrix.ExtractTranslation();
@@ -40,7 +47,7 @@ public struct TransformComponent : INativeComponent
             Vector3 scale = Matrix.ExtractScale();
 
             // Combine the rotation, translation and scale back into the Transform
-            Matrix = Matrix4.CreateScale(scale) * rotationMatrix * Matrix4.CreateTranslation(translation);
+            Matrix = Matrix4x4.CreateScale(scale) * rotationMatrix * Matrix4x4.CreateTranslation(translation);
         }
     }
 
@@ -67,32 +74,17 @@ public struct TransformComponent : INativeComponent
 
     public Vector3 EulerAngles
     {
-        get
-        {
-            Vector3 eulerAnglesInRadians = Rotation.ToEulerAngles();
-            Vector3 eulerAnglesInDegrees = eulerAnglesInRadians * (180.0f / MathF.PI);
-            return eulerAnglesInDegrees;
-        }
-        set
-        {
-            Vector3 eulerAnglesInRadians = value * (MathF.PI / 180.0f);
-            Rotation = Quaternion.FromEulerAngles(eulerAnglesInRadians);
-        }
-    }
-
-    public Vector3 EulerAnglesRadians
-    {
-        get => Rotation.ToEulerAngles();
-        set => Rotation = Quaternion.FromEulerAngles(value);
+        get => Rotation.EulerAngles;
+        set => Rotation = Quaternion.Euler(value);
     }
 
     public Vector3 Forward
     {
         get
         {
-            // As we are using a right-handed coordinate system, the forward vector is the negated Z-axis
-            Vector3 vector = new(-Matrix.M31, -Matrix.M32, -Matrix.M33);
-            return vector.Normalized();
+            // As we are using a left-handed coordinate system like Unity, the forward vector is the positive Z-axis
+            Vector3 vector = new(Matrix.M31, Matrix.M32, Matrix.M33);
+            return vector.Normalized;
         }
     }
 
@@ -102,7 +94,7 @@ public struct TransformComponent : INativeComponent
         {
             // The up vector is the Y-axis
             Vector3 vector = new(Matrix.M21, Matrix.M22, Matrix.M23);
-            return vector.Normalized();
+            return vector.Normalized;
         }
     }
 
@@ -111,11 +103,11 @@ public struct TransformComponent : INativeComponent
         get
         {
             Vector3 vector = new(Matrix.M11, Matrix.M12, Matrix.M13);
-            return vector.Normalized();
+            return vector.Normalized;
         }
     }
 
 
-    // Implicit conversion to Matrix4.
-    public static implicit operator Matrix4(TransformComponent t) => t.Matrix;
+    // Implicit conversion to Matrix4x4.
+    public static implicit operator Matrix4x4(TransformComponent t) => t.Matrix;
 }

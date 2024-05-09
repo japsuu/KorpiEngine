@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
-using OpenTK.Mathematics;
 
 namespace KorpiEngine.Core.API.Rendering.Materials;
 
@@ -13,8 +12,8 @@ public class MaterialPropertyBlock
     private readonly Dictionary<string, Vector4> _vectors4 = new();
     private readonly Dictionary<string, float> _floats = new();
     private readonly Dictionary<string, int> _integers = new();
-    private readonly Dictionary<string, Matrix4> _matrices = new();
-    private readonly Dictionary<string, Matrix4[]> _matrixArrays = new();
+    private readonly Dictionary<string, Matrix4x4> _matrices = new();
+    private readonly Dictionary<string, System.Numerics.Matrix4x4[]> _matrixArrays = new();
     private readonly Dictionary<string, AssetRef<Texture2D>> _textures = new();
 
 
@@ -31,7 +30,7 @@ public class MaterialPropertyBlock
         _vectors4 = new Dictionary<string, Vector4>(clone._vectors4);
         _floats = new Dictionary<string, float>(clone._floats);
         _integers = new Dictionary<string, int>(clone._integers);
-        _matrices = new Dictionary<string, Matrix4>(clone._matrices);
+        _matrices = new Dictionary<string, Matrix4x4>(clone._matrices);
         _textures = new Dictionary<string, AssetRef<Texture2D>>(clone._textures);
     }
 
@@ -41,33 +40,33 @@ public class MaterialPropertyBlock
 
     public void SetColor(string name, Color value) => _colors[name] = value;
 
-    public Color GetColor(string name) => _colors.ContainsKey(name) ? _colors[name] : Color.White;
+    public Color GetColor(string name) => _colors.TryGetValue(name, out Color value) ? value : Color.White;
 
     public void SetVector(string name, Vector2 value) => _vectors2[name] = value;
 
-    public Vector2 GetVector2(string name) => _vectors2.ContainsKey(name) ? _vectors2[name] : Vector2.Zero;
+    public Vector2 GetVector2(string name) => _vectors2.TryGetValue(name, out Vector2 value) ? value : Vector2.Zero;
 
     public void SetVector(string name, Vector3 value) => _vectors3[name] = value;
 
-    public Vector3 GetVector3(string name) => _vectors3.ContainsKey(name) ? _vectors3[name] : Vector3.Zero;
+    public Vector3 GetVector3(string name) => _vectors3.TryGetValue(name, out Vector3 value) ? value : Vector3.Zero;
 
     public void SetVector(string name, Vector4 value) => _vectors4[name] = value;
 
-    public Vector4 GetVector4(string name) => _vectors4.ContainsKey(name) ? _vectors4[name] : Vector4.Zero;
+    public Vector4 GetVector4(string name) => _vectors4.TryGetValue(name, out Vector4 value) ? value : Vector4.Zero;
 
     public void SetFloat(string name, float value) => _floats[name] = value;
 
-    public float GetFloat(string name) => _floats.ContainsKey(name) ? _floats[name] : 0;
+    public float GetFloat(string name) => _floats.GetValueOrDefault(name, 0);
 
     public void SetInt(string name, int value) => _integers[name] = value;
 
-    public int GetInt(string name) => _integers.ContainsKey(name) ? _integers[name] : 0;
+    public int GetInt(string name) => _integers.GetValueOrDefault(name, 0);
 
-    public void SetMatrix(string name, Matrix4 value) => _matrices[name] = value;
+    public void SetMatrix(string name, Matrix4x4 value) => _matrices[name] = value;
 
-    public void SetMatrices(string name, IEnumerable<Matrix4> value) => _matrixArrays[name] = value.ToArray();
+    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value) => _matrixArrays[name] = value.ToArray();
 
-    public Matrix4 GetMatrix(string name) => _matrices.ContainsKey(name) ? _matrices[name] : Matrix4.Identity;
+    public Matrix4x4 GetMatrix(string name) => _matrices.TryGetValue(name, out Matrix4x4 value) ? value : Matrix4x4.Identity;
 
     public void SetTexture(string name, Texture2D value) => _textures[name] = value;
 
@@ -117,14 +116,15 @@ public class MaterialPropertyBlock
         foreach (KeyValuePair<string, Color> item in propertyBlock._colors)
             Graphics.Driver.SetUniformV4(shader, item.Key, new Vector4(item.Value.R, item.Value.G, item.Value.B, item.Value.A));
 
-        foreach ((string? key, Matrix4 mat) in propertyBlock._matrices)
+        foreach ((string? key, Matrix4x4 mat) in propertyBlock._matrices)
         {
-            Graphics.Driver.SetUniformMatrix(shader, key, 1, false, in mat.Row0.X);
+            System.Numerics.Matrix4x4 fMat = mat.ToFloat();
+            Graphics.Driver.SetUniformMatrix(shader, key, 1, false, in fMat.M11);
         }
 
-        foreach ((string? key, Matrix4[]? mats) in propertyBlock._matrixArrays)
+        foreach ((string? key, System.Numerics.Matrix4x4[]? mats) in propertyBlock._matrixArrays)
         {
-            Graphics.Driver.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].Row0.X);
+            Graphics.Driver.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].M11);
         }
 
         uint texSlot = 0;

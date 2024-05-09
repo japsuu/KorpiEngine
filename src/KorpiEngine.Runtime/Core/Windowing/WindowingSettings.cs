@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using KorpiEngine.Core.API;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
@@ -22,7 +22,7 @@ public struct WindowingSettings
         
         NativeWindowSettings nws = new()
         {
-            ClientSize = new Vector2i(windowSize.X, windowSize.Y),
+            ClientSize = new OpenTK.Mathematics.Vector2i(windowSize.X, windowSize.Y),
             StartVisible = false,
             Title = $"{EngineConstants.ENGINE_NAME} {EngineConstants.ENGINE_VERSION} - {windowTitle}",
             NumberOfSamples = 0,

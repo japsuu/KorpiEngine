@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Debugging.Profiling;
-using KorpiEngine.Core.InputManagement;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -36,7 +36,7 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(Directory, "log4net.config"));
+        LogFactory.Initialize(Path.Combine(AssetDirectory, "log4net.config"));
     }
 
 
@@ -75,10 +75,10 @@ public static class Application
         window.CenterWindow();
         window.IsVisible = true;
         
-        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
-        
         AssemblyManager.Initialize();
         OnAssemblyLoadAttribute.Invoke();
+        
+        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
     }
 
 

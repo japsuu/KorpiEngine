@@ -127,6 +127,25 @@ public sealed class Entity : EngineObject
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ref T AddNativeComponent<T>(in T component) where T : INativeComponent, new()
+    {
+        if (IsDestroyed)
+            throw new KorpiException("Cannot add a component to a destroyed object.");
+        
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
+
+        if (EntityRef.Entity.Has<T>())
+            throw new KorpiException("Cannot add a component to an Entity that already has it.");
+
+        EntityRef.Entity.Add(component);
+        
+        return ref EntityRef.Entity.Get<T>();
+    }
+
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool HasNativeComponent<T>() where T : INativeComponent
     {
         if (IsDestroyed)

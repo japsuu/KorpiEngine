@@ -78,9 +78,9 @@ public sealed class Shader : EngineObject
         }
     }
     
-    internal static readonly HashSet<string> GlobalKeywords = new();
-
-    public readonly List<Property> Properties;  //TODO: Use to detect properties in the shader and set them in the material.
+    internal static readonly HashSet<string> GlobalKeywords = [];
+#warning TODO: Use the 'Properties' to detect which shader uniforms are available, to skip setting them in Material if they are not used
+    public readonly List<Property> Properties;
     public readonly List<ShaderPass> Passes;
     public readonly ShaderPass? ShadowPass;
 
@@ -136,9 +136,10 @@ public sealed class Shader : EngineObject
                 }
                 catch (Exception e)
                 {
-                    Application.Logger.Error($"Shader compilation failed, using fallback shader. Reason: {e.Message}");
-                    
-                    AssetRef<Shader> fallback = Find("Defaults/Invalid.shader");
+                    const string fallbackShader = "Defaults/Invalid.shader";
+                    Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
+
+                    AssetRef<Shader> fallback = Find(fallbackShader);
                     List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!.Passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
                 }
@@ -148,7 +149,7 @@ public sealed class Shader : EngineObject
             CompiledShader.Pass compiledShadowPass;
             if (ShadowPass != null)
             {
-                List<ShaderSourceDescriptor> sources = new();
+                List<ShaderSourceDescriptor> sources = [];
                 foreach (ShaderSourceDescriptor d in ShadowPass.ShadersSources)
                 {
                     string source = d.Source;
@@ -170,7 +171,7 @@ public sealed class Shader : EngineObject
         }
         catch (Exception e)
         {
-            Application.Logger.Error("Failed to compile shader: " + Name + " Reason: " + e.Message);
+            Application.Logger.Error($"Failed to compile shader '{Name}'. Reason: {e.Message}");
             return new CompiledShader();
         }
     }
@@ -178,7 +179,7 @@ public sealed class Shader : EngineObject
 
     private List<ShaderSourceDescriptor> PrepareShaderPass(ShaderPass pass, string[] defines)
     {
-        List<ShaderSourceDescriptor> sources = new();
+        List<ShaderSourceDescriptor> sources = [];
         foreach (ShaderSourceDescriptor d in pass.ShadersSources)
         {
             string source = d.Source;
@@ -192,7 +193,6 @@ public sealed class Shader : EngineObject
 
     private void PrepareShaderSource(ref string source, IEnumerable<string> defines)
     {
-        //TODO: Handle includes.
         if (string.IsNullOrWhiteSpace(source))
             throw new Exception($"Failed to compile shader pass of {Name}. Shader source is null or empty.");
 

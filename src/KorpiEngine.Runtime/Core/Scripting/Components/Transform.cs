@@ -1,5 +1,5 @@
-﻿using KorpiEngine.Core.ECS;
-using OpenTK.Mathematics;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.ECS;
 
 namespace KorpiEngine.Core.Scripting.Components;
 
@@ -8,6 +8,24 @@ namespace KorpiEngine.Core.Scripting.Components;
 /// </summary>
 public class Transform : Component
 {
+    /// The global forward axis (0, 0, 1).
+    public static Vector3 ForwardAxis => TransformComponent.ForwardAxis;
+    
+    /// The global backward axis (0, 0, -1).
+    public static Vector3 BackwardAxis => TransformComponent.BackwardAxis;
+    
+    /// The global up axis (0, 1, 0).
+    public static Vector3 UpAxis => TransformComponent.UpAxis;
+    
+    /// The global down axis (0, -1, 0).
+    public static Vector3 DownAxis => TransformComponent.DownAxis;
+    
+    /// The global right axis (1, 0, 0).
+    public static Vector3 RightAxis => TransformComponent.RightAxis;
+    
+    /// The global left axis (-1, 0, 0).
+    public static Vector3 LeftAxis => TransformComponent.LeftAxis;
+    
     internal override Type NativeComponentType => typeof(TransformComponent);
 
 
@@ -22,7 +40,7 @@ public class Transform : Component
 
     /// <summary>
     /// Rotation of the transform as a quaternion.
-    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Quaternion Rotation
@@ -42,7 +60,7 @@ public class Transform : Component
 
     /// <summary>
     /// <see cref="Rotation"/> of the transform as Euler angles in degrees.
-    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Vector3 EulerAngles
@@ -52,12 +70,15 @@ public class Transform : Component
     }
     
     public Vector3 Forward => Entity.GetNativeComponent<TransformComponent>().Forward;
+    public Vector3 Backward => -Forward;
     
     public Vector3 Up => Entity.GetNativeComponent<TransformComponent>().Up;
+    public Vector3 Down => -Up;
     
     public Vector3 Right => Entity.GetNativeComponent<TransformComponent>().Right;
+    public Vector3 Left => -Right;
     
-    public Matrix4 Matrix
+    public Matrix4x4 Matrix
     {
         get => Entity.GetNativeComponent<TransformComponent>().Matrix;
         set => Entity.GetNativeComponent<TransformComponent>().Matrix = value;
@@ -77,8 +98,7 @@ public class Transform : Component
     
     public void Rotate(Vector3 eulerAngles, Space relativeTo = Space.Self)
     {
-        Vector3 radians = new Vector3(MathHelper.DegreesToRadians(eulerAngles.X), MathHelper.DegreesToRadians(eulerAngles.Y), MathHelper.DegreesToRadians(eulerAngles.Z));
-        Quaternion rotation = Quaternion.FromEulerAngles(radians);
+        Quaternion rotation = Quaternion.Euler(eulerAngles);
         Rotate(rotation, relativeTo);
     }
 
@@ -104,7 +124,7 @@ public class Transform : Component
     public Vector3 TransformDirection(Vector3 direction)
     {
         // Transform the direction from local space to world space
-        return Vector3.TransformVector(direction, Matrix);
+        return Vector3.TransformNormal(direction, Matrix);
     }
     
     
@@ -117,8 +137,8 @@ public class Transform : Component
     public Vector3 InverseTransformDirection(Vector3 direction)
     {
         // Transform the direction from world space to local space
-        Matrix4 inverseMatrix = Matrix4.Invert(Matrix);
-        return Vector3.TransformVector(direction, inverseMatrix);
+        Matrix4x4.Invert(Matrix, out Matrix4x4 inverseMatrix);
+        return Vector3.TransformNormal(direction, inverseMatrix);
     }
     
     
@@ -130,7 +150,7 @@ public class Transform : Component
     /// <returns>The transformed position.</returns>
     public Vector3 TransformPoint(Vector3 position)
     {
-        return Vector3.TransformPosition(position, Matrix);
+        return Vector3.Transform(position, Matrix);
     }
     
     
@@ -142,7 +162,7 @@ public class Transform : Component
     /// <returns>The transformed position.</returns>
     public Vector3 InverseTransformPoint(Vector3 position)
     {
-        Matrix4 inverseMatrix = Matrix4.Invert(Matrix);
-        return Vector3.TransformPosition(position, inverseMatrix);
+        Matrix4x4.Invert(Matrix, out Matrix4x4 inverseMatrix);
+        return Vector3.Transform(position, inverseMatrix);
     }
 }

@@ -2,10 +2,6 @@
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
-using OpenTK.Mathematics;
-using Vector2 = OpenTK.Mathematics.Vector2;
-using Vector3 = OpenTK.Mathematics.Vector3;
-using Vector4 = OpenTK.Mathematics.Vector4;
 
 namespace KorpiEngine.Core.API.Rendering.Materials;
 
@@ -19,6 +15,13 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 public sealed class Material : EngineObject
 {
     public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
+    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
+    public const string DEFAULT_NORMAL_TEX_PROPERTY = "u_NormalTex";
+    public const string DEFAULT_SURFACE_TEX_PROPERTY = "u_SurfaceTex";
+    public const string DEFAULT_EMISSION_TEX_PROPERTY = "u_EmissionTex";
+    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
+    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
+    
     public readonly AssetRef<Shader> Shader;
     public readonly MaterialPropertyBlock PropertyBlock;
 
@@ -120,7 +123,9 @@ public sealed class Material : EngineObject
             throw new Exception("Cannot compile without a valid shader assigned");
 
         string keywords = string.Join("-", allKeywords);
-        string key = Shader.Res!.InstanceID + "-" + keywords + "-" + Shaders.Shader.GlobalKeywords;
+#warning Fix Shaders.Shader.GlobalKeywords appending to key
+        string key = $"{Shader.Res!.InstanceID}-{keywords}-{Shaders.Shader.GlobalKeywords}";
+//        Application.Logger.Debug($"Compiling Shader Variant: {key}");
         if (PassVariants.TryGetValue(key, out Shader.CompiledShader s))
             return s;
 
@@ -158,8 +163,8 @@ public sealed class Material : EngineObject
     public void SetVector(string name, Vector4 value) => PropertyBlock.SetVector(name, value);
     public void SetFloat(string name, float value) => PropertyBlock.SetFloat(name, value);
     public void SetInt(string name, int value) => PropertyBlock.SetInt(name, value);
-    public void SetMatrix(string name, Matrix4 value) => PropertyBlock.SetMatrix(name, value);
-    public void SetMatrices(string name, IEnumerable<Matrix4> value) => PropertyBlock.SetMatrices(name, value);
+    public void SetMatrix(string name, Matrix4x4 value) => PropertyBlock.SetMatrix(name, value);
+    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value) => PropertyBlock.SetMatrices(name, value);
     public void SetTexture(string name, Texture2D value) => PropertyBlock.SetTexture(name, value);
     public void SetTexture(string name, AssetRef<Texture2D> value) => PropertyBlock.SetTexture(name, value);
 

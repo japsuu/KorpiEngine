@@ -19,8 +19,7 @@ internal sealed class KorpiWindow : GameWindow
         SystemInfo.ProcessorCount = Environment.ProcessorCount;
         SystemInfo.MainThreadId = Environment.CurrentManagedThreadId;
         WindowInfo.Initialize(this);
-        InputManagement.Cursor.Initialize(this);
-        InputManagement.Cursor.SetGrabbed(false);
+        Core.API.InputManagement.Cursor.Initialize(this);
 
         Graphics.Initialize<GLGraphicsDriver>(this);
         
@@ -42,12 +41,13 @@ internal sealed class KorpiWindow : GameWindow
         if (mainCamera == null)
         {
             Graphics.SkipFrame();
-            return;
         }
-        
-        Graphics.StartFrame(mainCamera);
-        base.OnRenderFrame(args);
-        Graphics.EndFrame();
+        else
+        {
+            Graphics.StartFrame(mainCamera);
+            base.OnRenderFrame(args);
+            Graphics.EndFrame();
+        }
         
         SwapBuffers();
     }

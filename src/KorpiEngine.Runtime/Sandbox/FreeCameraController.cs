@@ -1,8 +1,7 @@
 ﻿using KorpiEngine.Core;
-using KorpiEngine.Core.InputManagement;
+using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Scripting;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Sandbox;
 
@@ -10,100 +9,90 @@ internal class FreeCameraController : Behaviour
 {
     private const float LOOK_SENSITIVITY = 0.2f;
     
-    private float _cameraFlySpeed = 1.5f;
+    private const double SLOW_FLY_SPEED = 1.5f;
+    private const double FAST_FLY_SPEED = 3.0f;
+    
+    private bool isCursorLocked = false;
 
 
     protected override void OnUpdate()
     {
+        UpdateCursorLock();
+        
         UpdatePosition();
         
-        UpdateRotation();
+        if (isCursorLocked)
+            UpdateRotation();
+    }
 
-        if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
-            UpdateFlySpeed();
+
+    private void UpdateCursorLock()
+    {
+        if (Input.GetMouseDown(MouseButton.Right))
+        {
+            StartLooking();
+        }
+        else if (Input.GetMouseUp(MouseButton.Right))
+        {
+            StopLooking();
+        }
     }
 
 
     private void UpdatePosition()
     {
-        if (Input.KeyboardState.IsKeyDown(Keys.W))
-            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Forward
+        double flySpeed = Input.GetKey(KeyCode.LeftShift) ? FAST_FLY_SPEED : SLOW_FLY_SPEED;
+        
+        if (Input.GetKey(KeyCode.W)) // Forward
+            Transform.Position += Transform.Forward * flySpeed * Time.DeltaTime;
 
-        if (Input.KeyboardState.IsKeyDown(Keys.S))
-            Transform.Translate(Transform.Forward * _cameraFlySpeed * Time.DeltaTime); // Backward
+        if (Input.GetKey(KeyCode.S)) // Backward
+            Transform.Position += Transform.Backward * flySpeed * Time.DeltaTime;
 
-        if (Input.KeyboardState.IsKeyDown(Keys.A))
-            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Left
+        if (Input.GetKey(KeyCode.A)) // Left
+            Transform.Position += Transform.Left * flySpeed * Time.DeltaTime;
 
-        if (Input.KeyboardState.IsKeyDown(Keys.D))
-            Transform.Translate(Transform.Right * _cameraFlySpeed * Time.DeltaTime); // Right
+        if (Input.GetKey(KeyCode.D)) // Right
+            Transform.Position += Transform.Right * flySpeed * Time.DeltaTime;
 
-        if (Input.KeyboardState.IsKeyDown(Keys.Space))
-            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Up
+        if (Input.GetKey(KeyCode.E)) // Up
+            Transform.Position += Transform.Up * flySpeed * Time.DeltaTime;
 
-        if (Input.KeyboardState.IsKeyDown(Keys.LeftShift))
-            Transform.Translate(Transform.Up * _cameraFlySpeed * Time.DeltaTime); // Down
-    }
-
-
-    private void UpdateFlySpeed()
-    {
-        switch (_cameraFlySpeed)
-        {
-            // Changing the fly speed should be accurate at the lower end, but fast when at the upper end.
-            case <= 1f:
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 0.05f;
-                break;
-            case <= 5f:
-            {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 0.5f;
-
-                if (_cameraFlySpeed < 1f)
-                {
-                    _cameraFlySpeed = 0.95f;
-                }
-
-                break;
-            }
-            case <= 10f:
-            {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 1f;
-
-                if (_cameraFlySpeed < 5f)
-                {
-                    _cameraFlySpeed = 4.5f;
-                }
-
-                break;
-            }
-            default:
-            {
-                _cameraFlySpeed += Input.MouseState.ScrollDelta.Y * 5f;
-
-                if (_cameraFlySpeed < 10f)
-                {
-                    _cameraFlySpeed = 9f;
-                }
-
-                break;
-            }
-        }
-
-        _cameraFlySpeed = MathHelper.Clamp(_cameraFlySpeed, 0.05f, 50f);
+        if (Input.GetKey(KeyCode.Q)) // Down
+            Transform.Position += Transform.Down * flySpeed * Time.DeltaTime;
     }
 
 
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        float deltaX = Input.MouseState.X - Input.MouseState.PreviousX;
-        float deltaY = Input.MouseState.Y - Input.MouseState.PreviousY;
-
-        float yaw = deltaX * LOOK_SENSITIVITY;
-        float pitch = deltaY * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
+        double yaw = Input.MouseDelta.X * LOOK_SENSITIVITY;
+        double pitch = Input.MouseDelta.Y * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
         
         Vector3 eulers = new Vector3(pitch, yaw, 0f);
         
         Transform.Rotate(eulers);
+    }
+
+
+    protected override void OnDisable()
+    {
+        StopLooking();
+    }
+
+
+    private void StartLooking()
+    {
+        isCursorLocked = true;
+        Cursor.LockState = CursorLockState.Locked;
+    }
+
+    /// <summary>
+    /// Disable free looking.
+    /// </summary>
+    private void StopLooking()
+    {
+        isCursorLocked = false;
+        Cursor.LockState = CursorLockState.None;
     }
 }

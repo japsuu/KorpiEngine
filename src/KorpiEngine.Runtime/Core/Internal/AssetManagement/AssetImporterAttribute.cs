@@ -27,6 +27,7 @@ public class AssetImporterAttribute : Attribute
     [OnAssemblyLoad]
     public static void GenerateLookUp()
     {
+        Application.Logger.Info("Generating Asset Importer Lookup Table");
         ImportersByExtension.Clear();
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
         foreach (Type type in assembly.GetTypes())

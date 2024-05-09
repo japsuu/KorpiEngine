@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
@@ -21,6 +21,7 @@
         <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
         <IncludeSource>false</IncludeSource>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,18 +29,18 @@
       <PackageReference Include="Arch.System" Version="1.0.5" />
       <PackageReference Include="ImGui.NET" Version="1.89.9.3" />
       <PackageReference Include="log4net" Version="2.0.15" />
+      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0" />
       <PackageReference Include="OpenTK" Version="4.8.2" />
       <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="assets\**">
+      <Content Include="Assets\**">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Internal\AssetManagement\Importers\" />
+      <Content Include="Defaults\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

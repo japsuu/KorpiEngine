@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -21,6 +21,7 @@
         <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
         <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
         <IncludeSource>false</IncludeSource>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
