@@ -8,6 +8,24 @@ namespace KorpiEngine.Core.Scripting.Components;
 /// </summary>
 public class Transform : Component
 {
+    /// The global forward axis (0, 0, 1).
+    public static Vector3 ForwardAxis => TransformComponent.ForwardAxis;
+    
+    /// The global backward axis (0, 0, -1).
+    public static Vector3 BackwardAxis => TransformComponent.BackwardAxis;
+    
+    /// The global up axis (0, 1, 0).
+    public static Vector3 UpAxis => TransformComponent.UpAxis;
+    
+    /// The global down axis (0, -1, 0).
+    public static Vector3 DownAxis => TransformComponent.DownAxis;
+    
+    /// The global right axis (1, 0, 0).
+    public static Vector3 RightAxis => TransformComponent.RightAxis;
+    
+    /// The global left axis (-1, 0, 0).
+    public static Vector3 LeftAxis => TransformComponent.LeftAxis;
+    
     internal override Type NativeComponentType => typeof(TransformComponent);
 
 
