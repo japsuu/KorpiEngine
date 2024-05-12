@@ -259,18 +259,20 @@ public sealed class Texture2D : Texture, ISerializable
         TextureMag magFilter = (TextureMag)value["MagFilter"].IntValue;
         TextureWrap wrap = (TextureWrap)value["Wrap"].IntValue;
 
-        Type[] param = {
+        Type[] param =
+        [
             typeof(uint),
             typeof(uint),
             typeof(bool),
             typeof(TextureImageFormat)
-        };
-        object[] values = {
+        ];
+        object[] values =
+        [
             Width,
             Height,
             false,
             imageFormat
-        };
+        ];
         typeof(Texture2D).GetConstructor(param)!.Invoke(this, values);
 
         Memory<byte> memory = value["Data"].ByteArrayValue;

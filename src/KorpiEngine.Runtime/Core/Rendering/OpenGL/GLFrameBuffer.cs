@@ -6,7 +6,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 internal sealed class GLFrameBuffer : GraphicsFrameBuffer
 {
     private static readonly DrawBuffersEnum[] Buffers =
-    {
+    [
         DrawBuffersEnum.ColorAttachment0,
         DrawBuffersEnum.ColorAttachment1,
         DrawBuffersEnum.ColorAttachment2,
@@ -22,8 +22,8 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
         DrawBuffersEnum.ColorAttachment12,
         DrawBuffersEnum.ColorAttachment13,
         DrawBuffersEnum.ColorAttachment14,
-        DrawBuffersEnum.ColorAttachment15,
-    };
+        DrawBuffersEnum.ColorAttachment15
+    ];
 
 
     public GLFrameBuffer(IList<Attachment> attachments) : base(GL.GenFramebuffer())

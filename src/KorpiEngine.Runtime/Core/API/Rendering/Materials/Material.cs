@@ -27,7 +27,7 @@ public sealed class Material : EngineObject
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
-    private readonly HashSet<string> _keywords = new();
+    private readonly HashSet<string> _keywords = [];
 
     public int PassCount => Shader.IsAvailable ? GetVariant(_keywords.ToArray()).Passes.Length : 0;
 

@@ -294,8 +294,8 @@ public struct Bounds : IEquatable<Bounds>
 
     public Vector3[] GetCorners()
     {
-        return new Vector3[]
-        {
+        return
+        [
             new Vector3(Min.X, Max.Y, Max.Z),
             new Vector3(Max.X, Max.Y, Max.Z),
             new Vector3(Max.X, Min.Y, Max.Z),
@@ -304,7 +304,7 @@ public struct Bounds : IEquatable<Bounds>
             new Vector3(Max.X, Max.Y, Min.Z),
             new Vector3(Max.X, Min.Y, Min.Z),
             new Vector3(Min.X, Min.Y, Min.Z)
-        };
+        ];
     }
 
 

@@ -51,7 +51,7 @@ public static class RuntimeUtils
     public static IEnumerable<FieldInfo> GetAllFields(Type? t)
     {
         if (t == null)
-            return Enumerable.Empty<FieldInfo>();
+            return [];
 
         BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
                              BindingFlags.Instance | BindingFlags.DeclaredOnly;

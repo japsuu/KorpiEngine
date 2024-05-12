@@ -21,13 +21,13 @@ public class PriorityWorkQueue<T>
         _workQueueNormal = new BlockingCollection<T>(new ConcurrentQueue<T>());
         _workQueueHigh = new BlockingCollection<T>(new ConcurrentQueue<T>());
         _workQueueCritical = new BlockingCollection<T>(new ConcurrentQueue<T>());
-        _workQueues = new[]
-        {
+        _workQueues =
+        [
             _workQueueCritical,
             _workQueueHigh,
             _workQueueNormal,
             _workQueueLow
-        };
+        ];
     }
 
 

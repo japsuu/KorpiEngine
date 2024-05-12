@@ -698,30 +698,30 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
             case PrimitiveType.Quad:
             {
                 System.Numerics.Vector3[] positions =
-                {
+                [
                     new(-0.5f, -0.5f, 0),
                     new(0.5f, -0.5f, 0),
                     new(0.5f, 0.5f, 0),
                     new(-0.5f, 0.5f, 0)
-                };
+                ];
 
                 System.Numerics.Vector2[] uvs =
-                {
+                [
                     new(0, 0),
                     new(1, 0),
                     new(1, 1),
                     new(0, 1)
-                };
+                ];
 
                 int[] indices =
-                {
+                [
                     0,
                     1,
                     2,
                     0,
                     2,
                     3
-                };
+                ];
 
                 Mesh mesh = new();
                 mesh.SetPositions(positions);
@@ -737,9 +737,9 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
                 const float radius = 0.5f;
                 const int rings = 8;
                 const int slices = 16;
-                List<System.Numerics.Vector3> vertices = new();
-                List<System.Numerics.Vector2> uvs = new();
-                List<int> indices = new();
+                List<System.Numerics.Vector3> vertices = [];
+                List<System.Numerics.Vector2> uvs = [];
+                List<int> indices = [];
 
                 for (int i = 0; i <= rings; i++)
                 {
@@ -890,10 +890,8 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     /// <returns>The default layout based on the enabled vertex attributes.</returns>
     private MeshVertexLayout GetVertexLayout()
     {
-        List<MeshVertexLayout.VertexAttributeDescriptor> attributes = new()
-        {
-            new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeType.Float, 3)
-        };
+        List<MeshVertexLayout.VertexAttributeDescriptor> attributes =
+            [new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeType.Float, 3)];
 
         if (HasUV0)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeType.Float, 2));
