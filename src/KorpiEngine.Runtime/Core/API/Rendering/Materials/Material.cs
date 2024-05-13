@@ -157,16 +157,77 @@ public sealed class Material : EngineObject
 
     #region PROPERTY SETTERS
 
-    public void SetColor(string name, Color value) => PropertyBlock.SetColor(name, value);
-    public void SetVector(string name, Vector2 value) => PropertyBlock.SetVector(name, value);
-    public void SetVector(string name, Vector3 value) => PropertyBlock.SetVector(name, value);
-    public void SetVector(string name, Vector4 value) => PropertyBlock.SetVector(name, value);
-    public void SetFloat(string name, float value) => PropertyBlock.SetFloat(name, value);
-    public void SetInt(string name, int value) => PropertyBlock.SetInt(name, value);
-    public void SetMatrix(string name, Matrix4x4 value) => PropertyBlock.SetMatrix(name, value);
-    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value) => PropertyBlock.SetMatrices(name, value);
-    public void SetTexture(string name, Texture2D value) => PropertyBlock.SetTexture(name, value);
-    public void SetTexture(string name, AssetRef<Texture2D> value) => PropertyBlock.SetTexture(name, value);
+    public void SetColor(string name, Color value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetColor(name, value);
+    }
+
+
+    public void SetVector(string name, Vector2 value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetVector(name, value);
+    }
+
+
+    public void SetVector(string name, Vector3 value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetVector(name, value);
+    }
+
+
+    public void SetVector(string name, Vector4 value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetVector(name, value);
+    }
+
+
+    public void SetFloat(string name, float value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetFloat(name, value);
+    }
+
+
+    public void SetInt(string name, int value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetInt(name, value);
+    }
+
+
+    public void SetMatrix(string name, Matrix4x4 value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetMatrix(name, value);
+    }
+
+
+    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetMatrices(name, value);
+    }
+
+
+    public void SetTexture(string name, Texture2D value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetTexture(name, value);
+    }
+
+
+    public void SetTexture(string name, AssetRef<Texture2D> value)
+    {
+        if (HasVariable(name))
+            PropertyBlock.SetTexture(name, value);
+    }
 
     #endregion
+    
+    
+    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Res!.HasVariable(name);
 }

@@ -79,18 +79,17 @@ public sealed class Shader : EngineObject
     }
     
     internal static readonly HashSet<string> GlobalKeywords = [];
-#warning TODO: Use the 'Properties' to detect which shader uniforms are available, to skip setting them in Material if they are not used
-    public readonly List<Property> Properties;
-    public readonly List<ShaderPass> Passes;
-    public readonly ShaderPass? ShadowPass;
+    private readonly List<Property> _properties;
+    private readonly List<ShaderPass> _passes;
+    private readonly ShaderPass? _shadowPass;
 
 
     internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null)
     {
         Name = name;
-        Properties = properties;
-        Passes = passes;
-        ShadowPass = shadowPass;
+        _properties = properties;
+        _passes = passes;
+        _shadowPass = shadowPass;
     }
 
 
@@ -98,6 +97,9 @@ public sealed class Shader : EngineObject
     {
         return AssetDatabase.LoadAsset<Shader>(path) ?? throw new InvalidOperationException($"Failed to load shader: {path}");
     }
+    
+    
+    public bool HasVariable(string name) => _properties.Any(p => p.Name == name);
 
 
     #region GLOBAL KEYWORDS
@@ -126,13 +128,13 @@ public sealed class Shader : EngineObject
         try
         {
             // Compile the normal passes
-            CompiledShader.Pass[] compiledPasses = new CompiledShader.Pass[Passes.Count];
-            for (int i = 0; i < Passes.Count; i++)
+            CompiledShader.Pass[] compiledPasses = new CompiledShader.Pass[_passes.Count];
+            for (int i = 0; i < _passes.Count; i++)
             {
                 try
                 {
-                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(Passes[i], defines);
-                    compiledPasses[i] = new CompiledShader.Pass(Passes[i].State, Graphics.Driver.CompileProgram(sources));
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(_passes[i], defines);
+                    compiledPasses[i] = new CompiledShader.Pass(_passes[i].State, Graphics.Driver.CompileProgram(sources));
                 }
                 catch (Exception e)
                 {
@@ -140,28 +142,28 @@ public sealed class Shader : EngineObject
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
                     AssetRef<Shader> fallback = Find(fallbackShader);
-                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!.Passes[0], defines);
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!._passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
                 }
             }
 
             // Compile the shadow pass
             CompiledShader.Pass compiledShadowPass;
-            if (ShadowPass != null)
+            if (_shadowPass != null)
             {
                 List<ShaderSourceDescriptor> sources = [];
-                foreach (ShaderSourceDescriptor d in ShadowPass.ShadersSources)
+                foreach (ShaderSourceDescriptor d in _shadowPass.ShadersSources)
                 {
                     string source = d.Source;
                     PrepareShaderSource(ref source, defines);
                     sources.Add(new ShaderSourceDescriptor(d.Type, source));
                 }
-                compiledShadowPass = new CompiledShader.Pass(ShadowPass.State, Graphics.Driver.CompileProgram(sources));
+                compiledShadowPass = new CompiledShader.Pass(_shadowPass.State, Graphics.Driver.CompileProgram(sources));
             }
             else
             {
                 AssetRef<Shader> depth = Find("Defaults/Depth.shader");
-                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!.Passes[0], defines);
+                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
             }
 
