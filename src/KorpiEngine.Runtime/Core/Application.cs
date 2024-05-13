@@ -19,9 +19,9 @@ public static class Application
 {
     private static ImGuiController imGuiController = null!;
     private static double fixedFrameAccumulator;
-    private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
     
+    internal static KorpiWindow Window = null!;
     internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
@@ -47,22 +47,22 @@ public static class Application
     {
         InitializeLog4Net();
         
-        window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        imGuiController = new ImGuiController(window);
+        Window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
+        imGuiController = new ImGuiController(Window);
         initialScene = scene;
         
-        window.Load += OnLoad;
-        window.UpdateFrame += OnUpdateFrame;
-        window.RenderFrame += OnRenderFrame;
-        window.Unload += OnUnload;
+        Window.Load += OnLoad;
+        Window.UpdateFrame += OnUpdateFrame;
+        Window.RenderFrame += OnRenderFrame;
+        Window.Unload += OnUnload;
         
-        window.Run();
+        Window.Run();
     }
     
     
     public static void Quit()
     {
-        window.Close();
+        Window.Close();
     }
 
 
@@ -72,8 +72,8 @@ public static class Application
         GlobalJobPool.Initialize();
         
         // Queue window visibility after all internal resources are loaded.
-        window.CenterWindow();
-        window.IsVisible = true;
+        Window.CenterWindow();
+        Window.IsVisible = true;
         
         AssemblyManager.Initialize();
         OnAssemblyLoadAttribute.Invoke();
@@ -145,7 +145,7 @@ public static class Application
     private static void InternalUpdate(double deltaTime, double fixedAlpha)
     {
         Time.Update(deltaTime, fixedAlpha);
-        Input.Update(window.KeyboardState, window.MouseState);
+        Input.Update(Window.KeyboardState, Window.MouseState);
         
         ImGuiWindowManager.Update();
         imGuiController.Update();
@@ -173,6 +173,6 @@ public static class Application
         
         ImGuiWindowManager.Dispose();
         imGuiController.Dispose();
-        window.Dispose();
+        Window.Dispose();
     }
 }

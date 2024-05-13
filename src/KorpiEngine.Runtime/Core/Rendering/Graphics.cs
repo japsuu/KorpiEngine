@@ -12,7 +12,8 @@ public static class Graphics
 {
     private static KorpiWindow Window { get; set; } = null!;
     internal static GraphicsDriver Driver = null!;
-    
+    internal static Vector2i FrameBufferSize;
+
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
     public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
     public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
