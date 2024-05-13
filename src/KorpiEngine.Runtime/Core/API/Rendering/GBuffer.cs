@@ -5,6 +5,9 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering;
 
+// Taken and modified from Prowl's GBuffer.cs
+// https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/GBuffer.cs.
+
 public class GBuffer
 {
     internal readonly RenderTexture Buffer;

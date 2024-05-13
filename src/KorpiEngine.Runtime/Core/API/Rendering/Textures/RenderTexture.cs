@@ -6,26 +6,21 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Textures;
 
+// Taken and modified from Prowl's RenderTexture.cs
+// https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/RenderTexture.cs.
+
 public sealed class RenderTexture : EngineObject
 {
     internal GraphicsFrameBuffer? FrameBuffer { get; private init; }
-    public Texture2D? MainTexture => InternalTextures?[0];
-    public Texture2D[]? InternalTextures { get; private set; }
+    public Texture2D MainTexture => InternalTextures[0];
+    public Texture2D[] InternalTextures { get; private set; }
     public Texture2D? InternalDepth { get; private set; }
 
     public int Width { get; private set; }
     public int Height { get; private set; }
 
 
-    public RenderTexture() : base("RenderTexture")
-    {
-        Width = 0;
-        Height = 0;
-    }
-
-
-    public RenderTexture(int width, int height, int numTextures = 1, bool hasDepthAttachment = true, TextureImageFormat[]? formats = null) : base(
-        "RenderTexture")
+    public RenderTexture(int width, int height, int numTextures = 1, bool hasDepthAttachment = true, TextureImageFormat[]? formats = null) : base("RenderTexture")
     {
         TextureImageFormat[] textureFormats;
         if (numTextures < 0 || numTextures > SystemInfo.MaxFramebufferColorAttachments)
@@ -94,9 +89,8 @@ public sealed class RenderTexture : EngineObject
 
     protected override void OnDispose()
     {
-        if (InternalTextures != null)
-            foreach (Texture2D texture in InternalTextures)
-                texture.Dispose();
+        foreach (Texture2D texture in InternalTextures)
+            texture.Dispose();
 
         FrameBuffer?.Dispose();
     }
