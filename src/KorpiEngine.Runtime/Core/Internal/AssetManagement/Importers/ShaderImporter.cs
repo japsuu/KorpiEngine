@@ -104,6 +104,7 @@ internal class ShaderImporter : AssetImporter
                 Type = ParsePropertyType(match.Groups[3].Value)
             };
             propertiesList.Add(property);
+            Application.Logger.Debug($"Discovered property: {property.Name} ({property.DisplayName}) of type {property.Type}");
         }
 
         return propertiesList;

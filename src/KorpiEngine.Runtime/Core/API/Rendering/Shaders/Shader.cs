@@ -32,7 +32,8 @@ public sealed class Shader : EngineObject
             INT2,
             INT3,
             INT4,
-            TEXTURE_2D
+            TEXTURE_2D,
+            MATRIX_4X4
         }
     }
 

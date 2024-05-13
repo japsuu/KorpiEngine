@@ -2,6 +2,7 @@
 
 Properties
 {
+	u_MatMVP("Model View Projection Matrix", MATRIX_4X4)
 }
 
 Pass 0

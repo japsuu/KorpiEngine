@@ -2,6 +2,16 @@
 
 Properties
 {
+	u_MatModel("Model Matrix", MATRIX_4X4)
+	u_MatView("View Matrix", MATRIX_4X4)
+	u_MatMVP("Model View Projection Matrix", MATRIX_4X4)
+	u_MainTex("Main Texture", TEXTURE_2D)
+	u_NormalTex("Normal Texture", TEXTURE_2D)
+	u_SurfaceTex("Surface Texture", TEXTURE_2D)
+	u_EmissionTex("Emission Texture", TEXTURE_2D)
+	u_EmissiveColor("Emissive Color", COLOR)
+	u_MainColor("Main Color", COLOR)
+	u_EmissionIntensity("Emission Intensity", FLOAT)
 }
 
 Pass 0
