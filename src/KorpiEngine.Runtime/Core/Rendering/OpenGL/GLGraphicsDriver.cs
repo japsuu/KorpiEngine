@@ -267,6 +267,20 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, output);
     }
 
+
+    public override T ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format)
+    {
+        GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
+        GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
+
+        T result = default;
+        GCHandle handle = GCHandle.Alloc(result, GCHandleType.Pinned);
+        GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, handle.AddrOfPinnedObject());
+        handle.Free();
+
+        return result;
+    }
+
     #endregion
 
 
