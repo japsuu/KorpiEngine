@@ -123,15 +123,13 @@ public sealed class Material : EngineObject
             throw new Exception("Cannot compile without a valid shader assigned");
 
         string keywords = string.Join("-", allKeywords);
-#warning Fix Shaders.Shader.GlobalKeywords appending to key
-        string key = $"{Shader.Res!.InstanceID}-{keywords}-{Shaders.Shader.GlobalKeywords}";
+        string key = $"{Shader.Res!.InstanceID}-{keywords}-{Shaders.Shader.GlobalKeywordsHash}";
 //        Application.Logger.Debug($"Compiling Shader Variant: {key}");
         if (PassVariants.TryGetValue(key, out Shader.CompiledShader s))
             return s;
 
         // Add each global together making sure to not add duplicates
-        string[] globals = Shaders.Shader.GlobalKeywords.ToArray();
-        foreach (string globalKeyword in globals)
+        foreach (string globalKeyword in Shaders.Shader.GetGlobalKeywords())
         {
             if (string.IsNullOrWhiteSpace(globalKeyword))
                 continue;

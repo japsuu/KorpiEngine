@@ -77,8 +77,9 @@ public sealed class Shader : EngineObject
             ShadowPass = shadowPass;
         }
     }
-    
-    internal static readonly HashSet<string> GlobalKeywords = [];
+
+    internal static int GlobalKeywordsHash;
+    private static readonly HashSet<string> GlobalKeywords = [];
     private readonly List<Property> _properties;
     private readonly List<ShaderPass> _passes;
     private readonly ShaderPass? _shadowPass;
@@ -103,11 +104,15 @@ public sealed class Shader : EngineObject
 
 
     #region GLOBAL KEYWORDS
+    
+    public static IEnumerable<string> GetGlobalKeywords() => GlobalKeywords;
+    
 
     public static void EnableKeyword(string keyword)
     {
         keyword = keyword.ToLower().Replace(" ", "").Replace(";", "");
         GlobalKeywords.Add(keyword);
+        UpdateGlobalKeywordsHash();
     }
 
 
@@ -115,10 +120,28 @@ public sealed class Shader : EngineObject
     {
         keyword = keyword.ToUpper().Replace(" ", "").Replace(";", "");
         GlobalKeywords.Remove(keyword);
+        UpdateGlobalKeywordsHash();
     }
 
 
     public static bool IsKeywordEnabled(string keyword) => GlobalKeywords.Contains(keyword.ToLower().Replace(" ", "").Replace(";", ""));
+    
+    
+    private static void UpdateGlobalKeywordsHash()
+    {
+        GlobalKeywordsHash = GetHashCode(GlobalKeywords);
+    }
+    
+    
+    private static int GetHashCode<T>(HashSet<T> hashSet)
+    {
+        int hashCode = 0;
+        foreach (T item in hashSet)
+        {
+            hashCode ^= HashCode.Combine(hashSet.Comparer.GetHashCode(item!));
+        }
+        return hashCode;
+    }
 
     #endregion
 
