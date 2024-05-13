@@ -1,7 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
@@ -11,6 +14,7 @@ namespace KorpiEngine.Core.Rendering;
 public static class Graphics
 {
     private static KorpiWindow Window { get; set; } = null!;
+    private static Material? defaultMat;
     internal static GraphicsDriver Driver = null!;
     internal static Vector2i FrameBufferSize;
 
@@ -58,6 +62,8 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame(Camera renderingCamera)
     {
+        RenderTexture.UpdatePool();
+
         Camera.RenderingCamera = renderingCamera;
         SetMatrices(renderingCamera);
 
@@ -65,7 +71,6 @@ public static class Graphics
             return;
         
         renderingCamera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-        
         Clear(r, g, b, a);
 
         Driver.SetState(new RasterizerState(), true);
@@ -157,6 +162,54 @@ public static class Graphics
     {
         mat.SetPass(pass);
         DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
+    }
+    
+    
+    /// <summary>
+    /// Draws material with a FullScreen Quad onto a RenderTexture
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Material mat, int pass = 0, bool clear = true)
+    {
+        renderTexture?.Begin();
+        if (clear)
+            Clear(0, 0, 0, 0);
+        mat.SetPass(pass);
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
+        renderTexture?.End();
+
+    }
+
+    /// <summary>
+    /// Draws texture into a RenderTexture Additively
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Texture2D texture, bool clear = true)
+    {
+        defaultMat ??= new Material(Shader.Find("Defaults/Basic.shader"));
+        defaultMat.SetTexture("texture0", texture);
+        defaultMat.SetPass(0);
+
+        renderTexture?.Begin();
+        if (clear) Clear(0, 0, 0, 0);
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, defaultMat);
+        renderTexture?.End();
+    }
+
+    
+    internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
+    {
+        Debug.Assert(source.FrameBuffer != null, "source.FrameBuffer != null");
+        Driver.BindFramebuffer(source.FrameBuffer, FBOTarget.ReadFramebuffer);
+        if(destination != null)
+        {
+            Debug.Assert(destination.FrameBuffer != null, "destination.FrameBuffer != null");
+            Driver.BindFramebuffer(destination.FrameBuffer, FBOTarget.DrawFramebuffer);
+        }
+
+        Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
+            0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
+            ClearFlags.Depth, BlitFilter.Nearest
+        );
+        Driver.UnbindFramebuffer();
     }
 
 
