@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.Rendering;
 
 namespace KorpiEngine.Core.ECS;
 
