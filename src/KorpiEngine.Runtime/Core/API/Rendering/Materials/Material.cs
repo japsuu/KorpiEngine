@@ -1,6 +1,7 @@
 ﻿using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Rendering;
 
 namespace KorpiEngine.Core.API.Rendering.Materials;
@@ -27,9 +28,13 @@ public sealed class Material : EngineObject
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
-    private readonly HashSet<string> _keywords = [];
+    private readonly SortedSet<string> _materialKeywords = [];
+    private int _lastHash = -1;
+    private int _lastGlobalKeywordsVersion = -1;
+    private string _materialKeywordsString = "";
+    private string _allKeywordsString = "";
 
-    public int PassCount => Shader.IsAvailable ? GetVariant(_keywords.ToArray()).Passes.Length : 0;
+    public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
     public Material(AssetRef<Shader> shader)
@@ -57,7 +62,8 @@ public sealed class Material : EngineObject
         string? key = keyword?.ToUpper().Replace(" ", "").Replace(";", "");
         if (string.IsNullOrWhiteSpace(key))
             return;
-        _keywords.Add(key);
+        
+        _materialKeywords.Add(key);
     }
 
 
@@ -66,11 +72,12 @@ public sealed class Material : EngineObject
         string? key = keyword?.ToUpper().Replace(" ", "").Replace(";", "");
         if (string.IsNullOrWhiteSpace(key))
             return;
-        _keywords.Remove(key);
+        
+        _materialKeywords.Remove(key);
     }
 
 
-    public bool IsKeywordEnabled(string keyword) => _keywords.Contains(keyword.ToUpper().Replace(" ", "").Replace(";", ""));
+    public bool IsKeywordEnabled(string keyword) => _materialKeywords.Contains(keyword.ToUpper().Replace(" ", "").Replace(";", ""));
 
     #endregion
 
@@ -82,7 +89,7 @@ public sealed class Material : EngineObject
         if (!Shader.IsAvailable)
             return;
         
-        Shader.CompiledShader shader = GetVariant(_keywords.ToArray());
+        Shader.CompiledShader shader = GetCompiledVariant();
 
         // Make sure we have a valid pass
         if (pass < 0 || pass >= shader.Passes.Length)
@@ -97,7 +104,7 @@ public sealed class Material : EngineObject
         if (!Shader.IsAvailable)
             return;
         
-        Shader.CompiledShader shader = GetVariant(_keywords.ToArray());
+        Shader.CompiledShader shader = GetCompiledVariant();
         InternalSetPass(shader.ShadowPass, applyProperties);
     }
 
@@ -117,36 +124,49 @@ public sealed class Material : EngineObject
 
     #region VARIANT COMPILATION
 
-    private Shader.CompiledShader GetVariant(string[] allKeywords)
+    private Shader.CompiledShader GetCompiledVariant()
     {
         if (Shader.IsAvailable == false)
             throw new Exception("Cannot compile without a valid shader assigned");
+        
+        int currentHash = Hashing.GetAdditiveHashCode(_materialKeywords);
 
-        string keywords = string.Join("-", allKeywords);
-        string key = $"{Shader.Res!.InstanceID}-{keywords}-{Shaders.Shader.GlobalKeywordsHash}";
-//        Application.Logger.Debug($"Compiling Shader Variant: {key}");
-        if (PassVariants.TryGetValue(key, out Shader.CompiledShader s))
-            return s;
-
-        // Add each global together making sure to not add duplicates
-        foreach (string globalKeyword in Shaders.Shader.GetGlobalKeywords())
+        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Shaders.Shader.GlobalKeywordsVersion;
+        bool materialKeywordsChanged = currentHash != _lastHash;
+        if (globalKeywordsChanged || materialKeywordsChanged)
         {
-            if (string.IsNullOrWhiteSpace(globalKeyword))
-                continue;
-            
-            if (allKeywords.Contains(globalKeyword, StringComparer.OrdinalIgnoreCase))
-                continue;
-            
-            allKeywords = allKeywords.Append(globalKeyword).ToArray();
+            _materialKeywordsString = string.Join("-", _materialKeywords);
+            _allKeywordsString = $"{Shader.Res!.InstanceID}-{_materialKeywordsString}-{Shaders.Shader.GlobalKeywordsString}";
+            _lastGlobalKeywordsVersion = Shaders.Shader.GlobalKeywordsVersion;
+            _lastHash = currentHash;
         }
 
-        // Remove empty keywords
-        allKeywords = allKeywords.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+        if (PassVariants.TryGetValue(_allKeywordsString, out Shader.CompiledShader s))
+            return s;
+
+        // Create a collection of all keywords
+        List<string> allKeywords = [];
+        
+        // Add all global keywords
+        allKeywords.AddRange(Shaders.Shader.GetGlobalKeywords());
+        
+        // Add all material keywords
+        foreach (string keyword in _materialKeywords)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                continue;
+            
+            if (allKeywords.Contains(keyword))
+                continue;
+            
+            allKeywords.Add(keyword);
+        }
 
         // Compile Each Pass
-        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords);
+        Application.Logger.Debug($"Compiling Shader Variant: {_allKeywordsString}");
+        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords.ToArray());
 
-        PassVariants[key] = compiledPasses;
+        PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
     }
 

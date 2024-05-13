@@ -1,5 +1,6 @@
 ﻿using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
 
@@ -79,8 +80,9 @@ public sealed class Shader : EngineObject
         }
     }
 
-    internal static int GlobalKeywordsHash;
-    private static readonly HashSet<string> GlobalKeywords = [];
+    internal static int GlobalKeywordsVersion;
+    internal static string GlobalKeywordsString = string.Empty;
+    private static readonly SortedSet<string> GlobalKeywords = [];
     private readonly List<Property> _properties;
     private readonly List<ShaderPass> _passes;
     private readonly ShaderPass? _shadowPass;
@@ -101,7 +103,16 @@ public sealed class Shader : EngineObject
     }
     
     
-    public bool HasVariable(string name) => _properties.Any(p => p.Name == name);
+    public bool HasVariable(string name)
+    {
+        foreach (Property p in _properties)
+        {
+            if (p.Name == name)
+                return true;
+        }
+
+        return false;
+    }
 
 
     #region GLOBAL KEYWORDS
@@ -113,7 +124,8 @@ public sealed class Shader : EngineObject
     {
         keyword = keyword.ToLower().Replace(" ", "").Replace(";", "");
         GlobalKeywords.Add(keyword);
-        UpdateGlobalKeywordsHash();
+        GlobalKeywordsVersion++;
+        GlobalKeywordsString = string.Join("-", GlobalKeywords);
     }
 
 
@@ -121,28 +133,12 @@ public sealed class Shader : EngineObject
     {
         keyword = keyword.ToUpper().Replace(" ", "").Replace(";", "");
         GlobalKeywords.Remove(keyword);
-        UpdateGlobalKeywordsHash();
+        GlobalKeywordsVersion++;
+        GlobalKeywordsString = string.Join("-", GlobalKeywords);
     }
 
 
     public static bool IsKeywordEnabled(string keyword) => GlobalKeywords.Contains(keyword.ToLower().Replace(" ", "").Replace(";", ""));
-    
-    
-    private static void UpdateGlobalKeywordsHash()
-    {
-        GlobalKeywordsHash = GetHashCode(GlobalKeywords);
-    }
-    
-    
-    private static int GetHashCode<T>(HashSet<T> hashSet)
-    {
-        int hashCode = 0;
-        foreach (T item in hashSet)
-        {
-            hashCode ^= HashCode.Combine(hashSet.Comparer.GetHashCode(item!));
-        }
-        return hashCode;
-    }
 
     #endregion
 
