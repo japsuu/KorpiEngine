@@ -1,6 +1,6 @@
 # Korpi Engine
 
-Korpi Engine is an open-source, MIT-licensed 3D game engine written in pure C# in .NET 6. The engine is internally based around an ECS architecture.
+Korpi Engine is an open-source, MIT-licensed 3D game engine written in pure C# in .NET 8. The engine is internally based around an ECS architecture.
 
 > The engine is still under development and is not yet feature-complete.
 
