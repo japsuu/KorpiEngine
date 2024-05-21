@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>KorpiEngine</RootNamespace>
+        <AssemblyName>KorpiEngine</AssemblyName>
+        
+        <!-- Package information -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>KorpiEngine</PackageId>
+        <Title>KorpiEngine</Title>
+        <Description>Contains all KorpiEngine modules</Description>
+        <PackageLicenseUrl>https://github.com/japsuu/Korpi/blob/master/LICENCE.md</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/japsuu/Korpi</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>KorpiEngine</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
+        <IncludeSource>false</IncludeSource>    <!-- Do not include source code in the META package -->
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeContentInPack>false</IncludeContentInPack>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>       <!-- Suppress warning 'Some target frameworks declared in the dependencies group of the nuspec and the lib/ref folder do not have exact matches in the other location' -->
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="KorpiEngine.Core" Version="2024.2.27.1010" />
+      <PackageReference Include="KorpiEngine.Networking" Version="2024.2.27.1010" />
+    </ItemGroup>
+    
+</Project>

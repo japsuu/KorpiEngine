@@ -1,0 +1,5 @@
+<Project>
+    <PropertyGroup>
+        <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN</DefineConstants>
+    </PropertyGroup>
+</Project>

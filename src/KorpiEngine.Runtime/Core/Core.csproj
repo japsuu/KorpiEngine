@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>KorpiEngine.Core</RootNamespace>
+        <AssemblyName>KorpiEngine.Core</AssemblyName>
+
+        <!-- Package information -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>KorpiEngine.Core</Title>
+        <Authors>Japsu</Authors>
+        <Description>KorpiEngine core module</Description>
+        <PackageLicenseUrl>https://github.com/japsuu/Korpi/blob/master/LICENCE.md</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/japsuu/Korpi</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>KorpiEngine</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
+        <IncludeSource>false</IncludeSource>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Arch" Version="1.2.7" />
+      <PackageReference Include="Arch.System" Version="1.0.5" />
+      <PackageReference Include="ImGui.NET" Version="1.89.9.3" />
+      <PackageReference Include="log4net" Version="2.0.15" />
+      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0" />
+      <PackageReference Include="OpenTK" Version="4.8.2" />
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Assets\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Defaults\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>
