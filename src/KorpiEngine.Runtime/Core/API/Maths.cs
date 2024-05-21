@@ -33,8 +33,8 @@ public static class Maths
     /// A small but not tiny value, Used in places like ApproximatelyEquals, where there is some tolerance (0.000001)
     public const double SMALL = 0.000001;
 
-    /// <inheritdoc cref="double.MinValue"/>
-    public const double EPSILON = double.MinValue;
+    /// <inheritdoc cref="double.Epsilon"/>
+    public const double EPSILON = double.Epsilon;
 
     /// <inheritdoc cref="double.PositiveInfinity"/>
     public const double INFINITY = double.PositiveInfinity;
