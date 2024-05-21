@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Core.API.AssetManagement;
+﻿using KorpiEngine.Core.Internal.AssetManagement;
+
+namespace KorpiEngine.Core.API.AssetManagement;
 
 public static partial class AssetDatabase
 {

@@ -1,6 +1,7 @@
 using System.Reflection;
+using KorpiEngine.Core.API;
 
-namespace KorpiEngine.Core.API.AssetManagement;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 /// <summary>
 /// Attach this attribute to a class that inherits from AssetImporter to allow the AssetDatabase to import files with the specified extensions.

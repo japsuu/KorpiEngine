@@ -1,4 +1,4 @@
-namespace KorpiEngine.Core.API.AssetManagement;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 public abstract class AssetImporter
 {
