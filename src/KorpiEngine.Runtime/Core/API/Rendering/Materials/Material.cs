@@ -15,13 +15,13 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 public sealed class Material : EngineObject
 {
-    public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
-    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
-    public const string DEFAULT_NORMAL_TEX_PROPERTY = "u_NormalTex";
-    public const string DEFAULT_SURFACE_TEX_PROPERTY = "u_SurfaceTex";
-    public const string DEFAULT_EMISSION_TEX_PROPERTY = "u_EmissionTex";
-    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
-    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
+    public const string DEFAULT_COLOR_PROPERTY = "_MainColor";
+    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "_MainTex";
+    public const string DEFAULT_NORMAL_TEX_PROPERTY = "_NormalTex";
+    public const string DEFAULT_SURFACE_TEX_PROPERTY = "_SurfaceTex";
+    public const string DEFAULT_EMISSION_TEX_PROPERTY = "_EmissionTex";
+    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "_EmissiveColor";
+    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "_EmissionIntensity";
     
     public readonly AssetRef<Shader> Shader;
     public readonly MaterialPropertyBlock PropertyBlock;

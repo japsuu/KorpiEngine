@@ -2,16 +2,16 @@
 
 Properties
 {
-	u_MatModel("Model Matrix", MATRIX_4X4)
-	u_MatView("View Matrix", MATRIX_4X4)
-	u_MatMVP("Model View Projection Matrix", MATRIX_4X4)
-	u_MainTex("Main Texture", TEXTURE_2D)
-	u_NormalTex("Normal Texture", TEXTURE_2D)
-	u_SurfaceTex("Surface Texture", TEXTURE_2D)
-	u_EmissionTex("Emission Texture", TEXTURE_2D)
-	u_EmissiveColor("Emissive Color", COLOR)
-	u_MainColor("Main Color", COLOR)
-	u_EmissionIntensity("Emission Intensity", FLOAT)
+	_MatModel("Model Matrix", MATRIX_4X4)
+	_MatView("View Matrix", MATRIX_4X4)
+	_MatMVP("Model View Projection Matrix", MATRIX_4X4)
+	_MainTex("Main Texture", TEXTURE_2D)
+	_NormalTex("Normal Texture", TEXTURE_2D)
+	_SurfaceTex("Surface Texture", TEXTURE_2D)
+	_EmissionTex("Emission Texture", TEXTURE_2D)
+	_EmissiveColor("Emissive Color", COLOR)
+	_MainColor("Main Color", COLOR)
+	_EmissionIntensity("Emission Intensity", FLOAT)
 }
 
 Pass 0
@@ -32,32 +32,32 @@ Pass 0
 		out mat3 TBN;
 		out vec4 PosProj;
 		
-		uniform mat4 u_MatModel;
-		uniform mat4 u_MatView;
-		uniform mat4 u_MatMVP;
+		uniform mat4 _MatModel;
+		uniform mat4 _MatView;
+		uniform mat4 _MatMVP;
 
 		void main()
 		{
 		    /*
 		    * Position and Normal are in view space
 		    */
-		 	vec4 viewPos = u_MatView * u_MatModel * vec4(vertexPosition, 1.0);
-		    Pos = (u_MatModel * vec4(vertexPosition, 1.0)).xyz;
+		 	vec4 viewPos = _MatView * _MatModel * vec4(vertexPosition, 1.0);
+		    Pos = (_MatModel * vec4(vertexPosition, 1.0)).xyz;
 		    FragPos = viewPos.xyz; 
 		    TexCoords0 = vertexTexCoord0;
 		    TexCoords1 = vertexTexCoord1;
 		    VertColor = vertexColor;
 
-			mat3 normalMatrix = transpose(inverse(mat3(u_MatModel)));
+			mat3 normalMatrix = transpose(inverse(mat3(_MatModel)));
 			VertNormal = normalize(normalMatrix * vertexNormal);
 			
 			// Construct the TBN matrix, where the letters depict a Tangent, BiTangent and Normal vectors: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
-			vec3 T = normalize(vec3(u_MatModel * vec4(vertexTangent, 0.0)));
-			vec3 B = normalize(vec3(u_MatModel * vec4(cross(vertexNormal, vertexTangent), 0.0)));
-			vec3 N = normalize(vec3(u_MatModel * vec4(vertexNormal, 0.0)));
+			vec3 T = normalize(vec3(_MatModel * vec4(vertexTangent, 0.0)));
+			vec3 B = normalize(vec3(_MatModel * vec4(cross(vertexNormal, vertexTangent), 0.0)));
+			vec3 N = normalize(vec3(_MatModel * vec4(vertexNormal, 0.0)));
 		    TBN = mat3(T, B, N);
 		
-		    PosProj = u_MatMVP * vec4(vertexPosition, 1.0);
+		    PosProj = _MatMVP * vec4(vertexPosition, 1.0);
 		
 		    gl_Position = PosProj;
 		}
@@ -76,15 +76,15 @@ Pass 0
 	    in mat3 TBN;
 	    in vec4 PosProj;
 	
-	    uniform mat4 u_MatView;
+	    uniform mat4 _MatView;
 	    
-	    uniform sampler2D u_MainTex; // diffuse
-	    uniform sampler2D u_NormalTex; // Normal
-	    uniform sampler2D u_SurfaceTex; // AO, Roughness, Metallic
-	    uniform sampler2D u_EmissionTex; // Emissive
-	    uniform vec4 u_EmissiveColor; // Emissive color
-	    uniform vec4 u_MainColor; // color
-	    uniform float u_EmissionIntensity;
+	    uniform sampler2D _MainTex; // diffuse
+	    uniform sampler2D _NormalTex; // Normal
+	    uniform sampler2D _SurfaceTex; // AO, Roughness, Metallic
+	    uniform sampler2D _EmissionTex; // Emissive
+	    uniform vec4 _EmissiveColor; // Emissive color
+	    uniform vec4 _MainColor; // color
+	    uniform float _EmissionIntensity;
 	
 	    out vec4 FragColor;
 	
@@ -92,19 +92,19 @@ Pass 0
 	    {
 	        vec2 uv = TexCoords0;
 	
-	        vec4 alb = texture(u_MainTex, uv).rgba; 
+	        vec4 alb = texture(_MainTex, uv).rgba; 
 	        alb.rgb *= VertColor.rgb;
 	
 	        // AO, Roughness, Metallic
-	        vec3 surface = texture(u_SurfaceTex, uv).rgb;
+	        vec3 surface = texture(_SurfaceTex, uv).rgb;
 	
 	        // Normal & Metallic
-	        vec3 normal = texture(u_NormalTex, uv).rgb;
+	        vec3 normal = texture(_NormalTex, uv).rgb;
 	        normal = normal * 2.0 - 1.0;   
 	        normal = normalize(TBN * normal); 
 	
 	        // Emission
-	        vec3 emission = (texture(u_EmissionTex, uv).rgb + u_EmissiveColor.rgb) * u_EmissionIntensity;
+	        vec3 emission = (texture(_EmissionTex, uv).rgb + _EmissiveColor.rgb) * _EmissionIntensity;
 	
 	        // Combine all the components to get the final color
 	        FragColor = vec4(alb.rgb * surface.r + emission, alb.a);
@@ -146,7 +146,7 @@ ShadowPass 0
 		
 		out vec2 TexCoords;
 
-		uniform mat4 u_MatMVP;
+		uniform mat4 _MatMVP;
 		void main()
 		{
 			vec3 boneVertexPosition = vertexPosition;
@@ -171,7 +171,7 @@ ShadowPass 0
 
 		    TexCoords = vertexTexCoord0;
 			
-		    gl_Position = u_MatMVP * vec4(boneVertexPosition, 1.0);
+		    gl_Position = _MatMVP * vec4(boneVertexPosition, 1.0);
 		}
 	}
 
@@ -179,8 +179,8 @@ ShadowPass 0
 	{
 		layout (location = 0) out float fragmentdepth;
 		
-		uniform sampler2D u_MainTex; // diffuse
-		uniform vec4 u_MainColor;
+		uniform sampler2D _MainTex; // diffuse
+		uniform vec4 _MainColor;
 		uniform int Frame;
 
 		in vec2 TexCoords;
@@ -193,9 +193,9 @@ ShadowPass 0
 
 		void main()
 		{
-			float alpha = texture(u_MainTex, TexCoords).a; 
+			float alpha = texture(_MainTex, TexCoords).a; 
 			float rng = InterleavedGradientNoise(gl_FragCoord.xy, Frame % 32);
-			if(rng > alpha * u_MainColor.a) discard;
+			if(rng > alpha * _MainColor.a) discard;
 		}
 	}
 }

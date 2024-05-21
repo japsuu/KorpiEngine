@@ -2,7 +2,7 @@
 
 Properties
 {
-	u_MatMVP("Model View Projection Matrix", MATRIX_4X4)
+	_MatMVP("Model View Projection Matrix", MATRIX_4X4)
 }
 
 Pass 0
@@ -13,11 +13,11 @@ Pass 0
 	{
 		layout (location = 0) in vec3 vertexPosition;
 
-		uniform mat4 u_MatMVP;
+		uniform mat4 _MatMVP;
 
 		void main()
 		{
-		    gl_Position = u_MatMVP * vec4(vertexPosition, 1.0);
+		    gl_Position = _MatMVP * vec4(vertexPosition, 1.0);
 		}
 	}
 

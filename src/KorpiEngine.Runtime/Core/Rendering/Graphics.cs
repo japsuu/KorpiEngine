@@ -107,20 +107,20 @@ public static class Graphics
 
         // Upload the default uniforms available to all shaders.
         // The shader can choose to use them or not, as they are buffered only if the location is available.
-        material.SetVector("u_Resolution", Resolution);
-        material.SetFloat("u_Time", (float)Time.TotalTime);
-        material.SetInt("u_Frame", Time.TotalFrameCount);
+        material.SetVector("_Resolution", Resolution);
+        material.SetFloat("_Time", (float)Time.TotalTime);
+        material.SetInt("_Frame", Time.TotalFrameCount);
         
         // Camera data
-        material.SetVector("u_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position);
-        material.SetVector("u_Camera_Forward", Camera.RenderingCamera.Transform.Forward);
+        material.SetVector("_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position);
+        material.SetVector("_Camera_Forward", Camera.RenderingCamera.Transform.Forward);
         
         // Matrices
         Matrix4x4 matMVP = Matrix4x4.Identity * transform * ViewMatrix * ProjectionMatrix;
-        material.SetMatrix("u_MatMVP", matMVP);
-        material.SetMatrix("u_MatModel", transform);
-        material.SetMatrix("u_MatView", ViewMatrix);
-        material.SetMatrix("u_MatProjection", ProjectionMatrix);
+        material.SetMatrix("_MatMVP", matMVP);
+        material.SetMatrix("_MatModel", transform);
+        material.SetMatrix("_MatView", ViewMatrix);
+        material.SetMatrix("_MatProjection", ProjectionMatrix);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
         material.SetKeyword("HAS_UV", mesh.HasUV0);
