@@ -11,7 +11,7 @@ namespace KorpiEngine.Core.Scripting;
 /// Components are useless by themselves, as they must be internally bound to an entity.<br/><br/>
 /// 
 /// When a component is being constructed, it is not yet attached to an entity, or the entity might not even be initialized yet.<br/>
-/// This is also the reason why you should not create components directly or use the constructor, but instead use the <see cref="Entity.AddComponent{T}"/> method.
+/// This is also the reason why you should not create components directly or use the constructor, but instead use the <see cref="Scripting.Entity.AddComponent{T}"/> method.
 /// </summary>
 public abstract class Component : EngineObject
 {
@@ -26,7 +26,7 @@ public abstract class Component : EngineObject
     public Transform Transform => Entity.Transform;
 
     /// <summary>
-    /// The native variant of this component, used for <see cref="Entity.GetComponent{T}"/> and similar methods.
+    /// The native variant of this component, used for <see cref="Scripting.Entity.GetComponent{T}"/> and similar methods.
     /// </summary>
     internal abstract Type NativeComponentType { get; }
     

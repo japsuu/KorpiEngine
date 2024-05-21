@@ -13,7 +13,7 @@ namespace KorpiEngine.Core.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="Entity"/>s and register systems to process them.
+/// Can create <see cref="Scripting.Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene : IDisposable
 {
@@ -91,10 +91,7 @@ public abstract class Scene : IDisposable
 
     private Entity CreateEntity(string name)
     {
-        UUID uuid = new();
-        string nameString = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
-        Arch.Core.Entity entity = World.Create(new IdComponent(uuid), new NameComponent(nameString), new TransformComponent());
-        return new Entity(entity.Reference(), this);
+        return Entity.Create(name, this);
     }
     
     

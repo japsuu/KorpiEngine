@@ -23,10 +23,10 @@ internal static class CameraFinder
                 cameraScene = scene;
         }
         
-#warning Find a better way that does not require creating a new Entity every time
+#warning Find a better way that does not require creating a new Entity every time. Maybe loop the BehaviourComponents and check if they are a CameraComponent?
         return query.MainCamEntity == Entity.Null ?
             null :
-            new Scripting.Entity(query.MainCamEntity.Reference(), cameraScene).GetComponent<Camera>();
+            Scripting.Entity.Wrap(query.MainCamEntity.Reference(), cameraScene).GetComponent<Camera>();
     }
     
     
