@@ -4,7 +4,7 @@ Korpi Engine is an open-source, MIT-licensed 3D game engine written in pure C# i
 
 > The engine is still under development and is not yet feature-complete.
 
-> ⚠️ Development happens on the `dev` branch [(link)](https://github.com/japsuu/KorpiEngine/tree/dev). **This branch is reserved for releases** ⚠️
+> ⚠️ This is the active `DEVELOPMENT` branch, which might contain **broken** features! ⚠️
 
 ## Table of Contents
 
