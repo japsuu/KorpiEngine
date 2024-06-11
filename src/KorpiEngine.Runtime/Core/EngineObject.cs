@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Core.Internal.Serialization;
+﻿using Prowl.Runtime;
 
 namespace KorpiEngine.Core;
 

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Internal.Serialization.Formats
+﻿namespace Prowl.Runtime
 {
     /// <summary>
     /// This class is responsible for converting CompoundTags to and from binary data.
@@ -11,8 +11,8 @@
         #region Writing
         public static void WriteToFile(SerializedProperty tag, FileInfo file)
         {
-            using FileStream stream = file.OpenWrite();
-            using BinaryWriter writer = new(stream);
+            using var stream = file.OpenWrite();
+            using var writer = new BinaryWriter(stream);
             WriteTo(tag, writer);
         }
 
@@ -21,7 +21,7 @@
         private static void WriteCompound(SerializedProperty tag, BinaryWriter writer)
         {
             writer.Write(tag.GetAllTags().Count());
-            foreach (KeyValuePair<string, SerializedProperty> subTag in tag.Tags)
+            foreach (var subTag in tag.Tags)
             {
                 writer.Write(subTag.Key); // Compounds always need tag names
                 WriteTag(subTag.Value, writer);
@@ -30,11 +30,11 @@
 
         private static void WriteTag(SerializedProperty tag, BinaryWriter writer)
         {
-            PropertyType type = tag.TagType;
+            var type = tag.TagType;
             writer.Write((byte)type);
             if (type == PropertyType.Null) { } // Nothing for Null
             else if (type == PropertyType.Byte) writer.Write(tag.ByteValue);
-            else if (type == PropertyType.SByte) writer.Write(tag.SByteValue);
+            else if (type == PropertyType.sByte) writer.Write(tag.sByteValue);
             else if (type == PropertyType.Short) writer.Write(tag.ShortValue);
             else if (type == PropertyType.Int) writer.Write(tag.IntValue);
             else if (type == PropertyType.Long) writer.Write(tag.LongValue);
@@ -53,9 +53,9 @@
             else if (type == PropertyType.Bool) writer.Write(tag.BoolValue);
             else if (type == PropertyType.List)
             {
-                SerializedProperty listTag = tag;
+                var listTag = tag;
                 writer.Write(listTag.Count);
-                foreach (SerializedProperty subTag in listTag.List)
+                foreach (var subTag in listTag.List)
                     WriteTag(subTag, writer); // Lists dont care about names, so dont need to write Tag Names inside a List
             }
             else if (type == PropertyType.Compound) WriteCompound(tag, writer);
@@ -68,8 +68,8 @@
         #region Reading
         public static SerializedProperty ReadFromFile(FileInfo file)
         {
-            using FileStream stream = file.OpenRead();
-            using BinaryReader reader = new(stream);
+            using var stream = file.OpenRead();
+            using var reader = new BinaryReader(stream);
             return ReadFrom(reader);
         }
 
@@ -78,7 +78,7 @@
         private static SerializedProperty ReadCompound(BinaryReader reader)
         {
             SerializedProperty tag = SerializedProperty.NewCompound();
-            int tagCount = reader.ReadInt32();
+            var tagCount = reader.ReadInt32();
             for (int i = 0; i < tagCount; i++)
                 tag.Add(reader.ReadString(), ReadTag(reader));
             return tag;
@@ -86,10 +86,10 @@
 
         private static SerializedProperty ReadTag(BinaryReader reader)
         {
-            PropertyType type = (PropertyType)reader.ReadByte();
+            var type = (PropertyType)reader.ReadByte();
             if (type == PropertyType.Null) return new(PropertyType.Null, null);
             else if (type == PropertyType.Byte) return new(PropertyType.Byte, reader.ReadByte());
-            else if (type == PropertyType.SByte) return new(PropertyType.SByte, reader.ReadSByte());
+            else if (type == PropertyType.sByte) return new(PropertyType.sByte, reader.ReadSByte());
             else if (type == PropertyType.Short) return new(PropertyType.Short, reader.ReadInt16());
             else if (type == PropertyType.Int) return new(PropertyType.Int, reader.ReadInt32());
             else if (type == PropertyType.Long) return new(PropertyType.Long, reader.ReadInt64());
@@ -104,8 +104,8 @@
             else if (type == PropertyType.Bool) return new(PropertyType.Bool, reader.ReadBoolean());
             else if (type == PropertyType.List)
             {
-                SerializedProperty listTag = SerializedProperty.NewList();
-                int tagCount = reader.ReadInt32();
+                var listTag = SerializedProperty.NewList();
+                var tagCount = reader.ReadInt32();
                 for (int i = 0; i < tagCount; i++)
                     listTag.ListAdd(ReadTag(reader));
                 return listTag;

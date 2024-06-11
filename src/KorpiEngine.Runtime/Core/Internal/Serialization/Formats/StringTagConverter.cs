@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace KorpiEngine.Core.Internal.Serialization.Formats
+namespace Prowl.Runtime
 {
     public static class StringTagConverter
     {
@@ -12,7 +12,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         public static string Write(SerializedProperty prop)
         {
-            using StringWriter writer = new();
+            using var writer = new StringWriter();
             Serialize(prop, writer, 0);
             return writer.ToString();
         }
@@ -43,7 +43,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static void Serialize(SerializedProperty prop, TextWriter writer, int indentLevel)
         {
-            string indent = new(' ', indentLevel * 2);
+            var indent = new string(' ', indentLevel * 2);
 
             switch (prop.TagType)
             {
@@ -54,8 +54,8 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                     writer.Write(prop.ByteValue);
                     writer.Write('B');
                     break;
-                case PropertyType.SByte:
-                    writer.Write(prop.SByteValue);
+                case PropertyType.sByte:
+                    writer.Write(prop.sByteValue);
                     writer.Write('N');
                     break;
                 case PropertyType.Short:
@@ -104,7 +104,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                     break;
                 case PropertyType.List:
                     writer.WriteLine("[");
-                    List<SerializedProperty> list = (List<SerializedProperty>)prop.Value!;
+                    var list = (List<SerializedProperty>)prop.Value!;
                     for (int i = 0; i < list.Count; i++)
                     {
                         writer.Write(indent);
@@ -129,7 +129,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
         private static void WriteString(TextWriter writer, string value)
         {
             writer.Write('"');
-            foreach (char c in value)
+            foreach (var c in value)
             {
                 switch (c)
                 {
@@ -165,7 +165,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static void WriteCompound(TextWriter writer, Dictionary<string, SerializedProperty> dict, int indentLevel)
         {
-            string indent = new(' ', indentLevel * 2);
+            var indent = new string(' ', indentLevel * 2);
 
             writer.WriteLine("{");
 
@@ -192,14 +192,15 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
             }
 
             // Write the remaining key-value pairs
-            bool skipNextComma = true;
-            foreach (KeyValuePair<string, SerializedProperty> kvp in dict)
+            var skipNextComma = true;
+            foreach (var kvp in dict)
             {
                 if (kvp.Key == "$id" || kvp.Key == "$type" || kvp.Key == "$dependencies")
                     continue;
 
                 if (!skipNextComma)
                 {
+                    skipNextComma = false;
                     writer.Write(",");
                     writer.WriteLine();
                 }
@@ -253,9 +254,9 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static SerializedProperty ReadCompoundTag(TextNbtMemoryParser parser)
         {
-            int startPosition = parser.TokenPosition;
+            var startPosition = parser.TokenPosition;
 
-            Dictionary<string, SerializedProperty> dict = new();
+            var dict = new Dictionary<string, SerializedProperty>();
             while (parser.MoveNext())
             {
                 switch (parser.TokenType)
@@ -265,7 +266,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                     case TextNbtTokenType.Separator:
                         continue;
                     case TextNbtTokenType.Value:
-                        string name = parser.Token[0] is '"' or '\'' ? ParseQuotedStringValue(parser) : new string(parser.Token);
+                        var name = parser.Token[0] is '"' or '\'' ? ParseQuotedStringValue(parser) : new string(parser.Token);
 
                         if (!parser.MoveNext())
                             throw new InvalidDataException($"End of input reached while reading a compound property starting at position {startPosition}");
@@ -276,7 +277,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                         if (!parser.MoveNext())
                             throw new InvalidDataException($"End of input reached while reading a compound property starting at position {startPosition}");
 
-                        SerializedProperty value = ReadTag(parser);
+                        var value = ReadTag(parser);
 
                         dict.Add(name, value);
 
@@ -291,9 +292,9 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static SerializedProperty ReadListTag(TextNbtMemoryParser parser)
         {
-            int startPosition = parser.TokenPosition;
+            var startPosition = parser.TokenPosition;
 
-            List<SerializedProperty> items = new();
+            var items = new List<SerializedProperty>();
 
             while (parser.MoveNext())
             {
@@ -305,7 +306,8 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                         continue;
                 }
 
-                SerializedProperty tag = ReadTag(parser);
+                var pos = parser.TokenPosition;
+                var tag = ReadTag(parser);
 
                 items.Add(tag);
             }
@@ -323,9 +325,9 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static SerializedProperty ReadByteArrayTag(TextNbtMemoryParser parser)
         {
-            int startPosition = parser.TokenPosition;
+            var startPosition = parser.TokenPosition;
 
-            byte[]? arr = null;
+            byte[] arr = null;
             while (parser.MoveNext())
             {
                 switch (parser.TokenType)
@@ -389,7 +391,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static byte ParseByteValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'B' && byte.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out byte v))
+            if (parser.Token[^1] == 'B' && byte.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing byte value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -397,7 +399,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static sbyte ParseSByteValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'N' && sbyte.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out sbyte v))
+            if (parser.Token[^1] == 'N' && sbyte.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing sbyte value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -405,7 +407,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static short ParseShortValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'S' && short.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out short v))
+            if (parser.Token[^1] == 'S' && short.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing short value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -413,7 +415,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static int ParseIntValue(TextNbtMemoryParser parser)
         {
-            if (int.TryParse(parser.Token, NumberStyles.Integer, CultureInfo.InvariantCulture, out int v))
+            if (int.TryParse(parser.Token, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing int value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -421,7 +423,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static long ParseLongValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'L' && long.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out long v))
+            if (parser.Token[^1] == 'L' && long.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing long value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -429,7 +431,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static ushort ParseUShortValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'V' && ushort.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out ushort v))
+            if (parser.Token[^1] == 'V' && ushort.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing ushort value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -437,7 +439,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static uint ParseUIntValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'U' && uint.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out uint v))
+            if (parser.Token[^1] == 'U' && uint.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing uint value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -445,7 +447,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static ulong ParseULongValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'C' && ulong.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong v))
+            if (parser.Token[^1] == 'C' && ulong.TryParse(parser.Token[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing ulong value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -453,7 +455,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static float ParseFloatValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'F' && float.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out float v))
+            if (parser.Token[^1] == 'F' && float.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing float value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -461,7 +463,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static double ParseDoubleValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'D' && double.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out double v))
+            if (parser.Token[^1] == 'D' && double.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing double value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -469,7 +471,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static decimal ParseDecimalValue(TextNbtMemoryParser parser)
         {
-            if (parser.Token[^1] == 'M' && decimal.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out decimal v))
+            if (parser.Token[^1] == 'M' && decimal.TryParse(parser.Token[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
                 return v;
 
             throw new InvalidDataException($"Error parsing decimal value \"{parser.Token}\" at position {parser.TokenPosition}");
@@ -477,16 +479,16 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
         private static string ParseQuotedStringValue(TextNbtMemoryParser parser)
         {
-            ReadOnlySpan<char> token = parser.Token;
+            var token = parser.Token;
 
-            char[] s = new char[token.Length];
-            int len = 0;
+            var s = new char[token.Length];
+            var len = 0;
 
-            char quote = parser.Token[0];
+            var quote = parser.Token[0];
             if (token[^1] != quote)
                 throw new InvalidDataException($"Missing ending quote from string \"{token}\" at position {parser.TokenPosition}");
 
-            ReadOnlySpan<char> original = token;
+            var original = token;
             token = token[1..^1];
 
             while (!token.IsEmpty)
@@ -529,7 +531,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
                 token = token[1..];
             }
 
-            string result = new(s[..len]);
+            var result = new string(s[..len]);
             return result;
         }
 
@@ -570,7 +572,7 @@ namespace KorpiEngine.Core.Internal.Serialization.Formats
 
                 TokenPosition = InputPosition;
 
-                char firstChar = Input.Span[InputPosition];
+                var firstChar = Input.Span[InputPosition];
 
                 switch (firstChar)
                 {

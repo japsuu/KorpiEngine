@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering.Primitives;
 

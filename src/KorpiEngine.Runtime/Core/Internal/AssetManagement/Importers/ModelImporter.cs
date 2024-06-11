@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
 using Assimp;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Scripting;
 using KorpiEngine.Core.Scripting.Components;
 using Material = KorpiEngine.Core.API.Rendering.Materials.Material;
+using Matrix4x4 = Assimp.Matrix4x4;
 using Mesh = KorpiEngine.Core.API.Rendering.Mesh;
+using Quaternion = Assimp.Quaternion;
 using Texture2D = KorpiEngine.Core.API.Rendering.Textures.Texture2D;
 
 namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
@@ -608,11 +611,11 @@ internal class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadTextureIntoMesh(string name, SerializedAsset ctx, FileInfo file, Material mat)
+    private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
     {
-        if (AssetDatabase.TryGetGuid(file, out var guid))
+        if (AssetDatabase.TryGetGuidFromPath(file, out Guid guid))
         {
-            // We have this texture as an asset, Juse use the asset we dont need to load it
+            // We have this texture as an asset, Just use the asset we don't need to load it
             mat.SetTexture(name, new AssetRef<Texture2D>(guid));
         }
         else
@@ -649,9 +652,9 @@ internal class ModelImporter : AssetImporter
         Matrix4x4 t = node.Transform;
         t.Decompose(out Vector3D aSca, out Quaternion aRot, out Vector3D aPos);
 
-        uOb.Transform.localPosition = new Vector3(aPos.X, aPos.Y, aPos.Z) * scale;
-        uOb.Transform.localRotation = new Runtime.Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
-        uOb.Transform.localScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
+        uOb.Transform.LocalPosition = new Vector3(aPos.X, aPos.Y, aPos.Z) * scale;
+        uOb.Transform.LocalRotation = new API.Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
+        uOb.Transform.LocalScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
 
         return uOb;
     }

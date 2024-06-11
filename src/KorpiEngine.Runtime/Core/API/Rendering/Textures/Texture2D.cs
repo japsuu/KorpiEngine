@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.Internal.Serialization;
-using KorpiEngine.Core.Platform;
+﻿using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
 

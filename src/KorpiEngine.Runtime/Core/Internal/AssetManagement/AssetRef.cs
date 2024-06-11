@@ -1,5 +1,4 @@
 ﻿using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.Internal.Serialization;
 
 namespace KorpiEngine.Core.Internal.AssetManagement;
 

@@ -1,6 +1,6 @@
-﻿using static KorpiEngine.Core.Internal.Serialization.Serializer;
+﻿using static Prowl.Runtime.Serializer;
 
-namespace KorpiEngine.Core.Internal.Serialization
+namespace Prowl.Runtime
 {
     public interface ISerializable
     {

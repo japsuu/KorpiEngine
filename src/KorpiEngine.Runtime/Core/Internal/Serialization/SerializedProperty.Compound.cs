@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Internal.Serialization
+﻿namespace Prowl.Runtime
 {
     public sealed partial class SerializedProperty
     {

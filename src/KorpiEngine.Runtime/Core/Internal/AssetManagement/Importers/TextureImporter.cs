@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.API.Rendering.Textures;
+﻿using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
