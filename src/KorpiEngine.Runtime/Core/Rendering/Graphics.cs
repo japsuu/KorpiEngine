@@ -126,8 +126,11 @@ public static class Graphics
         material.SetKeyword("HAS_UV", mesh.HasUV0);
         material.SetKeyword("HAS_UV2", mesh.HasUV1);
         material.SetKeyword("HAS_NORMALS", mesh.HasNormals);
-        material.SetKeyword("HAS_COLORS", mesh.HasColors);
+        material.SetKeyword("HAS_COLORS", mesh.HasColors || mesh.HasColors32);
         material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
+
+        material.SetKeyword("HAS_BONEINDICES", mesh.HasBoneIndices);
+        material.SetKeyword("HAS_BONEWEIGHTS", mesh.HasBoneWeights);
 
         // All material uniforms have been assigned, it's time to buffer them
         material.PropertyBlock.Apply(Driver.CurrentProgram);

@@ -7,5 +7,8 @@ public enum VertexAttribute
     TexCoord1,
     Normal,
     Color,
-    Tangent
+    Color32,
+    Tangent,
+    BoneIndex,
+    BoneWeight
 }

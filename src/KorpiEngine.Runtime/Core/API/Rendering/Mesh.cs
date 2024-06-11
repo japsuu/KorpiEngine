@@ -3,6 +3,7 @@ using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
+using Prowl.Runtime;
 
 namespace KorpiEngine.Core.API.Rendering;
 
@@ -32,7 +33,7 @@ namespace KorpiEngine.Core.API.Rendering;
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide some fields
+public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshData class to hide some fields
 {
     /// <summary>
     /// The format of the mesh index buffer data.
@@ -113,7 +114,11 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     public bool HasUV1 => (_vertexTexCoord1?.Length ?? 0) > 0;
     public bool HasNormals => (_vertexNormals?.Length ?? 0) > 0;
     public bool HasColors => (_vertexColors?.Length ?? 0) > 0;
+    public bool HasColors32 => (_vertexColors32?.Length ?? 0) > 0;
     public bool HasTangents => (_vertexTangents?.Length ?? 0) > 0;
+#warning Implement bone rendering
+    public bool HasBoneIndices => (_boneIndices?.Length ?? 0) > 0;
+    public bool HasBoneWeights => (_boneWeights?.Length ?? 0) > 0;
 
     internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
@@ -132,7 +137,12 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     private byte[]? _vertexTexCoord1;
     private byte[]? _vertexNormals;
     private byte[]? _vertexColors;
+    private byte[]? _vertexColors32;
     private byte[]? _vertexTangents;
+    private byte[]? _boneIndices;
+    private byte[]? _boneWeights;
+
+    private System.Numerics.Matrix4x4[]? _bindPoses; //TODO: Getter for SkinnedMeshRenderer.
 
 
     protected override void OnDispose()
@@ -252,11 +262,11 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     {
         if (_vertexPositions == null || _indexData == null)
             return;
-        
+
         System.Numerics.Vector3[] vertices = GetPositions()!;
         if (vertices.Length < 3)
             return;
-        
+
         int[] indices = GetIndices()!;
         if (indices.Length < 3)
             return;
@@ -291,15 +301,15 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     {
         if (_vertexPositions == null || _indexData == null)
             return;
-        
+
         System.Numerics.Vector3[] vertices = GetPositions()!;
         if (vertices.Length < 3)
             return;
-        
+
         int[] indices = GetIndices()!;
         if (indices.Length < 3)
             return;
-        
+
         if (_vertexTexCoord0 == null)
             return;
         System.Numerics.Vector2[] uv = GetUVs(0)!;
@@ -357,11 +367,17 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
 
     public void SetTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
 
-    public int GetColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
+    public int GetColors32NonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors32, destination);
 
-    public Color32[]? GetColors() => GetVertexAttributeData<Color32>(_vertexColors);
+    public Color32[]? GetColors32() => GetVertexAttributeData<Color32>(_vertexColors32);
 
-    public void SetColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
+    public void SetColors32(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors32);
+
+    public int GetColorsNonAlloc(IList<Color> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
+
+    public Color[]? GetColors() => GetVertexAttributeData<Color>(_vertexColors);
+
+    public void SetColors(ArraySegment<Color>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
 
 
     public int GetUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
@@ -699,18 +715,18 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
             {
                 System.Numerics.Vector3[] positions =
                 [
-                    new(-0.5f, -0.5f, 0),
-                    new(0.5f, -0.5f, 0),
-                    new(0.5f, 0.5f, 0),
-                    new(-0.5f, 0.5f, 0)
+                    new System.Numerics.Vector3(-0.5f, -0.5f, 0),
+                    new System.Numerics.Vector3(0.5f, -0.5f, 0),
+                    new System.Numerics.Vector3(0.5f, 0.5f, 0),
+                    new System.Numerics.Vector3(-0.5f, 0.5f, 0)
                 ];
 
                 System.Numerics.Vector2[] uvs =
                 [
-                    new(0, 0),
-                    new(1, 0),
-                    new(1, 1),
-                    new(0, 1)
+                    new System.Numerics.Vector2(0, 0),
+                    new System.Numerics.Vector2(1, 0),
+                    new System.Numerics.Vector2(1, 1),
+                    new System.Numerics.Vector2(0, 1)
                 ];
 
                 int[] indices =
@@ -730,8 +746,7 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
                 return mesh;
             }
             case PrimitiveType.Cube:
-                return null;
-                break;
+                return null!;
             case PrimitiveType.Sphere:
             {
                 const float radius = 0.5f;
@@ -786,8 +801,7 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
                 return mesh;
             }
             case PrimitiveType.Capsule:
-                return null;
-                break;
+                return null!;
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
@@ -871,19 +885,29 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
     {
         VertexAttribute attribute = (VertexAttribute)attributeSemantic;
 
-        if (attribute == VertexAttribute.Position)
-            return ref _vertexPositions;
-        if (attribute == VertexAttribute.TexCoord0)
-            return ref _vertexTexCoord0;
-        if (attribute == VertexAttribute.TexCoord1)
-            return ref _vertexTexCoord1;
-        if (attribute == VertexAttribute.Normal)
-            return ref _vertexNormals;
-        if (attribute == VertexAttribute.Color)
-            return ref _vertexColors;
-        if (attribute == VertexAttribute.Tangent)
-            return ref _vertexTangents;
-        throw new ArgumentOutOfRangeException(nameof(attribute), attribute, null);
+        switch (attribute)
+        {
+            case VertexAttribute.Position:
+                return ref _vertexPositions;
+            case VertexAttribute.TexCoord0:
+                return ref _vertexTexCoord0;
+            case VertexAttribute.TexCoord1:
+                return ref _vertexTexCoord1;
+            case VertexAttribute.Normal:
+                return ref _vertexNormals;
+            case VertexAttribute.Color:
+                return ref _vertexColors;
+            case VertexAttribute.Color32:
+                return ref _vertexColors32;
+            case VertexAttribute.Tangent:
+                return ref _vertexTangents;
+            case VertexAttribute.BoneIndex:
+                return ref _boneIndices;
+            case VertexAttribute.BoneWeight:
+                return ref _boneWeights;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(attribute), attribute, null);
+        }
     }
 
 
@@ -905,8 +929,17 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
         if (HasColors)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeType.Float, 4));
 
+        if (HasColors32)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeType.UnsignedByte, 4));
+
         if (HasTangents)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeType.Float, 3, true));
+
+        if (HasBoneIndices)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.BoneIndex, VertexAttributeType.Float, 4));
+
+        if (HasBoneWeights)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.BoneWeight, VertexAttributeType.Float, 4));
 
         return new MeshVertexLayout(attributes.ToArray());
     }
@@ -919,7 +952,13 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
         _vertexTexCoord1 = null;
         _vertexNormals = null;
         _vertexColors = null;
+        _vertexColors32 = null;
         _vertexTangents = null;
+
+        _boneIndices = null;
+        _boneWeights = null;
+        _bindPoses = null;
+
         VertexCount = 0;
         _isDirty = true;
     }
@@ -943,5 +982,151 @@ public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide
 
         _indexBuffer?.Dispose();
         _indexBuffer = null;
+    }
+
+
+    public SerializedProperty Serialize(Serializer.SerializationContext ctx)
+    {
+        SerializedProperty compoundTag = SerializedProperty.NewCompound();
+
+        using MemoryStream memoryStream = new();
+        using BinaryWriter writer = new(memoryStream);
+        
+        writer.Write((byte)_indexFormat);
+        writer.Write((byte)_topology);
+
+        writer.Write(_vertexPositions?.Length ?? 0);
+        if (_vertexPositions != null)
+            foreach (byte vertex in _vertexPositions)
+                writer.Write(vertex);
+
+        writer.Write(_vertexNormals?.Length ?? 0);
+        if (_vertexNormals != null)
+            foreach (byte normal in _vertexNormals)
+                writer.Write(normal);
+
+        writer.Write(_vertexTangents?.Length ?? 0);
+        if (_vertexTangents != null)
+            foreach (byte tangent in _vertexTangents)
+                writer.Write(tangent);
+
+        writer.Write(_vertexColors?.Length ?? 0);
+        if (_vertexColors != null)
+            foreach (byte color in _vertexColors)
+                writer.Write(color);
+
+        writer.Write(_vertexColors32?.Length ?? 0);
+        if (_vertexColors32 != null)
+            foreach (byte color in _vertexColors32)
+                writer.Write(color);
+
+        writer.Write(_vertexTexCoord0?.Length ?? 0);
+        if (_vertexTexCoord0 != null)
+            foreach (byte uv in _vertexTexCoord0)
+                writer.Write(uv);
+
+        writer.Write(_vertexTexCoord1?.Length ?? 0);
+        if (_vertexTexCoord1 != null)
+            foreach (byte uv in _vertexTexCoord1)
+                writer.Write(uv);
+
+        writer.Write(_indexData?.Length ?? 0);
+        if (_indexData != null)
+            foreach (byte index in _indexData)
+                writer.Write(index);
+
+        writer.Write(_boneIndices?.Length ?? 0);
+        if (_boneIndices != null)
+            foreach (byte boneIndex in _boneIndices)
+                writer.Write(boneIndex);
+
+        writer.Write(_boneWeights?.Length ?? 0);
+        if (_boneWeights != null)
+            foreach (byte boneWeight in _boneWeights)
+                writer.Write(boneWeight);
+
+        writer.Write(_bindPoses?.Length ?? 0);
+        if (_bindPoses != null)
+            foreach (System.Numerics.Matrix4x4 bindPose in _bindPoses)
+            {
+                writer.Write(bindPose.M11);
+                writer.Write(bindPose.M12);
+                writer.Write(bindPose.M13);
+                writer.Write(bindPose.M14);
+
+                writer.Write(bindPose.M21);
+                writer.Write(bindPose.M22);
+                writer.Write(bindPose.M23);
+                writer.Write(bindPose.M24);
+
+                writer.Write(bindPose.M31);
+                writer.Write(bindPose.M32);
+                writer.Write(bindPose.M33);
+                writer.Write(bindPose.M34);
+
+                writer.Write(bindPose.M41);
+                writer.Write(bindPose.M42);
+                writer.Write(bindPose.M43);
+                writer.Write(bindPose.M44);
+            }
+
+
+        compoundTag.Add("MeshData", new SerializedProperty(memoryStream.ToArray()));
+
+        return compoundTag;
+    }
+
+
+    public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
+    {
+        using MemoryStream memoryStream = new(value["MeshData"].ByteArrayValue);
+        using BinaryReader reader = new(memoryStream);
+
+        _indexFormat = (IndexFormat)reader.ReadByte();
+        _topology = (Topology)reader.ReadByte();
+
+        _vertexPositions = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexNormals = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexTangents = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexColors = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexColors32 = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexTexCoord0 = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _vertexTexCoord1 = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+
+        _indexData = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+
+        _boneIndices = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+        _boneWeights = reader.ReadInt32() > 0 ? reader.ReadBytes(reader.ReadInt32()) : null;
+
+        int bindPosesCount = reader.ReadInt32();
+        if (bindPosesCount > 0)
+        {
+            _bindPoses = new System.Numerics.Matrix4x4[bindPosesCount];
+            for (int i = 0; i < bindPosesCount; i++)
+                _bindPoses[i] = new System.Numerics.Matrix4x4
+                {
+                    M11 = reader.ReadSingle(),
+                    M12 = reader.ReadSingle(),
+                    M13 = reader.ReadSingle(),
+                    M14 = reader.ReadSingle(),
+
+                    M21 = reader.ReadSingle(),
+                    M22 = reader.ReadSingle(),
+                    M23 = reader.ReadSingle(),
+                    M24 = reader.ReadSingle(),
+
+                    M31 = reader.ReadSingle(),
+                    M32 = reader.ReadSingle(),
+                    M33 = reader.ReadSingle(),
+                    M34 = reader.ReadSingle(),
+
+                    M41 = reader.ReadSingle(),
+                    M42 = reader.ReadSingle(),
+                    M43 = reader.ReadSingle(),
+                    M44 = reader.ReadSingle()
+                };
+        }
+
+        _isDirty = true;
     }
 }
