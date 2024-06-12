@@ -4,6 +4,7 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.SceneManagement;
+using KorpiEngine.Core.Scripting.Components;
 
 namespace KorpiEngine.Core.ECS.Systems;
 
@@ -44,8 +45,8 @@ internal class RenderSystem(Scene scene) : NativeSystem(scene)
             for (int i = 0; i < mat.PassCount; i++)
             {
                 mat.SetPass(i);
-                Matrix4x4 matrix = Matrix4x4.TRS(transform.Position, transform.Rotation, transform.Scale);
-                Graphics.DrawMeshNow(mesh.Mesh, transform.Matrix, mat);
+                Matrix4x4 matrix = Transform.GetMatrix(transform);
+                Graphics.DrawMeshNow(mesh.Mesh, matrix, mat);
             }
         }
     }

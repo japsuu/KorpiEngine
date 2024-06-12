@@ -32,10 +32,7 @@ public sealed class Entity : EngineObject
 
     public readonly Transform Transform = new();
 
-    public Entity? Parent { get; private set; }
-
-    /// <summary> All children of this Entity </summary>
-    public readonly List<Entity> Children = [];
+    public Entity? Parent => Transform.Parent?.Entity;
 
     /// <summary> Gets whether this entity is enabled explicitly </summary>
     public bool Enabled
@@ -49,7 +46,7 @@ public sealed class Entity : EngineObject
     }
 
     /// <summary> Gets whether this entity is enabled in the hierarchy, so if its parent is disabled this will return false </summary>
-    public bool EnabledInHierarchy { get; private set; } = true;
+    public bool EnabledInHierarchy { get; internal set; } = true;
     
     /// <summary>Returns a matrix relative/local to the currently rendering camera, Will throw if used outside a rendering method</summary>
     public Matrix4x4 GlobalCamRelative
@@ -282,90 +279,6 @@ public sealed class Entity : EngineObject
 
     #endregion
 
-
-    public static bool IsChildOrSameTransform(Entity? transform, Entity inParent)
-    {
-        Entity? child = transform;
-        while (child != null)
-        {
-            if (child == inParent)
-                return true;
-            child = child.Parent;
-        }
-
-        return false;
-    }
-
-
-    public bool IsChildOf(Entity parent)
-    {
-        if (InstanceID == parent.InstanceID)
-            return false; // Not a child, they're the same object
-
-        Entity? child = this;
-        while (child != null)
-        {
-            if (child == parent)
-                return true;
-            child = child.Parent;
-        }
-
-        return false;
-    }
-
-
-    public bool SetParent(Entity? newParent, bool worldPositionStays = true)
-    {
-        if (newParent == Parent)
-            return true;
-
-        // Make sure that the new father is not a child of this transform.
-        if (IsChildOrSameTransform(newParent, this))
-            return false;
-
-        // Save the old position in world space
-        Vector3 worldPosition = new();
-        Quaternion worldRotation = new();
-        Matrix4x4 worldScale = new();
-
-        if (worldPositionStays)
-        {
-            worldPosition = Transform.Position;
-            worldRotation = Transform.Rotation;
-            worldScale = Transform.GetWorldRotationAndScale();
-        }
-
-        if (newParent != Parent)
-        {
-            Parent?.Children.Remove(this);
-            newParent?.Children.Add(this);
-
-            Parent = newParent;
-        }
-
-        if (worldPositionStays)
-        {
-            if (Parent != null)
-            {
-                Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
-                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Transform.Rotation) * worldRotation);
-            }
-            else
-            {
-                Transform.LocalPosition = worldPosition;
-                Transform.LocalRotation = Quaternion.NormalizeSafe(worldRotation);
-            }
-
-            Transform.LocalScale = Vector3.One;
-            Matrix4x4 inverseRs = Transform.GetWorldRotationAndScale().Invert() * worldScale;
-            Transform.LocalScale = new Vector3(inverseRs[0, 0], inverseRs[1, 1], inverseRs[2, 2]);
-        }
-
-        HierarchyStateChanged();
-
-        return true;
-    }
-
     public void DontDestroyOnLoad() => throw new NotImplementedException();
 
 
@@ -375,15 +288,5 @@ public sealed class Entity : EngineObject
         HierarchyStateChanged();
     }
 
-
-    private void HierarchyStateChanged()
-    {
-        bool newState = _enabled && IsParentEnabled();
-        EnabledInHierarchy = newState;
-
-        foreach (Entity child in Children)
-            child.HierarchyStateChanged();
-    }
-
-    private bool IsParentEnabled() => Parent == null || Parent.EnabledInHierarchy;
+    internal bool IsParentEnabled() => Parent == null || Parent.EnabledInHierarchy;
 }

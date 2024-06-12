@@ -6,7 +6,7 @@ namespace KorpiEngine.Core.Scripting.Components;
 /// <summary>
 /// Contains the position, rotation and scale of an <see cref="Entity"/>.
 /// </summary>
-public class Transform : Component
+public sealed class Transform : Component
 {
     internal override Type NativeComponentType => typeof(TransformComponent);
 
@@ -16,6 +16,16 @@ public class Transform : Component
     public Vector3 Down => Rotation * Vector3.Down;
     public Vector3 Forward => Rotation * Vector3.Forward;
     public Vector3 Backward => Rotation * Vector3.Backward;
+
+    /// <summary>
+    /// Used to check if the transform has changed since the last time it was accessed.
+    /// https://forum.unity.com/threads/transform-haschanged-would-be-better-if-replaced-by-a-version-number.700004/
+    /// </summary>
+    public uint Version
+    {
+        get => Entity.GetNativeComponent<TransformComponent>().Version;
+        private set => Entity.GetNativeComponent<TransformComponent>().Version = value;
+    }
 
 
     #region Reference Getters and Setters
@@ -45,21 +55,112 @@ public class Transform : Component
     #endregion
 
 
+    #region Parenting
+
     public Transform? Parent
     {
-        get => Entity.Parent?.Transform;
-        set => Entity.SetParent(value?.Entity, true);
+        get => Entity.GetNativeComponent<TransformComponent>().Parent;
+        private set => Entity.GetNativeComponent<TransformComponent>().Parent = value;
+    }
+    
+    
+    public List<Transform> Children => Entity.GetNativeComponent<TransformComponent>().Children;
+
+
+    public bool SetParent(Transform? newParent, bool worldPositionStays = true)
+    {
+        if (newParent == Parent)
+            return true;
+
+        // Make sure that the new father is not a child of this transform.
+        if (IsChildOrSameTransform(newParent, this))
+            return false;
+
+        // Save the old position in world space
+        Vector3 worldPosition = new();
+        Quaternion worldRotation = new();
+        Matrix4x4 worldScale = new();
+
+        if (worldPositionStays)
+        {
+            worldPosition = Transform.Position;
+            worldRotation = Transform.Rotation;
+            worldScale = Transform.GetWorldRotationAndScale();
+        }
+
+        if (newParent != Parent)
+        {
+            Parent?.Children.Remove(this);
+            newParent?.Children.Add(this);
+
+            Parent = newParent;
+        }
+
+        if (worldPositionStays)
+        {
+            if (Parent != null)
+            {
+                Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
+                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Transform.Rotation) * worldRotation);
+            }
+            else
+            {
+                Transform.LocalPosition = worldPosition;
+                Transform.LocalRotation = Quaternion.NormalizeSafe(worldRotation);
+            }
+
+            Transform.LocalScale = Vector3.One;
+            Matrix4x4 inverseRs = Transform.GetWorldRotationAndScale().Invert() * worldScale;
+            Transform.LocalScale = new Vector3(inverseRs[0, 0], inverseRs[1, 1], inverseRs[2, 2]);
+        }
+
+        HierarchyStateChanged();
+
+        return true;
     }
 
-    /// <summary>
-    /// Used to check if the transform has changed since the last time it was accessed.
-    /// https://forum.unity.com/threads/transform-haschanged-would-be-better-if-replaced-by-a-version-number.700004/
-    /// </summary>
-    public uint Version
+
+    public static bool IsChildOrSameTransform(Transform? transform, Transform inParent)
     {
-        get => Entity.GetNativeComponent<TransformComponent>().Version;
-        private set => Entity.GetNativeComponent<TransformComponent>().Version = value;
+        Transform? child = transform;
+        while (child != null)
+        {
+            if (child == inParent)
+                return true;
+            child = child.Parent;
+        }
+
+        return false;
     }
+
+
+    public bool IsChildOf(Entity parent)
+    {
+        if (InstanceID == parent.InstanceID)
+            return false; // Not a child, they're the same object
+
+        Entity? child = Entity;
+        while (child != null)
+        {
+            if (child == parent)
+                return true;
+            child = child.Parent;
+        }
+
+        return false;
+    }
+
+
+    private void HierarchyStateChanged()
+    {
+        bool newState = Entity.Enabled && Entity.IsParentEnabled();
+        Entity.EnabledInHierarchy = newState;
+
+        foreach (Transform child in Children)
+            child.HierarchyStateChanged();
+    }
+
+    #endregion
 
 
     #region Position
@@ -97,6 +198,14 @@ public class Transform : Component
             LocalPosition = MakeSafe(newPosition);
             Version++;
         }
+    }
+
+
+    public static Vector3 GetPosition(TransformComponent component)
+    {
+        if (component.Parent != null)
+            return MakeSafe(component.Parent.LocalToWorldMatrix.MultiplyPoint(component.LocalPosition));
+        return component.LocalPosition;
     }
 
     #endregion
@@ -170,6 +279,20 @@ public class Transform : Component
             Version++;
         }
     }
+    
+    
+    public static Quaternion GetRotation(TransformComponent component)
+    {
+        Quaternion worldRot = component.LocalRotation;
+        Transform? p = component.Parent;
+        while (p != null)
+        {
+            worldRot = p.LocalRotation * worldRot;
+            p = p.Parent;
+        }
+
+        return MakeSafe(worldRot);
+    }
 
     #endregion
 
@@ -207,6 +330,20 @@ public class Transform : Component
             return MakeSafe(scale);
         }
     }
+    
+    
+    public static Vector3 GetScale(TransformComponent component)
+    {
+        Vector3 scale = component.LocalScale;
+        Transform? p = component.Parent;
+        while (p != null)
+        {
+            scale.Scale(p.LocalScale);
+            p = p.Parent;
+        }
+
+        return MakeSafe(scale);
+    }
 
     #endregion
 
@@ -235,6 +372,12 @@ public class Transform : Component
         ret = parentTransform * ret;
 
         return ret;
+    }
+    
+    
+    public static Matrix4x4 GetMatrix(TransformComponent component)
+    {
+        return Matrix4x4.TRS(GetPosition(component), GetRotation(component), GetScale(component));
     }
 
     #endregion
@@ -266,9 +409,9 @@ public class Transform : Component
 
     private static Transform? FindImmediateChild(Transform parent, string name)
     {
-        foreach (Entity child in parent.Entity.Children)
+        foreach (Transform child in parent.Children)
             if (child.Name == name)
-                return child.Transform;
+                return child;
         return null;
     }
 
@@ -279,9 +422,9 @@ public class Transform : Component
             return null;
         if (name == Entity.Name)
             return this;
-        foreach (Entity child in Entity.Children)
+        foreach (Transform child in Children)
         {
-            Transform? t = child.Transform.DeepFind(name);
+            Transform? t = child.DeepFind(name);
             if (t != null)
                 return t;
         }
