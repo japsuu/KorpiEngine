@@ -1,6 +1,10 @@
 ﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.Rendering;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
+using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
@@ -29,12 +33,15 @@ public sealed class Camera : Component
     /// </summary>
     public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Transform.Position, Transform.Forward, Transform.Up);
     
+#warning TEMPORARY, may cause issues with component serialization
+    public event Action<int, int>? Resize;
+    
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>
-    public Matrix4x4 ProjectionMatrix => ProjectionType == CameraProjectionType.Orthographic ?
-        System.Numerics.Matrix4x4.CreateOrthographicLeftHanded(WindowInfo.ClientWidth, WindowInfo.ClientHeight, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble() :
-        System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FieldOfView.ToRad(), WindowInfo.ClientAspectRatio, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble();
+    public Matrix4x4 GetProjectionMatrix(float width, float height) => ProjectionType == CameraProjectionType.Orthographic ?
+        System.Numerics.Matrix4x4.CreateOrthographicLeftHanded(width, height, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble() :
+        System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FieldOfView.ToRad(), width / height, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble();
 
     /// <summary>
     /// The render priority of this camera.
@@ -78,11 +85,228 @@ public sealed class Camera : Component
     }
     
     
+    public AssetRef<RenderTexture> Target
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().Target;
+        set => Entity.GetNativeComponent<CameraComponent>().Target = value;
+    }
+    
+    
+    public float RenderResolution
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().RenderResolution;
+        set => Entity.GetNativeComponent<CameraComponent>().RenderResolution = value;
+    }
+    
+    
+    public GBuffer? GBuffer
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().GBuffer;
+        set => Entity.GetNativeComponent<CameraComponent>().GBuffer = value;
+    }
+    
+    
+    public Matrix4x4? OldView
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().OldView;
+        set => Entity.GetNativeComponent<CameraComponent>().OldView = value;
+    }
+    
+    
+    public Matrix4x4? OldProjection
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().OldProjection;
+        set => Entity.GetNativeComponent<CameraComponent>().OldProjection = value;
+    }
+    
+    
+    public DebugDrawType DebugDraw
+    {
+        get => Entity.GetNativeComponent<CameraComponent>().DebugDraw;
+        set => Entity.GetNativeComponent<CameraComponent>().DebugDraw = value;
+    }
+    
+    
+    private bool DoClear => ClearType != CameraClearType.Nothing;
+
+
+    private Vector2 GetRenderTargetSize()
+    {
+        if (Target.IsAvailable)
+            return new Vector2(Target.Res!.Width, Target.Res!.Height);
+        
+        return new Vector2(Graphics.KorpiWindow.FramebufferSize.X, Graphics.KorpiWindow.FramebufferSize.Y);
+    }
+    
+    
+    private void CheckGBuffer()
+    {
+        RenderResolution = Math.Clamp(RenderResolution, 0.1f, 4.0f);
+
+        Vector2 size = GetRenderTargetSize() * RenderResolution;
+        if (GBuffer == null)
+        {
+            GBuffer = new GBuffer((int)size.X, (int)size.Y);
+            Resize?.Invoke(GBuffer.Width, GBuffer.Height);
+        }
+        else if (GBuffer.Width != (int)size.X || GBuffer.Height != (int)size.Y)
+        {
+            GBuffer.UnloadGBuffer();
+            GBuffer = new GBuffer((int)size.X, (int)size.Y);
+            Resize?.Invoke(GBuffer.Width, GBuffer.Height);
+        }
+    }
+    
+    
+    private void OpaquePass()
+    {
+        SceneManager.ForeachComponent((x) => x.Do(x.OnPreRender));
+        GBuffer.Begin();                            // Start
+        RenderAllOfOrder(RenderingOrder.Opaque);    // Render
+        GBuffer.End();                              // End
+        SceneManager.ForeachComponent((x) => x.Do(x.OnPostRender));
+    }
+    
+    
+    internal void RenderAllOfOrder(RenderingOrder order)
+    {
+        foreach (var go in SceneManager.AllGameObjects)
+            if (go.enabledInHierarchy)
+                foreach (var comp in go.GetComponents())
+                    if (comp.Enabled && comp.RenderOrder == order)
+                        comp.OnRenderObject();
+    }
+
+
+    public void Render(int width, int height)
+    {
+        if (RenderPipeline.IsAvailable == false)
+        {
+            Application.Logger.Error($"Camera on {Entity.Name} has no RenderPipeline assigned, Falling back to default.");
+            RenderPipeline = Application.AssetProvider.LoadAsset<RenderPipeline>("Defaults/DefaultRenderPipeline.scriptobj");
+            if (RenderPipeline.IsAvailable == false)
+            {
+                Application.Logger.Error($"Camera on {Entity.Name} cannot render, Missing Default Render Pipeline!");
+                return;
+            }
+        }
+
+        var rp = RenderPipeline;
+        if (Target.IsAvailable)
+        {
+            width = Target.Res!.Width;
+            height = Target.Res!.Height;
+        }
+        else if (width == -1 || height == -1)
+        {
+            width = Graphics.KorpiWindow.FramebufferSize.X;
+            height = Graphics.KorpiWindow.FramebufferSize.Y;
+        }
+
+        width = (int)(width * RenderResolution);
+        height = (int)(height * RenderResolution);
+
+        CheckGBuffer();
+
+
+        RenderingCamera = this;
+
+        Graphics.ViewMatrix = ViewMatrix;
+        Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height);
+        Graphics.OldViewMatrix = OldView ?? Graphics.ViewMatrix;
+        Graphics.OldProjectionMatrix = OldProjection ?? Graphics.ProjectionMatrix;
+
+        // Set default jitter to false, this is set to true in a TAA pass
+        rp.Res!.Prepare(width, height);
+
+        Matrix4x4.Invert(Graphics.ViewMatrix, out Matrix4x4 inverseView);
+        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Matrix4x4 inverseProjection);
+        Graphics.InverseViewMatrix = inverseView;
+        Graphics.InverseProjectionMatrix = inverseProjection;
+
+        OpaquePass();
+
+        var outputNode = rp.Res!.GetNode<OutputNode>();
+        if (outputNode == null)
+        {
+            EarlyEndRender();
+
+            Application.Logger.Error("RenderPipeline has no OutputNode!");
+            return;
+        }
+
+        RenderTexture? result = rp.Res!.Render();
+
+        if (result == null)
+        {
+            EarlyEndRender();
+
+            Application.Logger.Error("RenderPipeline OutputNode failed to return a RenderTexture!");
+            return;
+        }
+
+        //LightingPass();
+        //
+        //PostProcessStagePreCombine?.Invoke(gBuffer);
+        //
+        //if (debugDraw == DebugDraw.Off)
+        //    CombinePass();
+        //
+        //PostProcessStagePostCombine?.Invoke(gBuffer);
+
+        // Draw to Screen
+        if (DebugDraw == DebugDrawType.Off)
+        {
+            Graphics.Blit(Target.Res ?? null, result.InternalTextures[0], DoClear);
+            Graphics.BlitDepth(GBuffer.Buffer, Target.Res ?? null);
+        }
+        else if (DebugDraw == DebugDrawType.Albedo)
+            Graphics.Blit(Target.Res ?? null, GBuffer.AlbedoAO, DoClear);
+        else if (DebugDraw == DebugDrawType.Normals)
+            Graphics.Blit(Target.Res ?? null, GBuffer.NormalMetallic, DoClear);
+        else if (DebugDraw == DebugDrawType.Depth)
+            Graphics.Blit(Target.Res ?? null, GBuffer.Depth, DoClear);
+        else if (DebugDraw == DebugDrawType.Velocity)
+            Graphics.Blit(Target.Res ?? null, GBuffer.Velocity, DoClear);
+        else if (DebugDraw == DebugDrawType.ObjectID)
+            Graphics.Blit(Target.Res ?? null, GBuffer.ObjectIDs, DoClear);
+
+        OldView = Graphics.ViewMatrix;
+        OldProjection = Graphics.ProjectionMatrix;
+
+        if (ShowGizmos)
+        {
+            Target.Res?.Begin();
+            if (Graphics.UseJitter)
+                Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
+            Gizmos.Render();
+            Target.Res?.End();
+        }
+        
+        Gizmos.Clear();
+
+        RenderingCamera = null;
+        Graphics.UseJitter = false;
+    }
+    
+    
+    private void EarlyEndRender()
+    {
+        Graphics.UseJitter = false;
+        if (ClearType == CameraClearType.SolidColor)
+        {
+            Target.Res?.Begin();
+            Graphics.Clear(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
+            Target.Res?.End();
+        }
+        RenderingCamera = null;
+    }
+    
+    
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
-        
-        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
+        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
         
         // Without this the coordinates are visible even when looking straight away from them.
         if (clipSpacePosition.W <= 0)
@@ -104,7 +328,7 @@ public sealed class Camera : Component
 
     private Frustum CalculateFrustum()
     {
-        Matrix4x4 viewProjection = ViewMatrix * ProjectionMatrix;
+        Matrix4x4 viewProjection = ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
         FrustumPlane[] planes = new FrustumPlane[6];
 
         // Top plane.

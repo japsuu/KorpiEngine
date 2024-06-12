@@ -67,6 +67,7 @@ public class Behaviour : Component
     /// </summary>
     public void Destroy()
     {
+#warning FIXME: Implement behaviour destruction (component removal)
         IsAwaitingDestruction = true;
     }
 

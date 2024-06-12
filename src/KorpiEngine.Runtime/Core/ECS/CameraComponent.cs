@@ -1,29 +1,38 @@
-﻿using KorpiEngine.Core.Rendering.Cameras;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.Rendering;
+using KorpiEngine.Core.API.Rendering.Textures;
+using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.ECS;
 
-public struct CameraComponent : INativeComponent
+public struct CameraComponent() : INativeComponent
 {
-    public short RenderPriority;
+    public AssetRef<RenderTexture> Target;
 
-    public CameraProjectionType ProjectionType;
+    public GBuffer? GBuffer;
     
-    public CameraRenderTarget RenderTarget;
-    
-    public CameraClearType ClearType;
-    
-    public Color ClearColor;
-    
-    public float FOVDegrees;
+    public short RenderPriority = 0;
 
+    public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
+    
+    public CameraRenderTarget RenderTarget = CameraRenderTarget.Screen;
+    
+    public CameraClearType ClearType = CameraClearType.SolidColor;
+    
+    public Color ClearColor = Color.Gray;
+    
+    public float FOVDegrees = 90;
+    
+    public float NearClip = 0.01f;
+    
+    public float FarClip = 1000f;
 
-    public CameraComponent()
-    {
-        RenderPriority = 0;
-        ProjectionType = CameraProjectionType.Perspective;
-        RenderTarget = CameraRenderTarget.Screen;
-        ClearType = CameraClearType.SolidColor;
-        ClearColor = Color.Gray;
-        FOVDegrees = 90;
-    }
+    public float RenderResolution = 1f;
+    
+    public Matrix4x4? OldView = null;
+    
+    public Matrix4x4? OldProjection = null;
+    
+    public DebugDrawType DebugDraw = DebugDrawType.Off;
 }

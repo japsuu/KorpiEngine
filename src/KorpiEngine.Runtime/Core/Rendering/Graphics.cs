@@ -15,13 +15,26 @@ public static class Graphics
 {
     private static KorpiWindow Window { get; set; } = null!;
     private static Material? defaultMat;
+    internal static KorpiWindow KorpiWindow => Window;
     internal static GraphicsDriver Driver = null!;
     internal static Vector2i FrameBufferSize;
 
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
-    public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewProjectionMatrix { get; private set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 ViewMatrix { get; internal set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseViewMatrix { get; internal set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldViewMatrix { get; internal set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 ProjectionMatrix { get; internal set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseProjectionMatrix { get; internal set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldProjectionMatrix { get; internal set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 DepthProjectionMatrix { get; internal set; } = Matrix4x4.Identity;
+    public static Matrix4x4 DepthViewMatrix { get; internal set; } = Matrix4x4.Identity;
+    
+    public static Vector2 Jitter { get; internal set; }
+    public static Vector2 PreviousJitter { get; internal set; }
+    public static bool UseJitter { get; internal set; }
 
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
@@ -104,9 +117,21 @@ public static class Graphics
         
         if (Driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
-
+        
         // Upload the default uniforms available to all shaders.
         // The shader can choose to use them or not, as they are buffered only if the location is available.
+
+        if (UseJitter)
+        {
+            material.SetVector("_Jitter", Jitter);
+            material.SetVector("_PreviousJitter", PreviousJitter);
+        }
+        else
+        {
+            material.SetVector("_Jitter", Vector2.Zero);
+            material.SetVector("_PreviousJitter", Vector2.Zero);
+        }
+
         material.SetVector("_Resolution", Resolution);
         material.SetFloat("_Time", (float)Time.TotalTime);
         material.SetInt("_Frame", Time.TotalFrameCount);
@@ -213,17 +238,5 @@ public static class Graphics
             ClearFlags.Depth, BlitFilter.Nearest
         );
         Driver.UnbindFramebuffer();
-    }
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void SetMatrices(Camera renderingCamera)
-    {
-        Matrix4x4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4x4 projectionMatrix = renderingCamera.ProjectionMatrix;
-        
-        ProjectionMatrix = projectionMatrix;
-        ViewMatrix = viewMatrix;
-        ViewProjectionMatrix = viewMatrix * projectionMatrix;
     }
 }

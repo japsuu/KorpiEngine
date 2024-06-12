@@ -142,7 +142,7 @@ public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshDat
     private byte[]? _boneIndices;
     private byte[]? _boneWeights;
 
-    private System.Numerics.Matrix4x4[]? _bindPoses; //TODO: Getter for SkinnedMeshRenderer.
+    public System.Numerics.Matrix4x4[]? BindPoses; //TODO: Hide this field
 
 
     protected override void OnDispose()
@@ -378,6 +378,24 @@ public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshDat
     public Color[]? GetColors() => GetVertexAttributeData<Color>(_vertexColors);
 
     public void SetColors(ArraySegment<Color>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
+
+
+    #region BONES
+
+    public int GetBoneIndicesNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneIndices, destination);
+
+    public System.Numerics.Vector4[]? GetBoneIndices() => GetVertexAttributeData<System.Numerics.Vector4>(_boneIndices);
+
+    public void SetBoneIndices(ArraySegment<System.Numerics.Vector4>? indices) => SetVertexAttributeData(indices, ref _boneIndices);
+
+    
+    public int GetBoneWeightsNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneWeights, destination);
+
+    public System.Numerics.Vector4[]? GetBoneWeights() => GetVertexAttributeData<System.Numerics.Vector4>(_boneWeights);
+
+    public void SetBoneWeights(ArraySegment<System.Numerics.Vector4>? weights) => SetVertexAttributeData(weights, ref _boneWeights);
+
+    #endregion
 
 
     public int GetUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
@@ -957,7 +975,7 @@ public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshDat
 
         _boneIndices = null;
         _boneWeights = null;
-        _bindPoses = null;
+        BindPoses = null;
 
         VertexCount = 0;
         _isDirty = true;
@@ -1045,9 +1063,9 @@ public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshDat
             foreach (byte boneWeight in _boneWeights)
                 writer.Write(boneWeight);
 
-        writer.Write(_bindPoses?.Length ?? 0);
-        if (_bindPoses != null)
-            foreach (System.Numerics.Matrix4x4 bindPose in _bindPoses)
+        writer.Write(BindPoses?.Length ?? 0);
+        if (BindPoses != null)
+            foreach (System.Numerics.Matrix4x4 bindPose in BindPoses)
             {
                 writer.Write(bindPose.M11);
                 writer.Write(bindPose.M12);
@@ -1101,9 +1119,9 @@ public sealed class Mesh : EngineObject, ISerializable //TODO: Implement MeshDat
         int bindPosesCount = reader.ReadInt32();
         if (bindPosesCount > 0)
         {
-            _bindPoses = new System.Numerics.Matrix4x4[bindPosesCount];
+            BindPoses = new System.Numerics.Matrix4x4[bindPosesCount];
             for (int i = 0; i < bindPosesCount; i++)
-                _bindPoses[i] = new System.Numerics.Matrix4x4
+                BindPoses[i] = new System.Numerics.Matrix4x4
                 {
                     M11 = reader.ReadSingle(),
                     M12 = reader.ReadSingle(),

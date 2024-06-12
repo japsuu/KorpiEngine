@@ -5,6 +5,7 @@ using Arch.Core;
 using Arch.Core.Extensions;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting.Components;
 
@@ -34,7 +35,7 @@ public sealed class Entity : EngineObject
     public Entity? Parent { get; private set; }
 
     /// <summary> All children of this Entity </summary>
-    public List<Entity> Children = [];
+    public readonly List<Entity> Children = [];
 
     /// <summary> Gets whether this entity is enabled explicitly </summary>
     public bool Enabled
@@ -49,6 +50,17 @@ public sealed class Entity : EngineObject
 
     /// <summary> Gets whether this entity is enabled in the hierarchy, so if its parent is disabled this will return false </summary>
     public bool EnabledInHierarchy { get; private set; } = true;
+    
+    /// <summary>Returns a matrix relative/local to the currently rendering camera, Will throw if used outside a rendering method</summary>
+    public Matrix4x4 GlobalCamRelative
+    {
+        get
+        {
+            Matrix4x4 t = Transform.LocalToWorldMatrix;
+            t.Translation -= Camera.RenderingCamera.Entity.Transform.Position;
+            return t;
+        }
+    }
 
 
     /// <summary>
@@ -109,8 +121,7 @@ public sealed class Entity : EngineObject
     }
 
 
-    public T? GetComponent<T>()
-        where T : class // NOTE: We cannot use a Component constraint here, as we need to check if the provided type is a component or a plain C# interface.
+    public T? GetComponent<T>() where T : class // NOTE: We cannot use a Component constraint here, as we need to check if the provided type is a component or a plain C# interface.
     {
 #warning TODO: Better solution for getting components, that does not use reflection.
         //WARN: Might not work properly with components inheriting Behaviour, since Behaviour's NativeComponentType is BehaviourComponent.
@@ -149,6 +160,30 @@ public sealed class Entity : EngineObject
                 return t;
 
         return null;
+    }
+
+
+    public IEnumerable<T> GetComponentsInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : class
+    {
+        if (IsDestroyed)
+            throw new KorpiException("Cannot get components from a destroyed object.");
+
+        if (!EntityRef.IsAlive())
+            throw new KorpiException("The underlying entity has been destroyed.");
+
+        List<T> components = [];
+
+        if (includeSelf)
+        {
+            T? component = GetComponent<T>();
+            if (component != null)
+                components.Add(component);
+        }
+
+        foreach (Entity child in Children)
+            components.AddRange(child.GetComponentsInChildren<T>(true, includeInactive));
+
+        return components;
     }
 
 

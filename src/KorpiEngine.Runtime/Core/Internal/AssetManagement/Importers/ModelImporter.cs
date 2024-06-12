@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using Assimp;
+﻿using Assimp;
+using KorpiEngine.Core.Animations;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -9,6 +9,7 @@ using KorpiEngine.Core.Scripting.Components;
 using Material = KorpiEngine.Core.API.Rendering.Materials.Material;
 using Matrix4x4 = Assimp.Matrix4x4;
 using Mesh = KorpiEngine.Core.API.Rendering.Mesh;
+using PrimitiveType = Assimp.PrimitiveType;
 using Quaternion = Assimp.Quaternion;
 using Texture2D = KorpiEngine.Core.API.Rendering.Textures.Texture2D;
 
@@ -82,72 +83,22 @@ internal class ModelImporter : AssetImporter
             if (assetPath.Extension.Equals(".fbx", StringComparison.OrdinalIgnoreCase))
                 scale *= 0.01;
 
-            // Create the object tree, We need to do this first so we can get the bone names
+            // Create the object tree, We need to do this first, so we can get the bone names
             List<(Entity, Node)> GOs = [];
             GetNodes(Path.GetFileNameWithoutExtension(assetPath.Name), scene.RootNode, ref GOs, scale);
 
-            //if (scene.HasTextures) {
-            //    // Embedded textures, Extract them first
-            //    foreach (var t in scene.Textures) {
-            //        if (t.IsCompressed) {
-            //            // Export it as whatever format it already is to a file
-            //            var format = ImageMagick.MagickFormat.Png;
-            //            switch (t.CompressedFormatHint) {
-            //                case "png":
-            //                    format = ImageMagick.MagickFormat.Png;
-            //                    break;
-            //                case "tga":
-            //                    format = ImageMagick.MagickFormat.Tga;
-            //                    break;
-            //                case "dds":
-            //                    format = ImageMagick.MagickFormat.Dds;
-            //                    break;
-            //                case "jpg":
-            //                    format = ImageMagick.MagickFormat.Jpg;
-            //                    break;
-            //                case "bmp":
-            //                    format = ImageMagick.MagickFormat.Bmp;
-            //                    break;
-            //                default:
-            //                    Debug.LogWarning($"Unknown texture format '{t.CompressedFormatHint}'");
-            //                    break;
-            //            }
-            //            ImageMagick.MagickImage img = new ImageMagick.MagickImage(t.CompressedData, new ImageMagick.MagickReadSettings() { Format = format });
-            //            var file = new FileInfo(Path.Combine(subAssetPath.FullName, $"{t.Filename}.{t.CompressedFormatHint}"));
-            //            img.Write(file.FullName, format);
-            //            AssetDatabase.Refresh(file);
-            //            //AssetDatabase.LastLoadedAssetID; the textures guid
-            //        } else {
-            //            // Export it as a png
-            //            byte[] data = new byte[t.NonCompressedData.Length * 4];
-            //            for (int i = 0; i < t.NonCompressedData.Length; i++) {
-            //                data[i * 4 + 0] = t.NonCompressedData[i].R;
-            //                data[i * 4 + 1] = t.NonCompressedData[i].G;
-            //                data[i * 4 + 2] = t.NonCompressedData[i].B;
-            //                data[i * 4 + 3] = t.NonCompressedData[i].A;
-            //            }
-            //
-            //            ImageMagick.MagickImage img = new ImageMagick.MagickImage(data);
-            //            var file = new FileInfo(Path.Combine(subAssetPath.FullName, $"{t.Filename}.png"));
-            //            img.Write(file.FullName, ImageMagick.MagickFormat.Png);
-            //            AssetDatabase.Refresh(file);
-            //            //AssetDatabase.LastLoadedAssetID; the textures guid
-            //        }
-            //    }
-            //}
-
             List<AssetRef<Material>> mats = new();
             if (scene.HasMaterials)
-                LoadMaterials(ctx, scene, parentDir, mats);
+                LoadMaterials(scene, parentDir, mats);
 
             // Animations
             List<AssetRef<AnimationClip>> anims = [];
             if (scene.HasAnimations)
-                anims = LoadAnimations(ctx, scene, scale);
+                anims = LoadAnimations(scene, scale);
 
             List<MeshMaterialBinding> meshMats = new();
             if (scene.HasMeshes)
-                LoadMeshes(ctx, assetPath, scene, scale, mats, meshMats);
+                LoadMeshes(assetPath, scene, scale, mats, meshMats);
 
             // Create Meshes
             foreach ((Entity, Node) goNode in GOs)
@@ -181,12 +132,12 @@ internal class ModelImporter : AssetImporter
 
             Entity rootNode = GOs[0].Item1;
             if (UnitScale != 1f)
-                rootNode.Transform.localScale = Vector3.one * UnitScale;
+                rootNode.Transform.LocalScale = Vector3.One * UnitScale;
 
             // Add Animation Component with all the animations assigned
             if (anims.Count > 0)
             {
-                var anim = rootNode.AddComponent<Runtime.Animation>();
+                var anim = rootNode.AddComponent<Animations.Animation>();
                 foreach (var a in anims)
                     anim.Clips.Add(a);
                 anim.DefaultClip = anims[0];
@@ -197,7 +148,7 @@ internal class ModelImporter : AssetImporter
                 // Remove Empty GameObjects
                 List<(Entity, Node)> GOsToRemove = [];
                 foreach ((Entity, Node) go in GOs)
-                    if (go.Item1.GetComponentsInChildren<MonoBehaviour>().Count() == 0)
+                    if (go.Item1.GetComponentsInChildren<Behaviour>().Count() == 0)
                         GOsToRemove.Add(go);
                 foreach ((Entity, Node) go in GOsToRemove)
                 {
@@ -330,13 +281,13 @@ internal class ModelImporter : AssetImporter
     }
 
 
-    private void LoadMeshes(SerializedAsset ctx, FileInfo assetPath, Scene? scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
+    private void LoadMeshes(FileInfo assetPath, Scene? scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
     {
-        foreach (Mesh? m in scene.Meshes)
+        foreach (Assimp.Mesh m in scene.Meshes)
         {
             if (m.PrimitiveType != PrimitiveType.Triangle)
             {
-                Debug.Log($"{assetPath.Name} 's mesh '{m.Name}' is not of Triangle Primitive, Skipping...");
+                Application.Logger.Warn($"{assetPath.Name} 's mesh '{m.Name}' is not of Triangle Primitive, Skipping...");
                 continue;
             }
 
@@ -349,7 +300,7 @@ internal class ModelImporter : AssetImporter
             System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[vertexCount];
             for (int i = 0; i < vertices.Length; i++)
                 vertices[i] = new System.Numerics.Vector3(m.Vertices[i].X, m.Vertices[i].Y, m.Vertices[i].Z) * (float)scale;
-            mesh.Vertices = vertices;
+            mesh.SetPositions(vertices);
 
             if (m.HasNormals)
             {
@@ -361,7 +312,7 @@ internal class ModelImporter : AssetImporter
                         normals[i] = -normals[i];
                 }
 
-                mesh.Normals = normals;
+                mesh.SetNormals(normals);
             }
 
             if (m.HasTangentBasis)
@@ -369,7 +320,7 @@ internal class ModelImporter : AssetImporter
                 System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertexCount];
                 for (int i = 0; i < tangents.Length; i++)
                     tangents[i] = new System.Numerics.Vector3(m.Tangents[i].X, m.Tangents[i].Y, m.Tangents[i].Z);
-                mesh.Tangents = tangents;
+                mesh.SetTangents(tangents);
             }
 
             if (m.HasTextureCoords(0))
@@ -377,7 +328,7 @@ internal class ModelImporter : AssetImporter
                 System.Numerics.Vector2[] texCoords1 = new System.Numerics.Vector2[vertexCount];
                 for (int i = 0; i < texCoords1.Length; i++)
                     texCoords1[i] = new System.Numerics.Vector2(m.TextureCoordinateChannels[0][i].X, m.TextureCoordinateChannels[0][i].Y);
-                mesh.UV = texCoords1;
+                mesh.SetUVs(texCoords1, 0);
             }
 
             if (m.HasTextureCoords(1))
@@ -385,7 +336,7 @@ internal class ModelImporter : AssetImporter
                 System.Numerics.Vector2[] texCoords2 = new System.Numerics.Vector2[vertexCount];
                 for (int i = 0; i < texCoords2.Length; i++)
                     texCoords2[i] = new System.Numerics.Vector2(m.TextureCoordinateChannels[1][i].X, m.TextureCoordinateChannels[1][i].Y);
-                mesh.UV2 = texCoords2;
+                mesh.SetUVs(texCoords2, 1);
             }
 
             if (m.HasVertexColors(0))
@@ -394,10 +345,10 @@ internal class ModelImporter : AssetImporter
                 for (int i = 0; i < colors.Length; i++)
                     colors[i] = new Color(
                         m.VertexColorChannels[0][i].R, m.VertexColorChannels[0][i].G, m.VertexColorChannels[0][i].B, m.VertexColorChannels[0][i].A);
-                mesh.Colors = colors;
+                mesh.SetColors(colors);
             }
 
-            mesh.Indices = m.GetUnsignedIndices();
+            mesh.SetIndices(m.GetIndices());
 
             //if(!m.HasTangentBasis)
             //    mesh.RecalculateTangents();
@@ -406,9 +357,9 @@ internal class ModelImporter : AssetImporter
 
             if (m.HasBones)
             {
-                mesh.bindPoses = new System.Numerics.Matrix4x4[m.Bones.Count];
-                mesh.BoneIndices = new System.Numerics.Vector4[vertexCount];
-                mesh.BoneWeights = new System.Numerics.Vector4[vertexCount];
+                System.Numerics.Matrix4x4[] bindPoses = new System.Numerics.Matrix4x4[m.Bones.Count];
+                System.Numerics.Vector4[] boneIndices = new System.Numerics.Vector4[vertexCount];
+                System.Numerics.Vector4[] boneWeights = new System.Numerics.Vector4[vertexCount];
                 for (int i = 0; i < m.Bones.Count; i++)
                 {
                     Bone? bone = m.Bones[i];
@@ -424,7 +375,7 @@ internal class ModelImporter : AssetImporter
                     // Adjust translation by scale
                     bindPose.Translation *= (float)scale;
 
-                    mesh.bindPoses[i] = bindPose;
+                    bindPoses[i] = bindPose;
 
                     if (!bone.HasVertexWeights)
                         continue;
@@ -434,8 +385,8 @@ internal class ModelImporter : AssetImporter
                     for (int j = 0; j < bone.VertexWeightCount; j++)
                     {
                         VertexWeight weight = bone.VertexWeights[j];
-                        var b = mesh.BoneIndices[weight.VertexID];
-                        var w = mesh.BoneWeights[weight.VertexID];
+                        var b = boneIndices[weight.VertexID];
+                        var w = boneWeights[weight.VertexID];
                         if (b.X == 0 || weight.Weight > w.X)
                         {
                             b.X = boneIndex;
@@ -458,17 +409,17 @@ internal class ModelImporter : AssetImporter
                         }
                         else
                         {
-                            Debug.LogWarning($"Vertex {weight.VertexID} has more than 4 bone weights, Skipping...");
+                            Application.Logger.Warn($"Vertex {weight.VertexID} has more than 4 bone weights, Skipping...");
                         }
 
-                        mesh.BoneIndices[weight.VertexID] = b;
-                        mesh.BoneWeights[weight.VertexID] = w;
+                        boneIndices[weight.VertexID] = b;
+                        boneWeights[weight.VertexID] = w;
                     }
                 }
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    var w = mesh.BoneWeights[i];
+                    var w = boneWeights[i];
                     var totalWeight = w.X + w.Y + w.Z + w.W;
                     if (totalWeight == 0)
                         continue;
@@ -476,8 +427,12 @@ internal class ModelImporter : AssetImporter
                     w.Y /= totalWeight;
                     w.Z /= totalWeight;
                     w.W /= totalWeight;
-                    mesh.BoneWeights[i] = w;
+                    boneWeights[i] = w;
                 }
+                
+                mesh.BindPoses = bindPoses;
+                mesh.SetBoneIndices(boneIndices);
+                mesh.SetBoneWeights(boneWeights);
             }
 
 
@@ -486,7 +441,7 @@ internal class ModelImporter : AssetImporter
     }
 
 
-    private static List<AssetRef<AnimationClip>> LoadAnimations(SerializedAsset ctx, Scene? scene, double scale)
+    private static List<AssetRef<AnimationClip>> LoadAnimations(Scene? scene, double scale)
     {
         List<AssetRef<AnimationClip>> anims = [];
         foreach (Animation? anim in scene.Animations)
@@ -502,7 +457,7 @@ internal class ModelImporter : AssetImporter
             {
                 Node boneNode = scene.RootNode.FindNode(channel.NodeName);
 
-                var animBone = new AnimBone();
+                var animBone = new AnimationClip.AnimBone();
                 animBone.BoneName = boneNode.Name;
 
                 // construct full path from RootNode to this bone
