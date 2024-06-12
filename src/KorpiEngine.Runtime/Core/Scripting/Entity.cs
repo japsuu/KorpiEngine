@@ -162,6 +162,9 @@ public sealed class Entity : EngineObject
 
     public IEnumerable<T> GetComponentsInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : class
     {
+        if (includeInactive)
+            throw new NotImplementedException("IncludeInactive is not yet implemented.");
+        
         if (IsDestroyed)
             throw new KorpiException("Cannot get components from a destroyed object.");
 
@@ -177,8 +180,8 @@ public sealed class Entity : EngineObject
                 components.Add(component);
         }
 
-        foreach (Entity child in Children)
-            components.AddRange(child.GetComponentsInChildren<T>(true, includeInactive));
+        foreach (Transform child in Transform.Children)
+            components.AddRange(child.Entity.GetComponentsInChildren<T>(true, includeInactive));
 
         return components;
     }
@@ -285,7 +288,7 @@ public sealed class Entity : EngineObject
     private void SetEnabled(bool state)
     {
         _enabled = state;
-        HierarchyStateChanged();
+        Transform.HierarchyStateChanged();
     }
 
     internal bool IsParentEnabled() => Parent == null || Parent.EnabledInHierarchy;

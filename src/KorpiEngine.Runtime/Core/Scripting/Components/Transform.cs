@@ -151,7 +151,7 @@ public sealed class Transform : Component
     }
 
 
-    private void HierarchyStateChanged()
+    internal void HierarchyStateChanged()
     {
         bool newState = Entity.Enabled && Entity.IsParentEnabled();
         Entity.EnabledInHierarchy = newState;
