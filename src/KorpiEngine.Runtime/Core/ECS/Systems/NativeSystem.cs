@@ -1,25 +1,17 @@
-﻿using Arch.Core;
-using Arch.System;
+﻿using Arch.System;
 using KorpiEngine.Core.SceneManagement;
 
 namespace KorpiEngine.Core.ECS.Systems;
 
-/// <summary>
-/// Represents a system that processes <see cref="Entity"/>s and their <see cref="INativeComponent"/>s in a scene.
-/// </summary>
-public abstract class NativeSystem(Scene scene) : IDisposable
+internal abstract class NativeSystem(Scene scene) : BaseNativeSystem(scene)
 {
-    protected readonly Scene Scene = scene;
-    protected readonly World World = scene.World;
-
-
     public void Initialize()
     {
         OnInitialize();
     }
 
 
-    public void Update()
+    public sealed override void Update()
     {
         OnEarlyUpdate();
         OnUpdate();
@@ -43,13 +35,6 @@ public abstract class NativeSystem(Scene scene) : IDisposable
     }
 
 
-    public void Dispose()
-    {
-        OnDispose();
-        GC.SuppressFinalize(this);
-    }
-
-
     protected virtual void OnInitialize() { }
     
     protected virtual void OnEarlyUpdate() { }
@@ -63,6 +48,4 @@ public abstract class NativeSystem(Scene scene) : IDisposable
     protected virtual void OnEarlyDraw() { }
     protected virtual void OnDraw() { }
     protected virtual void OnLateDraw() { }
-    
-    protected virtual void OnDispose() { }
 }

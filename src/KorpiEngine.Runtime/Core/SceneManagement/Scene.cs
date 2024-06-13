@@ -97,7 +97,6 @@ public abstract class Scene : IDisposable
         
         // Initialize systems.
         _behaviourSystem.Initialize();
-        _renderSystem.Initialize();
         
         Load();
     }
@@ -121,7 +120,7 @@ public abstract class Scene : IDisposable
     
     internal void InternalDraw()
     {
-        _renderSystem.Draw();
+        _renderSystem.Update();
         
         LateUpdate();
     }

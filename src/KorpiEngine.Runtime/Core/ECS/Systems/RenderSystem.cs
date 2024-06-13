@@ -1,4 +1,5 @@
 ﻿using Arch.Core;
+using Arch.Core.Extensions;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -13,26 +14,52 @@ namespace KorpiEngine.Core.ECS.Systems;
 /// <summary>
 /// Renders everything in the scene.
 /// </summary>
-internal class RenderSystem(Scene scene) : NativeSystem(scene)
+internal class RenderSystem(Scene scene) : BaseNativeSystem(scene)
 {
+    private readonly QueryDescription _cameraQuery = new QueryDescription().WithAll<CameraComponent>();
+    
     private readonly QueryDescription _meshRendererQuery = new QueryDescription().WithAll<TransformComponent, MeshRendererComponent>();
     private readonly QueryDescription _skinnedMeshRendererQuery = new QueryDescription().WithAll<TransformComponent, SkinnedMeshRendererComponent>();
     private readonly QueryDescription _directionalLightQuery = new QueryDescription().WithAll<TransformComponent, DirectionalLightComponent>();
+    
+    private readonly List<(Entity e, CameraComponent c)> _cameras = [];
 
 
-    protected override void OnEarlyDraw()
+    public override void Update()
+    {
+        // Find all the cameras and sort them based on RenderPriority, and call the rendering functions for each.
+        World.Query(in _cameraQuery, (ref Entity e, ref CameraComponent c) => _cameras.Add((e, c)));
+        _cameras.Sort((a, b) => a.c.RenderPriority.CompareTo(b.c.RenderPriority));
+        
+        foreach ((Entity entity, CameraComponent camera) in _cameras)
+        {
+            Camera.RenderingCamera = Scripting.Entity.Wrap(entity.Reference(), Scene).GetComponent<Camera>();
+            Draw();
+        }
+    }
+    
+    
+    private void Draw()
+    {
+        OnEarlyDraw();
+        OnDraw();
+        OnLateDraw();
+    }
+
+
+    private void OnEarlyDraw()
     {
         UpdateAllLightShadowmaps();
     }
 
 
-    protected override void OnDraw()
+    private void OnDraw()
     {
         RenderAllOpaqueMeshes();
     }
 
 
-    protected override void OnLateDraw()
+    private void OnLateDraw()
     {
         RenderAllDirectionalLights();
     }
