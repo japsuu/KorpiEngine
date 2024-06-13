@@ -290,8 +290,8 @@ public class AnimationState
         if (!recursive)
             return;
         
-        foreach (Entity child in transform.Entity.Children)
-            AddMixingTransform(child.Transform, true);
+        foreach (Transform child in transform.Entity.Transform.Children)
+            AddMixingTransform(child, true);
     }
 
 
@@ -300,7 +300,7 @@ public class AnimationState
         MixingTransforms.Remove(transform.Entity.Name);
         if (!recursive)
             return;
-        foreach (Entity child in transform.Entity.Children)
-            RemoveMixingTransform(child.Transform, true);
+        foreach (Transform child in transform.Entity.Transform.Children)
+            RemoveMixingTransform(child, true);
     }
 }
