@@ -13,36 +13,28 @@ namespace KorpiEngine.Core.ECS.Systems;
 /// <summary>
 /// Renders everything in the scene.
 /// </summary>
-internal class RenderSystem : NativeSystem
+internal class RenderSystem(Scene scene) : NativeSystem(scene)
 {
     private readonly QueryDescription _meshRendererQuery = new QueryDescription().WithAll<TransformComponent, MeshRendererComponent>();
     private readonly QueryDescription _skinnedMeshRendererQuery = new QueryDescription().WithAll<TransformComponent, SkinnedMeshRendererComponent>();
     private readonly QueryDescription _directionalLightQuery = new QueryDescription().WithAll<TransformComponent, DirectionalLightComponent>();
 
 
-    /// <summary>
-    /// Renders everything in the scene.
-    /// </summary>
-    public RenderSystem(Scene scene) : base(scene)
-    {
-    }
-
-
-    protected override void SystemEarlyUpdate(in double deltaTime)
+    protected override void OnEarlyDraw()
     {
         UpdateAllLightShadowmaps();
     }
 
 
-    protected override void SystemUpdate(in double deltaTime)
+    protected override void OnDraw()
     {
         RenderAllOpaqueMeshes();
-        RenderAllDirectionalLights();
     }
 
 
-    protected override void SystemLateUpdate(in double deltaTime)
+    protected override void OnLateDraw()
     {
+        RenderAllDirectionalLights();
     }
 
 
@@ -57,15 +49,15 @@ internal class RenderSystem : NativeSystem
         World.Query(in _meshRendererQuery, (ref TransformComponent t, ref MeshRendererComponent m) => RenderOpaqueMesh(t, m));
         World.Query(in _skinnedMeshRendererQuery, (ref TransformComponent t, ref SkinnedMeshRendererComponent m) => RenderOpaqueSkinnedMesh(t, m));
     }
-    
-    
+
+
     private void RenderAllOpaqueMeshesDepth()
     {
         World.Query(in _meshRendererQuery, (ref TransformComponent t, ref MeshRendererComponent m) => RenderOpaqueMeshDepth(t, m));
         World.Query(in _skinnedMeshRendererQuery, (ref TransformComponent t, ref SkinnedMeshRendererComponent m) => RenderOpaqueSkinnedMeshDepth(t, m));
     }
-    
-    
+
+
     private void RenderAllDirectionalLights()
     {
         World.Query(in _directionalLightQuery, (ref TransformComponent t, ref DirectionalLightComponent l) => RenderDirectionalLight(t, l));
@@ -83,7 +75,7 @@ internal class RenderSystem : NativeSystem
 
         Matrix4x4 matrix = Transform.GetLocalToWorldMatrix(transform);
         matrix.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
-        
+
         for (int i = 0; i < material.PassCount; i++)
         {
             material.SetPass(i);
@@ -96,7 +88,7 @@ internal class RenderSystem : NativeSystem
     {
         if (!mesh.Mesh.IsAvailable || !mesh.Material.IsAvailable)
             return;
-        
+
         Matrix4x4 mat = Transform.GetLocalToWorldMatrix(transform);
         mat.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
 
@@ -121,16 +113,17 @@ internal class RenderSystem : NativeSystem
 
         Material material = mesh.Material.Res!;
         Matrix4x4 localToWorldMatrix = Transform.GetLocalToWorldMatrix(transform);
-        
+
         GetBoneMatrices(localToWorldMatrix, mesh);
         material.EnableKeyword("SKINNED");
 #warning TODO: Set SkinnedMeshRenderer ObjectID
+
         //material.SetInt("ObjectID", Entity.InstanceID);
         material.SetMatrices("bindPoses", mesh.Mesh.Res!.BindPoses!);
         material.SetMatrices("boneTransforms", mesh.BoneTransforms);
-        
+
         localToWorldMatrix.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
-        
+
         for (int i = 0; i < material.PassCount; i++)
         {
             material.SetPass(i);
@@ -148,7 +141,7 @@ internal class RenderSystem : NativeSystem
 
         Material material = mesh.Material.Res!;
         Matrix4x4 localToWorldMatrix = Transform.GetLocalToWorldMatrix(transform);
-        
+
         GetBoneMatrices(localToWorldMatrix, mesh);
         material.EnableKeyword("SKINNED");
         material.SetMatrices("bindPoses", mesh.Mesh.Res!.BindPoses!);
@@ -200,7 +193,7 @@ internal class RenderSystem : NativeSystem
             Quaternion rotation = Transform.GetRotation(transform);
             Vector3 forward = rotation * Vector3.Forward;
             Vector3 up = rotation * Vector3.Up;
-                
+
             Graphics.DepthViewMatrix = Matrix4x4.CreateLookToLeftHanded(-forward * light.ShadowDistance, -forward, up);
 
             Matrix4x4 depthMVP = Matrix4x4.Identity;
@@ -210,9 +203,9 @@ internal class RenderSystem : NativeSystem
 
             light.ShadowMap.Begin();
             Graphics.Clear(1, 1, 1, 1);
-                
+
             RenderAllOpaqueMeshesDepth();
-            
+
             light.ShadowMap.End();
         }
         else
@@ -231,7 +224,7 @@ internal class RenderSystem : NativeSystem
             lightMat = new Material(Shader.Find("Defaults/DirectionalLight.shader"));
             light.LightMat = lightMat;
         }
-        
+
         Color color = light.Color;
         float intensity = light.Intensity;
         bool castShadows = light.CastShadows;
@@ -244,10 +237,10 @@ internal class RenderSystem : NativeSystem
         float blockerSamples = light.BlockerSamples;
         float shadowBias = light.ShadowBias;
         float shadowNormalBias = light.ShadowNormalBias;
-        
+
         Quaternion rotation = Transform.GetRotation(transform);
         Vector3 forward = rotation * Vector3.Forward;
-        
+
         lightMat.SetVector("LightDirection", Vector3.TransformNormal(forward, Graphics.ViewMatrix));
         lightMat.SetColor("LightColor", color);
         lightMat.SetFloat("LightIntensity", intensity);

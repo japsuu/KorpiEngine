@@ -7,45 +7,62 @@ namespace KorpiEngine.Core.ECS.Systems;
 /// <summary>
 /// Represents a system that processes <see cref="Entity"/>s and their <see cref="INativeComponent"/>s in a scene.
 /// </summary>
-public abstract class NativeSystem : BaseSystem<World, double>
+public abstract class NativeSystem(Scene scene) : IDisposable
 {
-    protected Scene Scene;
-    protected NativeSystem(Scene scene) : base(scene.World)
+    protected readonly Scene Scene = scene;
+    protected readonly World World = scene.World;
+
+
+    public void Initialize()
     {
-        Scene = scene;
+        OnInitialize();
     }
 
 
-    public sealed override void Initialize()
+    public void Update()
     {
-        base.Initialize();
-        SystemInitialize();
+        OnEarlyUpdate();
+        OnUpdate();
+        OnLateUpdate();
     }
 
 
-    public sealed override void BeforeUpdate(in double t)
+    public void FixedUpdate()
     {
-        base.BeforeUpdate(in t);
-        SystemEarlyUpdate(in t);
+        OnEarlyFixedUpdate();
+        OnFixedUpdate();
+        OnLateFixedUpdate();
     }
 
 
-    public sealed override void Update(in double t)
+    public void Draw()
     {
-        base.Update(in t);
-        SystemUpdate(in t);
+        OnEarlyDraw();
+        OnDraw();
+        OnLateDraw();
     }
 
 
-    public sealed override void AfterUpdate(in double t)
+    public void Dispose()
     {
-        base.AfterUpdate(in t);
-        SystemLateUpdate(in t);
+        OnDispose();
+        GC.SuppressFinalize(this);
     }
 
 
-    protected virtual void SystemInitialize() { }
-    protected virtual void SystemEarlyUpdate(in double deltaTime) { }
-    protected virtual void SystemUpdate(in double deltaTime) { }
-    protected virtual void SystemLateUpdate(in double deltaTime) { }
+    protected virtual void OnInitialize() { }
+    
+    protected virtual void OnEarlyUpdate() { }
+    protected virtual void OnUpdate() { }
+    protected virtual void OnLateUpdate() { }
+    
+    protected virtual void OnEarlyFixedUpdate() { }
+    protected virtual void OnFixedUpdate() { }
+    protected virtual void OnLateFixedUpdate() { }
+    
+    protected virtual void OnEarlyDraw() { }
+    protected virtual void OnDraw() { }
+    protected virtual void OnLateDraw() { }
+    
+    protected virtual void OnDispose() { }
 }

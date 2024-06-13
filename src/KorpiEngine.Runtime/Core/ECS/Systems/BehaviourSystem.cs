@@ -9,17 +9,15 @@ namespace KorpiEngine.Core.ECS.Systems;
 /// <summary>
 /// The default system for updating and managing <see cref="Behaviour"/>s.
 /// </summary>
-internal class BehaviourSystem : NativeSystem
+internal class BehaviourSystem(Scene scene) : NativeSystem(scene)
 {
     // Even though this system may seem inefficient, keep in mind that the user will most likely
     // not create thousands (or even hundreds) of entities with behaviours.
     // If they really need to, they might as well use the ECS API directly.
     private readonly QueryDescription _desc = new QueryDescription().WithAll<BehaviourComponent>();
-    
-    public BehaviourSystem(Scene scene) : base(scene) { }
 
 
-    protected override void SystemEarlyUpdate(in double deltaTime)
+    protected override void OnEarlyUpdate()
     {
         // Call awake on objects that have just been created or enabled for the first time
         World.Query(in _desc, (ref BehaviourComponent behaviours) => {
@@ -41,7 +39,7 @@ internal class BehaviourSystem : NativeSystem
     }
 
 
-    protected override void SystemUpdate(in double deltaTime)
+    protected override void OnUpdate()
     {
         // Call Update on all behaviours
         World.Query(in _desc, (ref BehaviourComponent behaviours) => {
@@ -54,7 +52,7 @@ internal class BehaviourSystem : NativeSystem
     }
 
 
-    protected override void SystemLateUpdate(in double deltaTime)
+    protected override void OnLateUpdate()
     {
         // Call LateUpdate on all behaviours
         World.Query(in _desc, (ref BehaviourComponent behaviours) => {
@@ -83,10 +81,21 @@ internal class BehaviourSystem : NativeSystem
     }
 
 
-    public override void Dispose()
+    protected override void OnFixedUpdate()
     {
-        base.Dispose();
-        
+        // Call FixedUpdate on all behaviours
+        World.Query(in _desc, (ref BehaviourComponent behaviours) => {
+            foreach (Behaviour behaviour in behaviours.Behaviours!)
+            {
+                if (behaviour.IsEnabled)
+                    behaviour.InternalFixedUpdate();
+            }
+        });
+    }
+
+
+    protected override void OnDispose()
+    {
         // Destroy all behaviours
         World.Query(in _desc, (ref BehaviourComponent behaviours) => {
             foreach (Behaviour behaviour in behaviours.Behaviours!)

@@ -17,23 +17,8 @@ namespace KorpiEngine.Core.SceneManagement;
 /// </summary>
 public abstract class Scene : IDisposable
 {
-    /// <summary>
-    /// The systems for this scene that are updated from the <see cref="Update"/> method.
-    /// Typically used for game logic.
-    /// </summary>
-    private readonly SceneSystemGroup _simulationSystems;
-    
-    /// <summary>
-    /// The systems for this scene that are updated from the <see cref="FixedUpdate"/> method.
-    /// Typically used for physics.
-    /// </summary>
-    private readonly SceneSystemGroup _fixedSimulationSystems;
-    
-    /// <summary>
-    /// The systems for this scene that are updated when the scene is drawn.
-    /// Typically used for rendering and post-rendering effects.
-    /// </summary>
-    private readonly SceneSystemGroup _presentationSystems;
+    private readonly BehaviourSystem _behaviourSystem;
+    private readonly RenderSystem _renderSystem;
     
     /// <summary>
     /// The ESC world for this scene.
@@ -44,9 +29,8 @@ public abstract class Scene : IDisposable
     protected Scene()
     {
         World = World.Create();
-        _simulationSystems = new SceneSystemGroup("SimulationSystems");
-        _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
-        _presentationSystems = new SceneSystemGroup("PresentationSystems");
+        _behaviourSystem = new BehaviourSystem(this);
+        _renderSystem = new RenderSystem(this);
     }
 
 
@@ -111,15 +95,9 @@ public abstract class Scene : IDisposable
         CreateSceneCamera();
         CreateDirectionalLight();
         
-        // Register systems.
-        RegisterSimulationSystems(_simulationSystems);
-        RegisterFixedSimulationSystems(_fixedSimulationSystems);
-        RegisterPresentationSystems(_presentationSystems);
-        
         // Initialize systems.
-        _simulationSystems.Initialize();
-        _fixedSimulationSystems.Initialize();
-        _presentationSystems.Initialize();
+        _behaviourSystem.Initialize();
+        _renderSystem.Initialize();
         
         Load();
     }
@@ -127,9 +105,7 @@ public abstract class Scene : IDisposable
 
     internal void InternalUpdate()
     {
-        _simulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _simulationSystems.Update(Time.DeltaTimeDouble);
-        _simulationSystems.AfterUpdate(Time.DeltaTimeDouble);
+        _behaviourSystem.Update();
         
         Update();
     }
@@ -137,9 +113,7 @@ public abstract class Scene : IDisposable
     
     internal void InternalFixedUpdate()
     {
-        _fixedSimulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _fixedSimulationSystems.Update(Time.DeltaTimeDouble);
-        _fixedSimulationSystems.AfterUpdate(Time.DeltaTimeDouble);
+        _behaviourSystem.FixedUpdate();
         
         FixedUpdate();
     }
@@ -147,44 +121,9 @@ public abstract class Scene : IDisposable
     
     internal void InternalDraw()
     {
-        _presentationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _presentationSystems.Update(Time.DeltaTimeDouble);
-        _presentationSystems.AfterUpdate(Time.DeltaTimeDouble);
+        _renderSystem.Draw();
         
         LateUpdate();
-    }
-
-
-    /// <summary>
-    /// Register new simulation systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems will be automatically updated in the update loop, in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterSimulationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new BehaviourSystem(this));
-    }
-
-
-    /// <summary>
-    /// Register new fixed simulation systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems will be automatically updated in the fixed update loop, in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterFixedSimulationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new BehaviourFixedUpdateSystem(this));
-    }
-
-
-    /// <summary>
-    /// Register new presentation (rendering) systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems are automatically updated after simulation systems (<see cref="RegisterSimulationSystems"/>), in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterPresentationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new RenderSystem(this));
     }
     
     
@@ -218,9 +157,8 @@ public abstract class Scene : IDisposable
     {
         Unload();
         
-        _simulationSystems.Dispose();
-        _fixedSimulationSystems.Dispose();
-        _presentationSystems.Dispose();
+        _behaviourSystem.Dispose();
+        _renderSystem.Dispose();
         World.Dispose();
         //World.Destroy(World);
         GC.SuppressFinalize(this);

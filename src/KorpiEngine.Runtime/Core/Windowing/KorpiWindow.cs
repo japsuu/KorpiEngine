@@ -6,13 +6,8 @@ using OpenTK.Windowing.Desktop;
 
 namespace KorpiEngine.Core.Windowing;
 
-internal sealed class KorpiWindow : GameWindow
+internal sealed class KorpiWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : GameWindow(gameWindowSettings, nativeWindowSettings)
 {
-    public KorpiWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
-    {
-    }
-
-
     protected override void OnLoad()
     {
         SystemInfo.ProcessorCount = Environment.ProcessorCount;
