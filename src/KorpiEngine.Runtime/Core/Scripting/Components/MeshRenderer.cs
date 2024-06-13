@@ -13,13 +13,13 @@ public class MeshRenderer : Component
 
     public Mesh? Mesh
     {
-        get => Entity.GetNativeComponent<MeshRendererComponent>().Mesh;
+        get => Entity.GetNativeComponent<MeshRendererComponent>().Mesh.Res;
         set => Entity.GetNativeComponent<MeshRendererComponent>().Mesh = value;
     }
 
     public Material? Material
     {
-        get => Entity.GetNativeComponent<MeshRendererComponent>().Material;
+        get => Entity.GetNativeComponent<MeshRendererComponent>().Material.Res;
         set => Entity.GetNativeComponent<MeshRendererComponent>().Material = value;
     }
 }

@@ -380,6 +380,9 @@ public sealed class Transform : Component
         Matrix4x4 t = Matrix4x4.TRS(component.LocalPosition, component.LocalRotation, component.LocalScale);
         return component.Parent != null ? t * component.Parent.LocalToWorldMatrix : t;
     }
+    
+    
+    public static Matrix4x4 GetWorldToLocalMatrix(TransformComponent component) => GetLocalToWorldMatrix(component).Invert();
 
     #endregion
 

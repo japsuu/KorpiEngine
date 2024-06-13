@@ -16,6 +16,7 @@ namespace KorpiEngine.Core.ECS.Systems;
 internal class RenderSystem : NativeSystem
 {
     private readonly QueryDescription _meshRendererQuery = new QueryDescription().WithAll<TransformComponent, MeshRendererComponent>();
+    private readonly QueryDescription _skinnedMeshRendererQuery = new QueryDescription().WithAll<TransformComponent, SkinnedMeshRendererComponent>();
     private readonly QueryDescription _directionalLightQuery = new QueryDescription().WithAll<TransformComponent, DirectionalLightComponent>();
 
 
@@ -47,19 +48,21 @@ internal class RenderSystem : NativeSystem
 
     private void UpdateAllLightShadowmaps()
     {
-        World.Query(in _directionalLightQuery, (ref TransformComponent t, ref DirectionalLightComponent l) => UpdateLightShadowmap(t, l));
+        World.Query(in _directionalLightQuery, (ref TransformComponent t, ref DirectionalLightComponent l) => UpdateDirectionalLightShadowmap(t, l));
     }
 
 
     private void RenderAllOpaqueMeshes()
     {
         World.Query(in _meshRendererQuery, (ref TransformComponent t, ref MeshRendererComponent m) => RenderOpaqueMesh(t, m));
+        World.Query(in _skinnedMeshRendererQuery, (ref TransformComponent t, ref SkinnedMeshRendererComponent m) => RenderOpaqueSkinnedMesh(t, m));
     }
     
     
     private void RenderAllOpaqueMeshesDepth()
     {
         World.Query(in _meshRendererQuery, (ref TransformComponent t, ref MeshRendererComponent m) => RenderOpaqueMeshDepth(t, m));
+        World.Query(in _skinnedMeshRendererQuery, (ref TransformComponent t, ref SkinnedMeshRendererComponent m) => RenderOpaqueSkinnedMeshDepth(t, m));
     }
     
     
@@ -69,18 +72,22 @@ internal class RenderSystem : NativeSystem
     }
 
 
+    #region Normal meshes
+
     private void RenderOpaqueMesh(TransformComponent transform, MeshRendererComponent mesh)
     {
         if (!mesh.Mesh.IsAvailable)
             return;
 
-        Material mat = mesh.Material.Res ?? new Material(Shader.Find("Defaults/Invalid.shader"));
+        Material material = mesh.Material.Res ?? new Material(Shader.Find("Defaults/Invalid.shader"));
 
-        for (int i = 0; i < mat.PassCount; i++)
+        Matrix4x4 matrix = Transform.GetLocalToWorldMatrix(transform);
+        matrix.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
+        
+        for (int i = 0; i < material.PassCount; i++)
         {
-            mat.SetPass(i);
-            Matrix4x4 matrix = Transform.GetLocalToWorldMatrix(transform);
-            Graphics.DrawMeshNow(mesh.Mesh.Res!, matrix, mat);
+            material.SetPass(i);
+            Graphics.DrawMeshNow(mesh.Mesh.Res!, matrix, material);
         }
     }
 
@@ -91,6 +98,7 @@ internal class RenderSystem : NativeSystem
             return;
         
         Matrix4x4 mat = Transform.GetLocalToWorldMatrix(transform);
+        mat.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
 
         Matrix4x4 mvp = Matrix4x4.Identity;
         mvp = Matrix4x4.Multiply(mvp, mat);
@@ -101,8 +109,84 @@ internal class RenderSystem : NativeSystem
         Graphics.DrawMeshNowDirect(mesh.Mesh.Res!);
     }
 
+    #endregion
 
-    private void UpdateLightShadowmap(TransformComponent transform, DirectionalLightComponent light)
+
+    #region Skinned meshes
+
+    private void RenderOpaqueSkinnedMesh(TransformComponent transform, SkinnedMeshRendererComponent mesh)
+    {
+        if (!mesh.Mesh.IsAvailable || !mesh.Material.IsAvailable)
+            return;
+
+        Material material = mesh.Material.Res!;
+        Matrix4x4 localToWorldMatrix = Transform.GetLocalToWorldMatrix(transform);
+        
+        GetBoneMatrices(localToWorldMatrix, mesh);
+        material.EnableKeyword("SKINNED");
+#warning TODO: Set SkinnedMeshRenderer ObjectID
+        //material.SetInt("ObjectID", Entity.InstanceID);
+        material.SetMatrices("bindPoses", mesh.Mesh.Res!.BindPoses!);
+        material.SetMatrices("boneTransforms", mesh.BoneTransforms);
+        
+        localToWorldMatrix.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
+        
+        for (int i = 0; i < material.PassCount; i++)
+        {
+            material.SetPass(i);
+            Graphics.DrawMeshNow(mesh.Mesh.Res!, localToWorldMatrix, material);
+        }
+
+        material.DisableKeyword("SKINNED");
+    }
+
+
+    private void RenderOpaqueSkinnedMeshDepth(TransformComponent transform, SkinnedMeshRendererComponent mesh)
+    {
+        if (!mesh.Mesh.IsAvailable || !mesh.Material.IsAvailable)
+            return;
+
+        Material material = mesh.Material.Res!;
+        Matrix4x4 localToWorldMatrix = Transform.GetLocalToWorldMatrix(transform);
+        
+        GetBoneMatrices(localToWorldMatrix, mesh);
+        material.EnableKeyword("SKINNED");
+        material.SetMatrices("bindPoses", mesh.Mesh.Res!.BindPoses!);
+        material.SetMatrices("boneTransforms", mesh.BoneTransforms);
+
+        localToWorldMatrix.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
+
+        Matrix4x4 mvp = Matrix4x4.Identity;
+        mvp = Matrix4x4.Multiply(mvp, localToWorldMatrix);
+        mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
+        mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
+        mesh.Material.Res!.SetMatrix("_MatMVP", mvp);
+        mesh.Material.Res!.SetShadowPass(true);
+        Graphics.DrawMeshNowDirect(mesh.Mesh.Res!);
+
+        material.DisableKeyword("SKINNED");
+    }
+
+
+    private static void GetBoneMatrices(Matrix4x4 localToWorldMatrix, SkinnedMeshRendererComponent mesh)
+    {
+        mesh.BoneTransforms = new System.Numerics.Matrix4x4[mesh.Bones.Length];
+        for (int i = 0; i < mesh.Bones.Length; i++)
+        {
+            Transform? t = mesh.Bones[i];
+            if (t == null)
+                mesh.BoneTransforms[i] = System.Numerics.Matrix4x4.Identity;
+            else
+                mesh.BoneTransforms[i] = (t.LocalToWorldMatrix * localToWorldMatrix.Invert()).ToFloat();
+        }
+    }
+
+    #endregion
+
+
+    #region Directional lights
+
+    private void UpdateDirectionalLightShadowmap(TransformComponent transform, DirectionalLightComponent light)
     {
         // Populate the shadowmap
         if (light.CastShadows)
@@ -200,4 +284,6 @@ internal class RenderSystem : NativeSystem
         Gizmos.Color = Color.Yellow;
         Gizmos.DrawDirectionalLight(Vector3.Zero);
     }
+
+    #endregion
 }

@@ -113,7 +113,7 @@ public sealed class Entity : EngineObject
 
         T component = new();
         component.Bind(this); // Automatically attaches the component to this entity
-
+#warning BUG: Does not actually add the component native component to the entity.
         return component;
     }
 

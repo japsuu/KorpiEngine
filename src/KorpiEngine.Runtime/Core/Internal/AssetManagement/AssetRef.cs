@@ -216,7 +216,7 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
 
     public bool Equals(AssetRef<T> other) => this == other;
 
-    public static implicit operator AssetRef<T>(T res) => new(res);
+    public static implicit operator AssetRef<T>(T? res) => new(res);
 
     public static explicit operator T(AssetRef<T> res) => res.Res!;
 
