@@ -375,9 +375,10 @@ public sealed class Transform : Component
     }
     
     
-    public static Matrix4x4 GetMatrix(TransformComponent component)
+    public static Matrix4x4 GetLocalToWorldMatrix(TransformComponent component)
     {
-        return Matrix4x4.TRS(GetPosition(component), GetRotation(component), GetScale(component));
+        Matrix4x4 t = Matrix4x4.TRS(component.LocalPosition, component.LocalRotation, component.LocalScale);
+        return component.Parent != null ? t * component.Parent.LocalToWorldMatrix : t;
     }
 
     #endregion

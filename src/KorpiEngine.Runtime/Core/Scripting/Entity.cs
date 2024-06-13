@@ -54,7 +54,7 @@ public sealed class Entity : EngineObject
         get
         {
             Matrix4x4 t = Transform.LocalToWorldMatrix;
-            t.Translation -= Camera.RenderingCamera.Entity.Transform.Position;
+            t.Translation -= Camera.RenderingCamera!.Entity.Transform.Position;
             return t;
         }
     }
