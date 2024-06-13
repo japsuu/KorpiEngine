@@ -1,4 +1,5 @@
 ﻿using Arch.Core;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -75,10 +76,21 @@ public abstract class Scene : IDisposable
     protected virtual void CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
-        CameraComponent comp = new CameraComponent();
-        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
+        CameraComponent c = new();
+        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(c);
         cameraComponent.FOVDegrees = 60;
         cameraComponent.RenderPriority = 0;
+    }
+
+
+    protected virtual void CreateDirectionalLight()
+    {
+        Entity lightEntity = CreateEntity("Directional Light");
+        DirectionalLightComponent c = new();
+        lightEntity.AddNativeComponent(c);
+        
+        lightEntity.Transform.Position = new Vector3(0, 10, 0);
+        lightEntity.Transform.Rotate(new Vector3(-45, 45, 0));
     }
     
     
@@ -97,6 +109,7 @@ public abstract class Scene : IDisposable
     internal void InternalLoad()
     {
         CreateSceneCamera();
+        CreateDirectionalLight();
         
         // Register systems.
         RegisterSimulationSystems(_simulationSystems);
@@ -110,8 +123,8 @@ public abstract class Scene : IDisposable
         
         Load();
     }
-    
-    
+
+
     internal void InternalUpdate()
     {
         _simulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
