@@ -187,7 +187,6 @@ public sealed class Entity : EngineObject
     }
 
 
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ref T AddNativeComponent<T>() where T : INativeComponent, new()
     {
@@ -206,7 +205,6 @@ public sealed class Entity : EngineObject
     }
 
 
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ref T AddNativeComponent<T>(in T component) where T : INativeComponent, new()
     {
