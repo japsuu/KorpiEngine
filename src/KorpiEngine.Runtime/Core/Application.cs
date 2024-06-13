@@ -3,6 +3,7 @@ using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
 using KorpiEngine.Core.UI.ImGui;
@@ -122,12 +123,18 @@ public static class Application
 
     private static void OnRenderFrame(FrameEventArgs args)
     {
+        Graphics.StartFrame();
+        
         KorpiProfiler.Begin("RenderLoop");
         
         InternalRender();
         
         KorpiProfiler.End();
         KorpiProfiler.EndFrame();
+        
+        Window.SwapBuffers();
+        
+        Graphics.EndFrame();
     }
 
 

@@ -160,11 +160,11 @@ public sealed class Camera : Component
     
     private void OpaquePass()
     {
-        SceneManager.ForeachComponent((x) => x.Do(x.OnPreRender));
+        SceneManager.OnPreRender();
         GBuffer.Begin();                            // Start
         RenderAllOfOrder(RenderingOrder.Opaque);    // Render
         GBuffer.End();                              // End
-        SceneManager.ForeachComponent((x) => x.Do(x.OnPostRender));
+        SceneManager.OnPostRender();
     }
     
     

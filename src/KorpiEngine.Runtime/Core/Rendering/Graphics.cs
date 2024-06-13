@@ -71,20 +71,12 @@ public static class Graphics
     /// <summary>
     /// Starts a new draw frame.
     /// </summary>
-    /// <param name="renderingCamera">The camera to render with.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void StartFrame(Camera renderingCamera)
+    internal static void StartFrame()
     {
         RenderTexture.UpdatePool();
-
-        Camera.RenderingCamera = renderingCamera;
-        SetMatrices(renderingCamera);
-
-        if (renderingCamera.ClearType == CameraClearType.Nothing)
-            return;
         
-        renderingCamera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-        Clear(r, g, b, a);
+        Clear();
 
         Driver.SetState(new RasterizerState(), true);
     }
@@ -96,17 +88,6 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        Camera.RenderingCamera = null;
-    }
-
-
-    /// <summary>
-    /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void SkipFrame()
-    {
-        Clear();
     }
 
 

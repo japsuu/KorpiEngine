@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -32,24 +31,6 @@ internal sealed class KorpiWindow : GameWindow
         base.OnUnload();
         
         Graphics.Shutdown();
-    }
-
-
-    protected override void OnRenderFrame(FrameEventArgs args)
-    {
-        Camera? mainCamera = Camera.MainCamera;
-        if (mainCamera == null)
-        {
-            Graphics.SkipFrame();
-        }
-        else
-        {
-            Graphics.StartFrame(mainCamera);
-            base.OnRenderFrame(args);
-            Graphics.EndFrame();
-        }
-        
-        SwapBuffers();
     }
 
 

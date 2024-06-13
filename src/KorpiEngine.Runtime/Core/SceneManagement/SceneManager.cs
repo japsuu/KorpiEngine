@@ -90,11 +90,23 @@ public static class SceneManager
     {
         CurrentScene.InternalFixedUpdate();
     }
+
+
+    internal static void OnPreRender()
+    {
+        
+    }
     
     
     internal static void Render()
     {
         CurrentScene.InternalDraw();
+    }
+    
+    
+    internal static void OnPostRender()
+    {
+        
     }
     
     
