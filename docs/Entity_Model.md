@@ -20,6 +20,15 @@ If no root ``SpatialEntityComponent`` is set and the user tries to add a ``Spati
 - Supports spatial hierarchies for components.
 - Cannot be derived from.
 
+### Entity Life-Cycle
+
+![Diagram](./media/entity_life_cycle.png)
+
+Entities can be in one of the following states:
+- `Unloaded`: All contained components are unloaded.
+- `Loaded`: All initial components have been loaded. It's possible that there still are dynamically added components that are not yet loaded.
+- `Activated`: The entity has been "turned on" in the world, and the components have been registered to both local and global systems.
+
 Entity API:
 ```csharp
 sealed class Entity
@@ -53,11 +62,11 @@ Components are attached to entities. They can be thought of as black boxes that 
 - CANNOT access other components.
 - MOST inherit from the ``EntityComponent`` base class.
 - CAN reference resources.
-- CAN (optionally) contain logic, to perform operations on their OWN data.
+- CAN (optionally) contain logic, to perform operations on their OWN data (the data they own).
 - CAN be added and removed at runtime.
 - CAN be inherited.
 - Entities CAN contain multiple instances of the same component type.
-  - CAN specify if the component is a singleton (for special cases, like a transform).
+  - CAN specify if the component is a singleton (for special cases, like a transform). This just means that the engine will throw an exception if the user tries to add more than one instance of the component to the entity.
 
 ### Entity Component Life-Cycle
 
@@ -105,6 +114,7 @@ abstract class EntityComponent
 ### Spatial Entity Component
 
 Spatial Entity Components are components that can be inherited by other components to provide access to the object's position, rotation, and scale. They maintain a spatial hierarchy, which allows for parent-child relationships between components.
+Entities cannot be nested, but components can be.
 
 These are the ONLY components allowed to have dependencies on other components. It would be impossible to build spatial hierarchies otherwise. The references are ONLY used to update the hierarchy.
 
@@ -155,10 +165,10 @@ class MeshRendererComponent : SpatialEntityComponent
 
 ## Entity Systems (from the ECS land)
 
-An Entity System is a "component manager", that tracks, updates, and transfers data between components of specific types. Systems are also the ONLY things in the entity model that have an actual `update` method.
+An Entity System is a "component manager", that tracks, updates, and transfers data between components of specific types. Systems are also the ONLY things in the entity model that have an actual functional `update` method.
 Systems are attached to entities, and are conceptually very much like traditional ECS systems.
 
-Entity Systems are NOT allowed to reference or have dependencies on other systems.
+Entity Systems are NOT allowed to reference or have dependencies on other systems. They can ONLY access components of the entity they are attached to.
 
 There are a fixed number of update stages, which are executed by the engine in a specific order:
 - `Update`: At the start of the frame.
