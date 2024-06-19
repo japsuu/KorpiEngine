@@ -136,7 +136,7 @@ public abstract class Scene : IDisposable
     }
     
     
-    internal void InternalDraw()
+    internal void InternalRender()
     {
         _presentationSystems.BeforeUpdate(Time.DeltaTimeDouble);
         _presentationSystems.Update(Time.DeltaTimeDouble);

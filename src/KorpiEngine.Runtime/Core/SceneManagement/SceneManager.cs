@@ -94,7 +94,7 @@ public static class SceneManager
     
     internal static void Render()
     {
-        CurrentScene.InternalDraw();
+        CurrentScene.InternalRender();
     }
     
     
