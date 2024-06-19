@@ -5,6 +5,7 @@ namespace KorpiEngine.Core.EntityModel;
 public static class EntityWorld
 {
     private static readonly List<Entity> Entities = [];
+    private static readonly List<EntityComponent> Components = [];
     private static readonly Dictionary<WorldSystemID, WorldSystem> WorldSystems = [];
 
 
@@ -14,15 +15,21 @@ public static class EntityWorld
     
     internal static void RegisterComponent(EntityComponent component)
     {
+        Components.Add(component);
+        
         foreach (WorldSystem system in WorldSystems.Values)
-        {
-            if (system.AffectedTypes.Contains(component.GetType()))
-                system.OnComponentAdded(component);
-        }
+            system.TryRegisterComponent(component);
     }
 
 
-    internal static void UnregisterComponent(EntityComponent component) { }
+    internal static void UnregisterComponent(EntityComponent component)
+    {
+        if (!Components.Remove(component))
+            throw new InvalidOperationException($"Component {component} is not registered.");
+        
+        foreach (WorldSystem system in WorldSystems.Values)
+            system.TryUnregisterComponent(component);
+    }
 
 
     internal static void RegisterWorldSystem<T>() where T : WorldSystem, new()
@@ -30,7 +37,10 @@ public static class EntityWorld
         WorldSystem system = new T();
         WorldSystemID id = WorldSystemID.Generate<T>();
         
-        WorldSystems.Add(id, system);
+        if (!WorldSystems.TryAdd(id, system))
+            throw new InvalidOperationException($"World system {id} already exists. World systems are singletons by default.");
+        
+        system.OnRegister(Components);
     }
     
     
@@ -38,7 +48,10 @@ public static class EntityWorld
     {
         WorldSystemID id = WorldSystemID.Generate<T>();
         
-        WorldSystems.Remove(id);
+        if (!WorldSystems.Remove(id, out WorldSystem? system))
+            throw new InvalidOperationException($"World system {id} does not exist.");
+        
+        system.OnUnregister();
     }
     
     
@@ -46,6 +59,9 @@ public static class EntityWorld
     {
         foreach (Entity entity in Entities)
             entity.Update(stage);
+        
+        foreach (WorldSystem system in WorldSystems.Values)
+            system.Update(stage);
     }
     
     

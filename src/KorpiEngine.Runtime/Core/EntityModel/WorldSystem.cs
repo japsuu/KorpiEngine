@@ -5,14 +5,15 @@
 /// </summary>
 public abstract class WorldSystem
 {
-    /// <summary>
-    /// The component types that this system affects.
-    /// </summary>
-    protected abstract Type[] AffectedTypes { get; }
+    public abstract void TryRegisterComponent<T>(T c) where T : EntityComponent;
+    public abstract void TryUnregisterComponent<T>(T c) where T : EntityComponent;
 
 
-    public void OnRegister()
+    public void OnRegister(IEnumerable<EntityComponent> existingComponents)
     {
+        foreach (EntityComponent component in existingComponents)
+            TryRegisterComponent(component);
+        
         Initialize();
     }
     
@@ -24,4 +25,6 @@ public abstract class WorldSystem
     
     protected virtual void Initialize() { }
     protected virtual void Deinitialize() { }
+
+    public abstract void Update(SystemUpdateStage stage);
 }
