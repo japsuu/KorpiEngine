@@ -2,6 +2,7 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.Debugging.Profiling;
+using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -135,6 +136,8 @@ public static class Application
     {
         Time.FixedUpdate();
         
+        EntityWorld.Update(SystemUpdateStage.FixedUpdate);
+        
         SceneManager.FixedUpdate();
         
         // Instantly execute jobs.
@@ -150,6 +153,10 @@ public static class Application
         ImGuiWindowManager.Update();
         imGuiController.Update();
         
+        EntityWorld.Update(SystemUpdateStage.EarlyUpdate);
+        EntityWorld.Update(SystemUpdateStage.Update);
+        EntityWorld.Update(SystemUpdateStage.LateUpdate);
+        
         SceneManager.Update();
         
         // Instantly execute jobs.
@@ -159,6 +166,7 @@ public static class Application
 
     private static void InternalRender()
     {
+        EntityWorld.Update(SystemUpdateStage.Render);
         SceneManager.Render();
         imGuiController.Render();
         ImGuiController.CheckGlError("End of frame");
@@ -167,6 +175,8 @@ public static class Application
 
     private static void OnUnload()
     {
+        EntityWorld.Destroy();
+        
         OnAssemblyUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();

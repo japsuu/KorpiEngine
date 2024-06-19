@@ -5,8 +5,9 @@
 /// </summary>
 public enum SystemUpdateStage
 {
+    EarlyUpdate,
     Update,
-    FixedUpdate,
     LateUpdate,
+    FixedUpdate,
     Render
 }

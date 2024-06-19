@@ -140,6 +140,9 @@ public sealed class Entity
                 throw new InvalidOperationException($"Entity {ID} already has a singleton system of type {typeof(T).Name}.");
         }
         
+        if (system.UpdateStages.Length <= 0)
+            throw new InvalidOperationException($"System of type {typeof(T).Name} does not specify when it should be updated.");
+        
         _systemsById.Add(id, system);
         
         foreach (SystemUpdateStage stage in system.UpdateStages)
