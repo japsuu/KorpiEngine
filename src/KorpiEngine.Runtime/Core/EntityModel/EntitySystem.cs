@@ -8,7 +8,7 @@ public interface IEntitySystem
     public SystemUpdateStage[] UpdateStages { get; }
     public bool IsSingleton { get; }
     
-    public void TryRegisterComponent<T>(T comp) where T : EntityComponent;
+    public void TryRegisterComponent<T>(T c) where T : EntityComponent;
     public void TryUnregisterComponent<T>(T c) where T : EntityComponent;
 
     public void OnRegister(Entity e);
@@ -31,6 +31,8 @@ public abstract class EntitySystem<T1> : IEntitySystem
     {
         foreach (T1 c in e.GetComponents<T1>())
             TryRegisterComponent(c);
+        
+        Initialize();
     }
     
     
@@ -38,6 +40,8 @@ public abstract class EntitySystem<T1> : IEntitySystem
     {
         foreach (T1 c in e.GetComponents<T1>())
             TryUnregisterComponent(c);
+        
+        Deinitialize();
     }
 
     #endregion
@@ -65,6 +69,9 @@ public abstract class EntitySystem<T1> : IEntitySystem
     #endregion
 
     
+    protected virtual void Initialize() { }
+    protected virtual void Deinitialize() { }
+    
     protected abstract void RegisterComponent(T1 c);
     protected abstract void UnregisterComponent(T1 c);
     
@@ -89,6 +96,8 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
         
         foreach (T2 c in e.GetComponents<T2>())
             TryRegisterComponent(c);
+        
+        Initialize();
     }
     
     
@@ -99,6 +108,8 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
         
         foreach (T2 c in e.GetComponents<T2>())
             TryUnregisterComponent(c);
+        
+        Deinitialize();
     }
 
     #endregion
@@ -136,6 +147,9 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
     #endregion
 
     
+    protected virtual void Initialize() { }
+    protected virtual void Deinitialize() { }
+
     protected abstract void RegisterComponent(T1 c1);
     protected abstract void UnregisterComponent(T1 c1);
     protected abstract void RegisterComponent(T2 c1);
@@ -166,6 +180,8 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
         
         foreach (T3 c in e.GetComponents<T3>())
             TryRegisterComponent(c);
+        
+        Initialize();
     }
     
     
@@ -179,6 +195,8 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
         
         foreach (T3 c in e.GetComponents<T3>())
             TryUnregisterComponent(c);
+        
+        Deinitialize();
     }
 
     #endregion
@@ -222,6 +240,9 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
     #endregion
 
     
+    protected virtual void Initialize() { }
+    protected virtual void Deinitialize() { }
+
     protected abstract void RegisterComponent(T1 c);
     protected abstract void UnregisterComponent(T1 c);
     protected abstract void RegisterComponent(T2 c);
@@ -258,6 +279,8 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
         
         foreach (T4 c in e.GetComponents<T4>())
             TryRegisterComponent(c);
+        
+        Initialize();
     }
     
     
@@ -274,6 +297,8 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
         
         foreach (T4 c in e.GetComponents<T4>())
             TryUnregisterComponent(c);
+        
+        Deinitialize();
     }
 
     #endregion
@@ -323,6 +348,9 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
     #endregion
 
     
+    protected virtual void Initialize() { }
+    protected virtual void Deinitialize() { }
+
     protected abstract void RegisterComponent(T1 c);
     protected abstract void UnregisterComponent(T1 c);
     protected abstract void RegisterComponent(T2 c);
