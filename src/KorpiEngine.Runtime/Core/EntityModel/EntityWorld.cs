@@ -40,4 +40,16 @@ public static class EntityWorld
         foreach (Entity entity in Entities)
             entity.Update(stage);
     }
+    
+    
+    internal static void Destroy()
+    {
+        // Destroy all world systems.
+        foreach (WorldSystem system in WorldSystems.Values)
+            system.OnUnregister();
+        
+        // Destroy all entities (includes their systems and components).
+        foreach (Entity entity in Entities)
+            entity.Destroy();
+    }
 }
