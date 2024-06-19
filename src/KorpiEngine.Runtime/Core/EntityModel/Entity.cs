@@ -12,8 +12,8 @@ public sealed class Entity
     internal SpatialEntityComponent? RootSpatialComponent;
     
     private readonly List<EntityComponent> _components = [];
-    private readonly Dictionary<EntitySystemID, IEntitySystem> _systemsById = [];
-    private readonly NestedDictionary<SystemUpdateStage, EntitySystemID, IEntitySystem> _systemsByUpdateStage = [];
+    private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
+    private readonly SystemBucketCollection _buckets = new();
     
     private bool _isDestroyed;
 
@@ -89,7 +89,7 @@ public sealed class Entity
 
     private void RegisterComponent<T>(T component) where T : EntityComponent, new()
     {
-        foreach (IEntitySystem system in _systemsById.Values)
+        foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
         
         EntityWorld.RegisterComponent(component);
@@ -100,7 +100,7 @@ public sealed class Entity
 
     private void UnregisterComponent<T>(T component) where T : EntityComponent
     {
-        foreach (IEntitySystem system in _systemsById.Values)
+        foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
             
         EntityWorld.UnregisterComponent(component);
@@ -136,17 +136,16 @@ public sealed class Entity
         
         if (system.IsSingleton)
         {
-            if (_systemsById.ContainsKey(id))
+            if (_systems.ContainsKey(id))
                 throw new InvalidOperationException($"Entity {ID} already has a singleton system of type {typeof(T).Name}.");
         }
         
         if (system.UpdateStages.Length <= 0)
             throw new InvalidOperationException($"System of type {typeof(T).Name} does not specify when it should be updated.");
         
-        _systemsById.Add(id, system);
+        _systems.Add(id, system);
         
-        foreach (SystemUpdateStage stage in system.UpdateStages)
-            _systemsByUpdateStage.Add(stage, id, system);
+        _buckets.AddSystem(id, system);
         
         system.OnRegister(this);
     }
@@ -156,11 +155,10 @@ public sealed class Entity
     {
         EntitySystemID id = EntitySystemID.Generate<T>();
         
-        if (!_systemsById.Remove(id, out IEntitySystem? system))
+        if (!_systems.Remove(id, out IEntitySystem? system))
             throw new InvalidOperationException($"Entity {ID} does not have a system of type {typeof(T).Name}.");
 
-        foreach (SystemUpdateStage stage in system.UpdateStages)
-            _systemsByUpdateStage.Remove(stage, id);
+        _buckets.RemoveSystem(id);
         
         system.OnUnregister(this);
     }
@@ -172,8 +170,7 @@ public sealed class Entity
     
     internal void Update(SystemUpdateStage stage)
     {
-        foreach (IEntitySystem system in _systemsByUpdateStage.IterateValues(stage))
-            system.Update(stage);
+        _buckets.Update(stage);
     }
 
     #endregion

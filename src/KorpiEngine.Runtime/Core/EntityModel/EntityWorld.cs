@@ -4,8 +4,6 @@ namespace KorpiEngine.Core.EntityModel;
 
 public static class EntityWorld
 {
-    public static event Action<EntityComponent>? ComponentRegistered;
-    
     private static readonly List<Entity> Entities = [];
     private static readonly Dictionary<WorldSystemID, WorldSystem> WorldSystems = [];
 
@@ -14,7 +12,16 @@ public static class EntityWorld
     internal static void UnregisterEntity(Entity entity) => Entities.Remove(entity);
     
     
-    internal static void RegisterComponent(EntityComponent component) => ComponentRegistered?.Invoke(component);
+    internal static void RegisterComponent(EntityComponent component)
+    {
+        foreach (WorldSystem system in WorldSystems.Values)
+        {
+            if (system.AffectedTypes.Contains(component.GetType()))
+                system.OnComponentAdded(component);
+        }
+    }
+
+
     internal static void UnregisterComponent(EntityComponent component) { }
 
 

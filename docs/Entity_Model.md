@@ -177,7 +177,9 @@ There are a fixed number of update stages, which are executed by the engine in a
 - `FixedUpdate`: Physics calculations.
 - `PostFixedUpdate`: After physics calculations.
 
-There are "buckets" for each stage, which contain the systems that are executed in parallel. A single system can be in multiple buckets.
+### Multithreading
+
+There are "buckets" for each update stage, which contain the systems that are executed in parallel. A single system can be in multiple buckets.
 
 A single bucket is multithreaded in a worker pool, but will only transition to the next bucket when all systems in the current bucket have finished executing.
 > The pool has ``PhysicalCoresCount - 1`` workers with their affinity set to prevent jumping between cores.
