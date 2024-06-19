@@ -2,13 +2,17 @@
 
 public abstract class EntityComponent
 {
-    public Guid Guid { get; }
-    public string Name { get; set; }    // Mostly for debugging purposes.
+    public readonly Guid Guid;
 
-    public virtual void Load() { }
-    public virtual void Unload() { }
-    public virtual void Initialize() { }
-    public virtual void Deinitialize() { }
+
+    public EntityComponent()
+    {
+        Guid = Guid.NewGuid();
+    }
+    
+
+    public virtual void OnRegister() { }
+    public virtual void OnUnregister() { }
 }
 
 
