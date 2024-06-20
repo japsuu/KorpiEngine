@@ -10,6 +10,8 @@ public sealed class Entity
     public readonly string Name;
     
     internal SpatialEntityComponent? RootSpatialComponent;
+    internal int ComponentCount => _components.Count;
+    internal int SystemCount => _systems.Count;
     
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
@@ -20,6 +22,9 @@ public sealed class Entity
 
     #region Creation and destruction
 
+    /// <summary>
+    /// Creates a new entity with the given name.
+    /// </summary>
     public Entity(string? name)
     {
         ID = EntityID.Generate();
@@ -38,9 +43,17 @@ public sealed class Entity
     }
     
     
+    /// <summary>
+    /// Destroys the entity and all of its components and systems.
+    /// </summary>
     public void Destroy()
     {
         EntityWorld.UnregisterEntity(this);
+        
+        RemoveAllSystems();
+        
+        RemoveAllComponents();
+        
         _isDestroyed = true;
     }
 
@@ -51,6 +64,9 @@ public sealed class Entity
 
     public void AddComponent<T>() where T : EntityComponent, new()
     {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+
         T component = new();
         
         if (component is SpatialEntityComponent spatialComponent)
@@ -69,21 +85,28 @@ public sealed class Entity
 
     public void RemoveComponents<T>() where T : EntityComponent
     {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+
         foreach (T component in GetComponents<T>())
+            RemoveComponent(component);
+    }
+
+
+    private void RemoveComponent<T>(T component) where T : EntityComponent
+    {
+        if (component is SpatialEntityComponent spatialComponent)
         {
-            if (component is SpatialEntityComponent spatialComponent)
-            {
-                if (RootSpatialComponent != spatialComponent)
-                    throw new NotImplementedException("TODO: Spatial hierarchy.");
+            if (RootSpatialComponent != spatialComponent)
+                throw new NotImplementedException("TODO: Spatial hierarchy.");
             
-                RootSpatialComponent = null;
-            }
-        
-            if (!_components.Remove(component))
-                throw new InvalidOperationException($"Entity {ID} does not have a component of type {typeof(T).Name}.");
-            
-            UnregisterComponent(component);
+            RootSpatialComponent = null;
         }
+        
+        if (!_components.Remove(component))
+            throw new InvalidOperationException($"Entity {ID} does not have a component of type {typeof(T).Name}.");
+            
+        UnregisterComponent(component);
     }
 
 
@@ -109,6 +132,13 @@ public sealed class Entity
     }
 
 
+    private void RemoveAllComponents()
+    {
+        foreach (EntityComponent component in _components)
+            RemoveComponent(component);
+    }
+
+
     [Pure]
     internal List<T> GetComponents<T>() where T : EntityComponent
     {
@@ -131,6 +161,9 @@ public sealed class Entity
 
     public void AddSystem<T>() where T : IEntitySystem, new()
     {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+        
         T system = new();
         EntitySystemID id = EntitySystemID.Generate<T>();
         
@@ -153,6 +186,9 @@ public sealed class Entity
 
     public void RemoveSystem<T>() where T : IEntitySystem
     {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+
         EntitySystemID id = EntitySystemID.Generate<T>();
         
         if (!_systems.Remove(id, out IEntitySystem? system))
@@ -163,6 +199,16 @@ public sealed class Entity
         system.OnUnregister(this);
     }
 
+
+    private void RemoveAllSystems()
+    {
+        foreach (IEntitySystem system in _systems.Values)
+            system.OnUnregister(this);
+        
+        _systems.Clear();
+        _buckets.Clear();
+    }
+
     #endregion
     
     
@@ -170,6 +216,9 @@ public sealed class Entity
     
     internal void Update(SystemUpdateStage stage)
     {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+
         _buckets.Update(stage);
     }
 

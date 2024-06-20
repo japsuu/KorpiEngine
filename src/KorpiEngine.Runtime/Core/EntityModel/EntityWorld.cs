@@ -2,17 +2,34 @@
 
 namespace KorpiEngine.Core.EntityModel;
 
-public static class EntityWorld
+/// <summary>
+/// Manages all entities, components, and systems.
+/// </summary>
+internal static class EntityWorld
 {
     private static readonly List<Entity> Entities = [];
     private static readonly List<EntityComponent> Components = [];
     private static readonly Dictionary<WorldSystemID, WorldSystem> WorldSystems = [];
 
 
-    internal static void RegisterEntity(Entity entity) => Entities.Add(entity);
-    internal static void UnregisterEntity(Entity entity) => Entities.Remove(entity);
-    
-    
+    internal static void RegisterEntity(Entity entity)
+    {
+        if (entity.ComponentCount > 0)
+            throw new InvalidOperationException($"Entity {entity} has components before being registered. This is not allowed.");
+        
+        if (entity.SystemCount > 0)
+            throw new InvalidOperationException($"Entity {entity} has systems before being registered. This is not allowed.");
+        
+        Entities.Add(entity);
+    }
+
+
+    internal static void UnregisterEntity(Entity entity)
+    {
+        Entities.Remove(entity);
+    }
+
+
     internal static void RegisterComponent(EntityComponent component)
     {
         Components.Add(component);

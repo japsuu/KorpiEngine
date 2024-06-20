@@ -2,6 +2,9 @@
 
 namespace KorpiEngine.Core.EntityModel;
 
+/// <summary>
+/// A collection of system buckets grouped by update stage.
+/// </summary>
 internal class SystemBucketCollection
 {
     private readonly Dictionary<SystemUpdateStage, SystemBucket> _buckets = [];
@@ -39,8 +42,17 @@ internal class SystemBucketCollection
         
         bucket.Update(stage);
     }
+    
+    
+    public void Clear()
+    {
+        _buckets.Clear();
+    }
 }
 
+/// <summary>
+/// A collection of systems that are updated at the same time.
+/// </summary>
 internal class SystemBucket
 {
     private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
