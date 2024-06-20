@@ -1,17 +1,23 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using KorpiEngine.Core.EntityModel.IDs;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 
 namespace KorpiEngine.Core.EntityModel;
 
+/// <summary>
+/// Container for components and systems that make up an entity.
+/// May also contain a spatial hierarchy.
+/// </summary>
 public sealed class Entity
 {
     public readonly EntityID ID;
     public readonly string Name;
     
-    internal SpatialEntityComponent? RootSpatialComponent;
+    internal SpatialEntityComponent? RootSpatialComponent { get; private set; }
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
+    internal bool IsSpatial => RootSpatialComponent != null;
     
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
@@ -25,11 +31,14 @@ public sealed class Entity
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    public Entity(string? name)
+    public Entity(string? name, bool isSpatial = false)
     {
         ID = EntityID.Generate();
         Name = name ?? $"Entity {ID}";
         EntityWorld.RegisterEntity(this);
+        
+        if (isSpatial)
+            AddComponent<SpatialEntityComponent>();
     }
     
     
@@ -112,6 +121,8 @@ public sealed class Entity
 
     private void RegisterComponent<T>(T component) where T : EntityComponent, new()
     {
+        component.EntityID = ID;
+        
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
         

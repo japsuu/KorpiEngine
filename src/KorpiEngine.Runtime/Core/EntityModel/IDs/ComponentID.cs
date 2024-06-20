@@ -1,17 +1,17 @@
-﻿/*using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace KorpiEngine.Core.EntityModel.IDs;
 
 public readonly struct ComponentID : IEquatable<ComponentID>
 {
     private static ulong nextID;
-    
-    public readonly ulong ID;
+
+    private readonly ulong _id;
     
     
     private ComponentID(ulong id)
     {
-        ID = id;
+        _id = id;
     }
     
     
@@ -23,12 +23,12 @@ public readonly struct ComponentID : IEquatable<ComponentID>
     }
     
     
-    public static implicit operator ulong(ComponentID id) => id.ID;
+    public static implicit operator ulong(ComponentID id) => id._id;
     
-    public override int GetHashCode() => ID.GetHashCode();
-    public bool Equals(ComponentID other) => ID == other.ID;
+    public override int GetHashCode() => _id.GetHashCode();
+    public bool Equals(ComponentID other) => _id == other._id;
     public override bool Equals(object? obj) => obj is ComponentID other && Equals(other);
     public static bool operator ==(ComponentID left, ComponentID right) => left.Equals(right);
     public static bool operator !=(ComponentID left, ComponentID right) => !left.Equals(right);
-    public override string ToString() => ID.ToString();
-}*/
+    public override string ToString() => _id.ToString();
+}

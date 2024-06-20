@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Scripting.Components;
 
 namespace KorpiEngine.Core.Scripting;
