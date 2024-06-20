@@ -14,16 +14,48 @@ public sealed class Entity
     public readonly EntityID ID;
     public readonly string Name;
     
-    internal SpatialEntityComponent? RootSpatialComponent { get; private set; }
+    /// <summary>
+    /// True, if the entity is enabled explicitly.
+    /// This value is unaffected by the entity's parent hierarchy.
+    /// </summary>
+    public bool IsEnabled { get; private set; }
+    //TODO: Implement Entity hierarchy public bool IsEnabledInHierarchy { get; private set; }
+
+    private SpatialEntityComponent? _rootSpatialComponent;
+    internal SpatialEntityComponent? RootSpatialComponent
+    {
+        get => _rootSpatialComponent;
+        private set
+        {
+            value?.Bind(this);
+            _rootSpatialComponent = value;
+            IsSpatial = value != null;
+        }
+    }
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
-    internal bool IsSpatial => RootSpatialComponent != null;
+    internal bool IsSpatial;
     
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _buckets = new();
     
     private bool _isDestroyed;
+    
+    
+    public void SetEnabled(bool enabled)
+    {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+        
+        if (IsEnabled == enabled)
+            return;
+        
+        IsEnabled = enabled;
+        
+        foreach (IEntitySystem system in _systems.Values)
+            system.OnEntityEnabledChanged(this, enabled);
+    }
 
 
     #region Creation and destruction
@@ -229,6 +261,9 @@ public sealed class Entity
     {
         if (_isDestroyed)
             throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+        
+        if (!IsEnabled)
+            return;
 
         _buckets.Update(stage);
     }

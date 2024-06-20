@@ -9,7 +9,7 @@ using System.Text;
 namespace KorpiEngine.Core.API;
 
 /// <summary>
-/// A structure encapsulating three single precision floating point values and provides hardware accelerated methods.
+/// A structure encapsulating three double precision floating point values and provides hardware accelerated methods.
 /// </summary>
 public struct Vector3 : IEquatable<Vector3>, IFormattable
 {

@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions;
 using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Scripting.Components;
 
@@ -12,7 +13,7 @@ namespace KorpiEngine.Core.Scripting;
 /// <summary>
 /// High-level wrapper around an <see cref="EntityRef"/>.
 /// </summary>
-public sealed class Entity : EngineObject
+public sealed class Entity
 {
     /// <summary>
     /// The scene this entity is a part of.
@@ -24,14 +25,14 @@ public sealed class Entity : EngineObject
     /// </summary>
     public readonly EntityReference EntityRef;
 
-    public readonly Transform Transform;
+    public readonly TransformData Transform;
 
 
     internal Entity(EntityReference entityRef, Scene scene)
     {
         EntityRef = entityRef;
         Scene = scene;
-        Transform = new Transform();
+        Transform = new TransformData();
         Transform.Bind(this);
     }
 

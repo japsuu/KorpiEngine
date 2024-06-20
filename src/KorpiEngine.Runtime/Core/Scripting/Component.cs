@@ -24,7 +24,7 @@ public abstract class Component : EngineObject
     /// <summary>
     /// The transform of the entity this component is attached to.
     /// </summary>
-    public Transform Transform => Entity.Transform;
+    public TransformData Transform => Entity.Transform;
 
     /// <summary>
     /// The native variant of this component, used for <see cref="Entity.GetComponent{T}"/> and similar methods.
