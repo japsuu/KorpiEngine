@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.Platform;
-using KorpiEngine.Core.Scripting;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 

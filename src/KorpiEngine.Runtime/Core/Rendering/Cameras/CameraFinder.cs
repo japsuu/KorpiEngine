@@ -1,6 +1,4 @@
-﻿using Arch.Core;
-using Arch.Core.Extensions;
-using KorpiEngine.Core.ECS;
+﻿using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.SceneManagement;
 
 namespace KorpiEngine.Core.Rendering.Cameras;

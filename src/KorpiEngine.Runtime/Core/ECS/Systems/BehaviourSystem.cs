@@ -1,7 +1,4 @@
-﻿using Arch.Core;
-using Arch.Core.Extensions;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Scripting;
+﻿using KorpiEngine.Core.SceneManagement;
 using Entity = Arch.Core.Entity;
 
 namespace KorpiEngine.Core.ECS.Systems;

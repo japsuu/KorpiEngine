@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
 

@@ -1,5 +1,4 @@
-﻿using Arch.Core;
-using KorpiEngine.Core.API.Rendering.Materials;
+﻿using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.SceneManagement;

@@ -1,19 +1,16 @@
-﻿using Arch.Core;
-using Arch.Core.Extensions;
-using KorpiEngine.Core.API.Rendering;
+﻿using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Scripting;
-using Entity = KorpiEngine.Core.Scripting.Entity;
+using Entity = KorpiEngine.Core.EntityModel.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="Entity"/>s and register systems to process them.
+/// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene : IDisposable
 {
@@ -34,16 +31,10 @@ public abstract class Scene : IDisposable
     /// Typically used for rendering and post-rendering effects.
     /// </summary>
     private readonly SceneSystemGroup _presentationSystems;
-    
-    /// <summary>
-    /// The ESC world for this scene.
-    /// </summary>
-    internal readonly World World;
 
 
     protected Scene()
     {
-        World = World.Create();
         _simulationSystems = new SceneSystemGroup("SimulationSystems");
         _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
         _presentationSystems = new SceneSystemGroup("PresentationSystems");
@@ -58,19 +49,6 @@ public abstract class Scene : IDisposable
         c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
         return e;
     }
-
-
-    /// <summary>
-    /// Internally instantiates a new entity with the given component and name, and returns the component.
-    /// </summary>
-    /// <param name="name">The name of the entity.</param>
-    /// <typeparam name="T">The type of the component to add.</typeparam>
-    /// <returns>The added component.</returns>
-    public T Instantiate<T>(string name) where T : Behaviour, new()
-    {
-        Entity e = CreateEntity(name);
-        return e.AddComponent<T>();
-    }
     
     
     protected virtual void CreateSceneCamera()
@@ -80,21 +58,6 @@ public abstract class Scene : IDisposable
         ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
         cameraComponent.FOVDegrees = 60;
         cameraComponent.RenderPriority = 0;
-    }
-    
-    
-    /*protected void DestroyEntity(Arch.Core.Entity entity)
-    {
-        World.Destroy(entity);
-    }*/
-
-
-    private Entity CreateEntity(string name)
-    {
-        UUID uuid = new();
-        string nameString = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
-        Arch.Core.Entity entity = World.Create(new IdComponent(uuid), new NameComponent(nameString), new TransformComponent());
-        return new Entity(entity.Reference(), this);
     }
     
     
@@ -212,8 +175,7 @@ public abstract class Scene : IDisposable
         _simulationSystems.Dispose();
         _fixedSimulationSystems.Dispose();
         _presentationSystems.Dispose();
-        World.Dispose();
-        //World.Destroy(World);
+        
         GC.SuppressFinalize(this);
     }
 }

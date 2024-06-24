@@ -1,6 +1,4 @@
-﻿using Arch.Core;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Scripting;
+﻿using KorpiEngine.Core.SceneManagement;
 
 namespace KorpiEngine.Core.ECS.Systems;
 
