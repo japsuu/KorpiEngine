@@ -8,31 +8,21 @@ namespace KorpiEngine.Core.EntityModel.SpatialHierarchy;
 /// </summary>
 public class SpatialEntityComponent : EntityComponent
 {
-    private Entity _entity = null!;
     private SpatialEntityComponent? _spatialParent;
     private readonly List<SpatialEntityComponent> _spatialChildren = [];
+
+    protected readonly Transform Transform = new();
+
+    public string SocketID = string.Empty;
     
-    public readonly Transform Transform = new();
-
-
-    /// <summary>
-    /// Binds the component to the given entity reference.
-    /// </summary>
-    internal void Bind(Entity entity) => _entity = entity;
-
-
     public bool IsRootComponent => _spatialParent == null;
-    public bool IsLeafComponent => _spatialChildren.Count == 0;
+    public bool HasChildren => _spatialChildren.Count > 0;
 
 
     #region Parenting
 
-
-    public bool SetParent(SpatialEntityComponent? newParent, bool worldPositionStays = true)
+    internal bool SetParent(SpatialEntityComponent? newParent, bool worldPositionStays = true)
     {
-        if (IsRootComponent)
-            throw new NotImplementedException("TODO: Implement entity hierarchy/parenting. Currently only component hierarchy is supported.");  // What happens to the entity when the root component is parented to another entity?
-        
         if (newParent == _spatialParent)
             return true;
 
@@ -79,7 +69,7 @@ public class SpatialEntityComponent : EntityComponent
             Transform.LocalScale = new Vector3(inverseRs[0, 0], inverseRs[1, 1], inverseRs[2, 2]);
         }
 
-        HierarchyStateChanged();
+        // HierarchyStateChanged();
 
         return true;
     }
@@ -98,16 +88,21 @@ public class SpatialEntityComponent : EntityComponent
         return false;
     }
 
-
-    private void HierarchyStateChanged()
-    {
-        //TODO: Is there any use in having spatial components have an enabled field? Should only entities be able to be enabled/disabled?
-        bool newState = _entity.IsEnabled && Entity.IsParentEnabled();
-        Entity.EnabledInHierarchy = newState;
-
-        foreach (Transform child in Children)
-            child.HierarchyStateChanged();
-    }
-
     #endregion
+
+
+    internal SpatialEntityComponent? FindSpatialComponentWithSocket(string? socketID)
+    {
+        if (SocketID == socketID)
+            return this;
+
+        foreach (SpatialEntityComponent child in _spatialChildren)
+        {
+            SpatialEntityComponent? result = child.FindSpatialComponentWithSocket(socketID);
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
 }

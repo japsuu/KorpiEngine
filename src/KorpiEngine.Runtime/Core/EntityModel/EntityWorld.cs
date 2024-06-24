@@ -75,7 +75,13 @@ internal static class EntityWorld
     internal static void Update(SystemUpdateStage stage)
     {
         foreach (Entity entity in Entities)
-            entity.Update(stage);
+        {
+            // Child entities are updated recursively by their parents.
+            if (!entity.IsRootEntity)
+                continue;
+            
+            entity.UpdateRecursive(stage);
+        }
         
         foreach (WorldSystem system in WorldSystems.Values)
             system.Update(stage);

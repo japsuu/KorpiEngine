@@ -19,28 +19,31 @@ public sealed class Entity
     /// This value is unaffected by the entity's parent hierarchy.
     /// </summary>
     public bool IsEnabled { get; private set; }
-    //TODO: Implement Entity hierarchy public bool IsEnabledInHierarchy { get; private set; }
+    public bool IsEnabledInHierarchy { get; private set; }
+    public bool IsRootEntity => _parent == null;
+    public bool HasChildren => _children.Count > 0;
 
+    internal int ComponentCount => _components.Count;
+    internal int SystemCount => _systems.Count;
+    internal bool IsSpatial { get; private set; }
+    
+    private bool IsParentEnabled => _parent == null || _parent.IsEnabledInHierarchy;
+    private bool _isDestroyed;
+    private Entity? _parent;
+    private readonly List<Entity> _children = [];
+    private readonly List<EntityComponent> _components = [];
+    private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
+    private readonly SystemBucketCollection _buckets = new();
     private SpatialEntityComponent? _rootSpatialComponent;
-    internal SpatialEntityComponent? RootSpatialComponent
+    private SpatialEntityComponent? RootSpatialComponent
     {
         get => _rootSpatialComponent;
-        private set
+        set
         {
-            value?.Bind(this);
             _rootSpatialComponent = value;
             IsSpatial = value != null;
         }
     }
-    internal int ComponentCount => _components.Count;
-    internal int SystemCount => _systems.Count;
-    internal bool IsSpatial;
-    
-    private readonly List<EntityComponent> _components = [];
-    private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
-    private readonly SystemBucketCollection _buckets = new();
-    
-    private bool _isDestroyed;
     
     
     public void SetEnabled(bool enabled)
@@ -53,8 +56,8 @@ public sealed class Entity
         
         IsEnabled = enabled;
         
-        foreach (IEntitySystem system in _systems.Values)
-            system.OnEntityEnabledChanged(this, enabled);
+        // foreach (IEntitySystem system in _systems.Values)
+        //     system.OnEntityEnabledChanged(this, enabled);
     }
 
 
@@ -95,7 +98,85 @@ public sealed class Entity
         
         RemoveAllComponents();
         
+        RemoveFromSpatialHierarchy();
+        
         _isDestroyed = true;
+    }
+
+
+    private void RemoveFromSpatialHierarchy()
+    {
+        foreach (Entity child in _children)
+            child.ClearParent();
+        
+        ClearParent();
+    }
+
+    #endregion
+
+
+    #region Spatial Hierarchy
+    
+    public void ClearParent()
+    {
+        SetParent(null);
+    }
+    
+
+    public void SetParent(Entity? newParent, string? targetSpatialSocketID = null)
+    {
+        if (_isDestroyed)
+            throw new InvalidOperationException($"Entity {ID} has been destroyed.");
+        
+        if (RootSpatialComponent == null)
+            throw new InvalidOperationException("Cannot set a parent for an entity without a spatial component.");
+        
+        if (newParent != null && newParent.RootSpatialComponent == null)
+            throw new InvalidOperationException("Cannot set a non-spatial entity as a parent.");
+        
+        if (newParent == this)
+            throw new InvalidOperationException("Cannot set an entity as its own parent.");
+        
+        if (_parent == newParent)
+            return;
+
+        SpatialEntityComponent? targetSpatialComponent;
+        
+        // If new parent not specified, set the parent to null
+        if (newParent == null)
+        {
+            targetSpatialComponent = null;
+        }
+        // If target socket id not specified, set the parent to the root spatial component
+        else if (targetSpatialSocketID == null)
+        {
+            targetSpatialComponent = newParent.RootSpatialComponent;
+        }
+        // Otherwise, find the target spatial component and set the parent to that
+        else
+        {
+            targetSpatialComponent = newParent.RootSpatialComponent!.FindSpatialComponentWithSocket(targetSpatialSocketID);
+        
+            if (targetSpatialComponent == null)
+                throw new InvalidOperationException($"Could not find a spatial component with socket ID {targetSpatialSocketID}.");
+        }
+        
+        RootSpatialComponent.SetParent(targetSpatialComponent);
+        _parent?._children.Remove(this);
+        _parent = newParent;
+        _parent?._children.Add(this);
+        
+        HierarchyStateChanged();
+    }
+
+
+    private void HierarchyStateChanged()
+    {
+        bool newState = IsEnabled && IsParentEnabled;
+        IsEnabledInHierarchy = newState;
+
+        foreach (Entity child in _children)
+            child.HierarchyStateChanged();
     }
 
     #endregion
@@ -103,7 +184,13 @@ public sealed class Entity
 
     #region Adding and removing components
 
-    public void AddComponent<T>() where T : EntityComponent, new()
+    /// <summary>
+    /// Adds a new component of the given type to the entity.
+    /// </summary>
+    /// <param name="spatialSocketID">The SocketID to assign the component. Only required for spatial components.</param>
+    /// <param name="targetSpatialSocketID">The SocketID of the other component to attach the added component to. Only required for spatial components.</param>
+    /// <typeparam name="T">The type of the component to add.</typeparam>
+    public void AddComponent<T>(string? spatialSocketID = null, string? targetSpatialSocketID = null) where T : EntityComponent, new()
     {
         if (_isDestroyed)
             throw new InvalidOperationException($"Entity {ID} has been destroyed.");
@@ -112,11 +199,32 @@ public sealed class Entity
         
         if (component is SpatialEntityComponent spatialComponent)
         {
-            if (RootSpatialComponent != null)
-                throw new NotImplementedException("TODO: Spatial hierarchy.");
+            if (string.IsNullOrWhiteSpace(spatialSocketID))
+                throw new InvalidOperationException("Spatial components require a socket ID.");
             
-            RootSpatialComponent = spatialComponent;
+            spatialComponent.SocketID = spatialSocketID;
+            
+            if (RootSpatialComponent == null)
+            {
+                if (targetSpatialSocketID != null)
+                    throw new InvalidOperationException("Cannot attach a spatial component to a socket without a root spatial component.");
+                
+                RootSpatialComponent = spatialComponent;
+            }
+            else
+            {
+                SpatialEntityComponent? targetSpatialComponent = RootSpatialComponent.FindSpatialComponentWithSocket(targetSpatialSocketID);
+                
+                if (targetSpatialComponent == null)
+                    throw new InvalidOperationException($"Could not find a spatial component with socket ID {targetSpatialSocketID}.");
+                
+                spatialComponent.SetParent(targetSpatialComponent);
+            }
         }
+        else if (spatialSocketID != null || targetSpatialSocketID != null)
+            throw new InvalidOperationException($"Component of type {typeof(T).Name} does not support spatial sockets.");
+        
+        component.EntityID = ID;
         
         _components.Add(component);
 
@@ -153,8 +261,6 @@ public sealed class Entity
 
     private void RegisterComponent<T>(T component) where T : EntityComponent, new()
     {
-        component.EntityID = ID;
-        
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
         
@@ -257,7 +363,7 @@ public sealed class Entity
     
     #region Updating
     
-    internal void Update(SystemUpdateStage stage)
+    internal void UpdateRecursive(SystemUpdateStage stage)
     {
         if (_isDestroyed)
             throw new InvalidOperationException($"Entity {ID} has been destroyed.");
@@ -266,6 +372,12 @@ public sealed class Entity
             return;
 
         _buckets.Update(stage);
+
+        if (!HasChildren)
+            return;
+        
+        foreach (Entity child in _children)
+            child.UpdateRecursive(stage);
     }
 
     #endregion
