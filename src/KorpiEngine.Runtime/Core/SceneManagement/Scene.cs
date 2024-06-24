@@ -1,8 +1,6 @@
 ﻿using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.ECS;
-using KorpiEngine.Core.ECS.Systems;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.EntityModel.Systems.World;

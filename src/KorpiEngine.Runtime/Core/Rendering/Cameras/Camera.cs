@@ -1,18 +1,20 @@
 ﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Platform;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
-/// <summary>
-/// The base class for a camera used to render the scene.
-/// </summary>
-public sealed class Camera : Component
+public sealed class Camera : SpatialEntityComponent
 {
-    internal override Type NativeComponentType => typeof(CameraComponent);
-
     public const float NEAR_CLIP_PLANE = 0.01f;
     public const float FAR_CLIP_PLANE = 1000f;
+    
+    public short RenderPriority = 0;
+    public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
+    public CameraRenderTarget RenderTarget = CameraRenderTarget.Screen;
+    public CameraClearType ClearType = CameraClearType.SolidColor;
+    public Color ClearColor = Color.Gray;
+    public float FOVDegrees = 90;
 
     internal static Camera? RenderingCamera;
 
