@@ -3,6 +3,8 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.ECS;
 using KorpiEngine.Core.ECS.Systems;
+using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
 
@@ -32,6 +34,8 @@ public abstract class Scene : IDisposable
     /// </summary>
     private readonly SceneSystemGroup _presentationSystems;
 
+    private readonly EntityScene _entityScene;
+
 
     protected Scene()
     {
@@ -43,8 +47,8 @@ public abstract class Scene : IDisposable
 
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
-        Entity e = CreateEntity(name);
-        ref MeshRendererComponent c = ref e.AddNativeComponent<MeshRendererComponent>();
+        Entity e = new(name);
+        e.AddComponent<MeshRendererComponent>();
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
         return e;

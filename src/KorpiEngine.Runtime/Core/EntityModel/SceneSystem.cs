@@ -3,7 +3,7 @@
 /// <summary>
 /// A system that influences all existing components of a given type in the world.
 /// </summary>
-public abstract class WorldSystem
+public abstract class SceneSystem
 {
     public abstract void TryRegisterComponent<T>(T c) where T : EntityComponent;
     public abstract void TryUnregisterComponent<T>(T c) where T : EntityComponent;

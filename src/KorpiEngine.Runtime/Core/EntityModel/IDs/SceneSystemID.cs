@@ -2,23 +2,23 @@
 
 namespace KorpiEngine.Core.EntityModel.IDs;
 
-public readonly struct WorldSystemID : IEquatable<WorldSystemID>
+public readonly struct SceneSystemID : IEquatable<SceneSystemID>
 {
     private static ulong nextID;
 
     private readonly ulong _id;
     
     
-    private WorldSystemID(ulong id)
+    private SceneSystemID(ulong id)
     {
         _id = id;
     }
     
     
-    public static WorldSystemID Generate<T>() where T : WorldSystem
+    public static SceneSystemID Generate<T>() where T : SceneSystem
     {
         Debug.Assert(Interlocked.Read(ref nextID) != ulong.MaxValue, "GlobalSystemID overflow!");
-        WorldSystemID id = new(TypedIDs<T>.Bit);
+        SceneSystemID id = new(TypedIDs<T>.Bit);
         return id;
     }
 
@@ -35,12 +35,12 @@ public readonly struct WorldSystemID : IEquatable<WorldSystemID>
     }
     
     
-    public static implicit operator ulong(WorldSystemID id) => id._id;
+    public static implicit operator ulong(SceneSystemID id) => id._id;
     
     public override int GetHashCode() => _id.GetHashCode();
-    public bool Equals(WorldSystemID other) => _id == other._id;
-    public override bool Equals(object? obj) => obj is WorldSystemID other && Equals(other);
-    public static bool operator ==(WorldSystemID left, WorldSystemID right) => left.Equals(right);
-    public static bool operator !=(WorldSystemID left, WorldSystemID right) => !left.Equals(right);
+    public bool Equals(SceneSystemID other) => _id == other._id;
+    public override bool Equals(object? obj) => obj is SceneSystemID other && Equals(other);
+    public static bool operator ==(SceneSystemID left, SceneSystemID right) => left.Equals(right);
+    public static bool operator !=(SceneSystemID left, SceneSystemID right) => !left.Equals(right);
     public override string ToString() => _id.ToString();
 }

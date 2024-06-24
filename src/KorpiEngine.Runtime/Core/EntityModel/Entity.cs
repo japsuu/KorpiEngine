@@ -20,12 +20,12 @@ public sealed class Entity
     /// </summary>
     public bool IsEnabled { get; private set; }
     public bool IsEnabledInHierarchy { get; private set; }
-    public bool IsRootEntity => _parent == null;
-    public bool HasChildren => _children.Count > 0;
+    public bool IsSpatial { get; private set; }
+    public bool IsSpatialRootEntity => _parent == null;
+    public bool HasSpatialChildren => _children.Count > 0;
 
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
-    internal bool IsSpatial { get; private set; }
     
     private bool IsParentEnabled => _parent == null || _parent.IsEnabledInHierarchy;
     private bool _isDestroyed;
@@ -66,14 +66,17 @@ public sealed class Entity
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    public Entity(string? name, bool isSpatial = false)
+    public Entity(string? name, string? spatialSocketID = null)
     {
         ID = EntityID.Generate();
         Name = name ?? $"Entity {ID}";
-        EntityWorld.RegisterEntity(this);
+        EntityScene.RegisterEntity(this);
+
+        if (string.IsNullOrWhiteSpace(spatialSocketID))
+            return;
         
-        if (isSpatial)
-            AddComponent<SpatialEntityComponent>();
+        AddComponent<SpatialEntityComponent>();
+        RootSpatialComponent!.SocketID = spatialSocketID;
     }
     
     
@@ -92,7 +95,7 @@ public sealed class Entity
     /// </summary>
     public void Destroy()
     {
-        EntityWorld.UnregisterEntity(this);
+        EntityScene.UnregisterEntity(this);
         
         RemoveAllSystems();
         
@@ -264,7 +267,7 @@ public sealed class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
         
-        EntityWorld.RegisterComponent(component);
+        EntityScene.RegisterComponent(component);
         
         component.OnRegister();
     }
@@ -275,7 +278,7 @@ public sealed class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
             
-        EntityWorld.UnregisterComponent(component);
+        EntityScene.UnregisterComponent(component);
             
         component.OnUnregister();
     }
@@ -373,7 +376,7 @@ public sealed class Entity
 
         _buckets.Update(stage);
 
-        if (!HasChildren)
+        if (!HasSpatialChildren)
             return;
         
         foreach (Entity child in _children)

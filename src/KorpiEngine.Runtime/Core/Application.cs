@@ -136,7 +136,7 @@ public static class Application
     {
         Time.FixedUpdate();
         
-        EntityWorld.Update(SystemUpdateStage.FixedUpdate);
+        EntityScene.Update(SystemUpdateStage.FixedUpdate);
         
         SceneManager.FixedUpdate();
         
@@ -153,9 +153,9 @@ public static class Application
         ImGuiWindowManager.Update();
         imGuiController.Update();
         
-        EntityWorld.Update(SystemUpdateStage.EarlyUpdate);
-        EntityWorld.Update(SystemUpdateStage.Update);
-        EntityWorld.Update(SystemUpdateStage.LateUpdate);
+        EntityScene.Update(SystemUpdateStage.EarlyUpdate);
+        EntityScene.Update(SystemUpdateStage.Update);
+        EntityScene.Update(SystemUpdateStage.LateUpdate);
         
         SceneManager.Update();
         
@@ -166,7 +166,7 @@ public static class Application
 
     private static void InternalRender()
     {
-        EntityWorld.Update(SystemUpdateStage.Render);
+        EntityScene.Update(SystemUpdateStage.Render);
         SceneManager.Render();
         imGuiController.Render();
         ImGuiController.CheckGlError("End of frame");
@@ -175,7 +175,7 @@ public static class Application
 
     private static void OnUnload()
     {
-        EntityWorld.Destroy();
+        EntityScene.Destroy();
         
         OnAssemblyUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();

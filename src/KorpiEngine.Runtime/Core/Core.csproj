@@ -42,4 +42,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="EntityModel\Systems\Entity\" />
+    </ItemGroup>
+
 </Project>
