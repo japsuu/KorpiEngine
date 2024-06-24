@@ -25,8 +25,6 @@ public abstract class Scene : IDisposable
         EntityScene = new EntityScene();
         
         EntityScene.RegisterSceneSystem<MeshRenderSceneSystem>();
-        systems.Add(new BehaviourSystem(this));
-        systems.Add(new BehaviourFixedUpdateSystem(this));
     }
     
     
