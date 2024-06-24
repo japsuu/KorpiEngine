@@ -34,7 +34,7 @@ public abstract class Scene : IDisposable
     /// </summary>
     private readonly SceneSystemGroup _presentationSystems;
 
-    private readonly EntityScene _entityScene;
+    internal readonly EntityScene EntityScene;
 
 
     protected Scene()
@@ -42,13 +42,15 @@ public abstract class Scene : IDisposable
         _simulationSystems = new SceneSystemGroup("SimulationSystems");
         _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
         _presentationSystems = new SceneSystemGroup("PresentationSystems");
+        
+        EntityScene = new EntityScene();
     }
 
 
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
-        Entity e = new(name);
-        e.AddComponent<MeshRendererComponent>();
+        Entity e = CreateEntity(name);
+        MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
         return e;
@@ -62,6 +64,13 @@ public abstract class Scene : IDisposable
         ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
         cameraComponent.FOVDegrees = 60;
         cameraComponent.RenderPriority = 0;
+    }
+    
+    
+    private Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
     }
     
     

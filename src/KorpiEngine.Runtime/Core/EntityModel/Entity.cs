@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.SceneManagement;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -26,6 +27,8 @@ public sealed class Entity
 
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
+    internal readonly Scene Scene;
+    internal readonly EntityScene EntityScene;
     
     private bool IsParentEnabled => _parent == null || _parent.IsEnabledInHierarchy;
     private bool _isDestroyed;
@@ -66,10 +69,13 @@ public sealed class Entity
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    public Entity(string? name, string? spatialSocketID = null)
+    internal Entity(Scene scene, string? name, string? spatialSocketID = null)
     {
         ID = EntityID.Generate();
         Name = name ?? $"Entity {ID}";
+        Scene = scene;
+        EntityScene = scene.EntityScene;
+        
         EntityScene.RegisterEntity(this);
 
         if (string.IsNullOrWhiteSpace(spatialSocketID))
@@ -193,13 +199,19 @@ public sealed class Entity
     /// <param name="spatialSocketID">The SocketID to assign the component. Only required for spatial components.</param>
     /// <param name="targetSpatialSocketID">The SocketID of the other component to attach the added component to. Only required for spatial components.</param>
     /// <typeparam name="T">The type of the component to add.</typeparam>
-    public void AddComponent<T>(string? spatialSocketID = null, string? targetSpatialSocketID = null) where T : EntityComponent, new()
+    public T AddComponent<T>(string? spatialSocketID = null, string? targetSpatialSocketID = null) where T : EntityComponent, new()
     {
         if (_isDestroyed)
             throw new InvalidOperationException($"Entity {ID} has been destroyed.");
 
         T component = new();
         
+        return AddComponent(component, spatialSocketID, targetSpatialSocketID);
+    }
+
+
+    public T AddComponent<T>(T component, string? spatialSocketID = null, string? targetSpatialSocketID = null) where T : EntityComponent, new()
+    {
         if (component is SpatialEntityComponent spatialComponent)
         {
             if (string.IsNullOrWhiteSpace(spatialSocketID))
@@ -232,6 +244,8 @@ public sealed class Entity
         _components.Add(component);
 
         RegisterComponent(component);
+        
+        return component;
     }
 
 
