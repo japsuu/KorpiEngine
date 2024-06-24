@@ -3,7 +3,6 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.EntityModel.Systems.World;
 using KorpiEngine.Core.Rendering;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
 
@@ -22,7 +21,7 @@ public abstract class Scene : IDisposable
     {
         EntityScene = new EntityScene();
         
-        EntityScene.RegisterSceneSystem<MeshRenderSceneSystem>();
+        EntityScene.RegisterSceneSystem<SceneRenderSystemOld>();
     }
     
     

@@ -42,7 +42,7 @@ internal class CustomScene : Scene
         _player.Transform.Position = new Vector3(0, 0, 0);
 
         // Setup an FPS camera controller
-        Entity mainCamera = Camera.MainCamera!.Entity;
+        Entity mainCamera = CameraComponent.MainCamera!.Entity;
         mainCamera.AddComponent<FreeCameraController>();
     }
 
