@@ -23,15 +23,10 @@ public class MeshRenderSceneSystem : SceneSystem
 
     public override void Update(SystemUpdateStage stage)
     {
-        if (stage == SystemUpdateStage.Render)
-        {
-            foreach (MeshRendererComponent c in _components)
-            {
-                if (c.Mesh == null || c.Material == null)
-                    continue;
-                
-                c.Mesh.Render(c.Material);
-            }
-        }
+        if (stage != SystemUpdateStage.Render)
+            return;
+        
+        foreach (MeshRendererComponent c in _components)
+            c.Render();
     }
 }

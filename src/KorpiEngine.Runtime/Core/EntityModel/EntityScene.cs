@@ -5,7 +5,7 @@ namespace KorpiEngine.Core.EntityModel;
 /// <summary>
 /// Manages all entities, components, and systems in a scene.
 /// </summary>
-internal class EntityScene
+internal sealed class EntityScene
 {
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
