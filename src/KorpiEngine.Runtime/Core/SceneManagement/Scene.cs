@@ -3,7 +3,9 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
+using KorpiEngine.Core.EntityModel.Systems.World;
 using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Cameras;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
@@ -21,7 +23,7 @@ public abstract class Scene : IDisposable
     {
         EntityScene = new EntityScene();
         
-        EntityScene.RegisterSceneSystem<SceneRenderSystemOld>();
+        EntityScene.RegisterSceneSystem<SceneRenderSystem>();
     }
     
     
@@ -87,10 +89,10 @@ public abstract class Scene : IDisposable
     protected virtual void CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
-        CameraComponent comp = new CameraComponent();
-        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
-        cameraComponent.FOVDegrees = 60;
+        CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
+        cameraComponent.RenderTarget = CameraRenderTarget.Screen;
         cameraComponent.RenderPriority = 0;
+        cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
     }
     
     

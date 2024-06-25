@@ -95,7 +95,11 @@ public class SceneRenderSystem : SceneSystem
         if (camera.ClearType == CameraClearType.SolidColor)
         {
             camera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-            Graphics.Clear(r, g, b, a);
+            bool clearColor = camera.ClearFlags.HasFlag(CameraClearFlags.Color);
+            bool clearDepth = camera.ClearFlags.HasFlag(CameraClearFlags.Depth);
+            bool clearStencil = camera.ClearFlags.HasFlag(CameraClearFlags.Stencil);
+            
+            Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
         }
             
         // Use the current view and projection matrices
