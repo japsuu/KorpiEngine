@@ -31,7 +31,7 @@ internal class CustomScene : Scene
         /*Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
         blueMaterial.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
         blueMaterial.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);*/
-        _blueBoxEntity.AddComponent<BlueBoxBehaviourComponent>();
+        _blueBoxEntity.AddComponent<BlueBoxBehaviourComponent>("bbox");
         _blueBoxEntity.AddSystem<BehaviourSystem>();
 
         // Setup an FPS camera controller

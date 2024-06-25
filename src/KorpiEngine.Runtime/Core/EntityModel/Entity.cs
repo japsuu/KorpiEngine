@@ -234,7 +234,9 @@ public sealed class Entity
             }
             else
             {
-                SpatialEntityComponent? targetSpatialComponent = RootSpatialComponent.FindSpatialComponentWithSocket(targetSpatialSocketID);
+                SpatialEntityComponent? targetSpatialComponent = targetSpatialSocketID != null
+                    ? RootSpatialComponent.FindSpatialComponentWithSocket(targetSpatialSocketID)
+                    : RootSpatialComponent;
                 
                 if (targetSpatialComponent == null)
                     throw new InvalidOperationException($"Could not find a spatial component with socket ID {targetSpatialSocketID}.");
@@ -321,7 +323,7 @@ public sealed class Entity
                 components.Add(typedComponent);
         }
         
-        Debug.Assert(components.Count <= 0, $"Entity {ID} has no components of type {typeof(T).Name}.");
+        // Debug.Assert(components.Count <= 0, $"Entity {ID} has no components of type {typeof(T).Name}.");
         
         return components;
     }
