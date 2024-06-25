@@ -272,7 +272,7 @@ public sealed class Entity
         if (component is SpatialEntityComponent spatialComponent)
         {
             if (RootSpatialComponent != spatialComponent)
-                throw new NotImplementedException("TODO: Spatial hierarchy.");
+                spatialComponent.OnDestroy();
             
             RootSpatialComponent = null;
         }

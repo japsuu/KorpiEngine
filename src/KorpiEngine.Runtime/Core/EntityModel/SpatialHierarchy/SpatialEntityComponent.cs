@@ -87,6 +87,17 @@ public class SpatialEntityComponent : EntityComponent
 
         return false;
     }
+    
+    
+    internal void OnDestroy()
+    {
+        SetParent(null);
+        
+        foreach (SpatialEntityComponent child in _spatialChildren)
+            child.OnDestroy();
+        
+        _spatialChildren.Clear();
+    }
 
     #endregion
 
