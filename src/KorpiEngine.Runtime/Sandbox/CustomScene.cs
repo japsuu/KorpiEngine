@@ -1,12 +1,9 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.EntityModel.Components;
+using KorpiEngine.Core.EntityModel.Systems.Entity;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using Random = KorpiEngine.Core.API.Random;
 
@@ -15,7 +12,6 @@ namespace Sandbox;
 internal class CustomScene : Scene
 {
     private Entity _blueBoxEntity = null!;  // Automatically moves and rotates
-    private TestPlayer _player = null!;
     private readonly List<Entity> _balls = [];
 
 
@@ -32,41 +28,30 @@ internal class CustomScene : Scene
         // Create a blue quad entity
         _blueBoxEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
         _blueBoxEntity.RootSpatialComponent!.Transform.Position = new Vector3(0, 3, 0);
-        Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
+        /*Material blueMaterial = _blueBoxEntity.GetComponent<MeshRenderer>()!.Material!;
         blueMaterial.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
-        blueMaterial.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
-        
-        // Create a player entity
-        _player = Instantiate<TestPlayer>("Player");
-        _player.Transform.Position = new Vector3(0, 0, 0);
+        blueMaterial.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);*/
+        _blueBoxEntity.AddComponent<BlueBoxBehaviourComponent>();
+        _blueBoxEntity.AddSystem<BehaviourSystem>();
 
         // Setup an FPS camera controller
         SceneCamera.AddComponent<FreeCameraComponent>();
-        SceneCamera.AddSystem<FreeCameraSystem>();
+        SceneCamera.AddSystem<BehaviourSystem>();
     }
+}
 
-
-    protected override void Update()
-    {
-        UpdateBlueBox();
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            _player.Entity.GetComponent<IDamageable>()!.TakeDamage(10);
-        }
-    }
-
-
-    private void UpdateBlueBox()
+internal class BlueBoxBehaviourComponent : BehaviourComponent
+{
+    public override void Update()
     {
         // Rotate the entity
         const float rotSpeedY = 15f;
         const float rotSpeedZ = 30f;
         Vector3 newEulerAngles = new Vector3(0, rotSpeedY * Time.DeltaTime, rotSpeedZ * Time.DeltaTime);
-        _blueBoxEntity.Transform.Rotate(newEulerAngles);
+        Transform.Rotate(newEulerAngles);
         
         // Move the entity
         const float moveSpeed = 0.5f;
-        _blueBoxEntity.Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);
+        Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);
     }
 }

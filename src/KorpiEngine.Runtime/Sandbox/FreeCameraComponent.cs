@@ -1,44 +1,11 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.EntityModel.Components;
 
 namespace Sandbox;
 
-internal class FreeCameraSystem : EntitySystem<FreeCameraComponent>
-{
-    public override SystemUpdateStage[] UpdateStages => [SystemUpdateStage.Update];
-    public override bool IsSingleton => true;
-    
-    private FreeCameraComponent? _cameraComponent;
-
-
-    protected override void RegisterComponent(FreeCameraComponent c)
-    {
-        if (_cameraComponent != null)
-            throw new InvalidOperationException("Only one FreeCameraComponent can be registered at a time.");
-
-        _cameraComponent = c;
-    }
-
-
-    protected override void UnregisterComponent(FreeCameraComponent c)
-    {
-        _cameraComponent = null;
-    }
-
-
-    public override void Update(SystemUpdateStage stage)
-    {
-        if (_cameraComponent == null)
-            return;
-
-        _cameraComponent.Update();
-    }
-}
-
-internal class FreeCameraComponent : SpatialEntityComponent
+internal class FreeCameraComponent : BehaviourComponent
 {
     private const float LOOK_SENSITIVITY = 0.2f;
 
@@ -48,7 +15,7 @@ internal class FreeCameraComponent : SpatialEntityComponent
     private bool _isCursorLocked;
 
 
-    public void Update()
+    public override void Update()
     {
         UpdateCursorLock();
 

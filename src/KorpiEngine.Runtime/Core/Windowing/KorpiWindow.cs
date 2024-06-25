@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;

@@ -140,15 +140,15 @@ public static class Graphics
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void SetRenderingCamera(CameraComponent? renderingCamera)
+    internal static void SetRenderingCamera(CameraComponent? camera)
     {
-        Graphics.renderingCamera = renderingCamera;
+        renderingCamera = camera;
         
-        if (renderingCamera == null)
+        if (camera == null)
             return;
         
-        Matrix4x4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4x4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        Matrix4x4 viewMatrix = camera.ViewMatrix;
+        Matrix4x4 projectionMatrix = camera.ProjectionMatrix;
         
         ProjectionMatrix = projectionMatrix;
         ViewMatrix = viewMatrix;
