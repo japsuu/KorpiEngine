@@ -18,6 +18,7 @@ public sealed class CameraComponent : SpatialEntityComponent
     public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
     public CameraRenderTarget RenderTarget = CameraRenderTarget.Screen;
     public CameraClearType ClearType = CameraClearType.SolidColor;
+    public CameraClearFlags ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
     public Color ClearColor = Color.Gray;
 
     /// <summary>
