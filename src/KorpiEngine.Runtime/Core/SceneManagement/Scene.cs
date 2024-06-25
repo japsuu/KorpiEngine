@@ -17,6 +17,8 @@ namespace KorpiEngine.Core.SceneManagement;
 public abstract class Scene : IDisposable
 {
     internal readonly EntityScene EntityScene;
+    
+    protected Entity SceneCamera { get; private set; }
 
 
     protected Scene()
@@ -84,15 +86,30 @@ public abstract class Scene : IDisposable
         Entity e = new(this, name);
         return e;
     }
+
+
+    protected void RegisterSceneSystem<T>() where T : SceneSystem, new()
+    {
+        EntityScene.RegisterSceneSystem<T>();
+    }
+    
+    
+    protected void UnregisterSceneSystem<T>() where T : SceneSystem
+    {
+        EntityScene.UnregisterSceneSystem<T>();
+    }
     
     
     protected virtual void CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
         CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
+        
         cameraComponent.RenderTarget = CameraRenderTarget.Screen;
         cameraComponent.RenderPriority = 0;
         cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
+        
+        SceneCamera = cameraEntity;
     }
     
     

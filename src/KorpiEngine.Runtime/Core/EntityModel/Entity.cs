@@ -38,7 +38,7 @@ public sealed class Entity
     private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _buckets = new();
     private SpatialEntityComponent? _rootSpatialComponent;
-    private SpatialEntityComponent? RootSpatialComponent
+    public SpatialEntityComponent? RootSpatialComponent
     {
         get => _rootSpatialComponent;
         set

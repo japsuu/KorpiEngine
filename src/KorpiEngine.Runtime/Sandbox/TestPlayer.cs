@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.Scripting;
-
-namespace Sandbox;
+﻿namespace Sandbox;
 
 internal class TestPlayer : Behaviour, IDamageable
 {
