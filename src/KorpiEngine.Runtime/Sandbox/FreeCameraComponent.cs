@@ -40,22 +40,22 @@ internal class FreeCameraComponent : BehaviourComponent
         double flySpeed = Input.GetKey(KeyCode.LeftShift) ? FAST_FLY_SPEED : SLOW_FLY_SPEED;
 
         if (Input.GetKey(KeyCode.W)) // Forward
-            Transform.Position += Transform.Forward * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Forward * flySpeed * Time.DeltaTime;
 
         if (Input.GetKey(KeyCode.S)) // Backward
-            Transform.Position += Transform.Backward * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Backward * flySpeed * Time.DeltaTime;
 
         if (Input.GetKey(KeyCode.A)) // Left
-            Transform.Position += Transform.Left * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Left * flySpeed * Time.DeltaTime;
 
         if (Input.GetKey(KeyCode.D)) // Right
-            Transform.Position += Transform.Right * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Right * flySpeed * Time.DeltaTime;
 
         if (Input.GetKey(KeyCode.E)) // Up
-            Transform.Position += Transform.Up * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Up * flySpeed * Time.DeltaTime;
 
         if (Input.GetKey(KeyCode.Q)) // Down
-            Transform.Position += Transform.Down * flySpeed * Time.DeltaTime;
+            ParentTransform.Position += ParentTransform.Down * flySpeed * Time.DeltaTime;
     }
 
 
@@ -63,11 +63,11 @@ internal class FreeCameraComponent : BehaviourComponent
     {
         // Calculate the offset of the mouse position
         double yaw = Input.MouseDelta.X * LOOK_SENSITIVITY;
-        double pitch = Input.MouseDelta.Y * LOOK_SENSITIVITY; // Reversed since y-coordinates range from bottom to top
+        double pitch = Input.MouseDelta.Y * LOOK_SENSITIVITY;
 
         Vector3 eulers = new(pitch, yaw, 0f);
 
-        Transform.Rotate(eulers);
+        ParentTransform.Rotate(eulers);
     }
 
 

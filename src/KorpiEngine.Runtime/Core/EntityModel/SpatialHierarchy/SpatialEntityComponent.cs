@@ -12,6 +12,7 @@ public class SpatialEntityComponent : EntityComponent
     private readonly List<SpatialEntityComponent> _spatialChildren = [];
 
     public readonly Transform Transform = new();
+    public Transform? ParentTransform => _spatialParent?.Transform;
 
     public string SocketID = string.Empty;
     

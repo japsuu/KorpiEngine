@@ -19,7 +19,7 @@ public sealed class Entity
     /// True, if the entity is enabled explicitly.
     /// This value is unaffected by the entity's parent hierarchy.
     /// </summary>
-    public bool IsEnabled { get; private set; }
+    public bool IsEnabled { get; private set; } = true;
     public bool IsEnabledInHierarchy { get; private set; }
     public bool IsSpatial { get; private set; }
     public bool IsSpatialRootEntity => _parent == null;
