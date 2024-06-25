@@ -98,7 +98,7 @@ public class Transform
 
             return MakeSafe(worldRot);
         }
-        private set
+        set
         {
             if (Parent != null)
                 LocalRotation = MakeSafe(Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Rotation) * value));
@@ -198,16 +198,6 @@ public class Transform
 
         return ret;
     }
-    
-    
-    public Matrix4x4 GetLocalToWorldMatrix()
-    {
-        Matrix4x4 t = Matrix4x4.TRS(LocalPosition, LocalRotation, LocalScale);
-        return Parent != null ? t * Parent.LocalToWorldMatrix : t;
-    }
-    
-    
-    public Matrix4x4 GetWorldToLocalMatrix() => GetLocalToWorldMatrix().Invert();
 
     #endregion
 
