@@ -7,6 +7,7 @@ namespace KorpiEngine.Core.EntityModel;
 /// </summary>
 internal sealed class EntityScene
 {
+    private bool _isBeingDestroyed;
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<SceneSystemID, SceneSystem> _sceneSystems = [];
@@ -14,6 +15,9 @@ internal sealed class EntityScene
 
     internal void RegisterEntity(Entity entity)
     {
+        if (_isBeingDestroyed)
+            return;
+        
         if (entity.ComponentCount > 0)
             throw new InvalidOperationException($"Entity {entity} has components before being registered. This is not allowed.");
         
@@ -26,12 +30,18 @@ internal sealed class EntityScene
 
     internal void UnregisterEntity(Entity entity)
     {
+        if (_isBeingDestroyed)
+            return;
+
         _entities.Remove(entity);
     }
 
 
     internal void RegisterComponent(EntityComponent component)
     {
+        if (_isBeingDestroyed)
+            return;
+
         _components.Add(component);
         
         foreach (SceneSystem system in _sceneSystems.Values)
@@ -41,6 +51,9 @@ internal sealed class EntityScene
 
     internal void UnregisterComponent(EntityComponent component)
     {
+        if (_isBeingDestroyed)
+            return;
+
         if (!_components.Remove(component))
             throw new InvalidOperationException($"Component {component} is not registered.");
         
@@ -51,6 +64,9 @@ internal sealed class EntityScene
 
     internal void RegisterSceneSystem<T>() where T : SceneSystem, new()
     {
+        if (_isBeingDestroyed)
+            return;
+
         SceneSystem system = new T();
         SceneSystemID id = SceneSystemID.Generate<T>();
         
@@ -63,6 +79,9 @@ internal sealed class EntityScene
     
     internal void UnregisterSceneSystem<T>() where T : SceneSystem
     {
+        if (_isBeingDestroyed)
+            return;
+
         SceneSystemID id = SceneSystemID.Generate<T>();
         
         if (!_sceneSystems.Remove(id, out SceneSystem? system))
@@ -74,6 +93,9 @@ internal sealed class EntityScene
     
     internal void Update(SystemUpdateStage stage)
     {
+        if (_isBeingDestroyed)
+            return;
+
         foreach (Entity entity in _entities)
         {
             // Child entities are updated recursively by their parents.
@@ -90,6 +112,8 @@ internal sealed class EntityScene
     
     internal void Destroy()
     {
+        _isBeingDestroyed = true;
+        
         // Destroy all scene systems.
         foreach (SceneSystem system in _sceneSystems.Values)
             system.OnUnregister();

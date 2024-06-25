@@ -107,7 +107,8 @@ public sealed class Entity
         
         RemoveAllComponents();
         
-        RemoveFromSpatialHierarchy();
+        if (IsSpatial)
+            RemoveFromSpatialHierarchy();
         
         _isDestroyed = true;
     }
@@ -215,7 +216,12 @@ public sealed class Entity
         if (component is SpatialEntityComponent spatialComponent)
         {
             if (string.IsNullOrWhiteSpace(spatialSocketID))
-                throw new InvalidOperationException("Spatial components require a socket ID.");
+            {
+                if (RootSpatialComponent == null)
+                    spatialSocketID = "root";
+                else
+                    throw new InvalidOperationException("Spatial components require a socket ID.");
+            }
             
             spatialComponent.SocketID = spatialSocketID;
             
@@ -300,7 +306,7 @@ public sealed class Entity
 
     private void RemoveAllComponents()
     {
-        foreach (EntityComponent component in _components)
+        foreach (EntityComponent component in _components.ToArray())
             RemoveComponent(component);
     }
 
