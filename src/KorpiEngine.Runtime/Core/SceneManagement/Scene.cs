@@ -66,6 +66,9 @@ public abstract class Scene : IDisposable
     
     internal void InternalUpdate()
     {
+        // Explicit call to remove any dependencies to SystemUpdateStage
+        EntityScene.PreUpdate();
+        
         EntityScene.Update(SystemUpdateStage.PreUpdate);
         EntityScene.Update(SystemUpdateStage.Update);
         EntityScene.Update(SystemUpdateStage.PostUpdate);

@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
-
-namespace KorpiEngine.Core.EntityModel;
+﻿namespace KorpiEngine.Core.EntityModel;
 
 /// <summary>
 /// A collection of system buckets grouped by update stage.
@@ -10,7 +8,7 @@ internal class SystemBucketCollection
     private readonly Dictionary<SystemUpdateStage, SystemBucket> _buckets = [];
     
     
-    public void AddSystem(EntitySystemID id, IEntitySystem system)
+    public void AddSystem(ulong id, IEntitySystem system)
     {
         SystemUpdateStage[] stages = system.UpdateStages;
         
@@ -24,7 +22,7 @@ internal class SystemBucketCollection
     }
 
 
-    public bool RemoveSystem(EntitySystemID id)
+    public bool RemoveSystem(ulong id)
     {
         bool removed = false;
         
@@ -55,16 +53,16 @@ internal class SystemBucketCollection
 /// </summary>
 internal class SystemBucket
 {
-    private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
+    private readonly Dictionary<ulong, IEntitySystem> _systems = [];
     
     
-    public void AddSystem(EntitySystemID id, IEntitySystem system)
+    public void AddSystem(ulong id, IEntitySystem system)
     {
         _systems.Add(id, system);
     }
     
     
-    public bool RemoveSystem(EntitySystemID id)
+    public bool RemoveSystem(ulong id)
     {
         return _systems.Remove(id);
     }

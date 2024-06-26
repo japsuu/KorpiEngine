@@ -34,6 +34,7 @@ internal sealed class EntityScene
             return;
 
         _entities.Remove(entity);
+        entity.Parent?.ChildList.Remove(entity);
     }
 
 
@@ -88,6 +89,15 @@ internal sealed class EntityScene
             throw new InvalidOperationException($"Scene system {id} does not exist.");
         
         system.OnUnregister();
+    }
+
+
+    // Explicit call to remove any dependencies to SystemUpdateStage
+    internal void PreUpdate()
+    {
+        foreach (Entity e in _entities)
+            if (e.EnabledInHierarchy)
+                e.PreUpdate();
     }
     
     

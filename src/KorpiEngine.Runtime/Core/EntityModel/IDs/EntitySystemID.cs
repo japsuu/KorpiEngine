@@ -2,23 +2,15 @@
 
 namespace KorpiEngine.Core.EntityModel.IDs;
 
-public readonly struct EntitySystemID : IEquatable<EntitySystemID>
+public static class EntitySystemID
 {
     private static ulong nextID;
-
-    private readonly ulong _id;
     
     
-    private EntitySystemID(ulong id)
+    public static ulong Generate<T>() where T : IEntitySystem
     {
-        _id = id;
-    }
-    
-    
-    public static EntitySystemID Generate<T>() where T : IEntitySystem
-    {
-        Debug.Assert(Interlocked.Read(ref nextID) != ulong.MaxValue, "EntitySystemID overflow!");
-        EntitySystemID id = new(TypedIDs<T>.Bit);
+        ulong id = TypedIDs<T>.Bit;
+        Debug.Assert(id != ulong.MaxValue, "EntitySystemID overflow!");
         return id;
     }
 
@@ -33,14 +25,4 @@ public readonly struct EntitySystemID : IEquatable<EntitySystemID>
             Bit = Interlocked.Increment(ref nextID);
         }
     }
-    
-    
-    public static implicit operator ulong(EntitySystemID id) => id._id;
-    
-    public override int GetHashCode() => _id.GetHashCode();
-    public bool Equals(EntitySystemID other) => _id == other._id;
-    public override bool Equals(object? obj) => obj is EntitySystemID other && Equals(other);
-    public static bool operator ==(EntitySystemID left, EntitySystemID right) => left.Equals(right);
-    public static bool operator !=(EntitySystemID left, EntitySystemID right) => !left.Equals(right);
-    public override string ToString() => _id.ToString();
 }

@@ -1,4 +1,7 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
+﻿using System.Collections;
+using System.Reflection;
+using KorpiEngine.Core.EntityModel.Coroutines;
+using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 
 namespace KorpiEngine.Core.EntityModel;
@@ -12,50 +15,58 @@ public abstract class EntityComponent
 
     public Entity Entity { get; private set; } = null!;
     public Transform Transform => Entity.Transform;
-    
+
     public bool Enabled
     {
-        get { return _enabled; }
+        get => _enabled;
         set
         {
-            if (value != _enabled)
-            {
-                _enabled = value;
-                HierarchyStateChanged();
-            }
+            if (value == _enabled)
+                return;
+            
+            _enabled = value;
+            HierarchyStateChanged();
         }
     }
 
     public bool EnabledInHierarchy => _enabledInHierarchy;
-    
+
     internal bool HasAwoken;
     internal bool HasStarted;
 
     private bool _enabled = true;
     private bool _enabledInHierarchy = true;
+    private readonly Dictionary<string, Coroutine> _coroutines = new();
+    private readonly Dictionary<string, Coroutine> _endOfFrameCoroutines = new();
 
+
+    #region Creation and destruction
 
     internal EntityComponent()
     {
         InstanceID = ComponentID.Generate();
     }
-    
-    
+
+
     internal void Bind(Entity entity)
     {
         Entity = entity;
-        
+
         bool isEnabled = _enabled && entity.EnabledInHierarchy;
         _enabledInHierarchy = isEnabled;
     }
-    
+
+    #endregion
+
+
+    #region Internal calls
 
     internal void HierarchyStateChanged()
     {
         bool newState = _enabled && Entity.EnabledInHierarchy;
         if (newState == _enabledInHierarchy)
             return;
-        
+
         _enabledInHierarchy = newState;
         if (newState)
             OnEnable();
@@ -63,56 +74,195 @@ public abstract class EntityComponent
             OnDisable();
     }
 
-    
-    internal bool CanDestroy()
+
+    internal bool CanBeDestroyed()
     {
         if (!Entity.IsComponentRequired(this, out Type dependentType))
             return true;
-        
+
         Application.Logger.Error($"Can't remove {GetType().Name} because {dependentType.Name} depends on it");
         return false;
     }
-    
-    
+
+
     internal void InternalAwake()
     {
-        if (HasAwoken) return;
+        if (HasAwoken)
+            return;
         HasAwoken = true;
         OnAwake();
 
         if (EnabledInHierarchy)
             OnEnable();
     }
-    
-    
+
+
     internal void InternalStart()
     {
-        if (HasStarted) return;
+        if (HasStarted)
+            return;
         HasStarted = true;
         OnStart();
     }
 
 
+    internal void UpdateCoroutines()
+    {
+        Dictionary<string, Coroutine> tempList = new(_coroutines);
+        _coroutines.Clear();
+        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
+        {
+            coroutine.Value.Run();
+            if (coroutine.Value.IsDone)
+            {
+                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
+                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
+                else
+                    _coroutines.Add(coroutine.Key, coroutine.Value);
+            }
+        }
+    }
+
+
+    internal void UpdateEndOfFrameCoroutines()
+    {
+        Dictionary<string, Coroutine> tempList = new(_endOfFrameCoroutines);
+        _endOfFrameCoroutines.Clear();
+        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
+        {
+            coroutine.Value.Run();
+            if (coroutine.Value.IsDone)
+            {
+                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
+                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
+                else
+                    _coroutines.Add(coroutine.Key, coroutine.Value);
+            }
+        }
+    }
+
+
+    internal void Dispose()
+    {
+        
+    }
+
+    #endregion
+
+
+    #region Coroutines
+
+    public Coroutine StartCoroutine(string methodName)
+    {
+        methodName = methodName.Trim();
+        MethodInfo? method = GetType().GetMethod(
+            methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        if (method == null)
+            throw new InvalidOperationException($"Coroutine '{methodName}' couldn't be started, the method doesn't exist!");
+
+        object? invoke = method.Invoke(this, null);
+
+        if (invoke is not IEnumerator enumerator)
+            throw new InvalidOperationException($"Coroutine '{methodName}' couldn't be started, the method doesn't return an IEnumerator!");
+
+        Coroutine coroutine = new(enumerator);
+
+        if (coroutine.Enumerator.Current is WaitForEndOfFrame)
+            _endOfFrameCoroutines.Add(methodName, coroutine);
+        else
+            _coroutines.Add(methodName, coroutine);
+
+        return coroutine;
+    }
+
+
+    public void StopAllCoroutines()
+    {
+        _coroutines.Clear();
+        _endOfFrameCoroutines.Clear();
+    }
+
+
+    public void StopCoroutine(string methodName)
+    {
+        methodName = methodName.Trim();
+        _coroutines.Remove(methodName);
+        _endOfFrameCoroutines.Remove(methodName);
+    }
+
+    #endregion
+
+
     #region Overrideable behaviour methods
 
     // NOTE: Calls to these could be wrapped in ExecuteSafe to catch exceptions and trim the stack trace.
-    public virtual void OnAwake() { }
-    public virtual void OnEnable() { }
-    public virtual void OnDisable() { }
-    public virtual void OnStart() { }
-    public virtual void OnFixedUpdate() { }
-    public virtual void OnUpdate() { }
-    public virtual void OnLateUpdate() { }
-    public virtual void OnPreRender() { }
-    public virtual void OnRenderObject() { }
-    public virtual void OnPostRender() { }
-    public virtual void OnRenderObjectDepth() { }
-    public virtual void OnDrawGizmos() { }
-    public virtual void OnDestroy() { }
+    public virtual void OnAwake()
+    {
+    }
+
+
+    public virtual void OnEnable()
+    {
+    }
+
+
+    public virtual void OnDisable()
+    {
+    }
+
+
+    public virtual void OnStart()
+    {
+    }
+
+
+    public virtual void OnFixedUpdate()
+    {
+    }
+
+
+    public virtual void OnUpdate()
+    {
+    }
+
+
+    public virtual void OnLateUpdate()
+    {
+    }
+
+
+    public virtual void OnPreRender()
+    {
+    }
+
+
+    public virtual void OnRenderObject()
+    {
+    }
+
+
+    public virtual void OnPostRender()
+    {
+    }
+
+
+    public virtual void OnRenderObjectDepth()
+    {
+    }
+
+
+    public virtual void OnDrawGizmos()
+    {
+    }
+
+
+    public virtual void OnDestroy()
+    {
+    }
 
     #endregion
-    
-    
+
+
     /*internal static void ExecuteSafe(Action action)
     {
         try

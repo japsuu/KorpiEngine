@@ -4,6 +4,7 @@ using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Utils;
+using System.Reflection;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -42,6 +43,7 @@ public sealed class Entity
                 SetEnabled(value);
         }
     }
+
     /// <summary>
     /// True if the entity is enabled and all of its parents are enabled, false otherwise.
     /// </summary>
@@ -54,6 +56,7 @@ public sealed class Entity
 
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
+    internal List<Entity> ChildList => _children;
 
     private bool _enabled = true;
     private bool _enabledInHierarchy = true;
@@ -65,8 +68,8 @@ public sealed class Entity
     private readonly EntityScene _entityScene;
     private readonly List<EntityComponent> _components = [];
     private readonly MultiValueDictionary<Type, EntityComponent> _componentCache = new();
-    private readonly Dictionary<EntitySystemID, IEntitySystem> _systems = [];
-    private readonly SystemBucketCollection _buckets = new();
+    private readonly Dictionary<ulong, IEntitySystem> _systems = [];
+    private readonly SystemBucketCollection _systemBuckets = new();
 
 
     private void SetEnabled(bool state)
@@ -112,14 +115,26 @@ public sealed class Entity
     /// </summary>
     public void Destroy()
     {
-        _entityScene.UnregisterEntity(this);
+        while (_children.Count > 0)
+            _children[0].Destroy();
 
         RemoveAllSystems();
 
-        RemoveAllComponents();
+        foreach (EntityComponent component in _components)
+        {
+            if (component.EnabledInHierarchy)
+                component.OnDisable();
 
-        if (IsSpatial)
-            RemoveFromSpatialHierarchy();
+            if (component.HasStarted)
+                component.OnDestroy(); // OnDestroy is only called if the component has previously been active
+
+            component.Dispose();
+        }
+
+        _components.Clear();
+        _componentCache.Clear();
+
+        _entityScene.UnregisterEntity(this);
 
         _isDestroyed = true;
     }
@@ -225,14 +240,10 @@ public sealed class Entity
     #endregion
 
 
-    #region Adding and removing components
-    
-    
-    
-    
-    
-    
-    
+    #region Component API
+
+    #region AddComponent API
+
     public T AddComponent<T>() where T : EntityComponent, new()
     {
         if (_isDestroyed)
@@ -267,26 +278,28 @@ public sealed class Entity
 
         bool disallowMultiple = type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null;
         bool hasComponent = GetComponent(type) != null;
-        
-        if (disallowMultiple && hasComponent)
-            throw new InvalidOperationException($"Can't add the same component multiple times: the component of type {type.Name} does not allow multiple instances");
 
-        if (Activator.CreateInstance(type) is not EntityComponent newComponent)
+        if (disallowMultiple && hasComponent)
+            throw new InvalidOperationException(
+                $"Can't add the same component multiple times: the component of type {type.Name} does not allow multiple instances");
+
+        if (Activator.CreateInstance(type) is not EntityComponent comp)
             throw new InvalidOperationException($"Failed to create component of type {type.Name}");
 
-        newComponent.Bind(this);
-        _components.Add(newComponent);
-        _componentCache.Add(type, newComponent);
+        comp.Bind(this);
+        _components.Add(comp);
+        _componentCache.Add(type, comp);
 
         if (_enabledInHierarchy)
-        {
-            newComponent.InternalAwake();
-        }
+            comp.InternalAwake();
+        
+        RegisterComponentWithSystems(comp);
 
-        return newComponent;
+        return comp;
     }
 
-    public void AddComponent(EntityComponent comp)
+
+    /*public void AddComponent(EntityComponent comp)
     {
         Type type = comp.GetType();
         RequireComponentAttribute? requireComponentAttribute = type.GetCustomAttribute<RequireComponentAttribute>();
@@ -306,79 +319,115 @@ public sealed class Entity
             }
         }
 
-        if (type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null && GetComponent(type) != null)
-        {
-            Application.Logger.Error($"Can't Add the Same Component Multiple TimesThe component of type {type.Name} does not allow multiple instances");
-            return;
-        }
+        bool disallowMultiple = type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null;
+        bool hasComponent = GetComponent(type) != null;
 
-        comp.AttachToGameObject(this);
+        if (disallowMultiple && hasComponent)
+            throw new InvalidOperationException(
+                $"Can't add the same component multiple times: the component of type {type.Name} does not allow multiple instances");
+
+        comp.Bind(this);
+
         _components.Add(comp);
         _componentCache.Add(comp.GetType(), comp);
-        if (enabledInHierarchy)
+
+        if (EnabledInHierarchy)
+            comp.InternalAwake();
+    }*/
+
+    #endregion
+
+
+    #region RemoveComponent API
+
+    public void RemoveAll<T>() where T : EntityComponent    //TODO: Accepting interfaces
+    {
+        if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
+            return;
+
+        foreach (EntityComponent c in components)
+            if (c.EnabledInHierarchy)
+                c.OnDisable();
+        
+        foreach (EntityComponent c in components)
         {
-            comp.Do(comp.InternalAwake);
+            // OnDestroy is only called if the component has previously been active
+            if (c.HasStarted)
+                c.OnDestroy();
+
+            _components.Remove(c);
         }
+
+        _componentCache.Remove(typeof(T));
+        
+        foreach (EntityComponent c in components)
+            UnregisterComponentWithSystems(c);
     }
 
-    public void RemoveAll<T>() where T : EntityComponent
-    {
-        IReadOnlyCollection<EntityComponent> components;
-        if (_componentCache.TryGetValue(typeof(T), out components))
-        {
-            foreach (EntityComponent c in components)
-                if (c.EnabledInHierarchy)
-                    c.Do(c.OnDisable);
-            foreach (EntityComponent c in components)
-            {
-                if (c.HasStarted) // OnDestroy is only called if the component has previously been active
-                    c.Do(c.OnDestroy);
 
-                _components.Remove(c);
-            }
-            _componentCache.Remove(typeof(T));
-        }
+    public void RemoveComponent<T>(T component) where T : EntityComponent    //TODO: Accepting interfaces
+    {
+        Type type = typeof(T);
+        
+        RemoveComponent(component, type);
     }
 
-    public void RemoveComponent<T>(T component) where T : EntityComponent
+
+    public void RemoveComponent(EntityComponent component)    //TODO: Accepting interfaces
     {
-        if (component.CanDestroy() == false) return;
+        Type type = component.GetType();
+        
+        RemoveComponent(component, type);
+    }
+
+
+    private void RemoveComponent<T>(T component, Type type) where T : EntityComponent
+    {
+        if (!component.CanBeDestroyed())
+            return;
 
         _components.Remove(component);
-        _componentCache.Remove(typeof(T), component);
+        _componentCache.Remove(type, component);
 
-        if (component.EnabledInHierarchy) component.Do(component.OnDisable);
-        if (component.HasStarted) component.Do(component.OnDestroy); // OnDestroy is only called if the component has previously been active
+        if (component.EnabledInHierarchy)
+            component.OnDisable();
+        
+        // OnDestroy is only called if the component has previously been active
+        if (component.HasStarted)
+            component.OnDestroy();
+        
+        UnregisterComponentWithSystems(component);
     }
 
-    public void RemoveComponent(EntityComponent component)
-    {
-        if (component.CanDestroy() == false) return;
+    #endregion
 
-        _components.Remove(component);
-        _componentCache.Remove(component.GetType(), component);
 
-        if (component.EnabledInHierarchy) component.Do(component.OnDisable);
-        if (component.HasStarted) component.Do(component.OnDestroy); // OnDestroy is only called if the component has previously been active
-    }
+    #region GetComponent API
 
     public T? GetComponent<T>() where T : EntityComponent => (T?)GetComponent(typeof(T));
 
+
     public EntityComponent? GetComponent(Type type)
     {
-        if (type == null) return null; 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (type == null)
+            return null;
+
         if (_componentCache.TryGetValue(type, out IReadOnlyCollection<EntityComponent> components))
             return components.First();
-        else
-            foreach (EntityComponent comp in _components)
-                if (comp.GetType().IsAssignableTo(type))
-                    return comp;
+        
+        foreach (EntityComponent comp in _components)
+            if (comp.GetType().IsAssignableTo(type))
+                return comp;
+        
         return null;
     }
 
-    public IEnumerable<EntityComponent> GetComponents() => _components;
+
+    public IEnumerable<EntityComponent> GetAllComponents() => _components;
 
     public bool TryGetComponent<T>(out T? component) where T : EntityComponent => (component = GetComponent<T>()) != null;
+
 
     public IEnumerable<T> GetComponents<T>() where T : EntityComponent
     {
@@ -406,69 +455,86 @@ public sealed class Entity
         }
     }
 
-    public T? GetComponentInParent<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent => (T)GetComponentInParent(typeof(T), includeSelf, includeInactive);
 
-    public EntityComponent? GetComponentInParent(Type componentType, bool includeSelf = true, bool includeInactive = false)
+    public T? GetComponentInParent<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent =>
+        (T?)GetComponentInParent(typeof(T), includeSelf, includeInactive);
+
+
+    public EntityComponent? GetComponentInParent(Type type, bool includeSelf = true, bool includeInactive = false)
     {
-        if (componentType == null) return null;
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (type == null)
+            return null;
+
         // First check the current Object
-        EntityComponent component;
-        if (includeSelf && enabledInHierarchy) {
-            component = GetComponent(componentType);
+        EntityComponent? component;
+        if (includeSelf && EnabledInHierarchy)
+        {
+            component = GetComponent(type);
             if (component != null)
                 return component;
         }
+
         // Now check all parents
-        GameObject parent = this;
-        while ((parent = parent.parent) != null)
+        Entity? parent = this;
+        while ((parent = parent.Parent) != null)
         {
-            if (parent.enabledInHierarchy || includeInactive)
+            if (parent.EnabledInHierarchy || includeInactive)
             {
-                component = parent.GetComponent(componentType);
+                component = parent.GetComponent(type);
                 if (component != null)
                     return component;
             }
         }
+
         return null;
     }
+
 
     public IEnumerable<T> GetComponentsInParent<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent
     {
         // First check the current Object
-        if (includeSelf && enabledInHierarchy)
+        if (includeSelf && EnabledInHierarchy)
             foreach (T component in GetComponents<T>())
                 yield return component;
+
         // Now check all parents
-        GameObject parent = this;
-        while ((parent = parent.parent) != null) {
-            if(parent.enabledInHierarchy || includeInactive)
-                foreach (var component in parent.GetComponents<T>())
+        Entity? parent = this;
+        while ((parent = parent.Parent) != null)
+            if (parent.EnabledInHierarchy || includeInactive)
+                foreach (T component in parent.GetComponents<T>())
                     yield return component;
-        }
     }
 
-    public T? GetComponentInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent => (T)GetComponentInChildren(typeof(T), includeSelf, includeInactive);
 
-    public EntityComponent GetComponentInChildren(Type componentType, bool includeSelf = true, bool includeInactive = false)
+    public T? GetComponentInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent =>
+        (T?)GetComponentInChildren(typeof(T), includeSelf, includeInactive);
+
+
+    public EntityComponent? GetComponentInChildren(Type componentType, bool includeSelf = true, bool includeInactive = false)
     {
-        if (componentType == null) return null;
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (componentType == null)
+            return null;
+
         // First check the current Object
-        EntityComponent component;
-        if (includeSelf && enabledInHierarchy) {
+        EntityComponent? component;
+        if (includeSelf && EnabledInHierarchy)
+        {
             component = GetComponent(componentType);
             if (component != null)
                 return component;
         }
+
         // Now check all children
-        foreach (var child in children)
-        {
-            if (enabledInHierarchy || includeInactive)
+        foreach (Entity child in _children)
+            if (EnabledInHierarchy || includeInactive)
             {
                 component = child.GetComponent(componentType) ?? child.GetComponentInChildren(componentType);
                 if (component != null)
                     return component;
             }
-        }
+
         return null;
     }
 
@@ -476,19 +542,20 @@ public sealed class Entity
     public IEnumerable<T> GetComponentsInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent
     {
         // First check the current Object
-        if (includeSelf && enabledInHierarchy)
+        if (includeSelf && EnabledInHierarchy)
             foreach (T component in GetComponents<T>())
                 yield return component;
+
         // Now check all children
-        foreach (var child in children)
-        {
-            if (enabledInHierarchy || includeInactive)
-                foreach (var component in child.GetComponentsInChildren<T>())
+        foreach (Entity child in _children)
+            if (EnabledInHierarchy || includeInactive)
+                foreach (T component in child.GetComponentsInChildren<T>())
                     yield return component;
-        }
     }
 
-    
+    #endregion
+
+
     internal bool IsComponentRequired(EntityComponent requiredComponent, out Type dependentType)
     {
         Type componentType = requiredComponent.GetType();
@@ -505,113 +572,15 @@ public sealed class Entity
             dependentType = component.GetType();
             return true;
         }
+
         dependentType = null!;
         return false;
     }
-    
-    
-    
-    
-    
-
-    /*/// <summary>
-    /// Adds a new component of the given type to the entity.
-    /// </summary>
-    /// <typeparam name="T">The type of the component to add.</typeparam>
-    public T AddComponent<T>() where T : EntityComponent, new()
-    {
-        if (_isDestroyed)
-            throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
-
-        T component = new();
-        component.Bind(this);
-
-        return AddComponent(component);
-    }
-
-
-    private T AddComponent<T>(T component) where T : EntityComponent, new()
-    {
-        _components.Add(component);
-        _componentCache.Add(component.GetType(), component);
-
-        RegisterComponent(component);
-
-        return component;
-    }
-
-
-    public void RemoveComponents<T>() where T : EntityComponent
-    {
-        if (_isDestroyed)
-            throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
-
-        foreach (T component in GetComponents<T>())
-            RemoveComponent(component);
-    }
-
-
-    private void RemoveComponent<T>(T component) where T : EntityComponent
-    {
-        if (component is SpatialEntityComponent spatialComponent)
-        {
-            if (RootSpatialComponent != spatialComponent)
-                spatialComponent.OnDestroy();
-
-            RootSpatialComponent = null;
-        }
-
-        if (!_components.Remove(component))
-            throw new InvalidOperationException($"Entity {InstanceID} does not have a component of type {typeof(T).Name}.");
-
-        UnregisterComponent(component);
-    }*/
-
-
-    private void RegisterComponent<T>(T component) where T : EntityComponent, new()
-    {
-        foreach (IEntitySystem system in _systems.Values)
-            system.TryRegisterComponent(component);
-
-        _entityScene.RegisterComponent(component);
-
-        component.OnRegister();
-    }
-
-
-    private void UnregisterComponent<T>(T component) where T : EntityComponent
-    {
-        foreach (IEntitySystem system in _systems.Values)
-            system.TryUnregisterComponent(component);
-
-        _entityScene.UnregisterComponent(component);
-
-        component.OnUnregister();
-    }
-
-
-    /*private void RemoveAllComponents()
-    {
-        foreach (EntityComponent component in _components.ToArray())
-            RemoveComponent(component);
-    }
-
-
-    [Pure]
-    internal IEnumerable<T> GetComponents<T>()
-    {
-        List<T> components = [];
-        foreach (EntityComponent component in _components)
-            if (component is T typedComponent)
-                components.Add(typedComponent);
-
-        return components;
-    }*/
 
     #endregion
 
 
-    #region Adding and removing systems
+    #region Systems API
 
     public void AddSystem<T>() where T : IEntitySystem, new()
     {
@@ -619,7 +588,7 @@ public sealed class Entity
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         T system = new();
-        EntitySystemID id = EntitySystemID.Generate<T>();
+        ulong id = EntitySystemID.Generate<T>();
 
         if (system.IsSingleton)
             if (_systems.ContainsKey(id))
@@ -630,7 +599,7 @@ public sealed class Entity
 
         _systems.Add(id, system);
 
-        _buckets.AddSystem(id, system);
+        _systemBuckets.AddSystem(id, system);
 
         system.OnRegister(this);
     }
@@ -641,12 +610,12 @@ public sealed class Entity
         if (_isDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
-        EntitySystemID id = EntitySystemID.Generate<T>();
+        ulong id = EntitySystemID.Generate<T>();
 
         if (!_systems.Remove(id, out IEntitySystem? system))
             throw new InvalidOperationException($"Entity {InstanceID} does not have a system of type {typeof(T).Name}.");
 
-        _buckets.RemoveSystem(id);
+        _systemBuckets.RemoveSystem(id);
 
         system.OnUnregister(this);
     }
@@ -658,13 +627,47 @@ public sealed class Entity
             system.OnUnregister(this);
 
         _systems.Clear();
-        _buckets.Clear();
+        _systemBuckets.Clear();
+    }
+
+
+    private void RegisterComponentWithSystems(EntityComponent component)
+    {
+        foreach (IEntitySystem system in _systems.Values)
+            system.TryRegisterComponent(component);
+
+        _entityScene.RegisterComponent(component);
+    }
+
+
+    private void UnregisterComponentWithSystems(EntityComponent component)
+    {
+        foreach (IEntitySystem system in _systems.Values)
+            system.TryUnregisterComponent(component);
+
+        _entityScene.UnregisterComponent(component);
     }
 
     #endregion
 
 
     #region Updating
+
+    internal void PreUpdate()
+    {
+        foreach (EntityComponent component in _components)
+        {
+            if (!component.HasAwoken)
+                component.InternalAwake();
+
+            if (component.HasStarted)
+                continue;
+
+            if (component.EnabledInHierarchy)
+                component.InternalStart();
+        }
+    }
+
 
     internal void UpdateRecursive(SystemUpdateStage stage)
     {
@@ -674,7 +677,7 @@ public sealed class Entity
         if (!_enabled)
             return;
 
-        _buckets.Update(stage);
+        _systemBuckets.Update(stage);
 
         if (!HasSpatialChildren)
             return;

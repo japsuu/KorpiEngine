@@ -28,7 +28,7 @@ internal class DemoScene : Scene
 
             // Create a sphere primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-            root.Transform.AddChild(model);
+            model.SetParent(root);
 
             // Move the root entity to a random position
             root.Transform.Position = Random.InUnitSphere * 20;
@@ -40,7 +40,7 @@ internal class DemoScene : Scene
         // Create a primitive quad
         Entity quadEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
 
-        // Add a custom behaviour component to make it move and rotate
+        // Add a custom behavior component to make it move and rotate
         quadEntity.AddComponent<DemoMoveRotate>();
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
