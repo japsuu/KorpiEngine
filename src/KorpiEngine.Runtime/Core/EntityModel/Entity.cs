@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Contracts;
-using KorpiEngine.Core.API;
+﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.SceneManagement;
@@ -11,7 +10,7 @@ namespace KorpiEngine.Core.EntityModel;
 /// <summary>
 /// Container for components and systems that make up an entity.
 /// </summary>
-public sealed class Entity
+public sealed class Entity //TODO: Split to partial classes
 {
     public readonly ulong InstanceID;
     public readonly Scene Scene;
@@ -54,6 +53,7 @@ public sealed class Entity
     public Entity? Parent => _parent;
     public IReadOnlyList<Entity> Children => _children;
 
+    internal bool IsDestroyed => _isDestroyed;
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
     internal List<Entity> ChildList => _children;
@@ -70,13 +70,6 @@ public sealed class Entity
     private readonly MultiValueDictionary<Type, EntityComponent> _componentCache = new();
     private readonly Dictionary<ulong, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _systemBuckets = new();
-
-
-    private void SetEnabled(bool state)
-    {
-        _enabled = state;
-        HierarchyStateChanged();
-    }
 
 
     #region Creation and destruction
@@ -237,6 +230,13 @@ public sealed class Entity
             child.HierarchyStateChanged();
     }
 
+
+    private void SetEnabled(bool state)
+    {
+        _enabled = state;
+        HierarchyStateChanged();
+    }
+
     #endregion
 
 
@@ -261,7 +261,6 @@ public sealed class Entity
 
         RequireComponentAttribute? requireComponentAttribute = type.GetCustomAttribute<RequireComponentAttribute>();
         if (requireComponentAttribute != null)
-        {
             foreach (Type requiredComponentType in requireComponentAttribute.Types)
             {
                 if (!typeof(EntityComponent).IsAssignableFrom(requiredComponentType))
@@ -274,7 +273,6 @@ public sealed class Entity
                 // Recursive call to attempt to add the new component
                 AddComponent(requiredComponentType);
             }
-        }
 
         bool disallowMultiple = type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null;
         bool hasComponent = GetComponent(type) != null;
@@ -292,7 +290,7 @@ public sealed class Entity
 
         if (_enabledInHierarchy)
             comp.InternalAwake();
-        
+
         RegisterComponentWithSystems(comp);
 
         return comp;
@@ -340,7 +338,7 @@ public sealed class Entity
 
     #region RemoveComponent API
 
-    public void RemoveAll<T>() where T : EntityComponent    //TODO: Accepting interfaces
+    public void RemoveAll<T>() where T : EntityComponent //TODO: Accepting interfaces
     {
         if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
             return;
@@ -348,7 +346,7 @@ public sealed class Entity
         foreach (EntityComponent c in components)
             if (c.EnabledInHierarchy)
                 c.OnDisable();
-        
+
         foreach (EntityComponent c in components)
         {
             // OnDestroy is only called if the component has previously been active
@@ -359,24 +357,24 @@ public sealed class Entity
         }
 
         _componentCache.Remove(typeof(T));
-        
+
         foreach (EntityComponent c in components)
             UnregisterComponentWithSystems(c);
     }
 
 
-    public void RemoveComponent<T>(T component) where T : EntityComponent    //TODO: Accepting interfaces
+    public void RemoveComponent<T>(T component) where T : EntityComponent //TODO: Accepting interfaces
     {
         Type type = typeof(T);
-        
+
         RemoveComponent(component, type);
     }
 
 
-    public void RemoveComponent(EntityComponent component)    //TODO: Accepting interfaces
+    public void RemoveComponent(EntityComponent component) //TODO: Accepting interfaces
     {
         Type type = component.GetType();
-        
+
         RemoveComponent(component, type);
     }
 
@@ -391,11 +389,11 @@ public sealed class Entity
 
         if (component.EnabledInHierarchy)
             component.OnDisable();
-        
+
         // OnDestroy is only called if the component has previously been active
         if (component.HasStarted)
             component.OnDestroy();
-        
+
         UnregisterComponentWithSystems(component);
     }
 
@@ -415,11 +413,11 @@ public sealed class Entity
 
         if (_componentCache.TryGetValue(type, out IReadOnlyCollection<EntityComponent> components))
             return components.First();
-        
+
         foreach (EntityComponent comp in _components)
             if (comp.GetType().IsAssignableTo(type))
                 return comp;
-        
+
         return null;
     }
 
@@ -431,27 +429,18 @@ public sealed class Entity
 
     public IEnumerable<T> GetComponents<T>() where T : EntityComponent
     {
-        if (typeof(T) == typeof(EntityComponent))
+        if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
         {
-            // Special case for Component
-            foreach (EntityComponent comp in _components)
-                yield return (T)comp;
+            foreach (KeyValuePair<Type, IReadOnlyCollection<EntityComponent>> kvp in _componentCache.ToArray())
+                if (kvp.Key.GetTypeInfo().IsAssignableTo(typeof(T)))
+                    foreach (EntityComponent comp in kvp.Value.ToArray())
+                        yield return (T)comp;
         }
         else
         {
-            if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
-            {
-                foreach (KeyValuePair<Type, IReadOnlyCollection<EntityComponent>> kvp in _componentCache.ToArray())
-                    if (kvp.Key.GetTypeInfo().IsAssignableTo(typeof(T)))
-                        foreach (EntityComponent comp in kvp.Value.ToArray())
-                            yield return (T)comp;
-            }
-            else
-            {
-                foreach (EntityComponent comp in components)
-                    if (comp.GetType().IsAssignableTo(typeof(T)))
-                        yield return (T)comp;
-            }
+            foreach (EntityComponent comp in components)
+                if (comp.GetType().IsAssignableTo(typeof(T)))
+                    yield return (T)comp;
         }
     }
 
@@ -478,14 +467,12 @@ public sealed class Entity
         // Now check all parents
         Entity? parent = this;
         while ((parent = parent.Parent) != null)
-        {
             if (parent.EnabledInHierarchy || includeInactive)
             {
                 component = parent.GetComponent(type);
                 if (component != null)
                     return component;
             }
-        }
 
         return null;
     }
@@ -653,7 +640,7 @@ public sealed class Entity
 
     #region Updating
 
-    internal void PreUpdate()
+    internal void EnsureComponentInitialization()
     {
         foreach (EntityComponent component in _components)
         {
@@ -669,21 +656,40 @@ public sealed class Entity
     }
 
 
-    internal void UpdateRecursive(SystemUpdateStage stage)
+    /// <summary>
+    /// Propagates system updates downwards in the hierarchy.
+    /// </summary>
+    internal void UpdateSystemsRecursive(EntityUpdateStage stage)
     {
-        if (_isDestroyed)
-            throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
-
-        if (!_enabled)
-            return;
-
         _systemBuckets.Update(stage);
 
-        if (!HasSpatialChildren)
+        if (!HasChildren)
             return;
 
         foreach (Entity child in _children)
-            child.UpdateRecursive(stage);
+            child.UpdateSystemsRecursive(stage);
+    }
+
+
+    /// <summary>
+    /// Propagates component updates downwards in the hierarchy.
+    /// </summary>
+    internal void UpdateComponentsRecursive(EntityUpdateStage stage)
+    {
+        InvokeComponentUpdates(stage);
+
+        if (!HasChildren)
+            return;
+
+        foreach (Entity child in _children)
+            child.UpdateComponentsRecursive(stage);
+    }
+
+
+    private void InvokeComponentUpdates(EntityUpdateStage stage)
+    {
+        foreach (EntityComponent component in _components)
+            component.Update(stage);
     }
 
     #endregion

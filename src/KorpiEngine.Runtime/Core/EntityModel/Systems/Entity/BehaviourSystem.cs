@@ -7,7 +7,7 @@ namespace KorpiEngine.Core.EntityModel.Systems.Entity;
 /// </summary>
 public class BehaviourSystem : EntitySystem<BehaviourComponent>
 {
-    public override SystemUpdateStage[] UpdateStages => [SystemUpdateStage.Update, SystemUpdateStage.PostUpdate, SystemUpdateStage.Render, SystemUpdateStage.FixedUpdate];
+    public override EntityUpdateStage[] UpdateStages => [EntityUpdateStage.Update, EntityUpdateStage.PostUpdate, EntityUpdateStage.Render, EntityUpdateStage.FixedUpdate];
     public override bool IsSingleton => true;
     
     private readonly List<BehaviourComponent> _components = [];
@@ -27,13 +27,13 @@ public class BehaviourSystem : EntitySystem<BehaviourComponent>
     }
 
 
-    public override void Update(SystemUpdateStage stage)
+    public override void Update(EntityUpdateStage stage)
     {
         foreach (BehaviourComponent c in _components)
         {
             switch (stage)
             {
-                case SystemUpdateStage.Update:
+                case EntityUpdateStage.Update:
                     if (!c.HasBeenStarted)
                     {
                         c.Start();
@@ -41,13 +41,13 @@ public class BehaviourSystem : EntitySystem<BehaviourComponent>
                     }
                     c.OnUpdate();
                     break;
-                case SystemUpdateStage.PostUpdate:
+                case EntityUpdateStage.PostUpdate:
                     c.LateUpdate();
                     break;
-                case SystemUpdateStage.Render:
+                case EntityUpdateStage.Render:
                     c.OnRenderObject();
                     break;
-                case SystemUpdateStage.FixedUpdate:
+                case EntityUpdateStage.FixedUpdate:
                     c.FixedUpdate();
                     break;
             }

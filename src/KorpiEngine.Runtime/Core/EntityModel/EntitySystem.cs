@@ -5,7 +5,7 @@
 /// </summary>
 public interface IEntitySystem
 {
-    public SystemUpdateStage[] UpdateStages { get; }
+    public EntityUpdateStage[] UpdateStages { get; }
     public bool IsSingleton { get; }
     
     public void TryRegisterComponent<T>(T c) where T : EntityComponent;
@@ -14,14 +14,14 @@ public interface IEntitySystem
     public void OnRegister(Entity e);
     public void OnUnregister(Entity e);
 
-    public void Update(SystemUpdateStage stage);
+    public void Update(EntityUpdateStage stage);
 }
 
 /// <inheritdoc />
 public abstract class EntitySystem<T1> : IEntitySystem
     where T1 : EntityComponent
 {
-    public abstract SystemUpdateStage[] UpdateStages { get; }
+    public abstract EntityUpdateStage[] UpdateStages { get; }
     public abstract bool IsSingleton { get; }
 
 
@@ -75,7 +75,7 @@ public abstract class EntitySystem<T1> : IEntitySystem
     protected abstract void RegisterComponent(T1 c);
     protected abstract void UnregisterComponent(T1 c);
     
-    public abstract void Update(SystemUpdateStage stage);
+    public abstract void Update(EntityUpdateStage stage);
 }
 
 /// <inheritdoc />
@@ -83,7 +83,7 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
     where T1 : EntityComponent
     where T2 : EntityComponent
 {
-    public abstract SystemUpdateStage[] UpdateStages { get; }
+    public abstract EntityUpdateStage[] UpdateStages { get; }
     public abstract bool IsSingleton { get; }
 
 
@@ -155,7 +155,7 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
     protected abstract void RegisterComponent(T2 c1);
     protected abstract void UnregisterComponent(T2 c1);
     
-    public abstract void Update(SystemUpdateStage stage);
+    public abstract void Update(EntityUpdateStage stage);
 }
 
 /// <inheritdoc />
@@ -164,7 +164,7 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
     where T2 : EntityComponent
     where T3 : EntityComponent
 {
-    public abstract SystemUpdateStage[] UpdateStages { get; }
+    public abstract EntityUpdateStage[] UpdateStages { get; }
     public abstract bool IsSingleton { get; }
 
 
@@ -250,7 +250,7 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
     protected abstract void RegisterComponent(T3 c);
     protected abstract void UnregisterComponent(T3 c);
     
-    public abstract void Update(SystemUpdateStage stage);
+    public abstract void Update(EntityUpdateStage stage);
 }
 
 /// <inheritdoc />
@@ -260,7 +260,7 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
     where T3 : EntityComponent
     where T4 : EntityComponent
 {
-    public abstract SystemUpdateStage[] UpdateStages { get; }
+    public abstract EntityUpdateStage[] UpdateStages { get; }
     public abstract bool IsSingleton { get; }
 
 
@@ -360,7 +360,7 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
     protected abstract void RegisterComponent(T4 c);
     protected abstract void UnregisterComponent(T4 c);
     
-    public abstract void Update(SystemUpdateStage stage);
+    public abstract void Update(EntityUpdateStage stage);
 }
 
 
@@ -372,7 +372,7 @@ public class ExampleEntitySystem : EntitySystem<ExampleEntitySystem.ExampleCompo
         public int FixedUpdates { get; set; }
     }
     
-    public override SystemUpdateStage[] UpdateStages => [SystemUpdateStage.Update, SystemUpdateStage.FixedUpdate];
+    public override EntityUpdateStage[] UpdateStages => [EntityUpdateStage.Update, EntityUpdateStage.FixedUpdate];
     public override bool IsSingleton => false;
     
     private readonly List<ExampleComponent> _components = [];
@@ -388,12 +388,12 @@ public class ExampleEntitySystem : EntitySystem<ExampleEntitySystem.ExampleCompo
         _components.Remove(c);
     }
 
-    public override void Update(SystemUpdateStage stage)
+    public override void Update(EntityUpdateStage stage)
     {
-        if (stage == SystemUpdateStage.Update)
+        if (stage == EntityUpdateStage.Update)
             foreach (ExampleComponent c1 in _components)
                 c1.Updates++;
-        else if (stage == SystemUpdateStage.FixedUpdate)
+        else if (stage == EntityUpdateStage.FixedUpdate)
             foreach (ExampleComponent c1 in _components)
                 c1.FixedUpdates++;
     }

@@ -69,25 +69,25 @@ public abstract class Scene : IDisposable
         // Explicit call to remove any dependencies to SystemUpdateStage
         EntityScene.PreUpdate();
         
-        EntityScene.Update(SystemUpdateStage.PreUpdate);
-        EntityScene.Update(SystemUpdateStage.Update);
-        EntityScene.Update(SystemUpdateStage.PostUpdate);
+        EntityScene.Update(EntityUpdateStage.PreUpdate);
+        EntityScene.Update(EntityUpdateStage.Update);
+        EntityScene.Update(EntityUpdateStage.PostUpdate);
     }
     
     
     internal void InternalFixedUpdate()
     {
-        EntityScene.Update(SystemUpdateStage.PreFixedUpdate);
-        EntityScene.Update(SystemUpdateStage.FixedUpdate);
-        EntityScene.Update(SystemUpdateStage.PostFixedUpdate);
+        EntityScene.Update(EntityUpdateStage.PreFixedUpdate);
+        EntityScene.Update(EntityUpdateStage.FixedUpdate);
+        EntityScene.Update(EntityUpdateStage.PostFixedUpdate);
     }
     
     
     internal void InternalRender()
     {
-        EntityScene.Update(SystemUpdateStage.PreRender);
-        EntityScene.Update(SystemUpdateStage.Render);
-        EntityScene.Update(SystemUpdateStage.PostRender);
+        EntityScene.Update(EntityUpdateStage.PreRender);
+        EntityScene.Update(EntityUpdateStage.Render);
+        EntityScene.Update(EntityUpdateStage.PostRender);
     }
     
     

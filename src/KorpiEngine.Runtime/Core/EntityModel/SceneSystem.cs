@@ -26,5 +26,5 @@ public abstract class SceneSystem
     protected virtual void Initialize() { }
     protected virtual void Deinitialize() { }
 
-    public abstract void Update(SystemUpdateStage stage);
+    public abstract void Update(EntityUpdateStage stage);
 }

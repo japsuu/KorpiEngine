@@ -97,22 +97,26 @@ internal sealed class EntityScene
     {
         foreach (Entity e in _entities)
             if (e.EnabledInHierarchy)
-                e.PreUpdate();
+                e.EnsureComponentInitialization();
     }
     
     
-    internal void Update(SystemUpdateStage stage)
+    internal void Update(EntityUpdateStage stage)
     {
         if (_isBeingDestroyed)
             return;
 
         foreach (Entity entity in _entities)
         {
-            // Child entities are updated recursively by their parents.
-            if (!entity.IsSpatialRootEntity)
-                continue;
+            if (entity.IsDestroyed)
+                throw new InvalidOperationException($"Entity {entity.InstanceID} has been destroyed.");
+
+            if (!entity.Enabled)
+                return;
             
-            entity.UpdateRecursive(stage);
+            // Child entities are updated recursively by their parents.
+            if (entity.IsRootEntity)
+                entity.UpdateSystemsRecursive(stage);
         }
         
         foreach (SceneSystem system in _sceneSystems.Values)

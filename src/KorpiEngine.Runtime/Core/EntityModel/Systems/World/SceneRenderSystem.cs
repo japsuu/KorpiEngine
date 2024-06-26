@@ -48,11 +48,11 @@ public class SceneRenderSystem : SceneSystem
     }
 
 
-    public override void Update(SystemUpdateStage stage)
+    public override void Update(EntityUpdateStage stage)
     {
         switch (stage)
         {
-            case SystemUpdateStage.PreRender:
+            case EntityUpdateStage.PreRender:
             {
                 // Construct ordered render queues
                 foreach (CameraComponent c in _cameras)
@@ -64,7 +64,7 @@ public class SceneRenderSystem : SceneSystem
                 }
                 break;
             }
-            case SystemUpdateStage.Render:
+            case EntityUpdateStage.Render:
             {
                 // Render all cameras that target a RenderTexture
                 while (_renderQueueTexture.Count > 0)
@@ -78,7 +78,7 @@ public class SceneRenderSystem : SceneSystem
 
                 break;
             }
-            case SystemUpdateStage.PostRender:
+            case EntityUpdateStage.PostRender:
             {
                 // Clear the render queues
                 _renderQueueScreen.Clear();

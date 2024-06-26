@@ -142,6 +142,49 @@ public abstract class EntityComponent
     }
 
 
+    internal void Update(EntityUpdateStage stage)
+    {
+        switch (stage)
+        {
+            case EntityUpdateStage.PreUpdate:
+                OnPreUpdate();
+                break;
+            case EntityUpdateStage.Update:
+                OnUpdate();
+                break;
+            case EntityUpdateStage.PostUpdate:
+                OnPostUpdate();
+                break;
+            case EntityUpdateStage.PreFixedUpdate:
+                OnPreFixedUpdate();
+                break;
+            case EntityUpdateStage.FixedUpdate:
+                OnFixedUpdate();
+                break;
+            case EntityUpdateStage.PostFixedUpdate:
+                OnPostFixedUpdate();
+                break;
+            case EntityUpdateStage.PreRender:
+                OnPreRender();
+                break;
+            case EntityUpdateStage.Render:
+                OnRenderObject();
+                break;
+            case EntityUpdateStage.PostRender:
+                OnPostRender();
+                break;
+            case EntityUpdateStage.RenderDepth:
+                OnRenderObjectDepth();
+                break;
+            case EntityUpdateStage.DrawGizmos:
+                OnDrawGizmos();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(stage), stage, null);
+        }
+    }
+
+
     internal void Dispose()
     {
         
@@ -196,71 +239,22 @@ public abstract class EntityComponent
     #region Overrideable behaviour methods
 
     // NOTE: Calls to these could be wrapped in ExecuteSafe to catch exceptions and trim the stack trace.
-    public virtual void OnAwake()
-    {
-    }
-
-
-    public virtual void OnEnable()
-    {
-    }
-
-
-    public virtual void OnDisable()
-    {
-    }
-
-
-    public virtual void OnStart()
-    {
-    }
-
-
-    public virtual void OnFixedUpdate()
-    {
-    }
-
-
-    public virtual void OnUpdate()
-    {
-    }
-
-
-    public virtual void OnLateUpdate()
-    {
-    }
-
-
-    public virtual void OnPreRender()
-    {
-    }
-
-
-    public virtual void OnRenderObject()
-    {
-    }
-
-
-    public virtual void OnPostRender()
-    {
-    }
-
-
-    public virtual void OnRenderObjectDepth()
-    {
-    }
-
-
-    public virtual void OnDrawGizmos()
-    {
-    }
-
-
-    public virtual void OnDestroy()
-    {
-    }
-
-    #endregion
+    protected virtual void OnAwake() { }
+    protected virtual void OnEnable() { }
+    protected virtual void OnDisable() { }
+    protected virtual void OnStart() { }
+    protected virtual void OnPreFixedUpdate() { }
+    protected virtual void OnFixedUpdate() { }
+    protected virtual void OnPostFixedUpdate() { }
+    protected virtual void OnPreUpdate() { }
+    protected virtual void OnUpdate() { }
+    protected virtual void OnPostUpdate() { }
+    protected virtual void OnPreRender() { }
+    protected virtual void OnRenderObject() { }
+    protected virtual void OnPostRender() { }
+    protected virtual void OnRenderObjectDepth() { }
+    protected virtual void OnDrawGizmos() { }
+    protected virtual void OnDestroy() { }
 
 
     /*internal static void ExecuteSafe(Action action)
@@ -274,4 +268,6 @@ public abstract class EntityComponent
             Application.Logger.Error($"Error: {e.Message} \n StackTrace: {e.StackTrace}");
         }
     }*/
+
+    #endregion
 }

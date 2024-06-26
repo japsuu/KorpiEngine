@@ -5,14 +5,14 @@
 /// </summary>
 internal class SystemBucketCollection
 {
-    private readonly Dictionary<SystemUpdateStage, SystemBucket> _buckets = [];
+    private readonly Dictionary<EntityUpdateStage, SystemBucket> _buckets = [];
     
     
     public void AddSystem(ulong id, IEntitySystem system)
     {
-        SystemUpdateStage[] stages = system.UpdateStages;
+        EntityUpdateStage[] stages = system.UpdateStages;
         
-        foreach (SystemUpdateStage stage in stages)
+        foreach (EntityUpdateStage stage in stages)
         {
             if (!_buckets.ContainsKey(stage))
                 _buckets.Add(stage, new SystemBucket());
@@ -33,7 +33,7 @@ internal class SystemBucketCollection
     }
     
     
-    public void Update(SystemUpdateStage stage)
+    public void Update(EntityUpdateStage stage)
     {
         if (!_buckets.TryGetValue(stage, out SystemBucket? bucket))
             return;
@@ -68,7 +68,7 @@ internal class SystemBucket
     }
     
     
-    public void Update(SystemUpdateStage stage)
+    public void Update(EntityUpdateStage stage)
     {
         foreach (IEntitySystem system in _systems.Values)
             system.Update(stage);

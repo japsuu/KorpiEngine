@@ -3,7 +3,7 @@
 /// <summary>
 /// Determines the stage at which a system is updated.
 /// </summary>
-public enum SystemUpdateStage
+public enum EntityUpdateStage
 {
     PreUpdate,
     Update,
@@ -13,5 +13,7 @@ public enum SystemUpdateStage
     PostFixedUpdate,
     PreRender,
     Render,
-    PostRender
+    PostRender,
+    RenderDepth,
+    DrawGizmos
 }
