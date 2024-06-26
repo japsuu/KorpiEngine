@@ -18,7 +18,7 @@ public abstract class Scene : IDisposable
 {
     internal readonly EntityScene EntityScene;
     
-    protected Entity SceneCamera { get; private set; }
+    protected CameraComponent SceneCamera { get; private set; } = null!;
 
 
     protected Scene()
@@ -31,7 +31,7 @@ public abstract class Scene : IDisposable
     
     public void Dispose()
     {
-        Unload();
+        OnUnload();
         
         EntityScene.Destroy();
         
@@ -49,11 +49,18 @@ public abstract class Scene : IDisposable
     }
     
     
+    /*public void Instantiate<T>(T prefab) where T : Entity
+    {
+        Entity e = prefab.Clone();
+        EntityScene.AddEntity(e);
+    }*/
+    
+    
     internal void InternalLoad()
     {
-        CreateSceneCamera();
+        SceneCamera = CreateSceneCamera();
         
-        Load();
+        OnLoad();
     }
     
     
@@ -100,7 +107,7 @@ public abstract class Scene : IDisposable
     }
     
     
-    protected virtual void CreateSceneCamera()
+    protected virtual CameraComponent CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
         CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
@@ -109,17 +116,17 @@ public abstract class Scene : IDisposable
         cameraComponent.RenderPriority = 0;
         cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
         
-        SceneCamera = cameraEntity;
+        return cameraComponent;
     }
     
     
     /// <summary>
     /// Called when the scene is loaded.
     /// </summary>
-    protected virtual void Load() { }
+    protected virtual void OnLoad() { }
     
     /// <summary>
     /// Called when the scene is unloaded.
     /// </summary>
-    protected virtual void Unload() { }
+    protected virtual void OnUnload() { }
 }

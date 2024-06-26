@@ -1,8 +1,6 @@
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-
 namespace KorpiEngine.Core.EntityModel.Components;
 
-public class BehaviourComponent : SpatialEntityComponent
+public class BehaviourComponent : EntityComponent
 {
     internal bool HasBeenStarted;
     
@@ -26,7 +24,7 @@ public class BehaviourComponent : SpatialEntityComponent
     /// <summary>
     /// Called every frame.
     /// </summary>
-    public virtual void Update()
+    public virtual void OnUpdate()
     {
     }
 

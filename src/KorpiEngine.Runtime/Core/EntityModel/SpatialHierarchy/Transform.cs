@@ -10,18 +10,25 @@ public class Transform
     public Vector3 Down => Rotation * Vector3.Down;
     public Vector3 Forward => Rotation * Vector3.Forward;
     public Vector3 Backward => Rotation * Vector3.Backward;
+    public bool IsRootTransform => Parent == null;
+    public Transform Root => Parent == null ? this : Parent.Root;
 
     /// <summary>
     /// Used to check if the transform has changed since the last time it was accessed.
     /// https://forum.unity.com/threads/transform-haschanged-would-be-better-if-replaced-by-a-version-number.700004/
     /// </summary>
     public uint Version { get; private set; }
+    
+    /// <summary>
+    /// The entity that this transform is attached to.
+    /// </summary>
+    public Entity Entity { get; internal set; } = null!;
 
     private Vector3 _localPosition = Vector3.Zero;
     private Vector3 _localScale = Vector3.One;
     private Quaternion _localRotation = Quaternion.Identity;
 
-    internal Transform? Parent;
+    public Transform? Parent => Entity.Parent?.Transform;
 
 
     #region Position

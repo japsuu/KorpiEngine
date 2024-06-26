@@ -1,10 +1,10 @@
 ﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Platform;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
-public sealed class CameraComponent : SpatialEntityComponent
+public sealed class CameraComponent : EntityComponent
 {
     public const float NEAR_CLIP_PLANE = 0.01f;
     public const float FAR_CLIP_PLANE = 1000f;

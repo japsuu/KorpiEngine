@@ -3,7 +3,7 @@
 namespace KorpiEngine.Core.EntityModel.Systems.Entity;
 
 /// <summary>
-/// Generic system to update Unity-like behaviours on entities.
+/// Generic system to update Unity-like behaviors on entities.
 /// </summary>
 public class BehaviourSystem : EntitySystem<BehaviourComponent>
 {
@@ -39,7 +39,7 @@ public class BehaviourSystem : EntitySystem<BehaviourComponent>
                         c.Start();
                         c.HasBeenStarted = true;
                     }
-                    c.Update();
+                    c.OnUpdate();
                     break;
                 case SystemUpdateStage.PostUpdate:
                     c.LateUpdate();
