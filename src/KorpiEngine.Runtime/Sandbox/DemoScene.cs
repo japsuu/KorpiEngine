@@ -83,7 +83,6 @@ internal class DemoOscillate : EntityComponent
 
     protected override void OnUpdate()
     {
-        return;
         // Oscillate the entity up and down
         double time = Time.TotalTime + _oscillationOffset;
         double height = Math.Sin(time * OSCILLATION_SPEED) * OSCILLATION_HEIGHT;
