@@ -676,20 +676,14 @@ public sealed class Entity //TODO: Split to partial classes
     /// </summary>
     internal void UpdateComponentsRecursive(EntityUpdateStage stage)
     {
-        InvokeComponentUpdates(stage);
+        foreach (EntityComponent component in _components)
+            component.Update(stage);
 
         if (!HasChildren)
             return;
 
         foreach (Entity child in _children)
             child.UpdateComponentsRecursive(stage);
-    }
-
-
-    private void InvokeComponentUpdates(EntityUpdateStage stage)
-    {
-        foreach (EntityComponent component in _components)
-            component.Update(stage);
     }
 
     #endregion
