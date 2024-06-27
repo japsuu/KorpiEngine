@@ -115,8 +115,11 @@ internal sealed class EntityScene
                 return;
             
             // Child entities are updated recursively by their parents.
-            if (entity.IsRootEntity)
-                entity.UpdateSystemsRecursive(stage);
+            if (!entity.IsRootEntity)
+                continue;
+            
+            entity.UpdateComponentsRecursive(stage);
+            entity.UpdateSystemsRecursive(stage);
         }
         
         foreach (SceneSystem system in _sceneSystems.Values)
