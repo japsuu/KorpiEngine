@@ -60,7 +60,8 @@ internal class DemoScene : Scene
         CameraComponent component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(0, 2, -10);
+        component.Transform.Position = new Vector3(-10, 1, 0);
+        component.Transform.Rotation = Quaternion.Euler(0, 90, 0);
         return component;
     }
 }
@@ -163,12 +164,12 @@ internal class DemoFreeCam : EntityComponent
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        double yaw = Input.MouseDelta.X * LOOK_SENSITIVITY;
-        double pitch = Input.MouseDelta.Y * LOOK_SENSITIVITY;
+        double yaw = Transform.LocalEulerAngles.Y + Input.MouseDelta.X * LOOK_SENSITIVITY;
+        double pitch = Transform.LocalEulerAngles.X + Input.MouseDelta.Y * LOOK_SENSITIVITY;
 
         Vector3 eulers = new(pitch, yaw, 0f);
 
-        Transform.Rotate(eulers);
+        Transform.LocalEulerAngles = eulers;
     }
 
 
