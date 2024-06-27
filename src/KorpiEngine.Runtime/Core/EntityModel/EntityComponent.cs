@@ -106,47 +106,12 @@ public abstract class EntityComponent
     }
 
 
-    internal void UpdateCoroutines()
-    {
-        Dictionary<string, Coroutine> tempList = new(_coroutines);
-        _coroutines.Clear();
-        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
-        {
-            coroutine.Value.Run();
-            if (coroutine.Value.IsDone)
-            {
-                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
-                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
-                else
-                    _coroutines.Add(coroutine.Key, coroutine.Value);
-            }
-        }
-    }
-
-
-    internal void UpdateEndOfFrameCoroutines()
-    {
-        Dictionary<string, Coroutine> tempList = new(_endOfFrameCoroutines);
-        _endOfFrameCoroutines.Clear();
-        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
-        {
-            coroutine.Value.Run();
-            if (coroutine.Value.IsDone)
-            {
-                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
-                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
-                else
-                    _coroutines.Add(coroutine.Key, coroutine.Value);
-            }
-        }
-    }
-
-
     internal void Update(EntityUpdateStage stage)
     {
         switch (stage)
         {
             case EntityUpdateStage.PreUpdate:
+                UpdateCoroutines();
                 OnPreUpdate();
                 break;
             case EntityUpdateStage.Update:
@@ -154,6 +119,7 @@ public abstract class EntityComponent
                 break;
             case EntityUpdateStage.PostUpdate:
                 OnPostUpdate();
+                UpdateEndOfFrameCoroutines();
                 break;
             case EntityUpdateStage.PreFixedUpdate:
                 OnPreFixedUpdate();
@@ -194,6 +160,42 @@ public abstract class EntityComponent
 
 
     #region Coroutines
+
+
+    private void UpdateCoroutines()
+    {
+        Dictionary<string, Coroutine> tempList = new(_coroutines);
+        _coroutines.Clear();
+        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
+        {
+            coroutine.Value.Run();
+            if (coroutine.Value.IsDone)
+            {
+                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
+                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
+                else
+                    _coroutines.Add(coroutine.Key, coroutine.Value);
+            }
+        }
+    }
+
+
+    private void UpdateEndOfFrameCoroutines()
+    {
+        Dictionary<string, Coroutine> tempList = new(_endOfFrameCoroutines);
+        _endOfFrameCoroutines.Clear();
+        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
+        {
+            coroutine.Value.Run();
+            if (coroutine.Value.IsDone)
+            {
+                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
+                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
+                else
+                    _coroutines.Add(coroutine.Key, coroutine.Value);
+            }
+        }
+    }
 
     public Coroutine StartCoroutine(string methodName)
     {
