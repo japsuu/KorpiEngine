@@ -1,12 +1,11 @@
 ﻿using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Rendering;
 
 namespace KorpiEngine.Core.EntityModel.Components;
 
-public class MeshRendererComponent : SpatialEntityComponent
+public class MeshRendererComponent : EntityComponent
 {
     public Mesh? Mesh;
     public Material? Material;
@@ -22,7 +21,7 @@ public class MeshRendererComponent : SpatialEntityComponent
         for (int i = 0; i < mat.PassCount; i++)
         {
             mat.SetPass(i);
-            Graphics.DrawMeshNow(Mesh, Transform.LocalToWorldMatrix, mat);  //WARN: Test matrix!
+            Graphics.DrawMeshNow(Mesh, Transform.LocalToWorldMatrix, mat);
         }
     }
 }
