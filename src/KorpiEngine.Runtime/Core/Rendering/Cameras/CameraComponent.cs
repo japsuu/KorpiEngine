@@ -4,6 +4,14 @@ using KorpiEngine.Core.Platform;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
+/// <summary>
+/// Camera component that can be attached to an entity to render the scene from its perspective.
+///
+/// The rendering system currently uses a camera-relative rendering system.
+/// The camera-relative rendering process translates Entities and Lights by the negated world space Camera position,
+/// before any other geometric transformations affect them.
+/// It then sets the world space Camera position to 0,0,0 and modifies all relevant matrices accordingly.
+/// </summary>
 public sealed class CameraComponent : EntityComponent
 {
     public const float NEAR_CLIP_PLANE = 0.01f;
@@ -24,13 +32,14 @@ public sealed class CameraComponent : EntityComponent
     /// <summary>
     /// The field of view (FOV degrees, the vertical angle of the camera view).
     /// </summary>
-    public float FOVDegrees = 90;
+    public float FOVDegrees = 60;
 
     /// <summary>
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
+    /// Does not account for camera position, since we use camera-relative rendering.
     /// </summary>
-    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Transform.Position, Transform.Forward, Transform.Up);
+    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
 
     /// <summary>
     /// The projection matrix of this camera.

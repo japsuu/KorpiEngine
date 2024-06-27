@@ -2,6 +2,7 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
@@ -71,7 +72,33 @@ public static class Graphics
     }
 
 
-    public static void DrawMeshNow(Mesh mesh, Matrix4x4 transform, Material material)
+    /// <summary>
+    /// Draws a mesh with a specified material and transform.
+    /// </summary>
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="transform">The transform to use for rendering.</param>
+    /// <param name="material">The material to use for rendering.</param>
+    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
+    public static void DrawMeshNow(Mesh mesh, Transform transform, Material material)
+    {
+        if (renderingCamera == null)
+            throw new Exception("DrawMeshNow must be called during a rendering context!");
+        
+        Matrix4x4 camRelative = transform.LocalToWorldMatrix;
+        camRelative.Translation -= renderingCamera.Transform.Position;
+        
+        DrawMeshNow(mesh, camRelative, material);
+    }
+    
+    
+    /// <summary>
+    /// Draws a mesh with a specified material and transform.
+    /// </summary>
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="camRelativeTransform">A matrix relative/local to the currently rendering camera.</param>
+    /// <param name="material">The material to use for rendering.</param>
+    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
+    public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material)
     {
         if (renderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
@@ -90,9 +117,9 @@ public static class Graphics
         material.SetVector("u_Camera_Forward", renderingCamera.Transform.Forward);
         
         // Matrices
-        Matrix4x4 matMVP = Matrix4x4.Identity * transform * ViewMatrix * ProjectionMatrix;
+        Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
         material.SetMatrix("u_MatMVP", matMVP);
-        material.SetMatrix("u_MatModel", transform);
+        material.SetMatrix("u_MatModel", camRelativeTransform);
         material.SetMatrix("u_MatView", ViewMatrix);
         material.SetMatrix("u_MatProjection", ProjectionMatrix);
 

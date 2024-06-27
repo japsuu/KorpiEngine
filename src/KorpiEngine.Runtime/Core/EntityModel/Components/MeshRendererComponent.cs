@@ -21,7 +21,7 @@ public class MeshRendererComponent : EntityComponent
         for (int i = 0; i < mat.PassCount; i++)
         {
             mat.SetPass(i);
-            Graphics.DrawMeshNow(Mesh, Transform.LocalToWorldMatrix, mat);
+            Graphics.DrawMeshNow(Mesh, Transform, mat);
         }
     }
 }

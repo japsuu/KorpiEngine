@@ -20,7 +20,7 @@ internal class DemoScene : Scene
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 50; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
@@ -31,7 +31,8 @@ internal class DemoScene : Scene
             model.SetParent(root);
 
             // Move the root entity to a random position
-            root.Transform.Position = Random.InUnitSphere * 20;
+            Vector2 randomPos = Random.InUnitCircle * 20;
+            root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
         }
 
         // ----------------------------------------
@@ -58,6 +59,8 @@ internal class DemoScene : Scene
         // We override the CreateSceneCamera method to add our custom camera component to the scene camera entity
         CameraComponent component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
+        
+        component.Transform.Position = new Vector3(0, 2, -10);
         return component;
     }
 }
@@ -79,6 +82,7 @@ internal class DemoOscillate : EntityComponent
 
     protected override void OnUpdate()
     {
+        return;
         // Oscillate the entity up and down
         double time = Time.TotalTime + _oscillationOffset;
         double height = Math.Sin(time * OSCILLATION_SPEED) * OSCILLATION_HEIGHT;
