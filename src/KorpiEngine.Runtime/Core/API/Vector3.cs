@@ -212,7 +212,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public static Vector3 Forward => new(0.0, 0.0, 1.0);
     public static Vector3 Backward => new(0.0, 0.0, -1.0);
 
-    public static Vector3 Infinity = new(Maths.INFINITY, Maths.INFINITY, Maths.INFINITY);
+    public static Vector3 Infinity => new(Maths.INFINITY, Maths.INFINITY, Maths.INFINITY);
 
     #endregion Public Static Properties
 

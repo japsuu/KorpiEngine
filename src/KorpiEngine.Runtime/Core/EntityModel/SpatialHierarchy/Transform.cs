@@ -196,7 +196,7 @@ public class Transform
 
     public Matrix4x4 GetWorldRotationAndScale()
     {
-        Matrix4x4 ret = Matrix4x4.TRS(new Vector3(0, 0, 0), LocalRotation, LocalScale);
+        Matrix4x4 ret = Matrix4x4.TRS(Vector3.Zero, LocalRotation, LocalScale);
         if (Parent == null)
             return ret;
 
