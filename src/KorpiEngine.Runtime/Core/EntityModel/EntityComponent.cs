@@ -56,35 +56,19 @@ public abstract class EntityComponent
         _enabledInHierarchy = isEnabled;
     }
 
+
+    private void Dispose()
+    {
+        Entity = null!;
+        _coroutines.Clear();
+        _endOfFrameCoroutines.Clear();
+    }
+
     #endregion
 
 
     #region Internal calls
-
-    internal void HierarchyStateChanged()
-    {
-        bool newState = _enabled && Entity.EnabledInHierarchy;
-        if (newState == _enabledInHierarchy)
-            return;
-
-        _enabledInHierarchy = newState;
-        if (newState)
-            OnEnable();
-        else
-            OnDisable();
-    }
-
-
-    internal bool CanBeDestroyed()
-    {
-        if (!Entity.IsComponentRequired(this, out Type dependentType))
-            return true;
-
-        Application.Logger.Error($"Can't remove {GetType().Name} because {dependentType.Name} depends on it");
-        return false;
-    }
-
-
+    
     internal void InternalAwake()
     {
         if (HasAwoken)
@@ -151,9 +135,39 @@ public abstract class EntityComponent
     }
 
 
-    internal void Dispose()
+    internal void Destroy()
     {
+        Enabled = false;
         
+        // OnDestroy is only called for components that have previously been active
+        if (HasStarted)
+            OnDestroy();
+        
+        Dispose();
+    }
+    
+
+    internal void HierarchyStateChanged()
+    {
+        bool newState = _enabled && Entity.EnabledInHierarchy;
+        if (newState == _enabledInHierarchy)
+            return;
+
+        _enabledInHierarchy = newState;
+        if (newState)
+            OnEnable();
+        else
+            OnDisable();
+    }
+
+
+    internal bool CanBeDestroyed()
+    {
+        if (!Entity.IsComponentRequired(this, out Type dependentType))
+            return true;
+
+        Application.Logger.Error($"Can't remove {GetType().Name} because {dependentType.Name} depends on it");
+        return false;
     }
 
     #endregion

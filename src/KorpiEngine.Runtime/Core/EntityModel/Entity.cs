@@ -114,15 +114,7 @@ public sealed class Entity //TODO: Split to partial classes
         RemoveAllSystems();
 
         foreach (EntityComponent component in _components)
-        {
-            if (component.EnabledInHierarchy)
-                component.OnDisable();
-
-            if (component.HasStarted)
-                component.OnDestroy(); // OnDestroy is only called if the component has previously been active
-
-            component.Dispose();
-        }
+            component.Destroy();
 
         _components.Clear();
         _componentCache.Clear();
@@ -344,14 +336,8 @@ public sealed class Entity //TODO: Split to partial classes
             return;
 
         foreach (EntityComponent c in components)
-            if (c.EnabledInHierarchy)
-                c.OnDisable();
-
-        foreach (EntityComponent c in components)
         {
-            // OnDestroy is only called if the component has previously been active
-            if (c.HasStarted)
-                c.OnDestroy();
+            c.Destroy();
 
             _components.Remove(c);
         }
@@ -387,12 +373,7 @@ public sealed class Entity //TODO: Split to partial classes
         _components.Remove(component);
         _componentCache.Remove(type, component);
 
-        if (component.EnabledInHierarchy)
-            component.OnDisable();
-
-        // OnDestroy is only called if the component has previously been active
-        if (component.HasStarted)
-            component.OnDestroy();
+        component.Destroy();
 
         UnregisterComponentWithSystems(component);
     }
