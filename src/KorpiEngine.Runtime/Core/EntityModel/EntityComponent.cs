@@ -11,7 +11,7 @@ public abstract class EntityComponent
     /// <summary>
     /// The unique identifier of this component.
     /// </summary>
-    public readonly ulong InstanceID;
+    public readonly ulong InstanceID = ComponentID.Generate();
 
     public Entity Entity { get; private set; } = null!;
     public Transform Transform => Entity.Transform;
@@ -41,12 +41,6 @@ public abstract class EntityComponent
 
 
     #region Creation and destruction
-
-    internal EntityComponent()
-    {
-        InstanceID = ComponentID.Generate();
-    }
-
 
     internal void Bind(Entity entity)
     {

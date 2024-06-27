@@ -62,13 +62,13 @@ internal class DemoScene : Scene
     }
 }
 
-internal class DemoOscillate : BehaviourComponent
+internal class DemoOscillate : EntityComponent
 {
     private const float OSCILLATION_SPEED = 1f;
     private const float OSCILLATION_HEIGHT = 2f;
 
 
-    public override void OnUpdate()
+    protected override void OnUpdate()
     {
         // Oscillate the entity up and down
         double oscillation = Maths.Sin(Time.TotalTime * OSCILLATION_SPEED) * OSCILLATION_HEIGHT;
@@ -76,9 +76,9 @@ internal class DemoOscillate : BehaviourComponent
     }
 }
 
-internal class DemoMoveRotate : BehaviourComponent
+internal class DemoMoveRotate : EntityComponent
 {
-    public override void OnUpdate()
+    protected override void OnUpdate()
     {
         // Rotate the entity
         const float rotSpeedY = 15f;
@@ -92,7 +92,7 @@ internal class DemoMoveRotate : BehaviourComponent
     }
 }
 
-internal class DemoFreeCam : BehaviourComponent
+internal class DemoFreeCam : EntityComponent
 {
     private const float LOOK_SENSITIVITY = 0.2f;
 
@@ -102,7 +102,7 @@ internal class DemoFreeCam : BehaviourComponent
     private bool _isCursorLocked;
 
 
-    public override void OnUpdate()
+    protected override void OnUpdate()
     {
         Console.WriteLine("FreeCam Update");
         UpdateCursorLock();
