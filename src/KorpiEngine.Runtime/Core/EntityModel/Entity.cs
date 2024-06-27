@@ -49,21 +49,20 @@ public sealed class Entity //TODO: Split to partial classes
     public bool EnabledInHierarchy => _enabledInHierarchy;
 
     public bool IsRootEntity => _parent == null;
-    public bool HasChildren => _children.Count > 0;
+    public bool HasChildren => ChildList.Count > 0;
     public Entity? Parent => _parent;
-    public IReadOnlyList<Entity> Children => _children;
+    public IReadOnlyList<Entity> Children => ChildList;
 
     internal bool IsDestroyed => _isDestroyed;
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
-    internal List<Entity> ChildList => _children;
+    internal List<Entity> ChildList { get; } = [];
 
     private bool _enabled = true;
     private bool _enabledInHierarchy = true;
     private bool IsParentEnabled => _parent == null || _parent._enabledInHierarchy;
     private bool _isDestroyed;
     private Entity? _parent;
-    private readonly List<Entity> _children = [];
     private readonly Transform _transform = new();
     private readonly EntityScene _entityScene;
     private readonly List<EntityComponent> _components = [];
@@ -108,8 +107,9 @@ public sealed class Entity //TODO: Split to partial classes
     /// </summary>
     public void Destroy()
     {
-        while (_children.Count > 0)
-            _children[0].Destroy();
+        // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
+        while (ChildList.Count > 0)
+            ChildList[0].Destroy();
 
         RemoveAllSystems();
 
@@ -120,6 +120,7 @@ public sealed class Entity //TODO: Split to partial classes
         _componentCache.Clear();
 
         _entityScene.UnregisterEntity(this);
+        Parent?.ChildList.Remove(this);
 
         _isDestroyed = true;
     }
@@ -176,10 +177,10 @@ public sealed class Entity //TODO: Split to partial classes
 
         if (newParent != _parent)
         {
-            _parent?._children.Remove(this);
+            _parent?.ChildList.Remove(this);
 
             if (newParent != null)
-                newParent._children.Add(this);
+                newParent.ChildList.Add(this);
 
             _parent = newParent;
         }
@@ -218,7 +219,7 @@ public sealed class Entity //TODO: Split to partial classes
                 component.HierarchyStateChanged();
         }
 
-        foreach (Entity child in _children)
+        foreach (Entity child in ChildList)
             child.HierarchyStateChanged();
     }
 
@@ -495,7 +496,7 @@ public sealed class Entity //TODO: Split to partial classes
         }
 
         // Now check all children
-        foreach (Entity child in _children)
+        foreach (Entity child in ChildList)
             if (EnabledInHierarchy || includeInactive)
             {
                 component = child.GetComponent(componentType) ?? child.GetComponentInChildren(componentType);
@@ -515,7 +516,7 @@ public sealed class Entity //TODO: Split to partial classes
                 yield return component;
 
         // Now check all children
-        foreach (Entity child in _children)
+        foreach (Entity child in ChildList)
             if (EnabledInHierarchy || includeInactive)
                 foreach (T component in child.GetComponentsInChildren<T>())
                     yield return component;
@@ -647,7 +648,7 @@ public sealed class Entity //TODO: Split to partial classes
         if (!HasChildren)
             return;
 
-        foreach (Entity child in _children)
+        foreach (Entity child in ChildList)
             child.UpdateSystemsRecursive(stage);
     }
 
@@ -663,7 +664,7 @@ public sealed class Entity //TODO: Split to partial classes
         if (!HasChildren)
             return;
 
-        foreach (Entity child in _children)
+        foreach (Entity child in ChildList)
             child.UpdateComponentsRecursive(stage);
     }
 

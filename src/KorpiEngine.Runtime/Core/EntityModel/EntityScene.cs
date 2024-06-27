@@ -34,7 +34,6 @@ internal sealed class EntityScene
             return;
 
         _entities.Remove(entity);
-        entity.Parent?.ChildList.Remove(entity);
     }
 
 

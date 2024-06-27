@@ -104,6 +104,7 @@ internal class DemoFreeCam : BehaviourComponent
 
     public override void OnUpdate()
     {
+        Console.WriteLine("FreeCam Update");
         UpdateCursorLock();
 
         UpdatePosition();
