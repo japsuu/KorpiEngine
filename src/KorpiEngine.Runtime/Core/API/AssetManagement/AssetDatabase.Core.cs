@@ -88,7 +88,7 @@ public static partial class AssetDatabase
         Application.Logger.Info($"Attempting to Import {relativePath}...");
         ArgumentNullException.ThrowIfNull(assetFile);
 
-        // Make sure path exists
+        // Make sure the path exists
         if (!File.Exists(assetFile.FullName))
         {
             Application.Logger.Error($"Failed to import {relativePath}. Asset does not exist.");
@@ -98,7 +98,8 @@ public static partial class AssetDatabase
         // Make sure the file extension of the asset file is supported
         if (!AssetImporterAttribute.SupportsExtension(assetFile.Extension))
         {
-            Application.Logger.Error($"Cannot import {relativePath}. Unsupported file extension.");
+            string supportedExtensions = AssetImporterAttribute.GetSupportedExtensions();
+            Application.Logger.Error($"Cannot import {relativePath}. Unsupported file extension. Supported extensions are: '{supportedExtensions}'.");
             return null;
         }
 

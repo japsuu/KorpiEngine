@@ -56,6 +56,9 @@ public static class Application
         window.RenderFrame += OnRenderFrame;
         window.Unload += OnUnload;
         
+        AssemblyManager.Initialize();
+        OnAssemblyLoadAttribute.Invoke();
+        
         window.Run();
     }
     
@@ -74,9 +77,6 @@ public static class Application
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
-        
-        AssemblyManager.Initialize();
-        OnAssemblyLoadAttribute.Invoke();
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
     }

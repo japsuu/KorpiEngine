@@ -23,6 +23,7 @@ public class AssetImporterAttribute : Attribute
     /// <returns>The importer type for that Extension</returns>
     public static Type? GetImporter(string extension) => ImportersByExtension.GetValueOrDefault(extension);
     public static bool SupportsExtension(string extension) => ImportersByExtension.ContainsKey(extension);
+    public static string GetSupportedExtensions() => string.Join(", ", ImportersByExtension.Keys);
 
 
     [OnAssemblyLoad]
