@@ -2,6 +2,7 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
@@ -11,6 +12,7 @@ namespace KorpiEngine.Core.Rendering;
 public static class Graphics
 {
     private static KorpiWindow Window { get; set; } = null!;
+    private static CameraComponent? renderingCamera;
     internal static GraphicsDriver Driver = null!;
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
@@ -48,25 +50,14 @@ public static class Graphics
         if (stencil) flags |= ClearFlags.Stencil;
         Driver.Clear(r, g, b, a, flags);
     }
-    
-    
+
+
     /// <summary>
     /// Starts a new draw frame.
     /// </summary>
-    /// <param name="renderingCamera">The camera to render with.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void StartFrame(Camera renderingCamera)
+    internal static void StartFrame()
     {
-        Camera.RenderingCamera = renderingCamera;
-        SetMatrices(renderingCamera);
-
-        if (renderingCamera.ClearType == CameraClearType.Nothing)
-            return;
-        
-        renderingCamera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-        
-        Clear(r, g, b, a);
-
         Driver.SetState(new RasterizerState(), true);
     }
 
@@ -77,23 +68,39 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        Camera.RenderingCamera = null;
+        
     }
 
 
     /// <summary>
-    /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
+    /// Draws a mesh with a specified material and transform.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void SkipFrame()
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="transform">The transform to use for rendering.</param>
+    /// <param name="material">The material to use for rendering.</param>
+    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
+    public static void DrawMeshNow(Mesh mesh, Transform transform, Material material)
     {
-        Clear();
+        if (renderingCamera == null)
+            throw new Exception("DrawMeshNow must be called during a rendering context!");
+        
+        Matrix4x4 camRelative = transform.LocalToWorldMatrix;
+        camRelative.Translation -= renderingCamera.Transform.Position;
+        
+        DrawMeshNow(mesh, camRelative, material);
     }
-
-
-    public static void DrawMeshNow(Mesh mesh, Matrix4x4 transform, Material material)
+    
+    
+    /// <summary>
+    /// Draws a mesh with a specified material and transform.
+    /// </summary>
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="camRelativeTransform">A matrix relative/local to the currently rendering camera.</param>
+    /// <param name="material">The material to use for rendering.</param>
+    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
+    public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material)
     {
-        if (Camera.RenderingCamera == null)
+        if (renderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -106,13 +113,13 @@ public static class Graphics
         material.SetInt("u_Frame", Time.TotalFrameCount);
         
         // Camera data
-        material.SetVector("u_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position);
-        material.SetVector("u_Camera_Forward", Camera.RenderingCamera.Transform.Forward);
+        material.SetVector("u_Camera_WorldPosition", renderingCamera.Transform.Position);
+        material.SetVector("u_Camera_Forward", renderingCamera.Transform.Forward);
         
         // Matrices
-        Matrix4x4 matMVP = Matrix4x4.Identity * transform * ViewMatrix * ProjectionMatrix;
+        Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
         material.SetMatrix("u_MatMVP", matMVP);
-        material.SetMatrix("u_MatModel", transform);
+        material.SetMatrix("u_MatModel", camRelativeTransform);
         material.SetMatrix("u_MatView", ViewMatrix);
         material.SetMatrix("u_MatProjection", ProjectionMatrix);
 
@@ -132,7 +139,7 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
-        if (Camera.RenderingCamera == null)
+        if (renderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -160,10 +167,15 @@ public static class Graphics
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void SetMatrices(Camera renderingCamera)
+    internal static void SetRenderingCamera(CameraComponent? camera)
     {
-        Matrix4x4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4x4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        renderingCamera = camera;
+        
+        if (camera == null)
+            return;
+        
+        Matrix4x4 viewMatrix = camera.ViewMatrix;
+        Matrix4x4 projectionMatrix = camera.ProjectionMatrix;
         
         ProjectionMatrix = projectionMatrix;
         ViewMatrix = viewMatrix;

@@ -32,7 +32,7 @@ namespace KorpiEngine.Core.API.Rendering;
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh : EngineObject //TODO: Implement MeshData class to hide some fields
+public sealed class Mesh : Resource //TODO: Implement MeshData class to hide some fields
 {
     /// <summary>
     /// The format of the mesh index buffer data.
