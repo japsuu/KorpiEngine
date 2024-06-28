@@ -8,11 +8,19 @@ using System.Reflection;
 namespace KorpiEngine.Core.EntityModel;
 
 /// <summary>
-/// Container for components and systems that make up an entity.
+/// Container for components and systems.
 /// </summary>
-public sealed class Entity //TODO: Split to partial classes
+#warning TODO: Split Entity.cs to partial classes
+public sealed class Entity
 {
+    /// <summary>
+    /// Unique identifier for this entity.
+    /// </summary>
     public readonly ulong InstanceID;
+    
+    /// <summary>
+    /// The scene this entity is in.
+    /// </summary>
     public readonly Scene Scene;
 
     /// <summary>
@@ -20,6 +28,9 @@ public sealed class Entity //TODO: Split to partial classes
     /// </summary>
     public string Name;
 
+    /// <summary>
+    /// The transform of this entity.
+    /// </summary>
     public Transform Transform
     {
         get
@@ -46,23 +57,35 @@ public sealed class Entity //TODO: Split to partial classes
     /// <summary>
     /// True if the entity is enabled and all of its parents are enabled, false otherwise.
     /// </summary>
-    public bool EnabledInHierarchy => _enabledInHierarchy;
+    public bool EnabledInHierarchy { get; private set; } = true;
+    
+    /// <summary>
+    /// The hierarchical parent of this entity, or null if it is a root entity.
+    /// </summary>
+    public Entity? Parent { get; private set; }
 
-    public bool IsRootEntity => _parent == null;
+    /// <summary>
+    /// True if this entity has no parent, false otherwise.
+    /// </summary>
+    public bool IsRootEntity => Parent == null;
+    
+    /// <summary>
+    /// True if this entity has children, false otherwise.
+    /// </summary>
     public bool HasChildren => ChildList.Count > 0;
-    public Entity? Parent => _parent;
+
+    /// <summary>
+    /// The entities parented to this entity.
+    /// </summary>
     public IReadOnlyList<Entity> Children => ChildList;
 
-    internal bool IsDestroyed => _isDestroyed;
+    internal bool IsDestroyed { get; private set; }
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
     internal List<Entity> ChildList { get; } = [];
 
     private bool _enabled = true;
-    private bool _enabledInHierarchy = true;
-    private bool IsParentEnabled => _parent == null || _parent._enabledInHierarchy;
-    private bool _isDestroyed;
-    private Entity? _parent;
+    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
     private readonly Transform _transform = new();
     private readonly EntityScene _entityScene;
     private readonly List<EntityComponent> _components = [];
@@ -94,7 +117,7 @@ public sealed class Entity //TODO: Split to partial classes
 
     ~Entity()
     {
-        if (_isDestroyed)
+        if (IsDestroyed)
             return;
 
         Application.Logger.Warn($"Entity {InstanceID} ({Name}) was not destroyed before being garbage collected. This is a memory leak.");
@@ -122,7 +145,7 @@ public sealed class Entity //TODO: Split to partial classes
         _entityScene.UnregisterEntity(this);
         Parent?.ChildList.Remove(this);
 
-        _isDestroyed = true;
+        IsDestroyed = true;
     }
 
     #endregion
@@ -138,7 +161,7 @@ public sealed class Entity //TODO: Split to partial classes
         {
             if (child == testParent)
                 return true;
-            child = child._parent;
+            child = child.Parent;
         }
 
         return false;
@@ -156,7 +179,7 @@ public sealed class Entity //TODO: Split to partial classes
 
     public bool SetParent(Entity? newParent, bool worldPositionStays = true)
     {
-        if (newParent == _parent)
+        if (newParent == Parent)
             return true;
 
         // Make sure that the new father is not a child of this transform.
@@ -175,22 +198,22 @@ public sealed class Entity //TODO: Split to partial classes
             worldScale = Transform.GetWorldRotationAndScale();
         }
 
-        if (newParent != _parent)
+        if (newParent != Parent)
         {
-            _parent?.ChildList.Remove(this);
+            Parent?.ChildList.Remove(this);
 
             if (newParent != null)
                 newParent.ChildList.Add(this);
 
-            _parent = newParent;
+            Parent = newParent;
         }
 
         if (worldPositionStays)
         {
-            if (_parent != null)
+            if (Parent != null)
             {
-                Transform.LocalPosition = _parent.Transform.InverseTransformPoint(worldPosition);
-                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(_parent.Transform.Rotation) * worldRotation);
+                Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
+                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Transform.Rotation) * worldRotation);
             }
             else
             {
@@ -212,9 +235,9 @@ public sealed class Entity //TODO: Split to partial classes
     private void HierarchyStateChanged()
     {
         bool newState = _enabled && IsParentEnabled;
-        if (_enabledInHierarchy != newState)
+        if (EnabledInHierarchy != newState)
         {
-            _enabledInHierarchy = newState;
+            EnabledInHierarchy = newState;
             foreach (EntityComponent component in GetComponents<EntityComponent>())
                 component.HierarchyStateChanged();
         }
@@ -239,7 +262,7 @@ public sealed class Entity //TODO: Split to partial classes
 
     public T AddComponent<T>() where T : EntityComponent, new()
     {
-        if (_isDestroyed)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         Type type = typeof(T);
@@ -281,7 +304,7 @@ public sealed class Entity //TODO: Split to partial classes
         _components.Add(comp);
         _componentCache.Add(type, comp);
 
-        if (_enabledInHierarchy)
+        if (EnabledInHierarchy)
             comp.InternalAwake();
 
         RegisterComponentWithSystems(comp);
@@ -553,7 +576,7 @@ public sealed class Entity //TODO: Split to partial classes
 
     public void AddSystem<T>() where T : IEntitySystem, new()
     {
-        if (_isDestroyed)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         T system = new();
@@ -576,7 +599,7 @@ public sealed class Entity //TODO: Split to partial classes
 
     public void RemoveSystem<T>() where T : IEntitySystem
     {
-        if (_isDestroyed)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         ulong id = EntitySystemID.Generate<T>();
