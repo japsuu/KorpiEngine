@@ -2,6 +2,8 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -11,9 +13,12 @@ namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    private static KorpiWindow Window { get; set; } = null!;
     private static CameraComponent? renderingCamera;
+    private static Material defaultBlitMaterial = null!;
+    
+    internal static KorpiWindow Window { get; private set; } = null!;
     internal static GraphicsDriver Driver = null!;
+    internal static Vector2i FrameBufferSize;
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
     public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
@@ -25,6 +30,7 @@ public static class Graphics
     {
         Driver = new T();
         Window = korpiWindow;
+        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.shader"));
         Driver.Initialize();
     }
 
@@ -58,6 +64,10 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame()
     {
+        RenderTexture.UpdatePool();
+        
+        // Render system handles clearing the screen if necessary
+
         Driver.SetState(new RasterizerState(), true);
     }
 
@@ -163,6 +173,40 @@ public static class Graphics
     {
         mat.SetPass(pass);
         DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
+    }
+
+    /// <summary>
+    /// Draws material with a FullScreen Quad onto a RenderTexture
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Material mat, int pass = 0, bool clear = true)
+    {
+        renderTexture?.Begin();
+        
+        if (clear)
+            Clear(0, 0, 0, 0);
+        
+        mat.SetPass(pass);
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
+        
+        renderTexture?.End();
+    }
+
+    /// <summary>
+    /// Draws texture into a RenderTexture Additively
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Texture2D texture, bool clear = true)
+    {
+        defaultBlitMaterial.SetTexture("_Texture0", texture);
+        defaultBlitMaterial.SetPass(0);
+
+        renderTexture?.Begin();
+        
+        if (clear)
+            Clear(0, 0, 0, 0);
+        
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, defaultBlitMaterial);
+        
+        renderTexture?.End();
     }
 
 

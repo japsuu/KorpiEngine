@@ -2,6 +2,7 @@
 
 Properties
 {
+	_Texture0("Texture 0", TEXTURE_2D)
 }
 
 Pass 0
@@ -26,7 +27,7 @@ Pass 0
 	Fragment
 	{
 		in vec2 TexCoords;
-		uniform sampler2D texture0;
+		uniform sampler2D _Texture0;
 		
 		out vec4 finalColor;
 		
