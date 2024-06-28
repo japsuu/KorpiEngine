@@ -12,7 +12,7 @@ public abstract class EngineObject : IDisposable
     public string Name;
     
     // Asset path if we have one
-    public Guid AssetID = Guid.Empty;
+    public Guid AssetID { get; internal set; } = Guid.Empty;
     
     /// <summary>
     /// Whether the underlying object has been destroyed.
