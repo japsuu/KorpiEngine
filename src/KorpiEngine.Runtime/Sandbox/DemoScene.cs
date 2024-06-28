@@ -109,11 +109,24 @@ internal class DemoMoveRotate : EntityComponent
 internal class DemoFreeCam : EntityComponent
 {
     private const float LOOK_SENSITIVITY = 0.2f;
+    private const float MAX_PITCH = 89.0f;
+    private const float MIN_PITCH = -89.0f;
 
     private const double SLOW_FLY_SPEED = 1.5f;
     private const double FAST_FLY_SPEED = 3.0f;
 
+    private double _pitch;
+    private double _yaw;
     private bool _isCursorLocked;
+    
+    
+    protected override void OnStart()
+    {
+        // Set the initial pitch and yaw angles based on the current rotation
+        Vector3 currentEulerAngles = Transform.EulerAngles;
+        _pitch = currentEulerAngles.X;
+        _yaw = currentEulerAngles.Y;
+    }
 
 
     protected override void OnUpdate()
@@ -163,12 +176,14 @@ internal class DemoFreeCam : EntityComponent
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        double yaw = Transform.LocalEulerAngles.Y + Input.MouseDelta.X * LOOK_SENSITIVITY;
-        double pitch = Transform.LocalEulerAngles.X + Input.MouseDelta.Y * LOOK_SENSITIVITY;
+        _yaw += Input.MouseDelta.X * LOOK_SENSITIVITY;
 
-        Vector3 eulers = new(pitch, yaw, 0f);
+        // Calculate new pitch and clamp it
+        _pitch += Input.MouseDelta.Y * LOOK_SENSITIVITY;
+        _pitch = Maths.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
-        Transform.LocalEulerAngles = eulers;
+        // Apply the new rotation
+        Transform.Rotation = Quaternion.Euler((float)_pitch, (float)_yaw, 0f);
     }
 
 
