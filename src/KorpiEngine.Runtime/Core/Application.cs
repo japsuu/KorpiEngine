@@ -57,7 +57,7 @@ public static class Application
         window.Unload += OnUnload;
         
         AssemblyManager.Initialize();
-        OnAssemblyLoadAttribute.Invoke();
+        OnApplicationLoadAttribute.Invoke();
         
         window.Run();
     }
@@ -167,7 +167,7 @@ public static class Application
 
     private static void OnUnload()
     {
-        OnAssemblyUnloadAttribute.Invoke();
+        OnApplicationUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         

@@ -26,7 +26,7 @@ public class AssetImporterAttribute : Attribute
     public static string GetSupportedExtensions() => string.Join(", ", ImportersByExtension.Keys);
 
 
-    [OnAssemblyLoad]
+    [OnApplicationLoad]
     public static void GenerateLookUp()
     {
         Application.Logger.Info("Generating Asset Importer Lookup Table");
@@ -56,7 +56,7 @@ public class AssetImporterAttribute : Attribute
     }
 
 
-    [OnAssemblyUnload]
+    [OnApplicationUnload]
     public static void ClearLookUp()
     {
         ImportersByExtension.Clear();

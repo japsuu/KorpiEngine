@@ -4,7 +4,7 @@ public static class AssemblyManager
 {
     public static void Initialize()
     {
-        OnAssemblyUnloadAttribute.FindAll();
-        OnAssemblyLoadAttribute.FindAll();
+        OnApplicationUnloadAttribute.FindAll();
+        OnApplicationLoadAttribute.FindAll();
     }
 }
