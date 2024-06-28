@@ -11,7 +11,7 @@ internal class TextureImporter : AssetImporter
     public TextureMin TextureMinFilter = TextureMin.LinearMipmapLinear;
     public TextureMag TextureMagFilter = TextureMag.Linear;
 
-    public override EngineObject Import(FileInfo assetPath)
+    public override Resource Import(FileInfo assetPath)
     {
         // Load the Texture into a TextureData Object and serialize to Asset Folder
         Texture2D texture = Texture2DLoader.FromFile(assetPath.FullName);

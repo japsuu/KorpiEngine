@@ -13,7 +13,7 @@ internal class ShaderImporter : AssetImporter
     private static FileInfo? currentAssetPath;
     
     
-    public override EngineObject? Import(FileInfo assetPath)
+    public override Resource? Import(FileInfo assetPath)
     {
         currentAssetPath = assetPath;
         ImportErrors.Clear();

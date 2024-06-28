@@ -13,7 +13,7 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
-public sealed class Material : EngineObject
+public sealed class Material : Resource
 {
     public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
     public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
@@ -23,7 +23,7 @@ public sealed class Material : EngineObject
     public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
     public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
     
-    public readonly AssetRef<Shader> Shader;
+    public readonly ResourceRef<Shader> Shader;
     public readonly MaterialPropertyBlock PropertyBlock;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
@@ -37,7 +37,7 @@ public sealed class Material : EngineObject
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(AssetRef<Shader> shader)
+    public Material(ResourceRef<Shader> shader)
     {
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
@@ -238,7 +238,7 @@ public sealed class Material : EngineObject
     }
 
 
-    public void SetTexture(string name, AssetRef<Texture2D> value)
+    public void SetTexture(string name, ResourceRef<Texture2D> value)
     {
         if (HasVariable(name))
             PropertyBlock.SetTexture(name, value);

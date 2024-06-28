@@ -81,7 +81,7 @@ public static class SceneManager
     
     internal static void Update()
     {
-        EngineObject.HandleDestroyed();
+        Resource.HandleDestroyed();
         CurrentScene.InternalUpdate();
     }
     
@@ -107,7 +107,7 @@ public static class SceneManager
             loadedScene.Dispose();
         
         // Handle all objects that were just destroyed.
-        EngineObject.HandleDestroyed();
+        Resource.HandleDestroyed();
         
         LoadedScenes.Clear();
         currentScene = null;

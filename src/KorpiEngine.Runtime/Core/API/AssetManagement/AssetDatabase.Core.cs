@@ -21,7 +21,7 @@ public static partial class AssetDatabase
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T? LoadAsset<T>(string relativeAssetPath) where T : EngineObject
+    public static T? LoadAsset<T>(string relativeAssetPath) where T : Resource
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
@@ -41,7 +41,7 @@ public static partial class AssetDatabase
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="assetGuid">The GUID of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T? LoadAsset<T>(Guid assetGuid) where T : EngineObject
+    public static T? LoadAsset<T>(Guid assetGuid) where T : Resource
     {
         if (assetGuid == Guid.Empty)
             throw new ArgumentException("Asset Guid cannot be empty", nameof(assetGuid));
@@ -110,7 +110,7 @@ public static partial class AssetDatabase
                 throw new Exception($"No importer found for asset with extension {assetFile.Extension}");
         
             AssetImporter? importer = (AssetImporter?)Activator.CreateInstance(importerType);
-            EngineObject? instance = importer?.Import(assetFile);
+            Resource? instance = importer?.Import(assetFile);
             
             if (instance == null)
                 throw new Exception("The importer failed.");

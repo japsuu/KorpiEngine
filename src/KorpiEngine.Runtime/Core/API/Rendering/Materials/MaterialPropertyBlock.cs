@@ -14,7 +14,7 @@ public class MaterialPropertyBlock
     private readonly Dictionary<string, int> _integers = new();
     private readonly Dictionary<string, Matrix4x4> _matrices = new();
     private readonly Dictionary<string, System.Numerics.Matrix4x4[]> _matrixArrays = new();
-    private readonly Dictionary<string, AssetRef<Texture2D>> _textures = new();
+    private readonly Dictionary<string, ResourceRef<Texture2D>> _textures = new();
 
 
     public MaterialPropertyBlock()
@@ -31,7 +31,7 @@ public class MaterialPropertyBlock
         _floats = new Dictionary<string, float>(clone._floats);
         _integers = new Dictionary<string, int>(clone._integers);
         _matrices = new Dictionary<string, Matrix4x4>(clone._matrices);
-        _textures = new Dictionary<string, AssetRef<Texture2D>>(clone._textures);
+        _textures = new Dictionary<string, ResourceRef<Texture2D>>(clone._textures);
     }
 
 
@@ -70,11 +70,11 @@ public class MaterialPropertyBlock
 
     public void SetTexture(string name, Texture2D value) => _textures[name] = value;
 
-    public void SetTexture(string name, AssetRef<Texture2D> value) => _textures[name] = value;
+    public void SetTexture(string name, ResourceRef<Texture2D> value) => _textures[name] = value;
 
-    public AssetRef<Texture2D>? GetTexture(string name)
+    public ResourceRef<Texture2D>? GetTexture(string name)
     {
-        if (_textures.TryGetValue(name, out AssetRef<Texture2D> tex))
+        if (_textures.TryGetValue(name, out ResourceRef<Texture2D> tex))
             return tex;
         return null;
     }
@@ -128,10 +128,10 @@ public class MaterialPropertyBlock
         }
 
         uint texSlot = 0;
-        List<(string, AssetRef<Texture2D>)> keysToUpdate = new();
-        foreach (KeyValuePair<string, AssetRef<Texture2D>> item in propertyBlock._textures)
+        List<(string, ResourceRef<Texture2D>)> keysToUpdate = new();
+        foreach (KeyValuePair<string, ResourceRef<Texture2D>> item in propertyBlock._textures)
         {
-            AssetRef<Texture2D> tex = item.Value;
+            ResourceRef<Texture2D> tex = item.Value;
             if (!tex.IsAvailable)
                 continue;
             
@@ -141,7 +141,7 @@ public class MaterialPropertyBlock
             keysToUpdate.Add((item.Key, tex));
         }
 
-        foreach ((string, AssetRef<Texture2D>) item in keysToUpdate)
+        foreach ((string, ResourceRef<Texture2D>) item in keysToUpdate)
             propertyBlock._textures[item.Item1] = item.Item2;
     }
 }

@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.API.Rendering.Shaders;
 /// The Shader class itself doesn't do much, It stores the properties of the shader and the shader code and Keywords.
 /// This is used in conjunction with the Material class to create shader variants with the correct keywords and to render things
 /// </summary>
-public sealed class Shader : EngineObject
+public sealed class Shader : Resource
 {
     /// <summary>
     /// Represents a property of a shader, used to set values in the shader.
@@ -96,7 +96,7 @@ public sealed class Shader : EngineObject
     }
 
 
-    public static AssetRef<Shader> Find(string path)
+    public static ResourceRef<Shader> Find(string path)
     {
         return AssetDatabase.LoadAsset<Shader>(path) ?? throw new InvalidOperationException($"Failed to load shader: {path}");
     }
@@ -160,7 +160,7 @@ public sealed class Shader : EngineObject
                     const string fallbackShader = "Defaults/Invalid.shader";
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
-                    AssetRef<Shader> fallback = Find(fallbackShader);
+                    ResourceRef<Shader> fallback = Find(fallbackShader);
                     List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!._passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
                 }
@@ -181,7 +181,7 @@ public sealed class Shader : EngineObject
             }
             else
             {
-                AssetRef<Shader> depth = Find("Defaults/Depth.shader");
+                ResourceRef<Shader> depth = Find("Defaults/Depth.shader");
                 List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Driver.CompileProgram(sources));
             }

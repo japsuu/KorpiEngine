@@ -9,20 +9,21 @@ namespace KorpiEngine.Core.Internal.AssetManagement;
 // https://github.com/AdamsLair/duality/blob/master/Source/Core/Duality/ContentRef.cs
 
 /// <summary>
-/// This lightweight struct references an <see cref="EngineObject"/> in an abstract way. It
-/// is tightly connected to the AssetDatabase, and takes care of keeping or making 
+/// This lightweight struct references an <see cref="Resource"/> in an abstract way.
+/// It is tightly connected to the AssetDatabase, and takes care of keeping or making 
 /// the referenced content available when needed. Never store actual Resource references permanently,
-/// instead use a ContentRef to it. However, you may retrieve and store a direct Resource reference
+/// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
 /// temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct AssetRef<T> : ISerializable where T : EngineObject
+public struct ResourceRef<T> : ISerializable where T : Resource
 {
     private T? _instance;
     private Guid _assetID = Guid.Empty;
 
     /// <summary>
-    /// The actual <see cref="EngineObject"/>. If currently unavailable, it is loaded and then returned.
-    /// Because of that, this Property is only null if the references Resource is missing, invalid, or
+    /// The actual <see cref="Resource"/>.
+    /// If currently unavailable, it is loaded and then returned.
+    /// Because of that, this Property is only null if the referenced Resource is missing, invalid, or
     /// this content reference has been explicitly set to null. Never returns disposed Resources.
     /// </summary>
     public T? Res
@@ -42,7 +43,7 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
 
     /// <summary>
     /// Returns the current reference to the Resource that is stored locally. No attempt is made to load or reload
-    /// the Resource if currently unavailable.
+    /// the Resource if it is currently unavailable.
     /// </summary>
     public T? ResWeak => _instance == null || _instance.IsDestroyed ? null : _instance;
 
@@ -111,11 +112,11 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the <see cref="EngineObject"/> at the specified id / using 
+    /// Creates a AssetRef pointing to the <see cref="Resource"/> at the specified id / using 
     /// the specified alias.
     /// </summary>
     /// <param name="id"></param>
-    public AssetRef(Guid id)
+    public ResourceRef(Guid id)
     {
         _instance = null;
         _assetID = id;
@@ -123,10 +124,10 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the specified <see cref="EngineObject"/>.
+    /// Creates a AssetRef pointing to the specified <see cref="Resource"/>.
     /// </summary>
     /// <param name="res">The Resource to reference.</param>
-    public AssetRef(T? res)
+    public ResourceRef(T? res)
     {
         _instance = res;
         _assetID = res?.AssetID ?? Guid.Empty;
@@ -148,7 +149,7 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
     /// <summary>
     /// Loads the associated content as if it was accessed now.
     /// You don't usually need to call this method. It is invoked implicitly by trying to 
-    /// access the <see cref="AssetRef{T}"/>.
+    /// access the <see cref="ResourceRef{T}"/>.
     /// </summary>
     public void EnsureLoaded()
     {
@@ -170,9 +171,9 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
     private void RetrieveInstance()
     {
         if (_assetID != Guid.Empty)
-            _instance = (T)AssetDatabase.LoadAsset<T>(_assetID);
+            _instance = AssetDatabase.LoadAsset<T>(_assetID);
         else if (_instance != null && _instance.AssetID != Guid.Empty)
-            _instance = (T)AssetDatabase.LoadAsset<T>(_instance.AssetID);
+            _instance = AssetDatabase.LoadAsset<T>(_instance.AssetID);
         else
             _instance = null;
     }
@@ -198,7 +199,7 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
 
     public override bool Equals(object? obj)
     {
-        if (obj is AssetRef<T> @ref)
+        if (obj is ResourceRef<T> @ref)
             return this == @ref;
         return base.Equals(obj);
     }
@@ -214,11 +215,11 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
     }
 
 
-    public bool Equals(AssetRef<T> other) => this == other;
+    public bool Equals(ResourceRef<T> other) => this == other;
 
-    public static implicit operator AssetRef<T>(T res) => new(res);
+    public static implicit operator ResourceRef<T>(T res) => new(res);
 
-    public static explicit operator T(AssetRef<T> res) => res.Res!;
+    public static explicit operator T(ResourceRef<T> res) => res.Res!;
 
 
     /// <summary>
@@ -228,16 +229,10 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
     /// <param name="second"></param>
     /// <remarks>
     /// This is a two-step comparison. First, their actual Resources references are compared.
-    /// If they're both not null and equal, true is returned. Otherwise, their AssetID's are compared for equality
+    /// If they're both not null and equal, true is returned. Otherwise, their AssetID are compared to equality
     /// </remarks>
-    public static bool operator ==(AssetRef<T> first, AssetRef<T> second)
+    public static bool operator ==(ResourceRef<T> first, ResourceRef<T> second)
     {
-        // Old check, didn't work for XY == null when XY was a Resource created at runtime
-        //if (first.instance != null && second.instance != null)
-        //    return first.instance == second.instance;
-        //else
-        //    return first.assetID == second.assetID;
-
         // Completely identical
         if (first._instance == second._instance && first._assetID == second._assetID)
             return true;
@@ -264,7 +259,7 @@ public struct AssetRef<T> : ISerializable where T : EngineObject
     /// </summary>
     /// <param name="first"></param>
     /// <param name="second"></param>
-    public static bool operator !=(AssetRef<T> first, AssetRef<T> second) => !(first == second);
+    public static bool operator !=(ResourceRef<T> first, ResourceRef<T> second) => !(first == second);
 
 
     public SerializedProperty Serialize(Serializer.SerializationContext ctx)
