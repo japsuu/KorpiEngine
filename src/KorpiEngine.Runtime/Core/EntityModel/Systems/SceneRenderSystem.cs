@@ -2,7 +2,7 @@
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 
-namespace KorpiEngine.Core.EntityModel.Systems.World;
+namespace KorpiEngine.Core.EntityModel.Systems;
 
 public class SceneRenderSystem : SceneSystem
 {
