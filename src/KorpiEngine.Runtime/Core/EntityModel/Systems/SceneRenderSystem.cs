@@ -57,10 +57,10 @@ public class SceneRenderSystem : SceneSystem
                 // Construct ordered render queues
                 foreach (CameraComponent c in _cameras)
                 {
-                    if (c.RenderTarget == CameraRenderTarget.Screen)
-                        _renderQueueScreen.Enqueue(c, c.RenderPriority);
-                    else
+                    if (c.TargetTexture.IsAvailable)
                         _renderQueueTexture.Enqueue(c, c.RenderPriority);
+                    else
+                        _renderQueueScreen.Enqueue(c, c.RenderPriority);
                 }
                 break;
             }

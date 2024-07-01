@@ -1,5 +1,6 @@
 ﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
@@ -19,12 +20,18 @@ public sealed class CameraComponent : EntityComponent
 
     /// <summary>
     /// The render priority of this camera.
-    /// Camera with the highest render priority will be rendered last.
+    /// The Camera with the highest render priority will be rendered last.
     /// </summary>
     public short RenderPriority = 0;
 
+    /// <summary>
+    /// The render target texture of this camera.
+    /// If set, the camera will render to this texture.
+    /// If not set, the camera will render to the screen.
+    /// </summary>
+    public ResourceRef<RenderTexture> TargetTexture;
+
     public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
-    public CameraRenderTarget RenderTarget = CameraRenderTarget.Screen;
     public CameraClearType ClearType = CameraClearType.SolidColor;
     public CameraClearFlags ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
     public Color ClearColor = Color.Gray;

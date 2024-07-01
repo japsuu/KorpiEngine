@@ -115,7 +115,6 @@ public abstract class Scene : IDisposable
         Entity cameraEntity = CreateEntity("Scene Camera");
         CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
         
-        cameraComponent.RenderTarget = CameraRenderTarget.Screen;
         cameraComponent.RenderPriority = 0;
         cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
         
