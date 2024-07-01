@@ -57,6 +57,9 @@ public class SceneRenderSystem : SceneSystem
                 // Construct ordered render queues
                 foreach (CameraComponent c in _cameras)
                 {
+                    if (!c.EnabledInHierarchy)
+                        continue;
+                    
                     if (c.TargetTexture.IsAvailable)
                         _renderQueueTexture.Enqueue(c, c.RenderPriority);
                     else
@@ -68,14 +71,12 @@ public class SceneRenderSystem : SceneSystem
             {
                 // Render all cameras that target a RenderTexture
                 while (_renderQueueTexture.Count > 0)
-                    RenderToTargetTexture(_renderQueueTexture.Dequeue());
+                    Render(_renderQueueTexture.Dequeue());
                 
                 // Render all cameras that target the screen
                 while (_renderQueueScreen.Count > 0)
-                    RenderToScreen(_renderQueueScreen.Dequeue());
+                    Render(_renderQueueScreen.Dequeue());
                 
-                Graphics.SetRenderingCamera(null);
-
                 break;
             }
             case EntityUpdateStage.PostRender:
@@ -89,8 +90,11 @@ public class SceneRenderSystem : SceneSystem
     }
 
 
-    private void RenderToScreen(CameraComponent camera)
+    private void Render(CameraComponent camera)
     {
+        // Use the current view and projection matrices
+        Graphics.SetRenderingCamera(camera);
+        
         // Clear the screen
         if (camera.ClearType == CameraClearType.SolidColor)
         {
@@ -101,9 +105,6 @@ public class SceneRenderSystem : SceneSystem
             
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
         }
-            
-        // Use the current view and projection matrices
-        Graphics.SetRenderingCamera(camera);
         
         // Render all meshes
         foreach (MeshRendererComponent renderer in _meshRenderers)
@@ -114,11 +115,7 @@ public class SceneRenderSystem : SceneSystem
             // Render the mesh
             renderer.Render();
         }
-    }
-
-
-    private void RenderToTargetTexture(CameraComponent camera)
-    {
-        throw new NotImplementedException("RenderTexture rendering is not implemented yet.");
+        
+        Graphics.SetRenderingCamera(null);
     }
 }

@@ -44,7 +44,7 @@ public sealed class CameraComponent : EntityComponent
     /// <summary>
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
-    /// Does not account for camera position, since we use camera-relative rendering.
+    /// Does not contain the camera position, since we use camera-relative rendering.
     /// </summary>
     public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
 
@@ -57,12 +57,14 @@ public sealed class CameraComponent : EntityComponent
             .ToDouble();
 
 
+    #region Public utility methods
+
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
         Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
 
-        // Without this the coordinates are visible even when looking straight away from them.
+        // Without this, the coordinates are visible even when looking straight away from them.
         if (clipSpacePosition.W <= 0)
         {
             screenPos = Vector2.NegativeInfinity;
@@ -145,4 +147,6 @@ public sealed class CameraComponent : EntityComponent
 
         return frustum;
     }
+
+    #endregion
 }
