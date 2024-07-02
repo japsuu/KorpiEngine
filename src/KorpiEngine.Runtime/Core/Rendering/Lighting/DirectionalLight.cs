@@ -45,32 +45,32 @@ public sealed class DirectionalLight : EntityComponent
     protected override void OnRenderObject()
     {
         _lightMat ??= new Material(Shader.Find("Defaults/DirectionalLight.shader"));
-        _lightMat.SetVector("LightDirection", Vector3.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
-        _lightMat.SetColor("LightColor", Color);
-        _lightMat.SetFloat("LightIntensity", Intensity);
+        _lightMat.SetVector("_LightDirection", Vector3.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
+        _lightMat.SetColor("_LightColor", Color);
+        _lightMat.SetFloat("_LightIntensity", Intensity);
 
-        _lightMat.SetTexture("gAlbedoAO", CameraComponent.RenderingCamera.GBuffer!.AlbedoAO);
-        _lightMat.SetTexture("gNormalMetallic", CameraComponent.RenderingCamera.GBuffer.NormalMetallic);
-        _lightMat.SetTexture("gPositionRoughness", CameraComponent.RenderingCamera.GBuffer.PositionRoughness);
+        _lightMat.SetTexture("_GAlbedoAO", CameraComponent.RenderingCamera.GBuffer!.AlbedoAO);
+        _lightMat.SetTexture("_GNormalMetallic", CameraComponent.RenderingCamera.GBuffer.NormalMetallic);
+        _lightMat.SetTexture("_GPositionRoughness", CameraComponent.RenderingCamera.GBuffer.PositionRoughness);
 
         if (CastShadows)
         {
             _lightMat.EnableKeyword("CASTSHADOWS");
-            _lightMat.SetTexture("shadowMap", _shadowMap!.InternalDepth!);
+            _lightMat.SetTexture("_ShadowMap", _shadowMap!.InternalDepth!);
 
             Matrix4x4.Invert(Graphics.ViewMatrix, out Matrix4x4 viewInverse);
 
-            _lightMat.SetMatrix("matCamViewInverse", viewInverse);
-            _lightMat.SetMatrix("matShadowView", Graphics.DepthViewMatrix);
-            _lightMat.SetMatrix("matShadowSpace", _depthMVP);
+            _lightMat.SetMatrix("_MatCamViewInverse", viewInverse);
+            _lightMat.SetMatrix("_MatShadowView", Graphics.DepthViewMatrix);
+            _lightMat.SetMatrix("_MatShadowSpace", _depthMVP);
 
-            _lightMat.SetFloat("u_Radius", ShadowRadius);
-            _lightMat.SetFloat("u_Penumbra", ShadowPenumbra);
-            _lightMat.SetFloat("u_MinimumPenumbra", ShadowMinimumPenumbra);
-            _lightMat.SetInt("u_QualitySamples", (int)QualitySamples);
-            _lightMat.SetInt("u_BlockerSamples", (int)BlockerSamples);
-            _lightMat.SetFloat("u_Bias", ShadowBias);
-            _lightMat.SetFloat("u_NormalBias", ShadowNormalBias);
+            _lightMat.SetFloat("_Radius", ShadowRadius);
+            _lightMat.SetFloat("_Penumbra", ShadowPenumbra);
+            _lightMat.SetFloat("_MinimumPenumbra", ShadowMinimumPenumbra);
+            _lightMat.SetInt("_QualitySamples", (int)QualitySamples);
+            _lightMat.SetInt("_BlockerSamples", (int)BlockerSamples);
+            _lightMat.SetFloat("_Bias", ShadowBias);
+            _lightMat.SetFloat("_NormalBias", ShadowNormalBias);
         }
         else
         {

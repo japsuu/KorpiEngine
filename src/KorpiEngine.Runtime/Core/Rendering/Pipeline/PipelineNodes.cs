@@ -96,8 +96,8 @@ public class PostPBRDeferredNode : RenderPassNode
             return null;
 
         _combineShader ??= new Material(Shader.Find("Defaults/GBuffercombine.shader"));
-        _combineShader.SetTexture("gAlbedoAO", gBuffer.AlbedoAO);
-        _combineShader.SetTexture("gLighting", source.InternalTextures[0]);
+        _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
+        _combineShader.SetTexture("_GLighting", source.InternalTextures[0]);
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _combineShader, 0, true);
@@ -122,16 +122,16 @@ public class ProceduralSkyboxNode : RenderPassNode
             return null;
 
         _mat ??= new Material(Shader.Find("Defaults/ProceduralSkybox.shader"));
-        _mat.SetTexture("gColor", source.InternalTextures[0]);
-        _mat.SetTexture("gPositionRoughness", gBuffer.PositionRoughness);
-        _mat.SetFloat("fogDensity", FogDensity);
+        _mat.SetTexture("_GColor", source.InternalTextures[0]);
+        _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
+        _mat.SetFloat("_FogDensity", FogDensity);
 
         // Find DirectionalLight
         DirectionalLight? light = camera.Entity.Scene.FindObjectOfType<DirectionalLight>();
         if (light != null)
-            _mat.SetVector("uSunPos", -light.Entity.Transform.Forward);
+            _mat.SetVector("_SunPos", -light.Entity.Transform.Forward);
         else // Fallback to a reasonable default
-            _mat.SetVector("uSunPos", new Vector3(0.5f, 0.5f, 0.5f));
+            _mat.SetVector("_SunPos", new Vector3(0.5f, 0.5f, 0.5f));
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
@@ -200,16 +200,16 @@ public class TAANode : RenderPassNode
         RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_S]);
 
         _mat ??= new Material(Shader.Find("Defaults/TAA.shader"));
-        _mat.SetTexture("gColor", source.InternalTextures[0]);
-        _mat.SetTexture("gHistory", history.InternalTextures[0]);
-        _mat.SetTexture("gPositionRoughness", gBuffer.PositionRoughness);
-        _mat.SetTexture("gVelocity", gBuffer.Velocity);
-        _mat.SetTexture("gDepth", gBuffer.Depth!);
+        _mat.SetTexture("_GColor", source.InternalTextures[0]);
+        _mat.SetTexture("_GHistory", history.InternalTextures[0]);
+        _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
+        _mat.SetTexture("_GVelocity", gBuffer.Velocity);
+        _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
-        _mat.SetInt("ClampRadius", Jitter2X ? 2 : 1);
+        _mat.SetInt("_ClampRadius", Jitter2X ? 2 : 1);
 
-        _mat.SetVector("Jitter", Graphics.Jitter);
-        _mat.SetVector("PreviousJitter", Graphics.PreviousJitter);
+        _mat.SetVector("_Jitter", Graphics.Jitter);
+        _mat.SetVector("_PreviousJitter", Graphics.PreviousJitter);
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
@@ -237,12 +237,12 @@ public class DepthOfFieldNode : RenderPassNode
         GBuffer gBuffer = camera.GBuffer!;
 
         _mat ??= new Material(Shader.Find("Defaults/DOF.shader"));
-        _mat.SetTexture("gCombined", source.InternalTextures[0]);
-        _mat.SetTexture("gDepth", gBuffer.Depth!);
+        _mat.SetTexture("_GCombined", source.InternalTextures[0]);
+        _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
-        _mat.SetFloat("u_Quality", Math.Clamp(Quality, 0.0f, 0.9f));
-        _mat.SetFloat("u_BlurRadius", Math.Clamp(BlurRadius, 2, 40));
-        _mat.SetFloat("u_FocusStrength", FocusStrength);
+        _mat.SetFloat("_Quality", Math.Clamp(Quality, 0.0f, 0.9f));
+        _mat.SetFloat("_BlurRadius", Math.Clamp(BlurRadius, 2, 40));
+        _mat.SetFloat("_FocusStrength", FocusStrength);
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
@@ -272,19 +272,19 @@ public class BloomNode : RenderPassNode
         RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         RenderTexture[] rts = [front, back];
 
-        _mat.SetFloat("u_Alpha", 1.0f);
-        _mat.SetTexture("gColor", source.InternalTextures[0]);
-        _mat.SetFloat("u_Radius", 1.5f);
-        _mat.SetFloat("u_Threshold", Math.Clamp(Threshold, 0.0f, 8f));
+        _mat.SetFloat("_Alpha", 1.0f);
+        _mat.SetTexture("_GColor", source.InternalTextures[0]);
+        _mat.SetFloat("_Radius", 1.5f);
+        _mat.SetFloat("_Threshold", Math.Clamp(Threshold, 0.0f, 8f));
         Graphics.Blit(rts[0], _mat, 0, true);
         Graphics.Blit(rts[1], _mat, 0, true);
-        _mat.SetFloat("u_Threshold", 0.0f);
+        _mat.SetFloat("_Threshold", 0.0f);
 
         for (int i = 1; i <= Passes; i++)
         {
-            _mat.SetFloat("u_Alpha", 1.0f);
-            _mat.SetTexture("gColor", rts[0].InternalTextures[0]);
-            _mat.SetFloat("u_Radius", Math.Clamp(Radius, 0.0f, 32f) + i);
+            _mat.SetFloat("_Alpha", 1.0f);
+            _mat.SetTexture("_GColor", rts[0].InternalTextures[0]);
+            _mat.SetFloat("_Radius", Math.Clamp(Radius, 0.0f, 32f) + i);
             Graphics.Blit(rts[1], _mat, 0, false);
 
             (rts[1], rts[0]) = (rts[0], rts[1]);
@@ -317,9 +317,9 @@ public class TonemappingNode : RenderPassNode
             return null;
 
         _acesMat ??= new Material(Shader.Find("Defaults/Tonemapper.shader"));
-        _acesMat.SetTexture("gAlbedo", source.InternalTextures[0]);
-        _acesMat.SetFloat("Contrast", Math.Clamp(Contrast, 0, 2));
-        _acesMat.SetFloat("Saturation", Math.Clamp(Saturation, 0, 2));
+        _acesMat.SetTexture("_GAlbedo", source.InternalTextures[0]);
+        _acesMat.SetFloat("_Contrast", Math.Clamp(Contrast, 0, 2));
+        _acesMat.SetFloat("_Saturation", Math.Clamp(Saturation, 0, 2));
 
         // Because we always Reset the tonemappers to disabled then re-enable them
         // this will trigger a Uniform Location Cache clear every single frame

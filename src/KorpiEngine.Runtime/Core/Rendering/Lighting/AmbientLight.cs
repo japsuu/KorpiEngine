@@ -21,15 +21,15 @@ public class AmbientLight : EntityComponent
     {
         _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.shader"));
 
-        _lightMat.SetColor("SkyColor", SkyColor);
-        _lightMat.SetColor("GroundColor", GroundColor);
-        _lightMat.SetFloat("SkyIntensity", SkyIntensity);
-        _lightMat.SetFloat("GroundIntensity", GroundIntensity);
+        _lightMat.SetColor("_SkyColor", SkyColor);
+        _lightMat.SetColor("_GroundColor", GroundColor);
+        _lightMat.SetFloat("_SkyIntensity", SkyIntensity);
+        _lightMat.SetFloat("_GroundIntensity", GroundIntensity);
 
         GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
-        _lightMat.SetTexture("gAlbedoAO", gBuffer.AlbedoAO);
-        _lightMat.SetTexture("gNormalMetallic", gBuffer.NormalMetallic);
-        _lightMat.SetTexture("gPositionRoughness", gBuffer.PositionRoughness);
+        _lightMat.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
+        _lightMat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
+        _lightMat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
 
         Graphics.Blit(_lightMat);
     }

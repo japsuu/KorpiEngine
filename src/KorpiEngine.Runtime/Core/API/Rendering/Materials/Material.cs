@@ -9,19 +9,19 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 /// <summary>
 /// A material used for rendering.
 /// Objects with a similar material may be batched together for rendering.
-/// Uses shader preprocessor-based permutations, over a uniform-based branching system.
+/// Uses shader preprocessor-based permutations over a uniform-based branching system.
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 public sealed class Material : Resource
 {
-    public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
-    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
-    public const string DEFAULT_NORMAL_TEX_PROPERTY = "u_NormalTex";
-    public const string DEFAULT_SURFACE_TEX_PROPERTY = "u_SurfaceTex";
-    public const string DEFAULT_EMISSION_TEX_PROPERTY = "u_EmissionTex";
-    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
-    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
+    public const string DEFAULT_COLOR_PROPERTY = "_MainColor";
+    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "_MainTex";
+    public const string DEFAULT_NORMAL_TEX_PROPERTY = "_NormalTex";
+    public const string DEFAULT_SURFACE_TEX_PROPERTY = "_SurfaceTex";
+    public const string DEFAULT_EMISSION_TEX_PROPERTY = "_EmissionTex";
+    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "_EmissiveColor";
+    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "_EmissionIntensity";
     
     public readonly ResourceRef<Shader> Shader;
 

@@ -38,7 +38,7 @@ public class MeshRendererComponent : EntityComponent
             mvp = Matrix4x4.Multiply(mvp, mat);
             mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
             mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
-            Material.Res!.SetMatrix("mvp", mvp);
+            Material.Res!.SetMatrix("_MatMVP", mvp);
             Material.Res!.SetShadowPass(true);
             Graphics.DrawMeshNowDirect(Mesh.Res!);
         }

@@ -137,29 +137,29 @@ public static class Graphics
         
         if (UseJitter)
         {
-            material.SetVector("Jitter", Jitter);
-            material.SetVector("PreviousJitter", PreviousJitter);
+            material.SetVector("_Jitter", Jitter);
+            material.SetVector("_PreviousJitter", PreviousJitter);
         }
         else
         {
-            material.SetVector("Jitter", Vector2.Zero);
-            material.SetVector("PreviousJitter", Vector2.Zero);
+            material.SetVector("_Jitter", Vector2.Zero);
+            material.SetVector("_PreviousJitter", Vector2.Zero);
         }
         
-        material.SetVector("u_Resolution", Resolution);
-        material.SetFloat("u_Time", (float)Time.TotalTime);
-        material.SetInt("u_Frame", Time.TotalFrameCount);
+        material.SetVector("_Resolution", Resolution);
+        material.SetFloat("_Time", (float)Time.TotalTime);
+        material.SetInt("_Frame", Time.TotalFrameCount);
         
         // Camera data
-        material.SetVector("u_Camera_WorldPosition", RenderingCamera.Transform.Position);
-        material.SetVector("u_Camera_Forward", RenderingCamera.Transform.Forward);
+        material.SetVector("_Camera_WorldPosition", RenderingCamera.Transform.Position);
+        material.SetVector("_Camera_Forward", RenderingCamera.Transform.Forward);
         
         // Matrices
         Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
-        material.SetMatrix("u_MatMVP", matMVP);
-        material.SetMatrix("u_MatModel", camRelativeTransform);
-        material.SetMatrix("u_MatView", ViewMatrix);
-        material.SetMatrix("u_MatProjection", ProjectionMatrix);
+        material.SetMatrix("_MatMVP", matMVP);
+        material.SetMatrix("_MatModel", camRelativeTransform);
+        material.SetMatrix("_MatView", ViewMatrix);
+        material.SetMatrix("_MatProjection", ProjectionMatrix);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
         material.SetKeyword("HAS_UV", mesh.HasUV0);
