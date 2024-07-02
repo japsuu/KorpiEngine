@@ -223,7 +223,7 @@ public class DepthOfFieldNode : RenderPassNode
 {
     public float FocusStrength = 150f;
     public float Quality = 0.05f;
-    public int BlurRadius = 10;
+    public int BlurRadius = 5;
 
     private Material? _mat;
     

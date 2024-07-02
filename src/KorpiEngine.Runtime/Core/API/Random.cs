@@ -90,7 +90,7 @@ public static class Random
     public static double Angle => Value * Maths.TAU;
 
     /// <summary> Returns a random uniformly distributed rotation </summary>
-    public static Quaternion Rotation => new(OnUnitSphere, Value * Maths.TAU); // Will this work? TODO: Test
+    public static Quaternion Rotation => new(OnUnitSphere, Value * Maths.TAU);
 
     /// <summary> Returns a random Boolean value </summary>
     public static bool Boolean => Value > 0.5f;

@@ -16,10 +16,10 @@ public class RenderPipeline
         PostPBRDeferredNode postPbrDeferredNode = new();
         ProceduralSkyboxNode proceduralSkyboxNode = new();
         //var screenSpaceReflectionNode = new ScreenSpaceReflectionNode();
+        TAANode taaNode = new();
         DepthOfFieldNode depthOfFieldNode = new();
         BloomNode bloomNode = new();
         TonemappingNode toneMappingNode = new();
-        TAANode taaNode = new();
         
         pbrDeferredNode.SetChild(postPbrDeferredNode);
         postPbrDeferredNode.SetChild(proceduralSkyboxNode);
