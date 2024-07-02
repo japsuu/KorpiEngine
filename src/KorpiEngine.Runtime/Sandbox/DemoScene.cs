@@ -1,11 +1,7 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -24,7 +20,7 @@ internal class DemoScene : Scene
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
-            root.AddComponent<DemoOscillate>();
+            //root.AddComponent<DemoOscillate>();
 
             // Create a sphere primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
@@ -45,9 +41,9 @@ internal class DemoScene : Scene
         quadEntity.AddComponent<DemoMoveRotate>();
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
-        Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
-        material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
-        material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
+        // Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
+        // material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
+        // material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
     }
 
 
