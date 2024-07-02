@@ -11,9 +11,9 @@ public enum EntityUpdateStage
     PreFixedUpdate,
     FixedUpdate,
     PostFixedUpdate,
-    PreRender,
+    /*PreRender,
     Render,
     PostRender,
     RenderDepth,
-    DrawGizmos
+    DrawGizmos*/
 }

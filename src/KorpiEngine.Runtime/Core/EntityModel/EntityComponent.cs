@@ -3,6 +3,7 @@ using System.Reflection;
 using KorpiEngine.Core.EntityModel.Coroutines;
 using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -16,6 +17,10 @@ public abstract class EntityComponent
     public Entity Entity { get; private set; } = null!;
     public Transform Transform => Entity.Transform;
 
+    /// <summary>
+    /// True if the entity is enabled explicitly, false otherwise.
+    /// This value is unaffected by the entity's parent hierarchy.
+    /// </summary>
     public bool Enabled
     {
         get => _enabled;
@@ -29,7 +34,12 @@ public abstract class EntityComponent
         }
     }
 
+    /// <summary>
+    /// True if the entity is enabled and all of its parents are enabled, false otherwise.
+    /// </summary>
     public bool EnabledInHierarchy => _enabledInHierarchy;
+    
+    public virtual ComponentRenderOrder RenderOrder => ComponentRenderOrder.None;
 
     internal bool HasAwoken;
     internal bool HasStarted;
@@ -108,25 +118,17 @@ public abstract class EntityComponent
             case EntityUpdateStage.PostFixedUpdate:
                 OnPostFixedUpdate();
                 break;
-            case EntityUpdateStage.PreRender:
-                OnPreRender();
-                break;
-            case EntityUpdateStage.Render:
-                OnRenderObject();
-                break;
-            case EntityUpdateStage.PostRender:
-                OnPostRender();
-                break;
-            case EntityUpdateStage.RenderDepth:
-                OnRenderObjectDepth();
-                break;
-            case EntityUpdateStage.DrawGizmos:
-                OnDrawGizmos();
-                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(stage), stage, null);
         }
     }
+    
+    
+    internal void PreRender() => OnPreRender();
+    internal void RenderObject() => OnRenderObject();
+    internal void PostRender() => OnPostRender();
+    internal void RenderObjectDepth() => OnRenderObjectDepth();
+    internal void DrawGizmos() => OnDrawGizmos();
 
 
     internal void Destroy()

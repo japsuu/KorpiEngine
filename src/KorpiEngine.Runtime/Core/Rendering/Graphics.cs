@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
@@ -13,17 +14,21 @@ namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    private static CameraComponent? renderingCamera;
     private static Material defaultBlitMaterial = null!;
     
+    internal static CameraComponent? RenderingCamera;
     internal static KorpiWindow Window { get; private set; } = null!;
     internal static GraphicsDriver Driver = null!;
     internal static Vector2i FrameBufferSize;
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
+    
     public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
     public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
     public static Matrix4x4 ViewProjectionMatrix { get; private set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 DepthProjectionMatrix;
+    public static Matrix4x4 DepthViewMatrix;
 
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
@@ -80,6 +85,14 @@ public static class Graphics
     {
         
     }
+    
+    
+    internal static Matrix4x4 GetCamRelativeTransform(Transform transform)
+    {
+        Matrix4x4 camRelative = transform.LocalToWorldMatrix;
+        camRelative.Translation -= RenderingCamera!.Transform.Position;
+        return camRelative;
+    }
 
 
     /// <summary>
@@ -91,11 +104,10 @@ public static class Graphics
     /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
     public static void DrawMeshNow(Mesh mesh, Transform transform, Material material)
     {
-        if (renderingCamera == null)
+        if (RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
-        Matrix4x4 camRelative = transform.LocalToWorldMatrix;
-        camRelative.Translation -= renderingCamera.Transform.Position;
+        Matrix4x4 camRelative = GetCamRelativeTransform(transform);
         
         DrawMeshNow(mesh, camRelative, material);
     }
@@ -110,7 +122,7 @@ public static class Graphics
     /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material)
     {
-        if (renderingCamera == null)
+        if (RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -123,8 +135,8 @@ public static class Graphics
         material.SetInt("u_Frame", Time.TotalFrameCount);
         
         // Camera data
-        material.SetVector("u_Camera_WorldPosition", renderingCamera.Transform.Position);
-        material.SetVector("u_Camera_Forward", renderingCamera.Transform.Forward);
+        material.SetVector("u_Camera_WorldPosition", RenderingCamera.Transform.Position);
+        material.SetVector("u_Camera_Forward", RenderingCamera.Transform.Forward);
         
         // Matrices
         Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
@@ -141,7 +153,7 @@ public static class Graphics
         material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
 
         // All material uniforms have been assigned, it's time to buffer them
-        material.PropertyBlock.Apply(Driver.CurrentProgram);
+        material.ApplyPropertyBlock(Driver.CurrentProgram);
 
         DrawMeshNowDirect(mesh);
     }
@@ -149,7 +161,7 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
-        if (renderingCamera == null)
+        if (RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -209,11 +221,34 @@ public static class Graphics
         renderTexture?.End();
     }
 
+    
+    /// <summary>
+    /// Blits the depth buffer from one render texture to another.
+    /// </summary>
+    /// <param name="source">The source render texture.</param>
+    /// <param name="destination">The destination render texture.</param>
+    internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
+    {
+        Debug.Assert(source.FrameBuffer != null, "source.FrameBuffer != null");
+        Driver.BindFramebuffer(source.FrameBuffer, FBOTarget.ReadFramebuffer);
+        if(destination != null)
+        {
+            Debug.Assert(destination.FrameBuffer != null, "destination.FrameBuffer != null");
+            Driver.BindFramebuffer(destination.FrameBuffer, FBOTarget.DrawFramebuffer);
+        }
+
+        Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
+            0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
+            ClearFlags.Depth, BlitFilter.Nearest
+        );
+        Driver.UnbindFramebuffer();
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void SetRenderingCamera(CameraComponent? camera)
     {
-        renderingCamera = camera;
+        RenderingCamera = camera;
         
         if (camera == null)
             return;

@@ -24,11 +24,11 @@ public sealed class Material : Resource
     public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
     
     public readonly ResourceRef<Shader> Shader;
-    public readonly MaterialPropertyBlock PropertyBlock;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
     private readonly SortedSet<string> _materialKeywords = [];
+    private readonly MaterialPropertyBlock _propertyBlock;
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _materialKeywordsString = "";
@@ -42,7 +42,13 @@ public sealed class Material : Resource
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
-        PropertyBlock = new MaterialPropertyBlock();
+        _propertyBlock = new MaterialPropertyBlock();
+    }
+    
+    
+    internal void ApplyPropertyBlock(GraphicsProgram shader)
+    {
+        _propertyBlock.Apply(shader);
     }
 
 
@@ -116,7 +122,7 @@ public sealed class Material : Resource
         Graphics.Driver.BindProgram(pass.Program);
 
         if (apply)
-            PropertyBlock.Apply(Graphics.Driver.CurrentProgram!);
+            _propertyBlock.Apply(Graphics.Driver.CurrentProgram!);
     }
 
     #endregion
@@ -178,70 +184,110 @@ public sealed class Material : Resource
     public void SetColor(string name, Color value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetColor(name, value);
+            _propertyBlock.SetColor(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetVector(string name, Vector2 value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetVector(string name, Vector3 value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetVector(string name, Vector4 value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetFloat(string name, float value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetFloat(name, value);
+            _propertyBlock.SetFloat(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetInt(string name, int value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetInt(name, value);
+            _propertyBlock.SetInt(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetMatrix(string name, Matrix4x4 value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetMatrix(name, value);
+            _propertyBlock.SetMatrix(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetMatrices(name, value);
+            _propertyBlock.SetMatrices(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetTexture(string name, Texture2D value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetTexture(name, value);
+            _propertyBlock.SetTexture(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
 
     public void SetTexture(string name, ResourceRef<Texture2D> value)
     {
         if (HasVariable(name))
-            PropertyBlock.SetTexture(name, value);
+            _propertyBlock.SetTexture(name, value);
+#if DEBUG
+        else
+            Application.Logger.Warn($"Material does not have a property named {name}");
+#endif
     }
 
     #endregion

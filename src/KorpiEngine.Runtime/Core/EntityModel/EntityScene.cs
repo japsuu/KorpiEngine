@@ -1,4 +1,6 @@
 ﻿using KorpiEngine.Core.EntityModel.IDs;
+using KorpiEngine.Core.EntityModel.Systems;
+using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -11,7 +13,12 @@ internal sealed class EntityScene
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<SceneSystemID, SceneSystem> _sceneSystems = [];
+    private readonly EntitySceneRenderer _renderer = new();
+    
+    internal IReadOnlyList<EntityComponent> Components => _components;
 
+
+    #region Entity/Component/System registration
 
     internal void RegisterEntity(Entity entity)
     {
@@ -46,6 +53,8 @@ internal sealed class EntityScene
         
         foreach (SceneSystem system in _sceneSystems.Values)
             system.TryRegisterComponent(component);
+        
+        _renderer.TryRegisterComponent(component);
     }
 
 
@@ -59,6 +68,8 @@ internal sealed class EntityScene
         
         foreach (SceneSystem system in _sceneSystems.Values)
             system.TryUnregisterComponent(component);
+        
+        _renderer.TryUnregisterComponent(component);
     }
 
 
@@ -90,21 +101,118 @@ internal sealed class EntityScene
         system.OnUnregister();
     }
 
+    #endregion
 
-    // Explicit call to remove any dependencies to SystemUpdateStage
-    internal void PreUpdate()
+
+    #region Update/Render/Destroy methods
+
+    internal void Update()
+    {
+        if (_isBeingDestroyed)
+            return;
+        
+        EnsureEntityInitialization();
+        
+        UpdateEntities(EntityUpdateStage.PreUpdate);
+        UpdateSceneSystems(EntityUpdateStage.PreUpdate);
+        
+        UpdateEntities(EntityUpdateStage.Update);
+        UpdateSceneSystems(EntityUpdateStage.Update);
+        
+        UpdateEntities(EntityUpdateStage.PostUpdate);
+        UpdateSceneSystems(EntityUpdateStage.PostUpdate);
+    }
+    
+    
+    internal void FixedUpdate()
+    {
+        if (_isBeingDestroyed)
+            return;
+        
+        UpdateEntities(EntityUpdateStage.FixedUpdate);
+        UpdateSceneSystems(EntityUpdateStage.FixedUpdate);
+    }
+    
+    
+    internal void Render()
+    {
+        if (_isBeingDestroyed)
+            return;
+        
+        _renderer.Render();
+    }
+
+
+    internal void Destroy()
+    {
+        _isBeingDestroyed = true;
+        
+        // Destroy all scene systems.
+        foreach (SceneSystem system in _sceneSystems.Values)
+            system.OnUnregister();
+        
+        // Destroy all entities (includes their systems and components).
+        foreach (Entity entity in _entities)
+            entity.Destroy();
+    }
+
+    #endregion
+    
+    
+    internal void InvokePreRender()
+    {
+        foreach (EntityComponent comp in Components)
+            if (comp.EnabledInHierarchy)
+                comp.PreRender();
+    }
+    
+    
+    internal void InvokePostRender()
+    {
+        foreach (EntityComponent comp in Components)
+            if (comp.EnabledInHierarchy)
+                comp.PostRender();
+    }
+    
+    
+    internal void InvokeRenderObjectOnAllOfOrder(ComponentRenderOrder order)
+    {
+        foreach (EntityComponent comp in Components)
+            if (comp.EnabledInHierarchy)
+                if (comp.RenderOrder == order)
+                    comp.RenderObject();
+    }
+    
+    
+    internal void InvokeRenderObjectDepthOnAllOfOrder(ComponentRenderOrder order)
+    {
+        foreach (EntityComponent comp in Components)
+            if (comp.EnabledInHierarchy)
+                if (comp.RenderOrder == order)
+                    comp.RenderObjectDepth();
+    }
+
+
+    internal T? FindObjectOfType<T>() where T : EntityComponent
+    {
+        foreach (EntityComponent component in _components)
+            if (component is T t)
+                return t;
+        
+        return default;
+    }
+
+
+    private void EnsureEntityInitialization()
     {
         foreach (Entity e in _entities)
             if (e.EnabledInHierarchy)
                 e.EnsureComponentInitialization();
     }
-    
-    
-    internal void Update(EntityUpdateStage stage)
-    {
-        if (_isBeingDestroyed)
-            return;
 
+
+    private void UpdateEntities(EntityUpdateStage stage)
+    {
         foreach (Entity entity in _entities)
         {
             if (entity.IsDestroyed)
@@ -117,25 +225,14 @@ internal sealed class EntityScene
             if (!entity.IsRootEntity)
                 continue;
             
-            entity.UpdateComponentsRecursive(stage);
-            entity.UpdateSystemsRecursive(stage);
+            entity.Update(stage);
         }
-        
+    }
+
+
+    private void UpdateSceneSystems(EntityUpdateStage stage)
+    {
         foreach (SceneSystem system in _sceneSystems.Values)
             system.Update(stage);
-    }
-    
-    
-    internal void Destroy()
-    {
-        _isBeingDestroyed = true;
-        
-        // Destroy all scene systems.
-        foreach (SceneSystem system in _sceneSystems.Values)
-            system.OnUnregister();
-        
-        // Destroy all entities (includes their systems and components).
-        foreach (Entity entity in _entities)
-            entity.Destroy();
     }
 }

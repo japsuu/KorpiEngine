@@ -5,6 +5,8 @@
 /// </summary>
 public abstract class SceneSystem
 {
+
+
     public abstract void TryRegisterComponent<T>(T c) where T : EntityComponent;
     public abstract void TryUnregisterComponent<T>(T c) where T : EntityComponent;
 

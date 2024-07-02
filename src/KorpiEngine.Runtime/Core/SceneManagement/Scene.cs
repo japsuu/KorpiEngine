@@ -3,7 +3,6 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
@@ -21,11 +20,11 @@ public abstract class Scene : IDisposable
     protected CameraComponent SceneCamera { get; private set; } = null!;
 
 
+    #region Creation and destruction
+
     protected Scene()
     {
         EntityScene = new EntityScene();
-        
-        EntityScene.RegisterSceneSystem<SceneRenderSystem>();
     }
     
     
@@ -38,6 +37,10 @@ public abstract class Scene : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    #endregion
+
+
+    #region Public API
 
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
@@ -49,54 +52,22 @@ public abstract class Scene : IDisposable
     }
     
     
+    public T? FindObjectOfType<T>() where T : EntityComponent
+    {
+        return EntityScene.FindObjectOfType<T>();
+    }
+    
+    
     /*public void Instantiate<T>(T prefab) where T : Entity
     {
         Entity e = prefab.Clone();
         EntityScene.AddEntity(e);
     }*/
-    
-    
-    internal void InternalLoad()
-    {
-        SceneCamera = CreateSceneCamera();
-        
-        OnLoad();
-    }
-    
-    
-    internal void InternalUpdate()
-    {
-        // Explicit call to remove any dependencies to SystemUpdateStage
-        EntityScene.PreUpdate();
-        
-        EntityScene.Update(EntityUpdateStage.PreUpdate);
-        EntityScene.Update(EntityUpdateStage.Update);
-        EntityScene.Update(EntityUpdateStage.PostUpdate);
-    }
-    
-    
-    internal void InternalFixedUpdate()
-    {
-        EntityScene.Update(EntityUpdateStage.PreFixedUpdate);
-        EntityScene.Update(EntityUpdateStage.FixedUpdate);
-        EntityScene.Update(EntityUpdateStage.PostFixedUpdate);
-    }
-    
-    
-    internal void InternalRender()
-    {
-        EntityScene.Update(EntityUpdateStage.PreRender);
-        EntityScene.Update(EntityUpdateStage.Render);
-        EntityScene.Update(EntityUpdateStage.PostRender);
-    }
-    
-    
-    private Entity CreateEntity(string name)
-    {
-        Entity e = new(this, name);
-        return e;
-    }
 
+    #endregion
+
+
+    #region Protected API
 
     protected void RegisterSceneSystem<T>() where T : SceneSystem, new()
     {
@@ -108,8 +79,12 @@ public abstract class Scene : IDisposable
     {
         EntityScene.UnregisterSceneSystem<T>();
     }
-    
-    
+
+    #endregion
+
+
+    #region Protected overridable methods
+
     protected virtual CameraComponent CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
@@ -131,4 +106,43 @@ public abstract class Scene : IDisposable
     /// Called when the scene is unloaded.
     /// </summary>
     protected virtual void OnUnload() { }
+
+    #endregion
+
+
+    #region Internal calls
+
+    internal void InternalLoad()
+    {
+        SceneCamera = CreateSceneCamera();
+        
+        OnLoad();
+    }
+    
+    
+    internal void InternalUpdate()
+    {
+        EntityScene.Update();
+    }
+    
+    
+    internal void InternalFixedUpdate()
+    {
+        EntityScene.FixedUpdate();
+    }
+    
+    
+    internal void InternalRender()
+    {
+        EntityScene.Render();
+    }
+
+    #endregion
+    
+    
+    private Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
+    }
 }
