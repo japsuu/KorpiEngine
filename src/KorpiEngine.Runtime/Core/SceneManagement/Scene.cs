@@ -1,10 +1,12 @@
-﻿using KorpiEngine.Core.API.Rendering;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Lighting;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
@@ -95,6 +97,18 @@ public abstract class Scene : IDisposable
         
         return cameraComponent;
     }
+
+    protected virtual void CreateLights()
+    {
+        Entity dlEntity = CreateEntity("Directional Light");
+        DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
+        dlComp.Transform.LocalEulerAngles = new Vector3(135, 45, 0);
+        
+        Entity alEntity = CreateEntity("Ambient Light");
+        AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
+    }
     
     
     /// <summary>
@@ -114,6 +128,7 @@ public abstract class Scene : IDisposable
 
     internal void InternalLoad()
     {
+        CreateLights();
         SceneCamera = CreateSceneCamera();
         
         OnLoad();
