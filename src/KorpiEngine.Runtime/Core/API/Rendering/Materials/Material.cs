@@ -37,7 +37,7 @@ public sealed class Material : Resource
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(ResourceRef<Shader> shader)
+    public Material(ResourceRef<Shader> shader, string name) : base(name)
     {
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
@@ -185,10 +185,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetColor(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -196,10 +192,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetVector(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -207,10 +199,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetVector(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -218,10 +206,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetVector(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -229,10 +213,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetFloat(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -240,10 +220,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetInt(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -251,10 +227,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetMatrix(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -262,10 +234,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetMatrices(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -273,10 +241,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetTexture(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
 
@@ -284,10 +248,6 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
             _propertyBlock.SetTexture(name, value);
-#if DEBUG
-        else
-            Application.Logger.Warn($"Material does not have a property named {name}");
-#endif
     }
 
     #endregion

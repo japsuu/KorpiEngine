@@ -44,7 +44,7 @@ public sealed class DirectionalLight : EntityComponent
 
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Defaults/DirectionalLight.shader"));
+        _lightMat ??= new Material(Shader.Find("Defaults/DirectionalLight.shader"), "directional light material");
         _lightMat.SetVector("_LightDirection", Vector3.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
         _lightMat.SetColor("_LightColor", Color);
         _lightMat.SetFloat("_LightIntensity", Intensity);

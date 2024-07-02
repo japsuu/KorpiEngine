@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
@@ -19,12 +20,14 @@ public sealed class CameraComponent : EntityComponent
 {
     private const int RENDER_TEXTURE_MAX_UNUSED_FRAMES = 10;
     
-    internal static CameraComponent RenderingCamera => Graphics.RenderingCamera!;
+    internal static CameraComponent RenderingCamera { get; private set; } = null!;
     
     public event Action<int, int>? Resized;
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
+    private Matrix4x4? _oldView;
+    private Matrix4x4? _oldProjection;
 
     /// <summary>
     /// The render priority of this camera.
@@ -99,9 +102,16 @@ public sealed class CameraComponent : EntityComponent
         CheckGBuffer();
         
         // Use the current view and projection matrices
-        Graphics.SetRenderingCamera(this);
+        RenderingCamera = this;
+        
+        Graphics.ViewMatrix = ViewMatrix;
+        Graphics.ProjectionMatrix = ProjectionMatrix;
+        Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
+        Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
         
         _pipeline.Prepare(width, height);
+        
+        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
         
         // Render all meshes
         OpaquePass();
@@ -112,7 +122,7 @@ public sealed class CameraComponent : EntityComponent
         {
             EarlyEndRender();
 
-            Application.Logger.Error("RenderPipeline OutputNode failed to return a RenderTexture!");
+            Application.Logger.Error("RenderPipeline failed to return a RenderTexture!");
             return;
         }
         
@@ -143,8 +153,11 @@ public sealed class CameraComponent : EntityComponent
                 throw new ArgumentOutOfRangeException();
         }
         
+        _oldView = Graphics.ViewMatrix;
+        _oldProjection = Graphics.ProjectionMatrix;
+        
+        RenderingCamera = null!;
         Graphics.UseJitter = false;
-        Graphics.SetRenderingCamera(null);
     }
     
     
@@ -209,9 +222,28 @@ public sealed class CameraComponent : EntityComponent
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
         }
         
-        Graphics.SetRenderingCamera(null);
+        RenderingCamera = null!;
     }
-    
+
+
+    protected override void OnUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            DebugDrawType = DebugDrawType switch
+            {
+                CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
+                CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
+                CameraDebugDrawType.Normals => CameraDebugDrawType.Depth,
+                CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
+                CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
+                CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
+        }
+    }
+
 
     protected override void OnPostUpdate()
     {

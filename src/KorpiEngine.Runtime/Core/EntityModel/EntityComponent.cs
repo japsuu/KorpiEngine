@@ -12,7 +12,7 @@ public abstract class EntityComponent
     /// <summary>
     /// The unique identifier of this component.
     /// </summary>
-    public readonly ulong InstanceID = ComponentID.Generate();
+    public readonly int InstanceID = ComponentID.Generate();
 
     public Entity Entity { get; private set; } = null!;
     public Transform Transform => Entity.Transform;
