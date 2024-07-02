@@ -2,7 +2,7 @@
 
 Properties
 {
-	_Texture0("Texture 0", TEXTURE_2D)
+	_Texture0("texture", TEXTURE_2D)
 }
 
 Pass 0
@@ -33,7 +33,7 @@ Pass 0
 		
 		void main()
 		{
-		    finalColor = vec4(texture(texture0, TexCoords).xyz, 1.0);
+		    finalColor = vec4(texture(_Texture0, TexCoords).xyz, 1.0);
 		}
 	}
 }

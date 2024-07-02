@@ -74,7 +74,7 @@ Pass 0
 			float NdotUp = max(0.0, dot(gNormal, upVector));
 
 			// Interpolate between _SkyColor and GroundColor based on NdotUp
-			vec3 ambientColor = mix(GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
+			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
 
 			gBuffer_lighting = vec4(gAlbedo * ambientColor, 1.0);
 		}

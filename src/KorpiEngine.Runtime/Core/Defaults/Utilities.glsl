@@ -11,7 +11,7 @@ vec3 getScreenPos(vec2 tc, sampler2D depthSampler) {
 }
 // ----------------------------------------------------------------------------
 vec3 getScreenFromViewPos(vec3 viewPos) {
-	vec3 p = projectAndDivide(matProjection, viewPos);
+	vec3 p = projectAndDivide(_MatProjection, viewPos);
 	return p * 0.5 + 0.5;
 }
 // ----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ vec3 getNDCFromScreenPos(vec3 screenPos) {
 }
 // ----------------------------------------------------------------------------
 vec3 getViewFromScreenPos(vec3 screenPos) {
-	return projectAndDivide(matProjectionInverse, getNDCFromScreenPos(screenPos));
+	return projectAndDivide(_MatProjectionInverse, getNDCFromScreenPos(screenPos));
 }
 // ----------------------------------------------------------------------------
 vec3 getViewPos(vec2 tc, sampler2D depthSampler) {
