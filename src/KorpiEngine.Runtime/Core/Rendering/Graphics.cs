@@ -23,13 +23,17 @@ public static class Graphics
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
     
-    public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewProjectionMatrix { get; private set; } = Matrix4x4.Identity;
+    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 ViewProjectionMatrix = Matrix4x4.Identity;
     
     public static Matrix4x4 DepthProjectionMatrix;
     public static Matrix4x4 DepthViewMatrix;
 
+    public static bool UseJitter;
+    public static Vector2 Jitter { get; set; }
+    public static Vector2 PreviousJitter { get; set; }
+    
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
     {
@@ -130,6 +134,18 @@ public static class Graphics
 
         // Upload the default uniforms available to all shaders.
         // The shader can choose to use them or not, as they are buffered only if the location is available.
+        
+        if (UseJitter)
+        {
+            material.SetVector("Jitter", Jitter);
+            material.SetVector("PreviousJitter", PreviousJitter);
+        }
+        else
+        {
+            material.SetVector("Jitter", Vector2.Zero);
+            material.SetVector("PreviousJitter", Vector2.Zero);
+        }
+        
         material.SetVector("u_Resolution", Resolution);
         material.SetFloat("u_Time", (float)Time.TotalTime);
         material.SetInt("u_Frame", Time.TotalFrameCount);

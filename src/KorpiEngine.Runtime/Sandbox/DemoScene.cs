@@ -45,7 +45,7 @@ internal class DemoScene : Scene
         quadEntity.AddComponent<DemoMoveRotate>();
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
-        Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material!;
+        Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
         material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
         material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
     }

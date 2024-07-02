@@ -143,7 +143,7 @@ public sealed class CameraComponent : EntityComponent
                 throw new ArgumentOutOfRangeException();
         }
         
-        // Graphics.UseJitter = false;
+        Graphics.UseJitter = false;
         Graphics.SetRenderingCamera(null);
     }
     
@@ -196,7 +196,7 @@ public sealed class CameraComponent : EntityComponent
 
     private void EarlyEndRender()
     {
-        // Graphics.UseJitter = false;
+        Graphics.UseJitter = false;
         
         // Clear the screen
         if (ClearType == CameraClearType.SolidColor)

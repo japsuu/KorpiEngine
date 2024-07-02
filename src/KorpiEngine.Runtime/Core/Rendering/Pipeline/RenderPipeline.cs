@@ -12,14 +12,14 @@ public class RenderPipeline
     public RenderPipeline()
     {
         // Create nodes, setup connections, and add to list.
-        var pbrDeferredNode = new PBRDeferredNode();
-        var postPbrDeferredNode = new PostPBRDeferredNode();
-        var proceduralSkyboxNode = new ProceduralSkyboxNode();
+        PBRDeferredNode pbrDeferredNode = new();
+        PostPBRDeferredNode postPbrDeferredNode = new();
+        ProceduralSkyboxNode proceduralSkyboxNode = new();
         //var screenSpaceReflectionNode = new ScreenSpaceReflectionNode();
-        var depthOfFieldNode = new DepthOfFieldNode();
-        var bloomNode = new BloomNode();
-        var toneMappingNode = new TonemappingNode();
-        var taaNode = new TAANode();
+        DepthOfFieldNode depthOfFieldNode = new();
+        BloomNode bloomNode = new();
+        TonemappingNode toneMappingNode = new();
+        TAANode taaNode = new();
         
         pbrDeferredNode.SetChild(postPbrDeferredNode);
         postPbrDeferredNode.SetChild(proceduralSkyboxNode);
