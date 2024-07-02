@@ -1,5 +1,12 @@
 ﻿Shader "Default/Tonemapper"
 
+Properties
+{
+	_Contrast("contrast", FLOAT)
+	_Saturation("saturation", FLOAT)
+	_GAlbedo("g albedo", TEXTURE_2D)
+}
+
 Pass 0
 {
 	DepthTest Off
@@ -29,10 +36,10 @@ Pass 0
 	Fragment
 	{
 		in vec2 TexCoords;
-		uniform float Contrast;
-		uniform float Saturation;
+		uniform float _Contrast;
+		uniform float _Saturation;
 
-		uniform sampler2D gAlbedo;
+		uniform sampler2D _GAlbedo;
 		
 		layout(location = 0) out vec4 OutputColor;
 		
@@ -173,10 +180,10 @@ Pass 0
 
 		mat4 contrastMatrix()
 		{
-			float t = (1.0 - Contrast) / 2.0;
-		    return mat4(Contrast, 0, 0, 0,
-		                0, Contrast, 0, 0,
-		                0, 0, Contrast, 0,
+			float t = (1.0 - _Contrast) / 2.0;
+		    return mat4(_Contrast, 0, 0, 0,
+		                0, _Contrast, 0, 0,
+		                0, 0, _Contrast, 0,
 		                t, t, t, 1);
 		}
 		
@@ -184,16 +191,16 @@ Pass 0
 		{
 		    vec3 luminance = vec3(0.3086, 0.6094, 0.0820);
 		    
-		    float oneMinusSat = 1.0 - Saturation;
+		    float oneMinusSat = 1.0 - _Saturation;
 		    
 		    vec3 red = vec3(luminance.x * oneMinusSat);
-		    red+= vec3(Saturation, 0, 0);
+		    red+= vec3(_Saturation, 0, 0);
 		    
 		    vec3 green = vec3(luminance.y * oneMinusSat);
-		    green += vec3(0, Saturation, 0);
+		    green += vec3(0, _Saturation, 0);
 		    
 		    vec3 blue = vec3(luminance.z * oneMinusSat);
-		    blue += vec3(0, 0, Saturation);
+		    blue += vec3(0, 0, _Saturation);
 		    
 		    return mat4(red,     0,
 		                green,   0,
@@ -203,7 +210,7 @@ Pass 0
 
 		void main()
 		{
-			vec3 color = texture(gAlbedo, TexCoords).rgb;
+			vec3 color = texture(_GAlbedo, TexCoords).rgb;
 		
 			color = Tonemap(color);
 			

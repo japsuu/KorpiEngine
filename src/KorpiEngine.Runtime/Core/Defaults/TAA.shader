@@ -1,5 +1,20 @@
 ﻿Shader "Default/TAA"
 
+Properties
+{
+	_Resolution("resolution", FLOAT2)
+	_GColor("g color", TEXTURE_2D)
+	_GHistory("g history", TEXTURE_2D)
+	_GPositionRoughness("g position roughness", TEXTURE_2D)
+	_GVelocity("g velocity", TEXTURE_2D)
+	_GDepth("g depth", TEXTURE_2D)
+	_MatProjection("projection matrix", MATRIX_4X4)
+	_MatProjectionInverse("inverse projection matrix", MATRIX_4X4)
+	_ClampRadius("clamp radius", INT)
+	_Jitter("jitter", FLOAT2)
+	_PreviousJitter("previous jitter", FLOAT2)
+}
+
 Pass 0
 {
 	DepthTest Off
@@ -21,20 +36,20 @@ Pass 0
 	{
 		layout(location = 0) out vec4 OutputColor;
 		
-		uniform vec2 Resolution;
+		uniform vec2 _Resolution;
 
-		uniform sampler2D gColor;
-		uniform sampler2D gHistory;
-		uniform sampler2D gPositionRoughness;
-		uniform sampler2D gVelocity;
-		uniform sampler2D gDepth;
+		uniform sampler2D _GColor;
+		uniform sampler2D _GHistory;
+		uniform sampler2D _GPositionRoughness;
+		uniform sampler2D _GVelocity;
+		uniform sampler2D _GDepth;
 		
-		uniform mat4 matProjection;
-		uniform mat4 matProjectionInverse;
+		uniform mat4 _MatProjection;
+		uniform mat4 _MatProjectionInverse;
 
-		uniform int ClampRadius;
-		uniform vec2 Jitter;
-		uniform vec2 PreviousJitter;
+		uniform int _ClampRadius;
+		uniform vec2 _Jitter;
+		uniform vec2 _PreviousJitter;
 
 		#include "Utilities"
 
@@ -157,9 +172,9 @@ Pass 0
 		vec2 GetVelocity(ivec2 pixelPos) {
 			float closestDepth = 100.0;
 			ivec2 closestUVOffset;
-			for(int j = -ClampRadius; j <= ClampRadius; ++j) {
-			    for(int i = -ClampRadius; i <= ClampRadius; ++i) {
-			         float neighborDepth = texelFetch(gDepth, pixelPos + ivec2(i, j), 0).x;
+			for(int j = -_ClampRadius; j <= _ClampRadius; ++j) {
+			    for(int i = -_ClampRadius; i <= _ClampRadius; ++i) {
+			         float neighborDepth = texelFetch(_GDepth, pixelPos + ivec2(i, j), 0).x;
 			         if(neighborDepth < closestDepth)
 			         {
 			             closestUVOffset = ivec2(i, j);
@@ -167,7 +182,7 @@ Pass 0
 			         }
 			    }
 			}
-			return texelFetch(gVelocity, pixelPos + closestUVOffset, 0).xy;
+			return texelFetch(_GVelocity, pixelPos + closestUVOffset, 0).xy;
 		}
 
 		// Source Unknown, Was passed around amongst some friends, apperantly its a better color clamp
@@ -183,31 +198,31 @@ Pass 0
 
 		void main()
 		{
-			vec2 TexCoords = gl_FragCoord.xy / Resolution.xy;
+			vec2 TexCoords = gl_FragCoord.xy / _Resolution.xy;
 
-			vec2 pixel_size = vec2(1.0) / Resolution;
+			vec2 pixel_size = vec2(1.0) / _Resolution;
 			ivec2 pixelPos = ivec2(gl_FragCoord.xy);
 			
-			vec3 curr = AdjustHDRColor(texelFetch(gColor, pixelPos, 0).xyz);
+			vec3 curr = AdjustHDRColor(texelFetch(_GColor, pixelPos, 0).xyz);
 			vec3 nmin = curr;
 			vec3 nmax = curr;   
-			for (int x=-ClampRadius; x<= ClampRadius; x++) {
-				for (int y=-ClampRadius; y<= ClampRadius; y++) {
+			for (int x=-_ClampRadius; x<= _ClampRadius; x++) {
+				for (int y=-_ClampRadius; y<= _ClampRadius; y++) {
 					if(x == 0 && y == 0) continue;
-					vec3 neighbor = AdjustHDRColor(texelFetch(gColor, pixelPos + ivec2(x, y), 0).xyz);
+					vec3 neighbor = AdjustHDRColor(texelFetch(_GColor, pixelPos + ivec2(x, y), 0).xyz);
 					nmin = min(nmin, neighbor);
 					nmax = max(nmax, neighbor);
 				}
 			}
 			
-			//vec2 velocity = texelFetch(gVelocity, pixelPos, 0).xy;
+			//vec2 velocity = texelFetch(_GVelocity, pixelPos, 0).xy;
 			// Inflate Velocity Edge
 			vec2 velocity = GetVelocity(pixelPos);
 
 			vec2 histUv = TexCoords + velocity;
 			
 			// sample from history buffer, with neighbourhood clamping.  
-			vec3 histSample = AdjustHDRColor(SampleTextureCatmullRom(gHistory, histUv, Resolution).xyz);
+			vec3 histSample = AdjustHDRColor(SampleTextureCatmullRom(_GHistory, histUv, _Resolution).xyz);
 			//histSample = clamp(histSample, nmin, nmax);
 			histSample = NeighborClip(histSample, nmin, nmax); // I think this method is better?
 			

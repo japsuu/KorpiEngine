@@ -1,5 +1,15 @@
 ﻿Shader "Default/ProceduralSkybox"
 
+Properties
+{
+	_MatMVPInverse("inverse mvp matrix", MATRIX_4X4)
+	_Resolution("resolution", FLOAT2)
+	_SunPos("sun position", FLOAT3)
+	_FogDensity("fog density", FLOAT)
+	_GColor("g color", TEXTURE_2D)
+	_GPositionRoughness("g position & roughness", TEXTURE_2D)
+}
+
 Pass 0
 {
 	DepthTest Off
@@ -20,13 +30,13 @@ Pass 0
 		out vec2 TexCoords;
         out vec3 vPosition;
 
-		uniform mat4 mvpInverse;
+		uniform mat4 _MatMVPInverse;
 
 		void main() 
 		{
 			gl_Position =vec4(vertexPosition, 1.0);
             // vertexPosition is in screen space, convert it into world space
-            vPosition = (mvpInverse * vec4(vertexPosition, 1.0)).xyz;
+            vPosition = (_MatMVPInverse * vec4(vertexPosition, 1.0)).xyz;
 			TexCoords = vertexTexCoord;
 		}
 	}
@@ -38,12 +48,12 @@ Pass 0
         in vec3 vPosition;
 		in vec2 TexCoords;
 
-		uniform vec2 Resolution;
-		uniform vec3 uSunPos;
-		uniform float fogDensity;
+		uniform vec2 _Resolution;
+		uniform vec3 _SunPos;
+		uniform float _FogDensity;
 		
-		uniform sampler2D gColor; // Pos
-		uniform sampler2D gPositionRoughness; // Pos
+		uniform sampler2D _GColor; // Pos
+		uniform sampler2D _GPositionRoughness; // Pos
 
 		#define PI 3.141592
         #define iSteps 16
@@ -235,14 +245,14 @@ Pass 0
 
 		void main()
 		{
-            vec3 gPos = textureLod(gPositionRoughness, TexCoords, 0).rgb;
+            vec3 gPos = textureLod(_GPositionRoughness, TexCoords, 0).rgb;
 			if(gPos != vec3(0, 0, 0))
             {
                 // Fog
                 vec3 color = atmosphereNoMie(
                     normalize(vPosition),           // normalized ray direction
                     vec3(0,6372e3,0),               // ray origin
-                    uSunPos,                        // position of the sun
+                    _SunPos,                        // position of the sun
                     22.0,                           // intensity of the sun
                     6371e3,                         // radius of the planet in meters
                     6471e3,                         // radius of the atmosphere in meters
@@ -252,11 +262,11 @@ Pass 0
                 
                 color = 1.0 - exp(-1.0 * color);
                 
-			    float fogDist = fogDensity / 1000.0;
+			    float fogDist = _FogDensity / 1000.0;
 			    float nearest = length(gPos);
 			    float fogStrength = 1.0 - clamp(exp(-nearest * nearest * fogDist), 0.0, 1.0);
 
-			    OutputColor = vec4(mix(texture(gColor, TexCoords).rgb, color, fogStrength), 1.0);
+			    OutputColor = vec4(mix(texture(_GColor, TexCoords).rgb, color, fogStrength), 1.0);
                 return;
             }
             else
@@ -265,7 +275,7 @@ Pass 0
                 vec3 color = atmosphere(
                     normalize(vPosition),           // normalized ray direction
                     vec3(0,6372e3,0),               // ray origin
-                    uSunPos,                        // position of the sun
+                    _SunPos,                        // position of the sun
                     22.0,                           // intensity of the sun
                     6371e3,                         // radius of the planet in meters
                     6471e3,                         // radius of the atmosphere in meters
@@ -276,7 +286,7 @@ Pass 0
                     0.758                           // Mie preferred scattering direction
                 );
                 
-	            color.rgb += step(0.9985, dot(normalize(vPosition), normalize(uSunPos))); // Sun
+	            color.rgb += step(0.9985, dot(normalize(vPosition), normalize(_SunPos))); // Sun
 
                 // Apply exposure.
                 color = 1.0 - exp(-1.0 * color);

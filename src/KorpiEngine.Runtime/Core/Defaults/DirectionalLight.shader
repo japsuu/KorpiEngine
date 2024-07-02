@@ -1,5 +1,28 @@
 ﻿Shader "Default/DictionalLight"
 
+Properties
+{
+	_MatProjection("projection matrix", MATRIX_4X4)
+	_MatMVPInverse("inverse mvp matrix", MATRIX_4X4)
+	_LightDirection("light direction", FLOAT3)
+	_LightColor("light color", FLOAT4)
+	_LightIntensity("light intensity", FLOAT)
+	_GAlbedoAO("g albedo & roughness", TEXTURE_2D)
+	_GNormalMetallic("g normal & metallness", TEXTURE_2D)
+	_GPositionRoughness("g depth", TEXTURE_2D)
+	_ShadowMap("shadowmap", TEXTURE_2D)
+	_MatCamViewInverse("camera inverse view matrix", MATRIX_4X4)
+	_MatShadowView("shadow view matrix", MATRIX_4X4)
+	_MatShadowSpace("shadow space matrix", MATRIX_4X4)
+	_Bias("bias", FLOAT)
+	_NormalBias("normal bias", FLOAT)
+	_Radius("radius", FLOAT)
+	_Penumbra("penumbra", FLOAT)
+	_MinimumPenumbra("minimum penumbra", FLOAT)
+	_QualitySamples("quality samples", INT)
+	_BlockerSamples("blocker samples", INT)
+}
+
 Pass 0
 {
 	DepthTest Off
@@ -30,31 +53,31 @@ Pass 0
 	{
 		layout(location = 0) out vec4 gBuffer_lighting;
 		
-		uniform mat4 matProjection;
-		uniform mat4 mvpInverse;
+		uniform mat4 _MatProjection;
+		uniform mat4 _MatMVPInverse;
 		
 		in vec2 TexCoords;
 		
-		uniform vec3 LightDirection;
-		uniform vec4 LightColor;
-		uniform float LightIntensity;
+		uniform vec3 _LightDirection;
+		uniform vec4 _LightColor;
+		uniform float _LightIntensity;
 		
-		uniform sampler2D gAlbedoAO; // Albedo & Roughness
-		uniform sampler2D gNormalMetallic; // Normal & Metalness
-		uniform sampler2D gPositionRoughness; // Depth
+		uniform sampler2D _GAlbedoAO; // Albedo & Roughness
+		uniform sampler2D _GNormalMetallic; // Normal & Metalness
+		uniform sampler2D _GPositionRoughness; // Depth
 
-		uniform sampler2D shadowMap; // Shadowmap
-		uniform mat4 matCamViewInverse;
-		uniform mat4 matShadowView;
-		uniform mat4 matShadowSpace;
+		uniform sampler2D _ShadowMap; // Shadowmap
+		uniform mat4 _MatCamViewInverse;
+		uniform mat4 _MatShadowView;
+		uniform mat4 _MatShadowSpace;
 		
-		uniform float u_Bias;
-		uniform float u_NormalBias;
-		uniform float u_Radius;
-		uniform float u_Penumbra;
-		uniform float u_MinimumPenumbra;
-		uniform int u_QualitySamples;
-		uniform int u_BlockerSamples;
+		uniform float _Bias;
+		uniform float _NormalBias;
+		uniform float _Radius;
+		uniform float _Penumbra;
+		uniform float _MinimumPenumbra;
+		uniform int _QualitySamples;
+		uniform int _BlockerSamples;
 		
 		#include "PBR"
 
@@ -86,7 +109,7 @@ Pass 0
 		{
 			float penumbra = (z_shadowMapView - avgBlockersDepth) / avgBlockersDepth;
 			penumbra *= penumbra;
-			return clamp(u_Penumbra * penumbra, u_MinimumPenumbra, 1.0);
+			return clamp(_Penumbra * penumbra, _MinimumPenumbra, 1.0);
 		}
 
 		float Penumbra(float gradientNoise, vec2 shadowMapUV, float z_shadowMapView, int samplesCount)
@@ -97,9 +120,9 @@ Pass 0
 		    for (int i = 0; i < samplesCount; i++)
 		    {
 		        vec2 sampleUV = VogelDiskSample(i, samplesCount, gradientNoise);
-		        sampleUV = shadowMapUV + vec2(u_Radius, u_Radius) * sampleUV;
+		        sampleUV = shadowMapUV + vec2(_Radius, _Radius) * sampleUV;
 		
-		        float sampleDepth = texture(shadowMap, sampleUV).x;
+		        float sampleDepth = texture(_ShadowMap, sampleUV).x;
 		
 		        if (sampleDepth < z_shadowMapView)
 		        {
@@ -123,15 +146,15 @@ Pass 0
 		{
 		    float sum = 0.0;
 			float gradient = InterleavedGradientNoise(gl_FragCoord.xy);
-			float penumbra = Penumbra(gradient, uv, z0, u_BlockerSamples);
-		    for (int i = 0; i < u_QualitySamples; ++i)
+			float penumbra = Penumbra(gradient, uv, z0, _BlockerSamples);
+		    for (int i = 0; i < _QualitySamples; ++i)
 		    {
-				vec2 sampleUV = VogelDiskSample(i, u_QualitySamples, gradient);
-		        float shadow_map_depth = texture(shadowMap, uv + sampleUV * penumbra * vec2(u_Radius, u_Radius)).r;
+				vec2 sampleUV = VogelDiskSample(i, _QualitySamples, gradient);
+		        float shadow_map_depth = texture(_ShadowMap, uv + sampleUV * penumbra * vec2(_Radius, _Radius)).r;
 		        sum += shadow_map_depth < (z0 - bias) ? 0.0 : 1.0;
 		    }
 		
-			return clamp(sum / float(u_QualitySamples), 0.0, 1.0);
+			return clamp(sum / float(_QualitySamples), 0.0, 1.0);
 		}
 
 		
@@ -144,32 +167,32 @@ Pass 0
 		    //float constantBias = 0.00001;
 		    //float bias = (1 - dot(normal, lightDir)) * constantBias;
 
-			float bias = u_Bias*tan(acos(max(dot(normal, lightDir), 0.0))); // cosTheta is dot( n,l ), clamped between 0 and 1
+			float bias = _Bias*tan(acos(max(dot(normal, lightDir), 0.0))); // cosTheta is dot( n,l ), clamped between 0 and 1
 			bias = clamp(bias, 0.0,0.01);
 
-			vec4 fragPosLightSpace = matShadowSpace * vec4(p, 1.0);
+			vec4 fragPosLightSpace = _MatShadowSpace * vec4(p, 1.0);
 		    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 		    projCoords = projCoords * 0.5 + 0.5;
 
 			if (projCoords.x > 1.0 || projCoords.y > 1.0 || projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.y < 0.0 || projCoords.z < 0.0)
 			    return 0.0;
 
-			vec4 pos_vs = matShadowView * vec4(p, 1.0);
+			vec4 pos_vs = _MatShadowView * vec4(p, 1.0);
 			pos_vs.xyz /= pos_vs.w;
 			
-			return 1.0 - pcf_poisson_filter(projCoords.xy, projCoords.z, bias, (1.0 / textureSize(shadowMap, 0)).x * 6.0);
+			return 1.0 - pcf_poisson_filter(projCoords.xy, projCoords.z, bias, (1.0 / textureSize(_ShadowMap, 0)).x * 6.0);
 		} 
 		// ----------------------------------------------------------------------------
 
 
 		void main()
 		{
-			vec4 gPosRough = textureLod(gPositionRoughness, TexCoords, 0);
+			vec4 gPosRough = textureLod(_GPositionRoughness, TexCoords, 0);
 			vec3 gPos = gPosRough.rgb;
 			if(gPos == vec3(0, 0, 0)) discard;
 		
-			vec3 gAlbedo = textureLod(gAlbedoAO, TexCoords, 0).rgb;
-			vec4 gNormalMetal = textureLod(gNormalMetallic, TexCoords, 0);
+			vec3 gAlbedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
+			vec4 gNormalMetal = textureLod(_GNormalMetallic, TexCoords, 0);
 			vec3 gNormal = gNormalMetal.rgb;
 			float gMetallic = gNormalMetal.a;
 			float gRoughness = gPosRough.a;
@@ -182,10 +205,10 @@ Pass 0
 			vec3 V = normalize(-gPos);
 
 			
-			vec3 L = normalize(-LightDirection);
+			vec3 L = normalize(-_LightDirection);
 			vec3 H = normalize(V + L);
 
-			vec3 radiance = LightColor.rgb * LightIntensity;    
+			vec3 radiance = _LightColor.rgb * _LightIntensity;    
 			
 			// cook-torrance brdf
 			float NDF = DistributionGGX(N, H, gRoughness);        
@@ -201,7 +224,7 @@ Pass 0
 			kD *= 1.0 - gMetallic;     
 
 			// shadows
-			vec4 fragPosLightSpace = matCamViewInverse * vec4(gPos + (N * u_NormalBias), 1);
+			vec4 fragPosLightSpace = _MatCamViewInverse * vec4(gPos + (N * _NormalBias), 1);
 			float shadow = ShadowCalculation(fragPosLightSpace.xyz, gPos, N, L);
 			    
 			// add to outgoing radiance Lo
@@ -211,7 +234,7 @@ Pass 0
 
 			gBuffer_lighting = vec4(color, 1.0);
 
-			//vec4 depth = matProjection * vec4(gPos, 1.0);
+			//vec4 depth = _MatProjection * vec4(gPos, 1.0);
 			//gl_FragDepth = depth.z / depth.w;
 		}
 

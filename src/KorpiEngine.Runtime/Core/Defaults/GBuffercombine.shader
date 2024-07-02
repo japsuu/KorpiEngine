@@ -1,5 +1,11 @@
 ﻿Shader "Default/GBuffer"
 
+Properties
+{
+	_GAlbedoAO("g diffuse", TEXTURE_2D)
+	_GLighting("g lighting", TEXTURE_2D)
+}
+
 Pass 0
 {
 	DepthTest Off
@@ -30,16 +36,16 @@ Pass 0
 	{
 		in vec2 TexCoords;
 
-		uniform sampler2D gAlbedoAO; // Diffuse
-		uniform sampler2D gLighting; // Lighting
+		uniform sampler2D _GAlbedoAO; // Diffuse
+		uniform sampler2D _GLighting; // Lighting
 		
 		layout(location = 0) out vec4 OutputColor;
 		
 		void main()
 		{
-			vec4 albedoAO = texture(gAlbedoAO, TexCoords);
+			vec4 albedoAO = texture(_GAlbedoAO, TexCoords);
 			vec3 diffuseColor = albedoAO.rgb * 0.01;
-			vec3 lightingColor = texture(gLighting, TexCoords).rgb;
+			vec3 lightingColor = texture(_GLighting, TexCoords).rgb;
 			// Apply AO onto the lightingColor
 			// AO comes in as 0-1, 0 being no AO, 1 being full AO
 			lightingColor *= (1.0 - albedoAO.w);
