@@ -118,7 +118,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
     private static Mesh? fullScreenQuadCached;
-    private Topology _topology = Topology.TriangleStrip;
+    private Topology _topology = Topology.Triangles;
     private IndexFormat _indexFormat = IndexFormat.UInt16;
     private bool _isReadable = true;
     private bool _isDirty = true;
@@ -805,13 +805,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         positions[2] = new System.Numerics.Vector3(-1, 1, 0);
         positions[3] = new System.Numerics.Vector3(1, 1, 0);
 
-        int[] indices = new int[6];
-        indices[0] = 0;
-        indices[1] = 2;
-        indices[2] = 1;
-        indices[3] = 2;
-        indices[4] = 3;
-        indices[5] = 1;
+        int[] indices = [0, 2, 1, 2, 3, 1];
 
         System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[4];
         uvs[0] = new System.Numerics.Vector2(0, 0);

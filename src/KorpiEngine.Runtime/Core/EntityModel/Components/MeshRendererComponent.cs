@@ -10,6 +10,8 @@ namespace KorpiEngine.Core.EntityModel.Components;
 
 public class MeshRendererComponent : EntityComponent
 {
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.Opaque;
+
     public ResourceRef<Mesh> Mesh;
     public ResourceRef<Material> Material;
     public Color MainColor = Color.White;
