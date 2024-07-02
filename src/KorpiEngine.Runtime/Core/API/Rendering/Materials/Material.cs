@@ -132,6 +132,7 @@ public sealed class Material : Resource
 
     private Shader.CompiledShader GetCompiledVariant()
     {
+        //return GetVariantExperimental(_materialKeywords.ToArray());
         if (Shader.IsAvailable == false)
             throw new Exception("Cannot compile without a valid shader assigned");
         
@@ -175,6 +176,32 @@ public sealed class Material : Resource
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
     }
+    
+    /*Shader.CompiledShader GetVariantExperimental(string[] allKeywords)
+    {
+        if (Shader.IsAvailable == false) throw new Exception("Cannot compile without a valid shader assigned");
+
+        string keywords = string.Join("-", allKeywords);
+        string key = Shader.Res.InstanceID + "-" + keywords + "-" + Shaders.Shader.GetGlobalKeywords();
+        if (PassVariants.TryGetValue(key, out var s)) return s;
+
+        // Add each global togather making sure to not add duplicates
+        string[] globals = Shaders.Shader.GetGlobalKeywords().ToArray();
+        for (int i = 0; i < globals.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(globals[i])) continue;
+            if (allKeywords.Contains(globals[i], StringComparer.OrdinalIgnoreCase)) continue;
+            allKeywords = allKeywords.Append(globals[i]).ToArray();
+        }
+        // Remove empty keywords
+        allKeywords = allKeywords.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+        // Compile Each Pass
+        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords);
+
+        PassVariants[key] = compiledPasses;
+        return compiledPasses;
+    }*/
 
     #endregion
 
