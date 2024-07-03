@@ -13,7 +13,7 @@ namespace KorpiEngine.Core.Rendering;
 public sealed class RenderTexture : Resource
 {
     private const int MAX_UNUSED_FRAMES = 10;
-    private static readonly Dictionary<RenderTextureKey, List<(RenderTexture, long frameCreated)>> Pool = [];
+    private static readonly Dictionary<RenderTextureKey, List<(RenderTexture, int frameCreated)>> Pool = [];
     private static readonly List<RenderTexture> DisposableTextures = [];
     
     internal GraphicsFrameBuffer? FrameBuffer { get; private init; }
@@ -149,7 +149,7 @@ public sealed class RenderTexture : Resource
     {
         RenderTextureKey key = new(width, height, format);
 
-        if (!Pool.TryGetValue(key, out List<(RenderTexture, long frameCreated)>? list) || list.Count <= 0)
+        if (!Pool.TryGetValue(key, out List<(RenderTexture, int frameCreated)>? list) || list.Count <= 0)
             return new RenderTexture(width, height, 1, false, format);
 
         int i = list.Count - 1;
@@ -164,7 +164,7 @@ public sealed class RenderTexture : Resource
         Debug.Assert(renderTexture.InternalTextures != null, "renderTexture.InternalTextures != null");
         RenderTextureKey key = new(renderTexture.Width, renderTexture.Height, renderTexture.InternalTextures.Select(t => t.ImageFormat).ToArray());
 
-        if (!Pool.TryGetValue(key, out List<(RenderTexture, long frameCreated)>? list))
+        if (!Pool.TryGetValue(key, out List<(RenderTexture, int frameCreated)>? list))
         {
             list = [];
             Pool[key] = list;
@@ -178,11 +178,11 @@ public sealed class RenderTexture : Resource
     {
         DisposableTextures.Clear();
         
-        foreach (KeyValuePair<RenderTextureKey, List<(RenderTexture, long frameCreated)>> pair in Pool)
+        foreach (KeyValuePair<RenderTextureKey, List<(RenderTexture, int frameCreated)>> pair in Pool)
         {
             for (int i = pair.Value.Count - 1; i >= 0; i--)
             {
-                (RenderTexture renderTexture, long frameCreated) = pair.Value[i];
+                (RenderTexture renderTexture, int frameCreated) = pair.Value[i];
 
                 if (Time.TotalFrameCount - frameCreated <= MAX_UNUSED_FRAMES)
                     continue;
