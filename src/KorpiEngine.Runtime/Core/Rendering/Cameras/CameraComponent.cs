@@ -195,7 +195,7 @@ public sealed class CameraComponent : EntityComponent
     
     private void CheckGBuffer()
     {
-        RenderResolution = Math.Clamp(RenderResolution, 0.1f, 4.0f);
+        // RenderResolution = Math.Clamp(RenderResolution, 0.1f, 4.0f);
 
         Vector2 renderSize = GetRenderTargetSize() * RenderResolution;
         
