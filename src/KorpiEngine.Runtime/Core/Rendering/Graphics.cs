@@ -57,7 +57,7 @@ public static class Graphics
     }
     
 
-    internal static void Clear(float r = 1, float g = 0, float b = 1, float a = 1, bool color = true, bool depth = true, bool stencil = true)
+    internal static void Clear(float r = 0, float g = 0, float b = 0, float a = 1, bool color = true, bool depth = true, bool stencil = true)
     {
         ClearFlags flags = 0;
         if (color) flags |= ClearFlags.Color;
@@ -89,32 +89,6 @@ public static class Graphics
     {
         
     }
-    
-    
-    /*internal static Matrix4x4 GetCamRelativeTransform(Transform transform)
-    {
-        Matrix4x4 camRelative = transform.LocalToWorldMatrix;
-        camRelative.Translation -= RenderingCamera!.Transform.Position;
-        return camRelative;
-    }
-
-
-    /// <summary>
-    /// Draws a mesh with a specified material and transform.
-    /// </summary>
-    /// <param name="mesh">The mesh to draw.</param>
-    /// <param name="transform">The transform to use for rendering.</param>
-    /// <param name="material">The material to use for rendering.</param>
-    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
-    public static void DrawMeshNow(Mesh mesh, Transform transform, Material material)
-    {
-        if (RenderingCamera == null)
-            throw new Exception("DrawMeshNow must be called during a rendering context!");
-
-        Matrix4x4 camRelative = transform.Entity.GlobalCameraRelativeTransform;
-        
-        DrawMeshNow(mesh, camRelative, material);
-    }*/
 
 
     /// <summary>
@@ -196,7 +170,7 @@ public static class Graphics
         unsafe
         {
             Driver.BindVertexArray(mesh.VertexArrayObject);
-            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, (void*)0);
+            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
             Driver.BindVertexArray(null);
         }
     }
