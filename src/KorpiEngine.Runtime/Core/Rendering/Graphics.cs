@@ -75,7 +75,8 @@ public static class Graphics
     {
         RenderTexture.UpdatePool();
         
-        // Render system handles clearing the screen if necessary
+        Clear();
+        UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Driver.SetState(new RasterizerState(), true);
     }
