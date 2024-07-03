@@ -115,34 +115,34 @@ public static class Graphics
         
         if (UseJitter)
         {
-            material.SetVector("_Jitter", Jitter);
-            material.SetVector("_PreviousJitter", PreviousJitter);
+            material.SetVector("_Jitter", Jitter, true);
+            material.SetVector("_PreviousJitter", PreviousJitter, true);
         }
         else
         {
-            material.SetVector("_Jitter", Vector2.Zero);
-            material.SetVector("_PreviousJitter", Vector2.Zero);
+            material.SetVector("_Jitter", Vector2.Zero, true);
+            material.SetVector("_PreviousJitter", Vector2.Zero, true);
         }
         
-        material.SetVector("_Resolution", Resolution);
-        material.SetFloat("_Time", (float)Time.TotalTime);
-        material.SetInt("_Frame", Time.TotalFrameCount);
+        material.SetVector("_Resolution", Resolution, true);
+        material.SetFloat("_Time", (float)Time.TotalTime, true);
+        material.SetInt("_Frame", Time.TotalFrameCount, true);
         
         // Camera data
-        material.SetVector("_Camera_WorldPosition", CameraComponent.RenderingCamera.Transform.Position);
-        material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward);
+        material.SetVector("_Camera_WorldPosition", CameraComponent.RenderingCamera.Transform.Position, true);
+        material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward, true);
         
         // Matrices
         Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
         Matrix4x4 oldMatMVP = Matrix4x4.Identity * oldCamRelativeTransform.Value * OldViewMatrix * OldProjectionMatrix;
         Matrix4x4.Invert(matMVP, out Matrix4x4 matMVPInverse);
-        material.SetMatrix("_MatMVP", matMVP);
-        material.SetMatrix("_MatMVPOld", oldMatMVP);
-        material.SetMatrix("_MatMVPInverse", matMVPInverse);
-        material.SetMatrix("_MatModel", camRelativeTransform);
-        material.SetMatrix("_MatView", ViewMatrix);
-        material.SetMatrix("_MatProjection", ProjectionMatrix);
-        material.SetMatrix("_MatProjectionInverse", InverseProjectionMatrix);
+        material.SetMatrix("_MatMVP", matMVP, true);
+        material.SetMatrix("_MatMVPOld", oldMatMVP, true);
+        material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
+        material.SetMatrix("_MatModel", camRelativeTransform, true);
+        material.SetMatrix("_MatView", ViewMatrix, true);
+        material.SetMatrix("_MatProjection", ProjectionMatrix, true);
+        material.SetMatrix("_MatProjectionInverse", InverseProjectionMatrix, true);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
         material.SetKeyword("HAS_UV", mesh.HasUV0);
