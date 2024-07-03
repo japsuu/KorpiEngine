@@ -33,7 +33,7 @@ public class GBuffer
             TextureImageFormat.RGBA_16_S,   // Position & Roughness
             TextureImageFormat.RGB_16_S,    // Emission
             TextureImageFormat.RG_16_S,     // Velocity
-            TextureImageFormat.R_16_S       // ObjectIDs
+            TextureImageFormat.R_32_F       // ObjectIDs
         ];
         Buffer = new RenderTexture(width, height, 6, true, formats);
     }
