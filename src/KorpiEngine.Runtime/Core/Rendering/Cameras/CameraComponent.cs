@@ -23,6 +23,7 @@ public sealed class CameraComponent : EntityComponent
     internal static CameraComponent RenderingCamera { get; private set; } = null!;
     
     public event Action<int, int>? Resized;
+    public event Action<int, int>? PostRendered;
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
@@ -62,6 +63,7 @@ public sealed class CameraComponent : EntityComponent
     /// The field of view (FOV degrees, the vertical angle of the camera view).
     /// </summary>
     public float FOVDegrees = 60;
+    public float OrthographicSize = 0.5f;
     
     public float NearClipPlane = 0.01f;
     public float FarClipPlane = 1000f;
@@ -76,10 +78,9 @@ public sealed class CameraComponent : EntityComponent
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>
-    public Matrix4x4 ProjectionMatrix => ProjectionType == CameraProjectionType.Orthographic
-        ? System.Numerics.Matrix4x4.CreateOrthographicLeftHanded(WindowInfo.ClientWidth, WindowInfo.ClientHeight, NearClipPlane, FarClipPlane).ToDouble()
-        : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), WindowInfo.ClientAspectRatio, NearClipPlane, FarClipPlane)
-            .ToDouble();
+    public Matrix4x4 GetProjectionMatrix(float width, float height) => ProjectionType == CameraProjectionType.Orthographic
+        ? System.Numerics.Matrix4x4.CreateOrthographicOffCenterLeftHanded(-OrthographicSize, OrthographicSize, -OrthographicSize, OrthographicSize, NearClipPlane, FarClipPlane).ToDouble()
+        : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), width / height, NearClipPlane, FarClipPlane).ToDouble();
 
 
     internal void Render(int width = -1, int height = -1)
@@ -105,7 +106,7 @@ public sealed class CameraComponent : EntityComponent
         RenderingCamera = this;
         
         Graphics.ViewMatrix = ViewMatrix;
-        Graphics.ProjectionMatrix = ProjectionMatrix;
+        Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
         Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
         
@@ -152,6 +153,10 @@ public sealed class CameraComponent : EntityComponent
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        TargetTexture.Res?.Begin();
+        PostRendered?.Invoke(width, height);
+        TargetTexture.Res?.End();
         
         _oldView = Graphics.ViewMatrix;
         _oldProjection = Graphics.ProjectionMatrix;
@@ -303,7 +308,7 @@ public sealed class CameraComponent : EntityComponent
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
-        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
+        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
 
         // Without this, the coordinates are visible even when looking straight away from them.
         if (clipSpacePosition.W <= 0)
@@ -325,7 +330,7 @@ public sealed class CameraComponent : EntityComponent
 
     public Frustum CalculateFrustum()
     {
-        Matrix4x4 viewProjection = ViewMatrix * ProjectionMatrix;
+        Matrix4x4 viewProjection = ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
         FrustumPlane[] planes = new FrustumPlane[6];
 
         // Top plane.

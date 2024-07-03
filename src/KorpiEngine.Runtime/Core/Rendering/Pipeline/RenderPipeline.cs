@@ -15,7 +15,7 @@ public class RenderPipeline
         PBRDeferredNode pbrDeferredNode = new();
         PostPBRDeferredNode postPbrDeferredNode = new();
         ProceduralSkyboxNode proceduralSkyboxNode = new();
-        //var screenSpaceReflectionNode = new ScreenSpaceReflectionNode();
+        ScreenSpaceReflectionNode screenSpaceReflectionNode = new();
         TAANode taaNode = new();
         DepthOfFieldNode depthOfFieldNode = new();
         BloomNode bloomNode = new();
@@ -23,7 +23,8 @@ public class RenderPipeline
         
         pbrDeferredNode.SetChild(postPbrDeferredNode);
         postPbrDeferredNode.SetChild(proceduralSkyboxNode);
-        proceduralSkyboxNode.SetChild(taaNode);
+        proceduralSkyboxNode.SetChild(screenSpaceReflectionNode);
+        screenSpaceReflectionNode.SetChild(taaNode);
         taaNode.SetChild(depthOfFieldNode);
         depthOfFieldNode.SetChild(bloomNode);
         bloomNode.SetChild(toneMappingNode);

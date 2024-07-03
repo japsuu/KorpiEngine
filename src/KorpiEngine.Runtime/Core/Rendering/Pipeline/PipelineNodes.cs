@@ -141,6 +141,41 @@ public class ProceduralSkyboxNode : RenderPassNode
     }
 }
 
+public class ScreenSpaceReflectionNode : RenderPassNode
+{
+    public float Threshold = 0.15f;
+    public int Steps = 16;
+    public int RefineSteps = 4;
+
+    private Material? _mat;
+    
+    
+    protected override RenderTexture? Render(RenderTexture? source)
+    {
+        if(source == null)
+            return null;
+        
+        CameraComponent camera = CameraComponent.RenderingCamera;
+        GBuffer gBuffer = camera.GBuffer!;
+
+        _mat ??= new Material(Shader.Find("Defaults/SSR.shader"), "SSR material");
+        _mat.SetTexture("_GColor", source.InternalTextures[0]);
+        _mat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
+        _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
+        _mat.SetTexture("_GDepth", gBuffer.Depth!);
+
+        _mat.SetFloat("SSRThreshold", Math.Clamp(Threshold, 0.0f, 1.0f));
+        _mat.SetInt("SSRSteps", Math.Clamp(Steps, 16, 32));
+        _mat.SetInt("SSRBisteps", Math.Clamp(RefineSteps, 0, 16));
+
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        Graphics.Blit(result, _mat, 0, true);
+        ReleaseRenderTexture(source);
+        
+        return result;
+    }
+}
+
 public class TAANode : RenderPassNode
 {
     public bool Jitter2X = false;
