@@ -15,19 +15,19 @@ public class RenderPipeline
         PBRDeferredNode pbrDeferredNode = new();
         PostPBRDeferredNode postPbrDeferredNode = new();
         ProceduralSkyboxNode proceduralSkyboxNode = new();
-        ScreenSpaceReflectionNode screenSpaceReflectionNode = new();
-        TAANode taaNode = new();
-        DepthOfFieldNode depthOfFieldNode = new();
-        BloomNode bloomNode = new();
-        TonemappingNode toneMappingNode = new();
+        // ScreenSpaceReflectionNode screenSpaceReflectionNode = new();
+        // TAANode taaNode = new();
+        // DepthOfFieldNode depthOfFieldNode = new();
+        // BloomNode bloomNode = new();
+        // TonemappingNode toneMappingNode = new();
         
         pbrDeferredNode.SetChild(postPbrDeferredNode);
         postPbrDeferredNode.SetChild(proceduralSkyboxNode);
-        proceduralSkyboxNode.SetChild(screenSpaceReflectionNode);
-        screenSpaceReflectionNode.SetChild(taaNode);
-        taaNode.SetChild(depthOfFieldNode);
-        depthOfFieldNode.SetChild(bloomNode);
-        bloomNode.SetChild(toneMappingNode);
+        // proceduralSkyboxNode.SetChild(screenSpaceReflectionNode);
+        // screenSpaceReflectionNode.SetChild(taaNode);
+        // taaNode.SetChild(depthOfFieldNode);
+        // depthOfFieldNode.SetChild(bloomNode);
+        // bloomNode.SetChild(toneMappingNode);
         
         _rootNode = pbrDeferredNode;
     }

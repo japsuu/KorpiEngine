@@ -1,9 +1,12 @@
 ﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Lighting;
@@ -48,8 +51,19 @@ public abstract class Scene : IDisposable
     {
         Entity e = CreateEntity(name);
         MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
+        Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
+        
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
-        c.Material = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
+        c.Material = mat;
+        
+        mat.SetColor("_MainColor", Color.White);
+        mat.SetFloat("_EmissionIntensity", 0f);
+        mat.SetColor("_EmissiveColor", Color.Black);
+        mat.SetTexture("_MainTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/grid.png")));
+        mat.SetTexture("_NormalTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_normal.png")));
+        mat.SetTexture("_SurfaceTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_surface.png")));
+        mat.SetTexture("_EmissionTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_emission.png")));
+        
         return e;
     }
     

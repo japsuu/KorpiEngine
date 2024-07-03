@@ -11,7 +11,6 @@ Properties
 	_EmissiveColor("emissive color", COLOR)
 	_EmissionIntensity("emissive intensity", FLOAT)
 	_MainColor("main color", COLOR)
-	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa FIX THESE NAMES
 	_NoiseTexture("noise tex r:Blue g:White b:Voronoi", TEXTURE_2D)
 	_MatModel("model matrix", MATRIX_4X4)
 	_MatView("view matrix", MATRIX_4X4)

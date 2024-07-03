@@ -219,12 +219,15 @@ public sealed class CameraComponent : EntityComponent
         // Clear the screen
         if (ClearType == CameraClearType.SolidColor)
         {
+            TargetTexture.Res?.Begin();
+            
             ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
             bool clearColor = ClearFlags.HasFlag(CameraClearFlags.Color);
             bool clearDepth = ClearFlags.HasFlag(CameraClearFlags.Depth);
             bool clearStencil = ClearFlags.HasFlag(CameraClearFlags.Stencil);
-            
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
+            
+            TargetTexture.Res?.End();
         }
         
         RenderingCamera = null!;
@@ -233,20 +236,20 @@ public sealed class CameraComponent : EntityComponent
 
     protected override void OnUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (!Input.GetKeyDown(KeyCode.F1))
+            return;
+        
+        DebugDrawType = DebugDrawType switch
         {
-            DebugDrawType = DebugDrawType switch
-            {
-                CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
-                CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
-                CameraDebugDrawType.Normals => CameraDebugDrawType.Depth,
-                CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
-                CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
-                CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
-        }
+            CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
+            CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
+            CameraDebugDrawType.Normals => CameraDebugDrawType.Depth,
+            CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
+            CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
+            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
     }
 
 
@@ -267,8 +270,8 @@ public sealed class CameraComponent : EntityComponent
         _cachedRenderTextures.Clear();
     }
 
+    
     #region RT Cache
-
     
     public RenderTexture GetCachedRT(string name, int width, int height, TextureImageFormat[] format)
     {
