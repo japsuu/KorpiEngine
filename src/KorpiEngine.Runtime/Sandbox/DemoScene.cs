@@ -1,14 +1,10 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Lighting;
 using KorpiEngine.Core.SceneManagement;
 using Random = KorpiEngine.Core.API.Random;
 
@@ -28,13 +24,23 @@ internal class DemoScene : Scene
             //root.AddComponent<DemoOscillate>();
 
             // Create a sphere primitive and add it as a child of the root entity
-            Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+            Entity model = CreatePrimitive(PrimitiveType.Quad, "Sphere model");
             model.SetParent(root);
 
             // Move the root entity to a random position
             Vector2 randomPos = Random.InUnitCircle * 20;
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
         }
+
+        // ----------------------------------------
+        // Creating a blue point light
+        
+        Entity pointLightEntity = new("Point Light");
+        PointLight pointLight = pointLightEntity.AddComponent<PointLight>();
+        pointLight.Color = Color.Blue;
+        pointLight.Radius = 10.0f;
+        pointLight.Intensity = 3.0f;
+        pointLightEntity.Transform.Position = new Vector3(0, 2, 0);
 
         // ----------------------------------------
         // Creating a quad that moves and rotates
