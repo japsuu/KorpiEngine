@@ -35,12 +35,22 @@ internal class DemoScene : Scene
         // ----------------------------------------
         // Creating a blue point light
         
-        Entity pointLightEntity = new("Point Light");
-        PointLight pointLight = pointLightEntity.AddComponent<PointLight>();
-        pointLight.Color = Color.Blue;
-        pointLight.Radius = 10.0f;
-        pointLight.Intensity = 3.0f;
-        pointLightEntity.Transform.Position = new Vector3(0, 2, 0);
+        Entity blueLightEntity = new("Point Light");
+        PointLight blueLight = blueLightEntity.AddComponent<PointLight>();
+        blueLight.Color = Color.Blue;
+        blueLight.Radius = 10.0f;
+        blueLight.Intensity = 3.0f;
+        blueLightEntity.Transform.Position = new Vector3(0, 2, 0);
+
+        // ----------------------------------------
+        // Creating a red point light
+        
+        Entity redLightEntity = new("Point Light");
+        PointLight redLight = redLightEntity.AddComponent<PointLight>();
+        redLight.Color = Color.Red;
+        redLight.Radius = 10.0f;
+        redLight.Intensity = 3.0f;
+        redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);
 
         // ----------------------------------------
         // Creating a quad that moves and rotates
