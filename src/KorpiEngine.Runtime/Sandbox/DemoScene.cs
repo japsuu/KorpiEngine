@@ -17,7 +17,22 @@ internal class DemoScene : Scene
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 25; i++)
+        {
+            // Create a new entity with a name, and add a custom component to make it oscillate
+            Entity root = new($"Sphere {i}");
+            //root.AddComponent<DemoOscillate>();
+
+            // Create a sphere primitive and add it as a child of the root entity
+            Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+            model.SetParent(root);
+
+            // Move the root entity to a random position
+            Vector2 randomPos = Random.InUnitCircle * 20;
+            root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
+        }
+
+        for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
