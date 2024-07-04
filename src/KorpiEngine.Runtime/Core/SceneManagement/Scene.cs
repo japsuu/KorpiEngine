@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
+﻿using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -9,7 +8,6 @@ using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
 using Entity = KorpiEngine.Core.EntityModel.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;

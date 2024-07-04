@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
@@ -21,11 +20,11 @@ public static class Graphics
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
     
-    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
     public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
     public static Matrix4x4 OldViewMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
     public static Matrix4x4 OldProjectionMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
     
     public static Matrix4x4 DepthProjectionMatrix;
     public static Matrix4x4 DepthViewMatrix;
@@ -133,16 +132,25 @@ public static class Graphics
         material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward, true);
         
         // Matrices
-        Matrix4x4 matMVP = Matrix4x4.Identity * camRelativeTransform * ViewMatrix * ProjectionMatrix;
-        Matrix4x4 oldMatMVP = Matrix4x4.Identity * oldCamRelativeTransform.Value * OldViewMatrix * OldProjectionMatrix;
-        Matrix4x4.Invert(matMVP, out Matrix4x4 matMVPInverse);
-        material.SetMatrix("_MatMVP", matMVP, true);
-        material.SetMatrix("_MatMVPOld", oldMatMVP, true);
-        material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
         material.SetMatrix("_MatModel", camRelativeTransform, true);
         material.SetMatrix("_MatView", ViewMatrix, true);
         material.SetMatrix("_MatProjection", ProjectionMatrix, true);
         material.SetMatrix("_MatProjectionInverse", InverseProjectionMatrix, true);
+        
+        Matrix4x4 matMVP = Matrix4x4.Identity;
+        matMVP = Matrix4x4.Multiply(matMVP, camRelativeTransform);
+        matMVP = Matrix4x4.Multiply(matMVP, ViewMatrix);
+        matMVP = Matrix4x4.Multiply(matMVP, ProjectionMatrix);
+        material.SetMatrix("_MatMVP", matMVP, true);
+
+        Matrix4x4 oldMatMVP = Matrix4x4.Identity;
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, oldCamRelativeTransform.Value);
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, OldViewMatrix);
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, OldProjectionMatrix);
+        material.SetMatrix("_MatMVPOld", oldMatMVP, true);
+        
+        Matrix4x4.Invert(matMVP, out Matrix4x4 matMVPInverse);
+        material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
         material.SetKeyword("HAS_UV", mesh.HasUV0);
@@ -228,13 +236,10 @@ public static class Graphics
     /// <param name="destination">The destination render texture.</param>
     internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
     {
-        Debug.Assert(source.FrameBuffer != null, "source.FrameBuffer != null");
-        Driver.BindFramebuffer(source.FrameBuffer, FBOTarget.ReadFramebuffer);
+        Driver.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
+        
         if(destination != null)
-        {
-            Debug.Assert(destination.FrameBuffer != null, "destination.FrameBuffer != null");
-            Driver.BindFramebuffer(destination.FrameBuffer, FBOTarget.DrawFramebuffer);
-        }
+            Driver.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
 
         Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
             0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
