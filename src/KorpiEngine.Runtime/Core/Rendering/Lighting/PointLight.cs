@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.Rendering.Lighting;
 
 public class PointLight : EntityComponent
 {
-    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.Lighting;
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
     public Color Color = Color.White;
     public float Radius = 4.0f;

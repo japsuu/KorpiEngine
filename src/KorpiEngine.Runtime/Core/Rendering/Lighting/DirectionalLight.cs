@@ -8,7 +8,7 @@ namespace KorpiEngine.Core.Rendering.Lighting;
 
 public sealed class DirectionalLight : EntityComponent
 {
-    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.Lighting;
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
     public enum Resolution
     {
@@ -108,7 +108,7 @@ public sealed class DirectionalLight : EntityComponent
             _shadowMap.Begin();
             
             Graphics.Clear(1, 1, 1, 1);
-            Entity.Scene.EntityScene.InvokeRenderObjectDepthOnAllOfOrder(ComponentRenderOrder.Opaque);
+            Entity.Scene.EntityScene.InvokeRenderObjectDepthOnAllOfOrder(ComponentRenderOrder.GeometryPass);
             
             _shadowMap.End();
         }

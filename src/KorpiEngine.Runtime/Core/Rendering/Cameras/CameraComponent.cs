@@ -177,7 +177,7 @@ public sealed class CameraComponent : EntityComponent
         Entity.Scene.EntityScene.InvokePreRender();
         
         GBuffer!.Begin();
-        RenderAllOfOrder(ComponentRenderOrder.Opaque);
+        RenderAllOfOrder(ComponentRenderOrder.GeometryPass);
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();

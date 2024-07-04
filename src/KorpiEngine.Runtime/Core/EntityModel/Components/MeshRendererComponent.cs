@@ -10,7 +10,7 @@ namespace KorpiEngine.Core.EntityModel.Components;
 
 public class MeshRendererComponent : EntityComponent
 {
-    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.Opaque;
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
     public ResourceRef<Mesh> Mesh;
     public ResourceRef<Material> Material;

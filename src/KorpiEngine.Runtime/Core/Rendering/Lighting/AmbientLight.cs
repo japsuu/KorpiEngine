@@ -7,7 +7,7 @@ namespace KorpiEngine.Core.Rendering.Lighting;
 
 public class AmbientLight : EntityComponent
 {
-    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.Lighting;
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
     public Color SkyColor = Color.White;
     public Color GroundColor = Color.White;
