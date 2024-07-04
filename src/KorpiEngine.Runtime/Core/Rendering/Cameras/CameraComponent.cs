@@ -115,7 +115,7 @@ public sealed class CameraComponent : EntityComponent
         // Render all meshes
         GeometryPass();
         
-        /*RenderTexture? result = _pipeline.Render();
+        RenderTexture? result = _pipeline.Render();
 
         if (result == null)
         {
@@ -123,15 +123,15 @@ public sealed class CameraComponent : EntityComponent
 
             Application.Logger.Error("RenderPipeline failed to return a RenderTexture!");
             return;
-        }*/
+        }
         
         // Draw to Screen
         bool doClear = ClearType == CameraClearType.SolidColor;
         switch (DebugDrawType)
         {
             case CameraDebugDrawType.Off:
-                /*Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
-                Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);*/
+                Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
+                Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
                 break;
             case CameraDebugDrawType.Albedo:
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.AlbedoAO, doClear);
