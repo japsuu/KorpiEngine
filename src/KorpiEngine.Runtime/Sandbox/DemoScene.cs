@@ -47,7 +47,7 @@ internal class DemoScene : Scene
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
         }
 
-        // ----------------------------------------
+        /*// ----------------------------------------
         // Creating a blue point light
         
         Entity blueLightEntity = new("Point Light");
@@ -65,7 +65,7 @@ internal class DemoScene : Scene
         redLight.Color = Color.Red;
         redLight.Radius = 10.0f;
         redLight.Intensity = 3.0f;
-        redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);
+        redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);*/
 
         // ----------------------------------------
         // Creating a quad that moves and rotates
