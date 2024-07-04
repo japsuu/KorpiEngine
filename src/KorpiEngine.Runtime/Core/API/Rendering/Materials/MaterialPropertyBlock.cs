@@ -93,13 +93,13 @@ public class MaterialPropertyBlock
     }
     
     
-    internal void Apply(GraphicsProgram shader)
+    internal void Apply(GraphicsProgram shader, string materialName)
     {
-        Apply(this, shader);
+        Apply(this, shader, materialName);
     }
 
 
-    private static void Apply(MaterialPropertyBlock propertyBlock, GraphicsProgram shader)
+    private static void Apply(MaterialPropertyBlock propertyBlock, GraphicsProgram shader, string materialName)
     {
         foreach (KeyValuePair<string, float> item in propertyBlock._floats)
             Graphics.Driver.SetUniformF(shader, item.Key, item.Value);
@@ -133,7 +133,10 @@ public class MaterialPropertyBlock
         {
             ResourceRef<Texture2D> tex = item.Value;
             if (!tex.IsAvailable)
+            {
+                Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available");
                 continue;
+            }
             
             texSlot++;
             Graphics.Driver.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Res!.Handle);

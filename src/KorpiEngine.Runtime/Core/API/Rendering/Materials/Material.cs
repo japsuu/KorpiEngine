@@ -40,7 +40,7 @@ public sealed class Material : Resource
     
     internal void ApplyPropertyBlock(GraphicsProgram shader)
     {
-        _propertyBlock.Apply(shader);
+        _propertyBlock.Apply(shader, Name);
     }
 
 
@@ -114,7 +114,7 @@ public sealed class Material : Resource
         Graphics.Driver.BindProgram(pass.Program);
 
         if (apply)
-            _propertyBlock.Apply(Graphics.Driver.CurrentProgram!);
+            ApplyPropertyBlock(Graphics.Driver.CurrentProgram!);
     }
 
     #endregion
