@@ -23,7 +23,6 @@ public sealed class CameraComponent : EntityComponent
     internal static CameraComponent RenderingCamera { get; private set; } = null!;
     
     public event Action<int, int>? Resized;
-    public event Action<int, int>? PostRendered;
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
@@ -158,10 +157,6 @@ public sealed class CameraComponent : EntityComponent
             default:
                 throw new ArgumentOutOfRangeException();
         }
-
-        TargetTexture.Res?.Begin();
-        PostRendered?.Invoke(width, height);
-        TargetTexture.Res?.End();
         
         _oldView = Graphics.ViewMatrix;
         _oldProjection = Graphics.ProjectionMatrix;
