@@ -140,6 +140,12 @@ public sealed class CameraComponent : EntityComponent
             case CameraDebugDrawType.Normals:
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.NormalMetallic, doClear);
                 break;
+            case CameraDebugDrawType.Position:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.PositionRoughness, doClear);
+                break;
+            case CameraDebugDrawType.Emission:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Emission, doClear);
+                break;
             case CameraDebugDrawType.Depth:
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Depth!, doClear);
                 break;
@@ -241,7 +247,9 @@ public sealed class CameraComponent : EntityComponent
         {
             CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
             CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
-            CameraDebugDrawType.Normals => CameraDebugDrawType.Depth,
+            CameraDebugDrawType.Normals => CameraDebugDrawType.Position,
+            CameraDebugDrawType.Position => CameraDebugDrawType.Emission,
+            CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
             CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
             CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
             CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
