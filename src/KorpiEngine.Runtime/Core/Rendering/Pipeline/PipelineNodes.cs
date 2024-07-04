@@ -11,19 +11,19 @@ public abstract class RenderPassNode
 {
     private RenderPassNode? _child;
     protected RenderPipeline Pipeline = null!;
-    
-    
+
+
     public void SetChild(RenderPassNode child)
     {
         _child = child;
     }
-    
-    
+
+
     public void Prepare(RenderPipeline pipeline)
     {
         Pipeline = pipeline;
         OnPrepare(pipeline.Width, pipeline.Height);
-        
+
         _child?.Prepare(pipeline);
     }
 
@@ -31,21 +31,27 @@ public abstract class RenderPassNode
     public RenderTexture? Evaluate(RenderTexture? source)
     {
         RenderTexture? result = Render(source);
-        
+
         if (_child != null)
             return _child.Evaluate(result);
-        
+
         return result;
     }
 
 
-    protected virtual void OnEnable() { }
-    protected virtual void OnPrepare(int width, int height) { }
-    
-    
+    protected virtual void OnEnable()
+    {
+    }
+
+
+    protected virtual void OnPrepare(int width, int height)
+    {
+    }
+
+
     protected abstract RenderTexture? Render(RenderTexture? source);
 
-    
+
     protected RenderTexture GetRenderTexture(float scale, TextureImageFormat[] format)
     {
         RenderTexture rt = RenderTexture.GetTemporaryRT((int)(Pipeline.Width * scale), (int)(Pipeline.Height * scale), format);
@@ -53,7 +59,7 @@ public abstract class RenderPassNode
         return rt;
     }
 
-    
+
     protected void ReleaseRenderTexture(RenderTexture rt)
     {
         Pipeline.UsedRenderTextures.Remove(rt);
@@ -67,18 +73,18 @@ public class PBRDeferredNode : RenderPassNode
 
     public float Scale = 1.0f;
 
-    
+
     protected override RenderTexture Render(RenderTexture? source)
     {
         RenderTexture result = GetRenderTexture(Scale, [Format]);
-        
+
         result.Begin();
-        
+
         Graphics.Clear();
         CameraComponent.RenderingCamera.RenderAllOfOrder(ComponentRenderOrder.LightingPass);
-        
+
         result.End();
-        
+
         return result;
     }
 }
@@ -86,23 +92,23 @@ public class PBRDeferredNode : RenderPassNode
 public class PostPBRDeferredNode : RenderPassNode
 {
     private Material? _combineShader;
-    
-    
+
+
     protected override RenderTexture? Render(RenderTexture? source)
     {
         GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
-        
+
         if (source == null)
             return null;
 
-        _combineShader ??= new Material(Shader.Find("Defaults/GBuffercombine.shader"), "G-buffer combine material");
+        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.shader"), "G-buffer combine material");
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _combineShader.SetTexture("_GLighting", source.InternalTextures[0]);
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _combineShader, 0, true);
         ReleaseRenderTexture(source);
-        
+
         return result;
     }
 }
@@ -111,13 +117,13 @@ public class ProceduralSkyboxNode : RenderPassNode
 {
     public float FogDensity = 0.08f;
     private Material? _mat;
-    
-    
+
+
     protected override RenderTexture? Render(RenderTexture? source)
     {
         CameraComponent camera = CameraComponent.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
-        
+
         if (source == null)
             return null;
 
@@ -136,7 +142,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
-        
+
         return result;
     }
 }
@@ -148,13 +154,13 @@ public class ScreenSpaceReflectionNode : RenderPassNode
     public int RefineSteps = 4;
 
     private Material? _mat;
-    
-    
+
+
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        if(source == null)
+        if (source == null)
             return null;
-        
+
         CameraComponent camera = CameraComponent.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
@@ -171,7 +177,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
-        
+
         return result;
     }
 }
@@ -201,9 +207,9 @@ public class TAANode : RenderPassNode
         new Vector2(0.6875f, 0.481481f),
         new Vector2(0.4375f, 0.814815f),
         new Vector2(0.9375f, 0.259259f),
-        new Vector2(0.03125f, 0.592593f),
+        new Vector2(0.03125f, 0.592593f)
     ];
-    
+
 
     protected override void OnPrepare(int width, int height)
     {
@@ -226,9 +232,9 @@ public class TAANode : RenderPassNode
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        if(source == null)
+        if (source == null)
             return null;
-        
+
         CameraComponent camera = CameraComponent.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
@@ -249,7 +255,7 @@ public class TAANode : RenderPassNode
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
         Graphics.Blit(history, result.InternalTextures[0], true);
-        
+
         return result;
     }
 }
@@ -261,13 +267,13 @@ public class DepthOfFieldNode : RenderPassNode
     public int BlurRadius = 5;
 
     private Material? _mat;
-    
+
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)
             return null;
-        
+
         CameraComponent camera = CameraComponent.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
@@ -282,7 +288,7 @@ public class DepthOfFieldNode : RenderPassNode
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
-        
+
         return result;
     }
 }
@@ -294,7 +300,7 @@ public class BloomNode : RenderPassNode
     public int Passes = 10;
 
     private Material? _mat;
-    
+
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
@@ -329,7 +335,7 @@ public class BloomNode : RenderPassNode
         Graphics.Blit(rts[0], source.InternalTextures[0], false);
         ReleaseRenderTexture(rts[1]);
         ReleaseRenderTexture(source);
-        
+
         return rts[0];
     }
 }
@@ -338,13 +344,23 @@ public class TonemappingNode : RenderPassNode
 {
     public float Contrast = 1.05f;
     public float Saturation = 1.15f;
-    public enum TonemapperType { Melon, Aces, Reinhard, Uncharted2, Filmic, None }
+
+    public enum TonemapperType
+    {
+        Melon,
+        Aces,
+        Reinhard,
+        Uncharted2,
+        Filmic,
+        None
+    }
+
     public TonemapperType UsedTonemapperType = TonemapperType.Melon;
     public bool UseGammaCorrection = true;
 
     private Material? _acesMat;
     private TonemapperType? _prevTonemapper;
-    
+
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
@@ -396,7 +412,7 @@ public class TonemappingNode : RenderPassNode
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _acesMat, 0, true);
         ReleaseRenderTexture(source);
-        
+
         return result;
     }
 }

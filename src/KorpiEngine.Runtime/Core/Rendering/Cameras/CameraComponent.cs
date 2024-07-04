@@ -109,10 +109,9 @@ public sealed class CameraComponent : EntityComponent
         Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
         Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
+        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
         
         _pipeline.Prepare(width, height);
-        
-        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
         
         // Render all meshes
         OpaquePass();
