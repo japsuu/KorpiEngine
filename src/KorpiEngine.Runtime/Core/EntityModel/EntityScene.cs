@@ -175,20 +175,29 @@ internal sealed class EntityScene
     }
     
     
-    internal void InvokeRenderObjectOnAllOfOrder(ComponentRenderOrder order)
+    internal void InvokeRenderLighting()
     {
         foreach (EntityComponent comp in Components)
             if (comp.EnabledInHierarchy)
-                if (comp.RenderOrder == order)
+                if (comp.RenderOrder == ComponentRenderOrder.LightingPass)
                     comp.RenderObject();
     }
     
     
-    internal void InvokeRenderDepthOnAllOfOrder(ComponentRenderOrder order)
+    internal void InvokeRenderGeometry()
     {
         foreach (EntityComponent comp in Components)
             if (comp.EnabledInHierarchy)
-                if (comp.RenderOrder == order)
+                if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
+                    comp.RenderObject();
+    }
+    
+    
+    internal void InvokeRenderGeometryDepth()
+    {
+        foreach (EntityComponent comp in Components)
+            if (comp.EnabledInHierarchy)
+                if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
                     comp.RenderObjectDepth();
     }
 

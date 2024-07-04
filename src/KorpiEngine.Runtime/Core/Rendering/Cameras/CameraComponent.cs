@@ -165,24 +165,17 @@ public sealed class CameraComponent : EntityComponent
     }
     
     
-    internal void RenderAllOfOrder(ComponentRenderOrder order)
-    {
-        Entity.Scene.EntityScene.InvokeRenderObjectOnAllOfOrder(order);
-    }
-    
-    
-    internal void RenderDepthAllOfOrder(ComponentRenderOrder order)
-    {
-        Entity.Scene.EntityScene.InvokeRenderDepthOnAllOfOrder(order);
-    }
-    
+    internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
+    internal void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
+    internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
+
 
     private void GeometryPass()
     {
         Entity.Scene.EntityScene.InvokePreRender();
         
         GBuffer!.Begin();
-        RenderAllOfOrder(ComponentRenderOrder.GeometryPass);
+        RenderGeometry();
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();

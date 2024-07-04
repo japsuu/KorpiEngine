@@ -108,7 +108,7 @@ public sealed class DirectionalLight : EntityComponent
             _shadowMap.Begin();
             
             Graphics.Clear(1, 1, 1, 1);
-            CameraComponent.RenderingCamera.RenderDepthAllOfOrder(ComponentRenderOrder.GeometryPass);
+            CameraComponent.RenderingCamera.RenderDepthGeometry();
             
             _shadowMap.End();
         }

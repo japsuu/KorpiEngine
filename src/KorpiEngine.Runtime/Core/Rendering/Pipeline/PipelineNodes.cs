@@ -81,7 +81,7 @@ public class PBRDeferredNode : RenderPassNode
         result.Begin();
 
         Graphics.Clear();
-        CameraComponent.RenderingCamera.RenderAllOfOrder(ComponentRenderOrder.LightingPass);
+        CameraComponent.RenderingCamera.RenderLights();
 
         result.End();
 
