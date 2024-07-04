@@ -1,6 +1,9 @@
-﻿using KorpiEngine.Core.Internal.Serialization;
+﻿using KorpiEngine.Core.API.AssetManagement;
+using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Internal.Serialization;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Textures;
@@ -39,6 +42,17 @@ public sealed class Texture2D : Texture, ISerializable
         Graphics.Driver.SetTextureFilters(Handle, IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
         MinFilter = IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER;
         MagFilter = DEFAULT_MAG_FILTER;
+    }
+
+
+    public static ResourceRef<Texture2D> Load(string path)
+    {
+        Texture2D? asset = AssetDatabase.LoadAsset<Texture2D>("Defaults/grid.png");
+        
+        if (asset == null)
+            throw new AssetLoadException<Texture2D>(path);
+        
+        return new ResourceRef<Texture2D>(asset);
     }
 
 
