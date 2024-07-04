@@ -57,10 +57,10 @@ public abstract class Scene : IDisposable
         mat.SetColor("_MainColor", Color.White);
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
-        mat.SetTexture("_MainTex", new ResourceRef<Texture2D>(AssetDatabase.LoadAsset<Texture2D>("Defaults/grid.png")));
-        mat.SetTexture("_NormalTex", new ResourceRef<Texture2D>(AssetDatabase.LoadAsset<Texture2D>("Defaults/default_normal.png")));
-        mat.SetTexture("_SurfaceTex", new ResourceRef<Texture2D>(AssetDatabase.LoadAsset<Texture2D>("Defaults/default_surface.png")));
-        mat.SetTexture("_EmissionTex", new ResourceRef<Texture2D>(AssetDatabase.LoadAsset<Texture2D>("Defaults/default_emission.png")));
+        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/grid.png"));
+        mat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
+        mat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
+        mat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
         
         return e;
     }
