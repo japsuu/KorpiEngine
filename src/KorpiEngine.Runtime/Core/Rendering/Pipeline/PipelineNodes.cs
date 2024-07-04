@@ -170,9 +170,9 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
         _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
-        _mat.SetFloat("SSRThreshold", Math.Clamp(Threshold, 0.0f, 1.0f));
-        _mat.SetInt("SSRSteps", Math.Clamp(Steps, 16, 32));
-        _mat.SetInt("SSRBisteps", Math.Clamp(RefineSteps, 0, 16));
+        _mat.SetFloat("_SSRThreshold", Math.Clamp(Threshold, 0.0f, 1.0f));
+        _mat.SetInt("_SSRSteps", Math.Clamp(Steps, 16, 32));
+        _mat.SetInt("_SSRBisteps", Math.Clamp(RefineSteps, 0, 16));
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
         Graphics.Blit(result, _mat, 0, true);
