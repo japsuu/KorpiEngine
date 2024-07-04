@@ -49,7 +49,7 @@ public class GBuffer
 
         // Start with the GBuffer Cleared
         if (clear)
-            Graphics.Clear(0, 0, 0, 0);
+            Graphics.Clear();
     }
 
 
