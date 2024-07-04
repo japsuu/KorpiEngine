@@ -56,7 +56,7 @@ public class MeshRendererComponent : EntityComponent
     }
 
     
-    protected override void OnRenderObjectDepth()
+    protected override void OnRenderDepth()
     {
         if (!Mesh.IsAvailable || !Material.IsAvailable)
             return;

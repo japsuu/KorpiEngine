@@ -127,7 +127,7 @@ public abstract class EntityComponent
     internal void PreRender() => OnPreRender();
     internal void RenderObject() => OnRenderObject();
     internal void PostRender() => OnPostRender();
-    internal void RenderObjectDepth() => OnRenderObjectDepth();
+    internal void RenderObjectDepth() => OnRenderDepth();
     internal void DrawGizmos() => OnDrawGizmos();
 
 
@@ -264,7 +264,7 @@ public abstract class EntityComponent
     protected virtual void OnPreRender() { }
     protected virtual void OnRenderObject() { }
     protected virtual void OnPostRender() { }
-    protected virtual void OnRenderObjectDepth() { }
+    protected virtual void OnRenderDepth() { }
     protected virtual void OnDrawGizmos() { }
     protected virtual void OnDestroy() { }
 
