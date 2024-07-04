@@ -135,6 +135,9 @@ public class MaterialPropertyBlock
             if (!tex.IsAvailable)
             {
                 Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available");
+                
+                // Clear the texture slot
+                Graphics.Driver.ClearUniformTexture(shader, item.Key, (int)texSlot);
                 continue;
             }
             
