@@ -445,6 +445,25 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.Uniform1(loc, slot);
     }
 
+
+    public override void ClearUniformTexture(GraphicsProgram program, string name, int slot)
+    {
+        int loc = GetUniformLocation(program, name);
+        ClearUniformTexture(program, loc, slot);
+    }
+
+
+    public override void ClearUniformTexture(GraphicsProgram program, int location, int slot)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(location, 0);
+    }
+
     #endregion
 
 

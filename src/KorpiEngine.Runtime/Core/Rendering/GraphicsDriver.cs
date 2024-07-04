@@ -108,6 +108,10 @@ internal abstract class GraphicsDriver
     public abstract void SetUniformMatrix(GraphicsProgram program, int location, int length, bool transpose, in float m11);
     public abstract void SetUniformTexture(GraphicsProgram program, string name, int slot, GraphicsTexture texture);
     public abstract void SetUniformTexture(GraphicsProgram program, int location, int slot, GraphicsTexture texture);
+    // Explicitly clear a texture slot.
+    // This is to reduce user error, since SetUniformTexture should throw if the texture is not available.
+    public abstract void ClearUniformTexture(GraphicsProgram program, string name, int slot);
+    public abstract void ClearUniformTexture(GraphicsProgram program, int location, int slot);
     
     #endregion
 
