@@ -114,14 +114,14 @@ public abstract class Scene : IDisposable
 
     protected virtual void CreateLights()
     {
-        Entity dlEntity = CreateEntity("Directional Light");
+        /*Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
         dlComp.Transform.LocalEulerAngles = new Vector3(135, 45, 0);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
         alComp.SkyIntensity = 0.4f;
-        alComp.GroundIntensity = 0.1f;
+        alComp.GroundIntensity = 0.1f;*/
     }
     
     
