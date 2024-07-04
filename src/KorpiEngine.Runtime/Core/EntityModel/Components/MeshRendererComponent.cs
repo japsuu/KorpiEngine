@@ -58,17 +58,17 @@ public class MeshRendererComponent : EntityComponent
     
     protected override void OnRenderObjectDepth()
     {
-        if (Mesh.IsAvailable && Material.IsAvailable)
-        {
-            Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
+        if (!Mesh.IsAvailable || !Material.IsAvailable)
+            return;
+        
+        Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
 
-            Matrix4x4 mvp = Matrix4x4.Identity;
-            mvp = Matrix4x4.Multiply(mvp, transform);
-            mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
-            mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
-            Material.Res!.SetMatrix("_MatMVP", mvp);
-            Material.Res!.SetShadowPass(true);
-            Graphics.DrawMeshNowDirect(Mesh.Res!);
-        }
+        Matrix4x4 mvp = Matrix4x4.Identity;
+        mvp = Matrix4x4.Multiply(mvp, transform);
+        mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
+        mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
+        Material.Res!.SetMatrix("_MatMVP", mvp);
+        Material.Res!.SetShadowPass(true);
+        Graphics.DrawMeshNowDirect(Mesh.Res!);
     }
 }
