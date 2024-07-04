@@ -114,7 +114,7 @@ public sealed class CameraComponent : EntityComponent
         _pipeline.Prepare(width, height);
         
         // Render all meshes
-        OpaquePass();
+        GeometryPass();
         
         RenderTexture? result = _pipeline.Render();
 
@@ -170,8 +170,14 @@ public sealed class CameraComponent : EntityComponent
         Entity.Scene.EntityScene.InvokeRenderObjectOnAllOfOrder(order);
     }
     
+    
+    internal void RenderDepthAllOfOrder(ComponentRenderOrder order)
+    {
+        Entity.Scene.EntityScene.InvokeRenderDepthOnAllOfOrder(order);
+    }
+    
 
-    private void OpaquePass()
+    private void GeometryPass()
     {
         Entity.Scene.EntityScene.InvokePreRender();
         

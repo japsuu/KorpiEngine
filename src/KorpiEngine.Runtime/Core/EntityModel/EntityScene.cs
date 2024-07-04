@@ -184,7 +184,7 @@ internal sealed class EntityScene
     }
     
     
-    internal void InvokeRenderObjectDepthOnAllOfOrder(ComponentRenderOrder order)
+    internal void InvokeRenderDepthOnAllOfOrder(ComponentRenderOrder order)
     {
         foreach (EntityComponent comp in Components)
             if (comp.EnabledInHierarchy)
