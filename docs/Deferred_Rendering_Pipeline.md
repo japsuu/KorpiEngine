@@ -6,12 +6,20 @@ for each camera:
 - update graphics matrices
 - clear RenderingCamera
 - prepare the rendering pipeline
+
 - for each object:
   - invoke OnPreRender
-  - if directional light:
+  - if light:
     - for all objects:
       - call OnRenderObjectDepth
-        - render depth info to shadow map
-- for each opaque (non-light) object:
-  - render object to g-buffer
-- 
+        - render object to shadow map
+
+- for each object:
+  - if not light:
+    - render to g-buffer
+
+- for each object:
+  - invoke OnPostRender
+
+- render the render pipeline:
+  - 
