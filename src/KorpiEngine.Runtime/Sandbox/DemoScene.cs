@@ -4,7 +4,6 @@ using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
 using KorpiEngine.Core.SceneManagement;
 using Random = KorpiEngine.Core.API.Random;
 
