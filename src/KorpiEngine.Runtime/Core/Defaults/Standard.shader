@@ -7,7 +7,6 @@ Properties
 	_EmissionTex("emission tex", TEXTURE_2D)
 	_SurfaceTex("surface tex x:AO y:Rough z:Metal", TEXTURE_2D)
 	_OcclusionTex("occlusion tex", TEXTURE_2D)
-
 	_EmissiveColor("emissive color", COLOR)
 	_EmissionIntensity("emissive intensity", FLOAT)
 	_MainColor("main color", COLOR)
@@ -173,7 +172,8 @@ Pass 0
 			vec3 surface = texture(_SurfaceTex, uv).rgb;
 			// Albedo
 			//gAlbedoAO = vec4(alb.xyz * _MainColor.rgb, ao);
-			gAlbedoAO = vec4(pow(alb.xyz * _MainColor.rgb, vec3(2.2)), surface.r);
+			//gAlbedoAO = vec4(pow(alb.xyz * _MainColor.rgb, vec3(2.2)), surface.r);
+			gAlbedoAO = vec4(alb.xyz, 1);	// ------------------------------------------------------------- WARN: TEMPORARY
 	
 			// Position & Roughness
 			gPositionRoughness = vec4(FragPos, surface.g);
