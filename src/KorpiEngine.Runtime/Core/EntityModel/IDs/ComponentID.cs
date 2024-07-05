@@ -4,13 +4,13 @@ namespace KorpiEngine.Core.EntityModel.IDs;
 
 public static class ComponentID
 {
-    private static ulong nextID;
+    private static int nextID;
 
     
-    public static ulong Generate()
+    public static int Generate()
     {
-        ulong id = Interlocked.Increment(ref nextID);
-        Debug.Assert(id != ulong.MaxValue, "ComponentID overflow!");
+        int id = Interlocked.Increment(ref nextID);
+        Debug.Assert(id != int.MaxValue, "ComponentID overflow!");
         return id;
     }
 }

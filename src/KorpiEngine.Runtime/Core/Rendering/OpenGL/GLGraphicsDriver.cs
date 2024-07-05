@@ -267,6 +267,20 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, output);
     }
 
+
+    public override T ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format)
+    {
+        GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
+        GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
+
+        T result = default;
+        GCHandle handle = GCHandle.Alloc(result, GCHandleType.Pinned);
+        GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, handle.AddrOfPinnedObject());
+        handle.Free();
+
+        return result;
+    }
+
     #endregion
 
 
@@ -429,6 +443,25 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
         GL.BindTexture(glTexture.Target, glTexture.Handle);
         GL.Uniform1(loc, slot);
+    }
+
+
+    public override void ClearUniformTexture(GraphicsProgram program, string name, int slot)
+    {
+        int loc = GetUniformLocation(program, name);
+        ClearUniformTexture(program, loc, slot);
+    }
+
+
+    public override void ClearUniformTexture(GraphicsProgram program, int location, int slot)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(location, 0);
     }
 
     #endregion

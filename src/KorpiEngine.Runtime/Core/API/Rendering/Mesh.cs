@@ -118,7 +118,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
     private static Mesh? fullScreenQuadCached;
-    private Topology _topology = Topology.TriangleStrip;
+    private Topology _topology = Topology.Triangles;
     private IndexFormat _indexFormat = IndexFormat.UInt16;
     private bool _isReadable = true;
     private bool _isDirty = true;
@@ -713,77 +713,51 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                     new(0, 1)
                 ];
 
+                int[] indices = [0, 1, 2, 0, 2, 3];
+
+                Mesh mesh = new();
+                mesh.SetPositions(positions);
+                mesh.SetUVs(uvs, 0);
+                mesh.SetIndices(indices);
+                
+                mesh.RecalculateBounds();
+                mesh.RecalculateNormals();
+                mesh.RecalculateTangents();
+                
+                return mesh;
+            }
+            case PrimitiveType.Cube:
+            {
+                return null;
+                System.Numerics.Vector3[] positions =
+                [
+                ];
+
+                System.Numerics.Vector2[] uvs =
+                [
+                ];
+
                 int[] indices =
                 [
-                    0,
-                    1,
-                    2,
-                    0,
-                    2,
-                    3
                 ];
 
                 Mesh mesh = new();
                 mesh.SetPositions(positions);
                 mesh.SetUVs(uvs, 0);
                 mesh.SetIndices(indices);
-                return mesh;
-            }
-            case PrimitiveType.Cube:
-                return null;
-                break;
-            case PrimitiveType.Sphere:
-            {
-                const float radius = 0.5f;
-                const int rings = 8;
-                const int slices = 16;
-                List<System.Numerics.Vector3> vertices = [];
-                List<System.Numerics.Vector2> uvs = [];
-                List<int> indices = [];
-
-                for (int i = 0; i <= rings; i++)
-                {
-                    float v = 1 - (float)i / rings;
-                    float phi = v * MathF.PI;
-
-                    for (int j = 0; j <= slices; j++)
-                    {
-                        float u = (float)j / slices;
-                        float theta = u * MathF.PI * 2;
-
-                        float x = MathF.Sin(phi) * MathF.Cos(theta);
-                        float y = MathF.Cos(phi);
-                        float z = MathF.Sin(phi) * MathF.Sin(theta);
-
-                        vertices.Add(new System.Numerics.Vector3(x, y, z) * radius);
-                        uvs.Add(new System.Numerics.Vector2(u, v));
-                    }
-                }
-
-                for (int i = 0; i < rings; i++)
-                for (int j = 0; j < slices; j++)
-                {
-                    int a = i * (slices + 1) + j;
-                    int b = a + slices + 1;
-
-                    indices.Add(a);
-                    indices.Add(b);
-                    indices.Add(a + 1);
-
-                    indices.Add(b);
-                    indices.Add(b + 1);
-                    indices.Add(a + 1);
-                }
-
-                Mesh mesh = new();
-                mesh.SetPositions(vertices.ToArray());
-                mesh.SetUVs(uvs.ToArray(), 0);
-                mesh.SetIndices(indices.ToArray());
-
+                
                 mesh.RecalculateBounds();
                 mesh.RecalculateNormals();
                 mesh.RecalculateTangents();
+
                 return mesh;
+            }
+            case PrimitiveType.Sphere:
+            {
+                const float radius = 0.5f;
+                const int rings = 16;
+                const int slices = 16;
+                return CreateSphere(radius, rings, slices);
             }
             case PrimitiveType.Capsule:
                 return null;
@@ -791,6 +765,59 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
+    }
+
+
+    public static Mesh CreateSphere(float radius, int rings, int slices)
+    {
+        List<System.Numerics.Vector3> vertices = [];
+        List<System.Numerics.Vector2> uvs = [];
+        List<int> indices = [];
+
+        for (int i = 0; i <= rings; i++)
+        {
+            float v = 1 - (float)i / rings;
+            float phi = v * MathF.PI;
+
+            for (int j = 0; j <= slices; j++)
+            {
+                float u = (float)j / slices;
+                float theta = u * MathF.PI * 2;
+
+                float x = MathF.Sin(phi) * MathF.Cos(theta);
+                float y = MathF.Cos(phi);
+                float z = MathF.Sin(phi) * MathF.Sin(theta);
+
+                vertices.Add(new System.Numerics.Vector3(x, y, z) * radius);
+                uvs.Add(new System.Numerics.Vector2(u, v));
+            }
+        }
+
+        for (int i = 0; i < rings; i++)
+        for (int j = 0; j < slices; j++)
+        {
+            int a = i * (slices + 1) + j;
+            int b = a + slices + 1;
+
+            indices.Add(a);
+            indices.Add(b);
+            indices.Add(a + 1);
+
+            indices.Add(b);
+            indices.Add(b + 1);
+            indices.Add(a + 1);
+        }
+
+        Mesh mesh = new();
+        mesh.SetPositions(vertices.ToArray());
+        mesh.SetUVs(uvs.ToArray(), 0);
+        mesh.SetIndices(indices.ToArray());
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+                
+        return mesh;
     }
 
 
@@ -805,13 +832,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         positions[2] = new System.Numerics.Vector3(-1, 1, 0);
         positions[3] = new System.Numerics.Vector3(1, 1, 0);
 
-        int[] indices = new int[6];
-        indices[0] = 0;
-        indices[1] = 2;
-        indices[2] = 1;
-        indices[3] = 2;
-        indices[4] = 3;
-        indices[5] = 1;
+        int[] indices = [0, 2, 1, 2, 3, 1];
 
         System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[4];
         uvs[0] = new System.Numerics.Vector2(0, 0);
@@ -822,6 +843,10 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         mesh.SetPositions(positions);
         mesh.SetIndices(indices);
         mesh.SetUVs(uvs, 0);
+        
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
 
         fullScreenQuadCached = mesh;
         return mesh;

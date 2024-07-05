@@ -81,6 +81,7 @@ internal abstract class GraphicsDriver
     public abstract void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget target = FBOTarget.Framebuffer);
     public abstract void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags depthBufferBit, BlitFilter nearest);
     public abstract void ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output) where T : unmanaged;
+    public abstract T ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format) where T : unmanaged;
 
     #endregion
 
@@ -107,6 +108,10 @@ internal abstract class GraphicsDriver
     public abstract void SetUniformMatrix(GraphicsProgram program, int location, int length, bool transpose, in float m11);
     public abstract void SetUniformTexture(GraphicsProgram program, string name, int slot, GraphicsTexture texture);
     public abstract void SetUniformTexture(GraphicsProgram program, int location, int slot, GraphicsTexture texture);
+    // Explicitly clear a texture slot.
+    // This is to reduce user error, since SetUniformTexture should throw if the texture is not available.
+    public abstract void ClearUniformTexture(GraphicsProgram program, string name, int slot);
+    public abstract void ClearUniformTexture(GraphicsProgram program, int location, int slot);
     
     #endregion
 

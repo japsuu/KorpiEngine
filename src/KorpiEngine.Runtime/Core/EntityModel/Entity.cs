@@ -4,6 +4,7 @@ using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Utils;
 using System.Reflection;
+using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -16,7 +17,7 @@ public sealed class Entity
     /// <summary>
     /// Unique identifier for this entity.
     /// </summary>
-    public readonly ulong InstanceID;
+    public readonly int InstanceID;
     
     /// <summary>
     /// The scene this entity is in.
@@ -51,6 +52,16 @@ public sealed class Entity
         {
             if (value != _enabled)
                 SetEnabled(value);
+        }
+    }
+
+    public Matrix4x4 GlobalCameraRelativeTransform
+    {
+        get
+        {
+            Matrix4x4 t = Transform.LocalToWorldMatrix;
+            t.Translation -= CameraComponent.RenderingCamera.Transform.Position;
+            return t;
         }
     }
 
@@ -659,12 +670,19 @@ public sealed class Entity
                 component.InternalStart();
         }
     }
+    
+    
+    internal void Update(EntityUpdateStage stage)
+    {
+        UpdateComponentsRecursive(stage);
+        UpdateSystemsRecursive(stage);
+    }
 
 
     /// <summary>
     /// Propagates system updates downwards in the hierarchy.
     /// </summary>
-    internal void UpdateSystemsRecursive(EntityUpdateStage stage)
+    private void UpdateSystemsRecursive(EntityUpdateStage stage)
     {
         _systemBuckets.Update(stage);
 
@@ -679,7 +697,7 @@ public sealed class Entity
     /// <summary>
     /// Propagates component updates downwards in the hierarchy.
     /// </summary>
-    internal void UpdateComponentsRecursive(EntityUpdateStage stage)
+    private void UpdateComponentsRecursive(EntityUpdateStage stage)
     {
         foreach (EntityComponent component in _components)
             component.Update(stage);

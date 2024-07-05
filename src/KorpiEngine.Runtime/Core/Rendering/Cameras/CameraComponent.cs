@@ -1,6 +1,10 @@
 ﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
+using KorpiEngine.Core.Rendering.Pipeline;
+using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
@@ -14,48 +18,303 @@ namespace KorpiEngine.Core.Rendering.Cameras;
 /// </summary>
 public sealed class CameraComponent : EntityComponent
 {
-    public const float NEAR_CLIP_PLANE = 0.01f;
-    public const float FAR_CLIP_PLANE = 1000f;
+    private const int RENDER_TEXTURE_MAX_UNUSED_FRAMES = 10;
+    
+    internal static CameraComponent RenderingCamera { get; private set; } = null!;
+    
+    public event Action<int, int>? Resized;
+
+    private readonly RenderPipeline _pipeline = new();
+    private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
+    private Matrix4x4? _oldView;
+    private Matrix4x4? _oldProjection;
 
     /// <summary>
     /// The render priority of this camera.
-    /// Camera with the highest render priority will be rendered last.
+    /// The Camera with the highest render priority will be rendered last.
     /// </summary>
     public short RenderPriority = 0;
+    
+    /// <summary>
+    /// The render resolution multiplier of this camera.
+    /// </summary>
+    public float RenderResolution = 1f;
+
+    /// <summary>
+    /// The render target texture of this camera.
+    /// If set, the camera will render to this texture.
+    /// If not set, the camera will render to the screen.
+    /// </summary>
+    public ResourceRef<RenderTexture> TargetTexture;
+    
+    /// <summary>
+    /// The G-buffer of this camera.
+    /// </summary>
+    public GBuffer? GBuffer { get; private set; }
 
     public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
-    public CameraRenderTarget RenderTarget = CameraRenderTarget.Screen;
     public CameraClearType ClearType = CameraClearType.SolidColor;
     public CameraClearFlags ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
     public Color ClearColor = Color.Gray;
+    public CameraDebugDrawType DebugDrawType = CameraDebugDrawType.Off;
 
     /// <summary>
     /// The field of view (FOV degrees, the vertical angle of the camera view).
     /// </summary>
     public float FOVDegrees = 60;
+    public float OrthographicSize = 0.5f;
+    
+    public float NearClipPlane = 0.01f;
+    public float FarClipPlane = 1000f;
 
     /// <summary>
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
-    /// Does not account for camera position, since we use camera-relative rendering.
+    /// Does not contain the camera position, since we use camera-relative rendering.
     /// </summary>
     public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
 
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>
-    public Matrix4x4 ProjectionMatrix => ProjectionType == CameraProjectionType.Orthographic
-        ? System.Numerics.Matrix4x4.CreateOrthographicLeftHanded(WindowInfo.ClientWidth, WindowInfo.ClientHeight, NEAR_CLIP_PLANE, FAR_CLIP_PLANE).ToDouble()
-        : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), WindowInfo.ClientAspectRatio, NEAR_CLIP_PLANE, FAR_CLIP_PLANE)
-            .ToDouble();
+    public Matrix4x4 GetProjectionMatrix(float width, float height) => ProjectionType == CameraProjectionType.Orthographic
+        ? System.Numerics.Matrix4x4.CreateOrthographicOffCenterLeftHanded(-OrthographicSize, OrthographicSize, -OrthographicSize, OrthographicSize, NearClipPlane, FarClipPlane).ToDouble()
+        : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), width / height, NearClipPlane, FarClipPlane).ToDouble();
 
+
+    internal void Render(int width = -1, int height = -1)
+    {
+        // Determine render target size
+        if (TargetTexture.IsAvailable)
+        {
+            width = TargetTexture.Res!.Width;
+            height = TargetTexture.Res!.Height;
+        }
+        else if (width == -1 || height == -1)
+        {
+            width = Graphics.Window.FramebufferSize.X;
+            height = Graphics.Window.FramebufferSize.Y;
+        }
+
+        width = (int)(width * RenderResolution);
+        height = (int)(height * RenderResolution);
+
+        CheckGBuffer();
+        
+        // Use the current view and projection matrices
+        RenderingCamera = this;
+        
+        Graphics.ViewMatrix = ViewMatrix;
+        Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
+        Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
+        Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
+        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
+        
+        _pipeline.Prepare(width, height);
+        
+        // Render all meshes
+        GeometryPass();
+        
+        RenderTexture? result = _pipeline.Render();
+
+        if (result == null)
+        {
+            EarlyEndRender();
+
+            Application.Logger.Error("RenderPipeline failed to return a RenderTexture!");
+            return;
+        }
+        
+        // Draw to Screen
+        bool doClear = ClearType == CameraClearType.SolidColor;
+        switch (DebugDrawType)
+        {
+            case CameraDebugDrawType.Off:
+                Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
+                Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
+                break;
+            case CameraDebugDrawType.Albedo:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.AlbedoAO, doClear);
+                break;
+            case CameraDebugDrawType.Normals:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.NormalMetallic, doClear);
+                break;
+            case CameraDebugDrawType.Position:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.PositionRoughness, doClear);
+                break;
+            case CameraDebugDrawType.Emission:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Emission, doClear);
+                break;
+            case CameraDebugDrawType.Depth:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Depth!, doClear);
+                break;
+            case CameraDebugDrawType.Velocity:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Velocity, doClear);
+                break;
+            case CameraDebugDrawType.ObjectID:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.ObjectIDs, doClear);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+        _oldView = Graphics.ViewMatrix;
+        _oldProjection = Graphics.ProjectionMatrix;
+        
+        RenderingCamera = null!;
+        Graphics.UseJitter = false;
+    }
+    
+    
+    internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
+    internal void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
+    internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
+
+
+    private void GeometryPass()
+    {
+        Entity.Scene.EntityScene.InvokePreRender();
+        
+        GBuffer!.Begin();
+        RenderGeometry();
+        GBuffer.End();
+        
+        Entity.Scene.EntityScene.InvokePostRender();
+    }
+    
+    
+    private Vector2 GetRenderTargetSize()
+    {
+        if (TargetTexture.IsAvailable)
+            return new Vector2(TargetTexture.Res!.Width, TargetTexture.Res!.Height);
+        
+        return new Vector2(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
+    }
+
+    
+    private void CheckGBuffer()
+    {
+        // RenderResolution = Math.Clamp(RenderResolution, 0.1f, 4.0f);
+
+        Vector2 renderSize = GetRenderTargetSize() * RenderResolution;
+        
+        if (GBuffer == null)
+        {
+            GBuffer = new GBuffer((int)renderSize.X, (int)renderSize.Y);
+            Resized?.Invoke(GBuffer.Width, GBuffer.Height);
+        }
+        else if (GBuffer.Width != (int)renderSize.X || GBuffer.Height != (int)renderSize.Y)
+        {
+            GBuffer.UnloadGBuffer();
+            GBuffer = new GBuffer((int)renderSize.X, (int)renderSize.Y);
+            Resized?.Invoke(GBuffer.Width, GBuffer.Height);
+        }
+    }
+
+    private void EarlyEndRender()
+    {
+        Graphics.UseJitter = false;
+        
+        // Clear the screen
+        if (ClearType == CameraClearType.SolidColor)
+        {
+            TargetTexture.Res?.Begin();
+            
+            ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
+            bool clearColor = ClearFlags.HasFlag(CameraClearFlags.Color);
+            bool clearDepth = ClearFlags.HasFlag(CameraClearFlags.Depth);
+            bool clearStencil = ClearFlags.HasFlag(CameraClearFlags.Stencil);
+            Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
+            
+            TargetTexture.Res?.End();
+        }
+        
+        RenderingCamera = null!;
+    }
+
+
+    protected override void OnUpdate()
+    {
+        if (!Input.GetKeyDown(KeyCode.F1))
+            return;
+        
+        DebugDrawType = DebugDrawType switch
+        {
+            CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
+            CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
+            CameraDebugDrawType.Normals => CameraDebugDrawType.Position,
+            CameraDebugDrawType.Position => CameraDebugDrawType.Emission,
+            CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
+            CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
+            CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
+            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
+    }
+
+
+    protected override void OnPostUpdate()
+    {
+        UpdateCachedRT();
+    }
+    
+
+    protected override void OnDisable()
+    {
+        GBuffer?.UnloadGBuffer();
+
+        // Clear the Cached RenderTextures
+        foreach (var (renderTexture, _) in _cachedRenderTextures.Values)
+            renderTexture.Destroy();
+        
+        _cachedRenderTextures.Clear();
+    }
+
+    
+    #region RT Cache
+    
+    public RenderTexture GetCachedRT(string name, int width, int height, TextureImageFormat[] format)
+    {
+        if (_cachedRenderTextures.ContainsKey(name))
+        {
+            // Update the frame created
+            (RenderTexture, long frameCreated) cached = _cachedRenderTextures[name];
+            _cachedRenderTextures[name] = (cached.Item1, Time.TotalFrameCount);
+            return cached.Item1;
+        }
+        RenderTexture rt = new(width, height, 1, false, format);
+        rt.Name = name;
+        _cachedRenderTextures[name] = (rt, Time.TotalFrameCount);
+        return rt;
+    }
+    
+
+    public void UpdateCachedRT()
+    {
+        List<(RenderTexture, string)> disposableTextures = [];
+        foreach (var (name, (renderTexture, frameCreated)) in _cachedRenderTextures)
+            if (Time.TotalFrameCount - frameCreated > RENDER_TEXTURE_MAX_UNUSED_FRAMES)
+                disposableTextures.Add((renderTexture, name));
+
+        foreach ((RenderTexture, string) renderTexture in disposableTextures)
+        {
+            _cachedRenderTextures.Remove(renderTexture.Item2);
+            renderTexture.Item1.Destroy();
+        }
+    }
+
+    #endregion
+
+
+    #region Public utility methods
 
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
-        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * ProjectionMatrix;
+        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
 
-        // Without this the coordinates are visible even when looking straight away from them.
+        // Without this, the coordinates are visible even when looking straight away from them.
         if (clipSpacePosition.W <= 0)
         {
             screenPos = Vector2.NegativeInfinity;
@@ -75,7 +334,7 @@ public sealed class CameraComponent : EntityComponent
 
     public Frustum CalculateFrustum()
     {
-        Matrix4x4 viewProjection = ViewMatrix * ProjectionMatrix;
+        Matrix4x4 viewProjection = ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
         FrustumPlane[] planes = new FrustumPlane[6];
 
         // Top plane.
@@ -138,4 +397,6 @@ public sealed class CameraComponent : EntityComponent
 
         return frustum;
     }
+
+    #endregion
 }

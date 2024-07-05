@@ -1,0 +1,242 @@
+﻿Shader "Default/DictionalLight"
+
+Properties
+{
+	_MatProjection("projection matrix", MATRIX_4X4)
+	_MatMVPInverse("inverse mvp matrix", MATRIX_4X4)
+	_LightDirection("light direction", FLOAT3)
+	_LightColor("light color", FLOAT4)
+	_LightIntensity("light intensity", FLOAT)
+	_GAlbedoAO("g albedo & roughness", TEXTURE_2D)
+	_GNormalMetallic("g normal & metallness", TEXTURE_2D)
+	_GPositionRoughness("g depth", TEXTURE_2D)
+	_ShadowMap("shadowmap", TEXTURE_2D)
+	_MatCamViewInverse("camera inverse view matrix", MATRIX_4X4)
+	_MatShadowView("shadow view matrix", MATRIX_4X4)
+	_MatShadowSpace("shadow space matrix", MATRIX_4X4)
+	_Bias("bias", FLOAT)
+	_NormalBias("normal bias", FLOAT)
+	_Radius("radius", FLOAT)
+	_Penumbra("penumbra", FLOAT)
+	_MinimumPenumbra("minimum penumbra", FLOAT)
+	_QualitySamples("quality samples", INT)
+	_BlockerSamples("blocker samples", INT)
+}
+
+Pass 0
+{
+	DepthTest Off
+	DepthWrite Off
+	// DepthMode Less
+	Blend On
+	BlendSrc SrcAlpha
+	BlendDst One
+	BlendMode Add
+	Cull Off
+	// Winding CW
+
+	Vertex
+	{
+		in vec3 vertexPosition;
+		in vec2 vertexTexCoord;
+		
+		out vec2 TexCoords;
+
+		void main() 
+		{
+			gl_Position =vec4(vertexPosition, 1.0);
+			TexCoords = vertexTexCoord;
+		}
+	}
+
+	Fragment
+	{
+		layout(location = 0) out vec4 gBuffer_lighting;
+		
+		uniform mat4 _MatProjection;
+		uniform mat4 _MatMVPInverse;
+		
+		in vec2 TexCoords;
+		
+		uniform vec3 _LightDirection;
+		uniform vec4 _LightColor;
+		uniform float _LightIntensity;
+		
+		uniform sampler2D _GAlbedoAO; // Albedo & Roughness
+		uniform sampler2D _GNormalMetallic; // Normal & Metalness
+		uniform sampler2D _GPositionRoughness; // Depth
+
+		uniform sampler2D _ShadowMap; // Shadowmap
+		uniform mat4 _MatCamViewInverse;
+		uniform mat4 _MatShadowView;
+		uniform mat4 _MatShadowSpace;
+		
+		uniform float _Bias;
+		uniform float _NormalBias;
+		uniform float _Radius;
+		uniform float _Penumbra;
+		uniform float _MinimumPenumbra;
+		uniform int _QualitySamples;
+		uniform int _BlockerSamples;
+		
+		#include "PBR"
+
+		float random(vec2 co) {
+		    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+		} 
+		// ----------------------------------------------------------------------------
+		
+		vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
+		{
+		    float GoldenAngle = 2.4;
+		
+		    float r = sqrt(float(sampleIndex) + 0.5) / sqrt(float(samplesCount));
+		    float theta = float(sampleIndex) * GoldenAngle + phi;
+		
+		    float sine = sin(theta);
+		    float cosine = cos(theta);
+		
+		    return vec2(r * cosine, r * sine);
+		}
+
+		float InterleavedGradientNoise(vec2 position_screen)
+		{
+		    vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+		    return fract(magic.z * fract(dot(position_screen, magic.xy)));
+		}
+
+		float AvgBlockersDepthToPenumbra(float z_shadowMapView, float avgBlockersDepth)
+		{
+			float penumbra = (z_shadowMapView - avgBlockersDepth) / avgBlockersDepth;
+			penumbra *= penumbra;
+			return clamp(_Penumbra * penumbra, _MinimumPenumbra, 1.0);
+		}
+
+		float Penumbra(float gradientNoise, vec2 shadowMapUV, float z_shadowMapView, int samplesCount)
+		{
+		    float avgBlockersDepth = 0.0;
+		    float blockersCount = 0.0;
+		
+		    for (int i = 0; i < samplesCount; i++)
+		    {
+		        vec2 sampleUV = VogelDiskSample(i, samplesCount, gradientNoise);
+		        sampleUV = shadowMapUV + vec2(_Radius, _Radius) * sampleUV;
+		
+		        float sampleDepth = texture(_ShadowMap, sampleUV).x;
+		
+		        if (sampleDepth < z_shadowMapView)
+		        {
+		            avgBlockersDepth += sampleDepth;
+		            blockersCount += 1.0;
+		        }
+		    }
+		
+		    if (blockersCount > 0.0)
+		    {
+		        avgBlockersDepth /= blockersCount;
+		        return AvgBlockersDepthToPenumbra(z_shadowMapView, avgBlockersDepth);
+		    }
+		    else
+		    {
+		        return 0.0;
+		    }
+		}
+		
+		float pcf_poisson_filter(vec2 uv, float z0, float bias, float filter_radius_uv)
+		{
+		    float sum = 0.0;
+			float gradient = InterleavedGradientNoise(gl_FragCoord.xy);
+			float penumbra = Penumbra(gradient, uv, z0, _BlockerSamples);
+		    for (int i = 0; i < _QualitySamples; ++i)
+		    {
+				vec2 sampleUV = VogelDiskSample(i, _QualitySamples, gradient);
+		        float shadow_map_depth = texture(_ShadowMap, uv + sampleUV * penumbra * vec2(_Radius, _Radius)).r;
+		        sum += shadow_map_depth < (z0 - bias) ? 0.0 : 1.0;
+		    }
+		
+			return clamp(sum / float(_QualitySamples), 0.0, 1.0);
+		}
+
+		
+		// ------------------------------------------------------------------
+		
+		float ShadowCalculation(vec3 p, vec3 gPos, vec3 normal, vec3 lightDir) {
+#ifndef CASTSHADOWS
+			return 0.0;
+#endif
+		    //float constantBias = 0.00001;
+		    //float bias = (1 - dot(normal, lightDir)) * constantBias;
+
+			float bias = _Bias*tan(acos(max(dot(normal, lightDir), 0.0))); // cosTheta is dot( n,l ), clamped between 0 and 1
+			bias = clamp(bias, 0.0,0.01);
+
+			vec4 fragPosLightSpace = _MatShadowSpace * vec4(p, 1.0);
+		    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+		    projCoords = projCoords * 0.5 + 0.5;
+
+			if (projCoords.x > 1.0 || projCoords.y > 1.0 || projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.y < 0.0 || projCoords.z < 0.0)
+			    return 0.0;
+
+			vec4 pos_vs = _MatShadowView * vec4(p, 1.0);
+			pos_vs.xyz /= pos_vs.w;
+			
+			return 1.0 - pcf_poisson_filter(projCoords.xy, projCoords.z, bias, (1.0 / textureSize(_ShadowMap, 0)).x * 6.0);
+		} 
+		// ----------------------------------------------------------------------------
+
+
+		void main()
+		{
+			vec4 gPosRough = textureLod(_GPositionRoughness, TexCoords, 0);
+			vec3 gPos = gPosRough.rgb;
+			if(gPos == vec3(0, 0, 0)) discard;
+		
+			vec3 gAlbedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
+			vec4 gNormalMetal = textureLod(_GNormalMetallic, TexCoords, 0);
+			vec3 gNormal = gNormalMetal.rgb;
+			float gMetallic = gNormalMetal.a;
+			float gRoughness = gPosRough.a;
+
+			// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+			// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
+			vec3 F0 = vec3(0.04); 
+			F0 = mix(F0, gAlbedo, gMetallic);
+			vec3 N = normalize(gNormal);
+			vec3 V = normalize(-gPos);
+
+			
+			vec3 L = normalize(-_LightDirection);
+			vec3 H = normalize(V + L);
+
+			vec3 radiance = _LightColor.rgb * _LightIntensity;    
+			
+			// cook-torrance brdf
+			float NDF = DistributionGGX(N, H, gRoughness);        
+			float G   = GeometrySmith(N, V, L, gRoughness);  
+			vec3 F    = FresnelSchlick(max(dot(H, V), 0.0), F0);
+			
+			vec3 nominator    = NDF * G * F;
+			float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; 
+			vec3 specular     = nominator / denominator;
+
+			vec3 kS = F;
+			vec3 kD = vec3(1.0) - kS;
+			kD *= 1.0 - gMetallic;     
+
+			// shadows
+			vec4 fragPosLightSpace = _MatCamViewInverse * vec4(gPos + (N * _NormalBias), 1);
+			float shadow = ShadowCalculation(fragPosLightSpace.xyz, gPos, N, L);
+			    
+			// add to outgoing radiance Lo
+			float NdotL = max(dot(N, L), 0.0);                
+			vec3 color = ((kD * gAlbedo) / PI + specular) * radiance * (1.0 - shadow) * NdotL;
+			//vec3 color = ((kD * gAlbedo) / PI + specular) * radiance * NdotL;
+
+			gBuffer_lighting = vec4(color, 1.0);
+
+			//vec4 depth = _MatProjection * vec4(gPos, 1.0);
+			//gl_FragDepth = depth.z / depth.w;
+		}
+
+	}
+}

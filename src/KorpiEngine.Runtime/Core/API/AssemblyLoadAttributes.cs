@@ -3,14 +3,9 @@
 namespace KorpiEngine.Core.API;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class OnAssemblyUnloadAttribute : Attribute
+public class OnApplicationUnloadAttribute : Attribute
 {
-    public OnAssemblyUnloadAttribute()
-    {
-    }
-
-
-    private static readonly List<MethodInfo> MethodInfos = new();
+    private static readonly List<MethodInfo> MethodInfos = [];
 
 
     public static void Invoke()
@@ -31,7 +26,7 @@ public class OnAssemblyUnloadAttribute : Attribute
                 MethodInfo[] methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (MethodInfo method in methods)
                 {
-                    IEnumerable<OnAssemblyUnloadAttribute> attributes = method.GetCustomAttributes<OnAssemblyUnloadAttribute>();
+                    IEnumerable<OnApplicationUnloadAttribute> attributes = method.GetCustomAttributes<OnApplicationUnloadAttribute>();
                     if (attributes.Any())
                         MethodInfos.Add(method);
                 }
@@ -41,21 +36,15 @@ public class OnAssemblyUnloadAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class OnAssemblyLoadAttribute : Attribute
+public class OnApplicationLoadAttribute(int order = 0) : Attribute
 {
-    private readonly int _order;
-    private static List<MethodInfo> methodInfos = new();
-
-
-    public OnAssemblyLoadAttribute(int order = 0)
-    {
-        _order = order;
-    }
+    private readonly int _order = order;
+    private static readonly List<MethodInfo> MethodInfos = [];
 
 
     public static void Invoke()
     {
-        foreach (MethodInfo methodInfo in methodInfos)
+        foreach (MethodInfo methodInfo in MethodInfos)
             methodInfo.Invoke(null, null);
     }
 
@@ -72,7 +61,7 @@ public class OnAssemblyLoadAttribute : Attribute
                 MethodInfo[] methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (MethodInfo method in methods)
                 {
-                    OnAssemblyLoadAttribute? attribute = method.GetCustomAttribute<OnAssemblyLoadAttribute>();
+                    OnApplicationLoadAttribute? attribute = method.GetCustomAttribute<OnApplicationLoadAttribute>();
                     if (attribute != null)
                         attribMethods.Add((method, attribute._order));
                 }
@@ -81,6 +70,6 @@ public class OnAssemblyLoadAttribute : Attribute
 
         IOrderedEnumerable<(MethodInfo, int)> ordered = attribMethods.OrderBy(x => x.Item2);
         foreach ((MethodInfo, int) attribMethod in ordered)
-            methodInfos.Add(attribMethod.Item1);
+            MethodInfos.Add(attribMethod.Item1);
     }
 }

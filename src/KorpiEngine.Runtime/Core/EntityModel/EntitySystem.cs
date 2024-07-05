@@ -362,39 +362,3 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
     
     public abstract void Update(EntityUpdateStage stage);
 }
-
-
-public class ExampleEntitySystem : EntitySystem<ExampleEntitySystem.ExampleComponent>
-{
-    public class ExampleComponent : EntityComponent
-    {
-        public int Updates { get; set; }
-        public int FixedUpdates { get; set; }
-    }
-    
-    public override EntityUpdateStage[] UpdateStages => [EntityUpdateStage.Update, EntityUpdateStage.FixedUpdate];
-    public override bool IsSingleton => false;
-    
-    private readonly List<ExampleComponent> _components = [];
-    
-
-    protected override void RegisterComponent(ExampleComponent c)
-    {
-        _components.Add(c);
-    }
-
-    protected override void UnregisterComponent(ExampleComponent c)
-    {
-        _components.Remove(c);
-    }
-
-    public override void Update(EntityUpdateStage stage)
-    {
-        if (stage == EntityUpdateStage.Update)
-            foreach (ExampleComponent c1 in _components)
-                c1.Updates++;
-        else if (stage == EntityUpdateStage.FixedUpdate)
-            foreach (ExampleComponent c1 in _components)
-                c1.FixedUpdates++;
-    }
-}

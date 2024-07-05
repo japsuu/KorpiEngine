@@ -1,11 +1,7 @@
 ﻿using KorpiEngine.Core;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -20,11 +16,11 @@ internal class DemoScene : Scene
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
-            root.AddComponent<DemoOscillate>();
+            //root.AddComponent<DemoOscillate>();
 
             // Create a sphere primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
@@ -34,6 +30,41 @@ internal class DemoScene : Scene
             Vector2 randomPos = Random.InUnitCircle * 20;
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
         }
+
+        for (int i = 0; i < 25; i++)
+        {
+            // Create a new entity with a name, and add a custom component to make it oscillate
+            Entity root = new($"Sphere {i}");
+            //root.AddComponent<DemoOscillate>();
+
+            // Create a sphere primitive and add it as a child of the root entity
+            Entity model = CreatePrimitive(PrimitiveType.Quad, "Sphere model");
+            model.SetParent(root);
+
+            // Move the root entity to a random position
+            Vector2 randomPos = Random.InUnitCircle * 20;
+            root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
+        }
+
+        /*// ----------------------------------------
+        // Creating a blue point light
+        
+        Entity blueLightEntity = new("Point Light");
+        PointLight blueLight = blueLightEntity.AddComponent<PointLight>();
+        blueLight.Color = Color.Blue;
+        blueLight.Radius = 10.0f;
+        blueLight.Intensity = 3.0f;
+        blueLightEntity.Transform.Position = new Vector3(0, 2, 0);
+
+        // ----------------------------------------
+        // Creating a red point light
+        
+        Entity redLightEntity = new("Point Light");
+        PointLight redLight = redLightEntity.AddComponent<PointLight>();
+        redLight.Color = Color.Red;
+        redLight.Radius = 10.0f;
+        redLight.Intensity = 3.0f;
+        redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);*/
 
         // ----------------------------------------
         // Creating a quad that moves and rotates
@@ -45,9 +76,9 @@ internal class DemoScene : Scene
         quadEntity.AddComponent<DemoMoveRotate>();
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
-        Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material!;
-        material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
-        material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
+        // Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
+        // material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
+        // material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
     }
 
 
@@ -109,11 +140,24 @@ internal class DemoMoveRotate : EntityComponent
 internal class DemoFreeCam : EntityComponent
 {
     private const float LOOK_SENSITIVITY = 0.2f;
+    private const float MAX_PITCH = 89.0f;
+    private const float MIN_PITCH = -89.0f;
 
     private const double SLOW_FLY_SPEED = 1.5f;
     private const double FAST_FLY_SPEED = 3.0f;
 
+    private double _pitch;
+    private double _yaw;
     private bool _isCursorLocked;
+    
+    
+    protected override void OnStart()
+    {
+        // Set the initial pitch and yaw angles based on the current rotation
+        Vector3 currentEulerAngles = Transform.EulerAngles;
+        _pitch = currentEulerAngles.X;
+        _yaw = currentEulerAngles.Y;
+    }
 
 
     protected override void OnUpdate()
@@ -163,12 +207,14 @@ internal class DemoFreeCam : EntityComponent
     private void UpdateRotation()
     {
         // Calculate the offset of the mouse position
-        double yaw = Transform.LocalEulerAngles.Y + Input.MouseDelta.X * LOOK_SENSITIVITY;
-        double pitch = Transform.LocalEulerAngles.X + Input.MouseDelta.Y * LOOK_SENSITIVITY;
+        _yaw += Input.MouseDelta.X * LOOK_SENSITIVITY;
 
-        Vector3 eulers = new(pitch, yaw, 0f);
+        // Calculate new pitch and clamp it
+        _pitch += Input.MouseDelta.Y * LOOK_SENSITIVITY;
+        _pitch = Maths.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
-        Transform.LocalEulerAngles = eulers;
+        // Apply the new rotation
+        Transform.Rotation = Quaternion.Euler((float)_pitch, (float)_yaw, 0f);
     }
 
 
