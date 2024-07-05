@@ -47,7 +47,7 @@ public sealed class Texture2D : Texture, ISerializable
 
     public static ResourceRef<Texture2D> Load(string path)
     {
-        Texture2D? asset = AssetDatabase.LoadAsset<Texture2D>("Defaults/grid.png");
+        Texture2D? asset = AssetDatabase.LoadAsset<Texture2D>(path);
         
         if (asset == null)
             throw new AssetLoadException<Texture2D>(path);

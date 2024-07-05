@@ -1,7 +1,6 @@
-# Korpi Engine
+# <p align="center">Korpi Engine</p>
 
-Korpi Engine is an open-source,
-MIT-licensed 3D game engine written in pure C# and .NET 8. The engine uses a 64-bit
+An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The engine uses a 64-bit
 (double) coordinate system on the CPU and camera-relative rendering on the GPU, to achieve large world support.
 
 > [!WARNING]
@@ -10,15 +9,14 @@ MIT-licensed 3D game engine written in pure C# and .NET 8. The engine uses a 64-
 > [!IMPORTANT]
 > Only the `MAIN` branch is reserved for releases. All other branches might contain **broken** features!
 
-## Table of Contents
-
-- [Project goals](#project-goals)
-- [Project status](#project-status)
+- [About](#about-the-project)
+- [Features & Roadmap](#features--roadmap)
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
 - [Contributing](CONTRIBUTING.md)
+- [Acknowledgments](#acknowledgments)
 
-## Project goals
+# <p align="center">About The Project</p>
 
 The goal of this project is to provide a viable alternative to other game engines for **programmers**,
 and other people who prefer working directly with code.
@@ -26,9 +24,9 @@ Korpi Engine offers a smooth transition for developers familiar with Unity, by p
 while also adhering to the [KISS principle](https://en.m.wikipedia.org/wiki/KISS_principle).
 The engine is designed to be modular and extensible, allowing for easy integration of new features and systems.
 
-## Project status
+# <p align="center">Features / Roadmap</p>
 
-A non-exhaustive list of currently implemented engine features. Updated every once in a while:
+A non-exhaustive list of currently implemented engine features. Updated every once in a while.
 
 - Runtime
   - Scripting
@@ -42,8 +40,8 @@ A non-exhaustive list of currently implemented engine features. Updated every on
       - [ ] DirectX renderer
       - [ ] Vulcan renderer
     - [x] Camera-relative rendering
-    - [ ] Point, spot & directional lights
-    - [ ] Post-processing pipeline
+    - [x] Point, spot & directional lights
+    - [x] Post-processing pipeline
   - UI
     - [x] Native Dear ImGUI support
   - Physics
@@ -62,12 +60,12 @@ A non-exhaustive list of currently implemented engine features. Updated every on
 - Editor layer
   - [ ] Standalone editor
 
-## Documentation
+# <p align="center">Documentation</p>
 
 There is no official documentation available yet.
 You can follow the progress of this feature in [issue #12](https://github.com/japsuu/KorpiEngine/issues/12).
 
-## Getting Started
+# <p align="center">Getting Started</p>
 
 1. Download the repository
    - Either download this repository as an archive or clone it:
@@ -82,5 +80,12 @@ You can follow the progress of this feature in [issue #12](https://github.com/ja
 		- **As a project reference** (recommended): You can add the engine as a project reference to your own solution: https://learn.microsoft.com/en-us/visualstudio/ide/managing-references-in-a-project
         - **As a standalone project**: You can create a new project in to the same solution as the engine. This is not recommended, as it may make updating the engine more difficult.
         - **As a NuGet package**: There is no NuGet package available yet :(. You can follow the progress of this feature in [issue #11](https://github.com/japsuu/KorpiEngine/issues/11).
+4. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
 
-> TODO: Guide on Unity -> Korpi transitioning
+# <p align="center">Acknowledgments</p>
+
+- [OpenTK](https://github.com/opentk/opentk) for providing a managed OpenGL wrapper.
+- [Prowl Engine](https://github.com/ProwlEngine/Prowl) for providing inspiration and some code snippets.
+- [Unity](https://unity.com/) for providing inspiration and a reference point for the engine's design.
+- [LiteNetLib](https://github.com/RevenantX/LiteNetLib) for providing a high-performance C# rUDP networking library.
+- 2D game framework [Duality](https://github.com/AdamsLair/duality) for providing a reference point for the asset pipeline.
