@@ -9,11 +9,12 @@ An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The e
 > [!IMPORTANT]
 > Only the `MAIN` branch is reserved for releases. All other branches might contain **broken** features!
 
-- [Project goals](#project-goals)
-- [Project status](#project-status)
+- [About](#about-the-project)
+- [Features & Roadmap](#features--roadmap)
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
 - [Contributing](CONTRIBUTING.md)
+- [Acknowledgments](#acknowledgments)
 
 # <p align="center">About The Project</p>
 
@@ -59,7 +60,7 @@ A non-exhaustive list of currently implemented engine features. Updated every on
 - Editor layer
   - [ ] Standalone editor
 
-## Documentation
+# <p align="center">Documentation</p>
 
 There is no official documentation available yet.
 You can follow the progress of this feature in [issue #12](https://github.com/japsuu/KorpiEngine/issues/12).
@@ -79,8 +80,7 @@ You can follow the progress of this feature in [issue #12](https://github.com/ja
 		- **As a project reference** (recommended): You can add the engine as a project reference to your own solution: https://learn.microsoft.com/en-us/visualstudio/ide/managing-references-in-a-project
         - **As a standalone project**: You can create a new project in to the same solution as the engine. This is not recommended, as it may make updating the engine more difficult.
         - **As a NuGet package**: There is no NuGet package available yet :(. You can follow the progress of this feature in [issue #11](https://github.com/japsuu/KorpiEngine/issues/11).
-
-> TODO: Guide on Unity -> Korpi transitioning
+4. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
 
 # <p align="center">Acknowledgments</p>
 
