@@ -799,8 +799,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 return CreateSphere(radius, rings, slices);
             }
             case PrimitiveType.Capsule:
-                return null;
-                break;
+                return null!;
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
