@@ -84,6 +84,7 @@ You can follow the progress of this feature in [issue #12](https://github.com/ja
 
 # <p align="center">Acknowledgments</p>
 
+Portions of code or ideas are derived from the following sources:
 - [OpenTK](https://github.com/opentk/opentk) for providing a managed OpenGL wrapper.
 - [Prowl Engine](https://github.com/ProwlEngine/Prowl) for providing inspiration and some code snippets.
 - [Unity](https://unity.com/) for providing inspiration and a reference point for the engine's design.
