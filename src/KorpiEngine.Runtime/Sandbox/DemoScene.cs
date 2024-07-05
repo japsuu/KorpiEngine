@@ -91,8 +91,7 @@ internal class DemoScene : Scene
         CameraComponent component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(-10, 1, 0);
-        component.Transform.Rotation = Quaternion.Euler(0, 90, 0);
+        component.Transform.Position = new Vector3(0, 1, -10);
         return component;
     }
 }
