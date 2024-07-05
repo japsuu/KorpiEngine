@@ -11,8 +11,8 @@ public class AmbientLight : EntityComponent
 
     public Color SkyColor = Color.White;
     public Color GroundColor = Color.White;
-    public float SkyIntensity = 1f;
-    public float GroundIntensity = 1f;
+    public float SkyIntensity = 0.4f;
+    public float GroundIntensity = 0.05f;
 
     private Material? _lightMat;
     
