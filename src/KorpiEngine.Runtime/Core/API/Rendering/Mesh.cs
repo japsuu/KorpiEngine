@@ -728,17 +728,56 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             }
             case PrimitiveType.Cube:
             {
-                return null;
+                System.Numerics.Vector3 size = new(1, 1, 1);
+                float x = size.X / 2f;
+                float y = size.Y / 2f;
+                float z = size.Z / 2f;
+
                 System.Numerics.Vector3[] positions =
                 [
+                    // Front face
+                    new(-x, -y, z), new(x, -y, z), new(x, y, z), new(-x, y, z),
+                
+                    // Back face
+                    new(-x, -y, -z), new(x, -y, -z), new(x, y, -z), new(-x, y, -z),
+                
+                    // Left face
+                    new(-x, -y, -z), new(-x, y, -z), new(-x, y, z), new(-x, -y, z),
+                
+                    // Right face
+                    new(x, -y, z), new(x, y, z), new(x, y, -z), new(x, -y, -z),
+                
+                    // Top face
+                    new(-x, y, z), new(x, y, z), new(x, y, -z), new(-x, y, -z),
+                
+                    // Bottom face
+                    new(-x, -y, -z), new(x, -y, -z), new(x, -y, z), new(-x, -y, z)
                 ];
 
                 System.Numerics.Vector2[] uvs =
                 [
+                    // Front face
+                    new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+                    // Back face
+                    new(1, 0), new(0, 0), new(0, 1), new(1, 1),
+                    // Left face
+                    new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+                    // Right face
+                    new(1, 0), new(1, 1), new(0, 1), new(0, 0),
+                    // Top face
+                    new(0, 1), new(1, 1), new(1, 0), new(0, 0),
+                    // Bottom face
+                    new(0, 0), new(1, 0), new(1, 1), new(0, 1)
                 ];
 
                 int[] indices =
                 [
+                    0, 1, 2, 0, 2, 3,       // Front face
+                    4, 6, 5, 4, 7, 6,       // Back face
+                    8, 9, 10, 8, 10, 11,    // Left face
+                    12, 14, 13, 12, 15, 14, // Right face
+                    16, 17, 18, 16, 18, 19, // Top face
+                    20, 22, 21, 20, 23, 22  // Bottom face
                 ];
 
                 Mesh mesh = new();
