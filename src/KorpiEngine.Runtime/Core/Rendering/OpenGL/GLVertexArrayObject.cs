@@ -23,7 +23,7 @@ internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
         {
             int index = element.Semantic;
             GL.EnableVertexAttribArray(index);
-            IntPtr offset = (IntPtr)element.Offset;
+            IntPtr offset = element.Offset;
 
             if (element.AttributeType == VertexAttributeType.Float)
                 GL.VertexAttribPointer(index, element.Count, (VertexAttribPointerType)element.AttributeType, element.Normalized, layout.VertexSize, offset);

@@ -6,8 +6,7 @@ internal class MeshVertexLayout
 {
     public readonly VertexAttributeDescriptor[] Attributes;
     public readonly int VertexSize;
-    public readonly int VertexAttributeCount;
-    
+
     private readonly bool[] _enabledVertexAttributes = new bool[6];
 
 
@@ -40,8 +39,6 @@ internal class MeshVertexLayout
             
             _enabledVertexAttributes[element.Semantic] = true;
         }
-        
-        VertexAttributeCount = Attributes.Length;
     }
     
     
@@ -64,24 +61,6 @@ internal class MeshVertexLayout
             AttributeType = attributeType;
             Count = count;
             Normalized = normalized;
-        }
-
-
-        public VertexAttributeDescriptor(int semantic, VertexAttributeType attributeType, byte count, bool normalized = false)
-        {
-            Semantic = semantic;
-            AttributeType = attributeType;
-            Count = count;
-            Normalized = normalized;
-        }
-
-
-        public VertexAttributeDescriptor(VertexAttributeDescriptor copy)
-        {
-            Semantic = copy.Semantic;
-            AttributeType = copy.AttributeType;
-            Count = copy.Count;
-            Normalized = copy.Normalized;
         }
         
         
