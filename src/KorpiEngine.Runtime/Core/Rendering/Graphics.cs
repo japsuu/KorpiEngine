@@ -2,6 +2,8 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
@@ -10,19 +12,33 @@ namespace KorpiEngine.Core.Rendering;
 
 public static class Graphics
 {
-    private static KorpiWindow Window { get; set; } = null!;
+    private static Material defaultBlitMaterial = null!;
+    
+    internal static KorpiWindow Window { get; private set; } = null!;
     internal static GraphicsDriver Driver = null!;
+    internal static Vector2i FrameBufferSize;
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
-    public static Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
-    public static Matrix4x4 ViewProjectionMatrix { get; private set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 OldViewMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 OldProjectionMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
+    
+    public static Matrix4x4 DepthProjectionMatrix;
+    public static Matrix4x4 DepthViewMatrix;
 
+    public static bool UseJitter;
+    public static Vector2 Jitter { get; set; }
+    public static Vector2 PreviousJitter { get; set; }
+    
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
     {
         Driver = new T();
         Window = korpiWindow;
+        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.shader"), "basic material");
         Driver.Initialize();
     }
 
@@ -40,7 +56,7 @@ public static class Graphics
     }
     
 
-    internal static void Clear(float r = 1, float g = 0, float b = 1, float a = 1, bool color = true, bool depth = true, bool stencil = true)
+    internal static void Clear(float r = 0, float g = 0, float b = 0, float a = 1, bool color = true, bool depth = true, bool stencil = true)
     {
         ClearFlags flags = 0;
         if (color) flags |= ClearFlags.Color;
@@ -48,24 +64,18 @@ public static class Graphics
         if (stencil) flags |= ClearFlags.Stencil;
         Driver.Clear(r, g, b, a, flags);
     }
-    
-    
+
+
     /// <summary>
     /// Starts a new draw frame.
     /// </summary>
-    /// <param name="renderingCamera">The camera to render with.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void StartFrame(Camera renderingCamera)
+    internal static void StartFrame()
     {
-        Camera.RenderingCamera = renderingCamera;
-        SetMatrices(renderingCamera);
-
-        if (renderingCamera.ClearType == CameraClearType.Nothing)
-            return;
+        RenderTexture.UpdatePool();
         
-        renderingCamera.ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-        
-        Clear(r, g, b, a);
+        Clear();
+        UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Driver.SetState(new RasterizerState(), true);
     }
@@ -77,44 +87,70 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        Camera.RenderingCamera = null;
+        
     }
 
 
     /// <summary>
-    /// Called instead of <see cref="StartFrame"/> and <see cref="EndFrame"/> when there is no camera to render with.
+    /// Draws a mesh with a specified material and transform.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void SkipFrame()
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="camRelativeTransform">A matrix relative/local to the currently rendering camera.</param>
+    /// <param name="material">The material to use for rendering.</param>
+    /// <param name="oldCamRelativeTransform">The previous frame's camera-relative transform.</param>
+    /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
+    public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
-        Clear();
-    }
-
-
-    public static void DrawMeshNow(Mesh mesh, Matrix4x4 transform, Material material)
-    {
-        if (Camera.RenderingCamera == null)
+        if (CameraComponent.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
+        
+        oldCamRelativeTransform ??= camRelativeTransform;
 
         // Upload the default uniforms available to all shaders.
         // The shader can choose to use them or not, as they are buffered only if the location is available.
-        material.SetVector("u_Resolution", Resolution);
-        material.SetFloat("u_Time", (float)Time.TotalTime);
-        material.SetInt("u_Frame", Time.TotalFrameCount);
+        
+        if (UseJitter)
+        {
+            material.SetVector("_Jitter", Jitter, true);
+            material.SetVector("_PreviousJitter", PreviousJitter, true);
+        }
+        else
+        {
+            material.SetVector("_Jitter", Vector2.Zero, true);
+            material.SetVector("_PreviousJitter", Vector2.Zero, true);
+        }
+        
+        material.SetVector("_Resolution", Resolution, true);
+        material.SetFloat("_Time", (float)Time.TotalTime, true);
+        material.SetInt("_Frame", Time.TotalFrameCount, true);
         
         // Camera data
-        material.SetVector("u_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position);
-        material.SetVector("u_Camera_Forward", Camera.RenderingCamera.Transform.Forward);
+        material.SetVector("_Camera_WorldPosition", CameraComponent.RenderingCamera.Transform.Position, true);
+        material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward, true);
         
         // Matrices
-        Matrix4x4 matMVP = Matrix4x4.Identity * transform * ViewMatrix * ProjectionMatrix;
-        material.SetMatrix("u_MatMVP", matMVP);
-        material.SetMatrix("u_MatModel", transform);
-        material.SetMatrix("u_MatView", ViewMatrix);
-        material.SetMatrix("u_MatProjection", ProjectionMatrix);
+        material.SetMatrix("_MatModel", camRelativeTransform, true);
+        material.SetMatrix("_MatView", ViewMatrix, true);
+        material.SetMatrix("_MatProjection", ProjectionMatrix, true);
+        material.SetMatrix("_MatProjectionInverse", InverseProjectionMatrix, true);
+        
+        Matrix4x4 matMVP = Matrix4x4.Identity;
+        matMVP = Matrix4x4.Multiply(matMVP, camRelativeTransform);
+        matMVP = Matrix4x4.Multiply(matMVP, ViewMatrix);
+        matMVP = Matrix4x4.Multiply(matMVP, ProjectionMatrix);
+        material.SetMatrix("_MatMVP", matMVP, true);
+
+        Matrix4x4 oldMatMVP = Matrix4x4.Identity;
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, oldCamRelativeTransform.Value);
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, OldViewMatrix);
+        oldMatMVP = Matrix4x4.Multiply(oldMatMVP, OldProjectionMatrix);
+        material.SetMatrix("_MatMVPOld", oldMatMVP, true);
+        
+        Matrix4x4.Invert(matMVP, out Matrix4x4 matMVPInverse);
+        material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
         material.SetKeyword("HAS_UV", mesh.HasUV0);
@@ -123,8 +159,8 @@ public static class Graphics
         material.SetKeyword("HAS_COLORS", mesh.HasColors);
         material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
 
-        // All material uniforms have been assigned, it's time to buffer them
-        material.PropertyBlock.Apply(Driver.CurrentProgram);
+        // All material uniforms have been assigned; it's time to buffer them
+        material.ApplyPropertyBlock(Driver.CurrentProgram);
 
         DrawMeshNowDirect(mesh);
     }
@@ -132,7 +168,7 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
-        if (Camera.RenderingCamera == null)
+        if (CameraComponent.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -143,7 +179,7 @@ public static class Graphics
         unsafe
         {
             Driver.BindVertexArray(mesh.VertexArrayObject);
-            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, (void*)0);
+            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
             Driver.BindVertexArray(null);
         }
     }
@@ -158,15 +194,57 @@ public static class Graphics
         DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
     }
 
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void SetMatrices(Camera renderingCamera)
+    /// <summary>
+    /// Draws material with a FullScreen Quad onto a RenderTexture
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Material mat, int pass = 0, bool clear = true)
     {
-        Matrix4x4 viewMatrix = renderingCamera.ViewMatrix;
-        Matrix4x4 projectionMatrix = renderingCamera.ProjectionMatrix;
+        renderTexture?.Begin();
         
-        ProjectionMatrix = projectionMatrix;
-        ViewMatrix = viewMatrix;
-        ViewProjectionMatrix = viewMatrix * projectionMatrix;
+        if (clear)
+            Clear(0, 0, 0, 0);
+        
+        mat.SetPass(pass);
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
+        
+        renderTexture?.End();
+    }
+
+    /// <summary>
+    /// Draws texture into a RenderTexture Additively
+    /// </summary>
+    public static void Blit(RenderTexture? renderTexture, Texture2D texture, bool clear = true)
+    {
+        defaultBlitMaterial.SetTexture("_Texture0", texture);
+        defaultBlitMaterial.SetPass(0);
+
+        renderTexture?.Begin();
+        
+        if (clear)
+            Clear(0, 0, 0, 0);
+        
+        DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, defaultBlitMaterial);
+        
+        renderTexture?.End();
+    }
+
+    
+    /// <summary>
+    /// Blits the depth buffer from one render texture to another.
+    /// </summary>
+    /// <param name="source">The source render texture.</param>
+    /// <param name="destination">The destination render texture.</param>
+    internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
+    {
+        Driver.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
+        
+        if(destination != null)
+            Driver.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
+
+        Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
+            0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
+            ClearFlags.Depth, BlitFilter.Nearest
+        );
+        Driver.UnbindFramebuffer();
     }
 }

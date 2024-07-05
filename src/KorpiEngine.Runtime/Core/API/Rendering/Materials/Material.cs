@@ -9,26 +9,18 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 /// <summary>
 /// A material used for rendering.
 /// Objects with a similar material may be batched together for rendering.
-/// Uses shader preprocessor-based permutations, over a uniform-based branching system.
+/// Uses shader preprocessor-based permutations over a uniform-based branching system.
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
-public sealed class Material : EngineObject
+public sealed class Material : Resource
 {
-    public const string DEFAULT_COLOR_PROPERTY = "u_MainColor";
-    public const string DEFAULT_DIFFUSE_TEX_PROPERTY = "u_MainTex";
-    public const string DEFAULT_NORMAL_TEX_PROPERTY = "u_NormalTex";
-    public const string DEFAULT_SURFACE_TEX_PROPERTY = "u_SurfaceTex";
-    public const string DEFAULT_EMISSION_TEX_PROPERTY = "u_EmissionTex";
-    public const string DEFAULT_EMISSION_COLOR_PROPERTY = "u_EmissiveColor";
-    public const string DEFAULT_EMISSION_INTENSITY_PROPERTY = "u_EmissionIntensity";
-    
-    public readonly AssetRef<Shader> Shader;
-    public readonly MaterialPropertyBlock PropertyBlock;
+    public readonly ResourceRef<Shader> Shader;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
     private readonly SortedSet<string> _materialKeywords = [];
+    private readonly MaterialPropertyBlock _propertyBlock;
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _materialKeywordsString = "";
@@ -37,12 +29,18 @@ public sealed class Material : EngineObject
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(AssetRef<Shader> shader)
+    public Material(ResourceRef<Shader> shader, string name) : base(name)
     {
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
-        PropertyBlock = new MaterialPropertyBlock();
+        _propertyBlock = new MaterialPropertyBlock();
+    }
+    
+    
+    internal void ApplyPropertyBlock(GraphicsProgram shader)
+    {
+        _propertyBlock.Apply(shader, Name);
     }
 
 
@@ -116,7 +114,7 @@ public sealed class Material : EngineObject
         Graphics.Driver.BindProgram(pass.Program);
 
         if (apply)
-            PropertyBlock.Apply(Graphics.Driver.CurrentProgram!);
+            ApplyPropertyBlock(Graphics.Driver.CurrentProgram!);
     }
 
     #endregion
@@ -126,6 +124,7 @@ public sealed class Material : EngineObject
 
     private Shader.CompiledShader GetCompiledVariant()
     {
+        //return GetVariantExperimental(_materialKeywords.ToArray());
         if (Shader.IsAvailable == false)
             throw new Exception("Cannot compile without a valid shader assigned");
         
@@ -169,79 +168,128 @@ public sealed class Material : EngineObject
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
     }
+    
+    /*Shader.CompiledShader GetVariantExperimental(string[] allKeywords)
+    {
+        if (Shader.IsAvailable == false) throw new Exception("Cannot compile without a valid shader assigned");
+
+        string keywords = string.Join("-", allKeywords);
+        string key = Shader.Res.InstanceID + "-" + keywords + "-" + Shaders.Shader.GetGlobalKeywords();
+        if (PassVariants.TryGetValue(key, out var s)) return s;
+
+        // Add each global togather making sure to not add duplicates
+        string[] globals = Shaders.Shader.GetGlobalKeywords().ToArray();
+        for (int i = 0; i < globals.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(globals[i])) continue;
+            if (allKeywords.Contains(globals[i], StringComparer.OrdinalIgnoreCase)) continue;
+            allKeywords = allKeywords.Append(globals[i]).ToArray();
+        }
+        // Remove empty keywords
+        allKeywords = allKeywords.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+        // Compile Each Pass
+        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords);
+
+        PassVariants[key] = compiledPasses;
+        return compiledPasses;
+    }*/
 
     #endregion
 
 
     #region PROPERTY SETTERS
 
-    public void SetColor(string name, Color value)
+    public void SetColor(string name, Color value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetColor(name, value);
+            _propertyBlock.SetColor(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetVector(string name, Vector2 value)
+    public void SetVector(string name, Vector2 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetVector(string name, Vector3 value)
+    public void SetVector(string name, Vector3 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetVector(string name, Vector4 value)
+    public void SetVector(string name, Vector4 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetFloat(string name, float value)
+    public void SetFloat(string name, float value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetFloat(name, value);
+            _propertyBlock.SetFloat(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetInt(string name, int value)
+    public void SetInt(string name, int value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetInt(name, value);
+            _propertyBlock.SetInt(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetMatrix(string name, Matrix4x4 value)
+    public void SetMatrix(string name, Matrix4x4 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetMatrix(name, value);
+            _propertyBlock.SetMatrix(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value)
+    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetMatrices(name, value);
+            _propertyBlock.SetMatrices(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetTexture(string name, Texture2D value)
+    public void SetTexture(string name, Texture2D value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetTexture(name, value);
+        {
+            _propertyBlock.SetTexture(name, value);
+            //Console.WriteLine($"SetTex {Name}: {name} - {value.Name}");
+        }
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
 
-    public void SetTexture(string name, AssetRef<Texture2D> value)
+    public void SetTexture(string name, ResourceRef<Texture2D> value, bool allowFail = false)
     {
         if (HasVariable(name))
-            PropertyBlock.SetTexture(name, value);
+            _propertyBlock.SetTexture(name, value);
+        else if (!allowFail)
+            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
     #endregion

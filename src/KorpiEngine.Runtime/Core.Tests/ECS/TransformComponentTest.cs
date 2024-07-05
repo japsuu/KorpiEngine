@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using KorpiEngine.Core.API;
-using KorpiEngine.Core.ECS;
+using KorpiEngine.Core.EntityModel.SpatialHierarchy;
 using NUnit.Framework;
 
 namespace Core.Tests.ECS;
 
 [TestFixture]
-[TestOf(typeof(TransformComponent))]
-public class TransformComponentTest
+[TestOf(typeof(Transform))]
+public class TransformTest
 {
     private class Vector3Comparer : IEqualityComparer<Vector3>
     {
@@ -45,7 +44,7 @@ public class TransformComponentTest
     [Test]
     public void Position_Set_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new();
+        Transform component = new();
         Vector3 expectedPosition = new(1, 2, 3);
 
         component.Position = expectedPosition;
@@ -57,7 +56,7 @@ public class TransformComponentTest
     [Test]
     public void Rotation_Set_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new();
+        Transform component = new();
         Quaternion expectedRotation = Quaternion.Euler(new Vector3(0, 90, 45));
 
         component.Rotation = expectedRotation;
@@ -69,12 +68,12 @@ public class TransformComponentTest
     [Test]
     public void Scale_Set_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new();
+        Transform component = new();
         Vector3 expectedScale = new(1, 2, 3);
 
-        component.Scale = expectedScale;
+        component.LocalScale = expectedScale;
         
-        Assert.That(component.Scale, Is.EqualTo(expectedScale));
+        Assert.That(component.LocalScale, Is.EqualTo(expectedScale));
     }
 
     #endregion
@@ -85,7 +84,7 @@ public class TransformComponentTest
     [Test]
     public void EulerAngles_Set_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new();
+        Transform component = new();
         Vector3 expectedEulerAngles = new(35, 125, 45);
 
         component.EulerAngles = expectedEulerAngles;
@@ -104,12 +103,12 @@ public class TransformComponentTest
     [Test]
     public void Forward_Get_Default_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3)
         };
 
-        Vector3 expectedForward = TransformComponent.ForwardAxis;
+        Vector3 expectedForward = Vector3.Forward;
         
         Assert.That(component.Forward, Is.EqualTo(expectedForward));
     }
@@ -118,7 +117,7 @@ public class TransformComponentTest
     [Test]
     public void Forward_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3),
 
@@ -126,7 +125,7 @@ public class TransformComponentTest
             EulerAngles = new Vector3(0, 90, 0)
         };
 
-        Vector3 expectedForward = TransformComponent.RightAxis;
+        Vector3 expectedForward = Vector3.Right;
         
         Assert.That(component.Forward, Is.EqualTo(expectedForward).Using(new Vector3Comparer()));
     }
@@ -135,12 +134,12 @@ public class TransformComponentTest
     [Test]
     public void Up_Get_Default_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3)
         };
 
-        Vector3 expectedUp = TransformComponent.UpAxis;
+        Vector3 expectedUp = Vector3.Up;
 
         Assert.That(component.Up, Is.EqualTo(expectedUp));
     }
@@ -149,7 +148,7 @@ public class TransformComponentTest
     [Test]
     public void Up_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3),
 
@@ -157,7 +156,7 @@ public class TransformComponentTest
             EulerAngles = new Vector3(0, 0, 90)
         };
 
-        Vector3 expectedUp = TransformComponent.LeftAxis;
+        Vector3 expectedUp = Vector3.Left;
 
         Assert.That(component.Up, Is.EqualTo(expectedUp).Using(new Vector3Comparer()));
     }
@@ -166,12 +165,12 @@ public class TransformComponentTest
     [Test]
     public void Right_Get_Default_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3)
         };
 
-        Vector3 expectedRight = TransformComponent.RightAxis;
+        Vector3 expectedRight = Vector3.Right;
 
         Assert.That(component.Right, Is.EqualTo(expectedRight));
     }
@@ -180,7 +179,7 @@ public class TransformComponentTest
     [Test]
     public void Right_Get_ReturnsCorrectValue()
     {
-        TransformComponent component = new()
+        Transform component = new()
         {
             Position = new Vector3(1, 2, 3),
 
@@ -188,7 +187,7 @@ public class TransformComponentTest
             EulerAngles = new Vector3(0, 0, 90)
         };
 
-        Vector3 expectedRight = TransformComponent.UpAxis;
+        Vector3 expectedRight = Vector3.Up;
 
         Assert.That(component.Right, Is.EqualTo(expectedRight).Using(new Vector3Comparer()));
     }
@@ -201,10 +200,10 @@ public class TransformComponentTest
     [Test]
     public void ImplicitConversionToMatrix4x4_ReturnsCorrectMatrix()
     {
-        TransformComponent component = new();
+        Transform component = new();
         Matrix4x4 expectedMatrix = Matrix4x4.Identity;
 
-        Matrix4x4 resultMatrix = component;
+        Matrix4x4 resultMatrix = component.LocalToWorldMatrix;
 
         Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
     }

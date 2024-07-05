@@ -10,6 +10,6 @@ internal static class Program
     {
         Application.Run(
             new WindowingSettings(new Vector2i(1280, 720), "KorpiEngine Sandbox"),
-            new CustomScene());
+            new DemoScene());
     }
 }

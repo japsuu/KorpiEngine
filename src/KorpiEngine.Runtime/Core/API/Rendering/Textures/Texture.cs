@@ -3,7 +3,7 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Textures;
 
-public abstract class Texture : EngineObject
+public abstract class Texture : Resource
 {
     private protected const TextureMin DEFAULT_MIN_FILTER = TextureMin.Nearest;
     private protected const TextureMin DEFAULT_MIPMAP_MIN_FILTER = TextureMin.NearestMipmapNearest;

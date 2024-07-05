@@ -1,7 +1,7 @@
 ﻿namespace KorpiEngine.Core.Rendering.Primitives;
 
 [Flags]
-public enum ClearFlags
+internal enum ClearFlags
 {
     Color = 1 << 1,
     Depth = 1 << 2,

@@ -2,6 +2,7 @@ Shader "Default/Depth"
 
 Properties
 {
+	_MatMVP("mvp matrix", MATRIX_4X4)
 }
 
 Pass 0
@@ -12,10 +13,10 @@ Pass 0
 	{
 		layout (location = 0) in vec3 vertexPosition;
 
-		uniform mat4 mvp;
+		uniform mat4 _MatMVP;
 		void main()
 		{
-		    gl_Position =  mvp * vec4(vertexPosition, 1.0);
+		    gl_Position =  _MatMVP * vec4(vertexPosition, 1.0);
 		}
 	}
 

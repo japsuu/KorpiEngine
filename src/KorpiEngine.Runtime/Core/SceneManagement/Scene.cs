@@ -1,219 +1,175 @@
-﻿using Arch.Core;
-using Arch.Core.Extensions;
+﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.ECS;
-using KorpiEngine.Core.ECS.Systems;
+using KorpiEngine.Core.API.Rendering.Textures;
+using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Scripting;
-using Entity = KorpiEngine.Core.Scripting.Entity;
+using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Lighting;
+using Entity = KorpiEngine.Core.EntityModel.Entity;
 
 namespace KorpiEngine.Core.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="Entity"/>s and register systems to process them.
+/// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene : IDisposable
 {
-    /// <summary>
-    /// The systems for this scene that are updated from the <see cref="Update"/> method.
-    /// Typically used for game logic.
-    /// </summary>
-    private readonly SceneSystemGroup _simulationSystems;
+    internal readonly EntityScene EntityScene;
     
-    /// <summary>
-    /// The systems for this scene that are updated from the <see cref="FixedUpdate"/> method.
-    /// Typically used for physics.
-    /// </summary>
-    private readonly SceneSystemGroup _fixedSimulationSystems;
-    
-    /// <summary>
-    /// The systems for this scene that are updated when the scene is drawn.
-    /// Typically used for rendering and post-rendering effects.
-    /// </summary>
-    private readonly SceneSystemGroup _presentationSystems;
-    
-    /// <summary>
-    /// The ESC world for this scene.
-    /// </summary>
-    internal readonly World World;
+    protected CameraComponent SceneCamera { get; private set; } = null!;
 
+
+    #region Creation and destruction
 
     protected Scene()
     {
-        World = World.Create();
-        _simulationSystems = new SceneSystemGroup("SimulationSystems");
-        _fixedSimulationSystems = new SceneSystemGroup("FixedSimulationSystems");
-        _presentationSystems = new SceneSystemGroup("PresentationSystems");
+        EntityScene = new EntityScene();
+    }
+    
+    
+    public void Dispose()
+    {
+        OnUnload();
+        
+        EntityScene.Destroy();
+        
+        GC.SuppressFinalize(this);
     }
 
+    #endregion
+
+
+    #region Public API
 
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
-        ref MeshRendererComponent c = ref e.AddNativeComponent<MeshRendererComponent>();
+        MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
+        Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
+        
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
-        c.Material = new Material(Shader.Find("Defaults/Standard.shader"));
+        c.Material = mat;
+        
+        mat.SetColor("_MainColor", Color.White);
+        mat.SetFloat("_EmissionIntensity", 0f);
+        mat.SetColor("_EmissiveColor", Color.Black);
+        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/grid.png"));
+        mat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
+        mat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
+        mat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
+        
         return e;
     }
-
-
-    /// <summary>
-    /// Internally instantiates a new entity with the given component and name, and returns the component.
-    /// </summary>
-    /// <param name="name">The name of the entity.</param>
-    /// <typeparam name="T">The type of the component to add.</typeparam>
-    /// <returns>The added component.</returns>
-    public T Instantiate<T>(string name) where T : Behaviour, new()
+    
+    
+    public T? FindObjectOfType<T>() where T : EntityComponent
     {
-        Entity e = CreateEntity(name);
-        return e.AddComponent<T>();
+        return EntityScene.FindObjectOfType<T>();
     }
     
     
-    protected virtual void CreateSceneCamera()
+    /*public void Instantiate<T>(T prefab) where T : Entity
     {
-        Entity cameraEntity = CreateEntity("Scene Camera");
-        CameraComponent comp = new CameraComponent();
-        ref CameraComponent cameraComponent = ref cameraEntity.AddNativeComponent(comp);
-        cameraComponent.FOVDegrees = 60;
-        cameraComponent.RenderPriority = 0;
-    }
-    
-    
-    /*protected void DestroyEntity(Arch.Core.Entity entity)
-    {
-        World.Destroy(entity);
+        Entity e = prefab.Clone();
+        EntityScene.AddEntity(e);
     }*/
 
+    #endregion
 
-    private Entity CreateEntity(string name)
+
+    #region Protected API
+
+    protected void RegisterSceneSystem<T>() where T : SceneSystem, new()
     {
-        UUID uuid = new();
-        string nameString = string.IsNullOrWhiteSpace(name) ? "Entity" : name;
-        Arch.Core.Entity entity = World.Create(new IdComponent(uuid), new NameComponent(nameString), new TransformComponent());
-        return new Entity(entity.Reference(), this);
+        EntityScene.RegisterSceneSystem<T>();
     }
     
     
-    internal void InternalLoad()
+    protected void UnregisterSceneSystem<T>() where T : SceneSystem
     {
-        CreateSceneCamera();
+        EntityScene.UnregisterSceneSystem<T>();
+    }
+
+    #endregion
+
+
+    #region Protected overridable methods
+
+    protected virtual CameraComponent CreateSceneCamera()
+    {
+        Entity cameraEntity = CreateEntity("Scene Camera");
+        CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
         
-        // Register systems.
-        RegisterSimulationSystems(_simulationSystems);
-        RegisterFixedSimulationSystems(_fixedSimulationSystems);
-        RegisterPresentationSystems(_presentationSystems);
+        cameraComponent.RenderPriority = 0;
+        cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
         
-        // Initialize systems.
-        _simulationSystems.Initialize();
-        _fixedSimulationSystems.Initialize();
-        _presentationSystems.Initialize();
+        return cameraComponent;
+    }
+
+    protected virtual void CreateLights()
+    {
+        Entity dlEntity = CreateEntity("Directional Light");
+        DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
+        dlComp.Transform.LocalEulerAngles = new Vector3(135, 45, 0);
         
-        Load();
-    }
-    
-    
-    internal void InternalUpdate()
-    {
-        _simulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _simulationSystems.Update(Time.DeltaTimeDouble);
-        _simulationSystems.AfterUpdate(Time.DeltaTimeDouble);
-        
-        Update();
-    }
-    
-    
-    internal void InternalFixedUpdate()
-    {
-        _fixedSimulationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _fixedSimulationSystems.Update(Time.DeltaTimeDouble);
-        _fixedSimulationSystems.AfterUpdate(Time.DeltaTimeDouble);
-        
-        FixedUpdate();
-    }
-    
-    
-    internal void InternalDraw()
-    {
-        _presentationSystems.BeforeUpdate(Time.DeltaTimeDouble);
-        _presentationSystems.Update(Time.DeltaTimeDouble);
-        _presentationSystems.AfterUpdate(Time.DeltaTimeDouble);
-        
-        LateUpdate();
-    }
-
-
-    /// <summary>
-    /// Register new simulation systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems will be automatically updated in the update loop, in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterSimulationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new BehaviourSystem(this));
-    }
-
-
-    /// <summary>
-    /// Register new fixed simulation systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems will be automatically updated in the fixed update loop, in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterFixedSimulationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new BehaviourFixedUpdateSystem(this));
-    }
-
-
-    /// <summary>
-    /// Register new presentation (rendering) systems to the scene.
-    /// Called before <see cref="Load"/>
-    /// The systems are automatically updated after simulation systems (<see cref="RegisterSimulationSystems"/>), in the order they were registered.
-    /// </summary>
-    protected virtual void RegisterPresentationSystems(SceneSystemGroup systems)
-    {
-        systems.Add(new MeshRenderSystem(this));
+        Entity alEntity = CreateEntity("Ambient Light");
+        AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
     }
     
     
     /// <summary>
     /// Called when the scene is loaded.
     /// </summary>
-    protected virtual void Load() { }
-    
-    /// <summary>
-    /// Called every frame.
-    /// </summary>
-    protected virtual void Update() { }
-    
-    /// <summary>
-    /// Called every frame after <see cref="Update"/>, just before the scene is drawn.
-    /// </summary>
-    protected virtual void LateUpdate() { }
-    
-    /// <summary>
-    /// Called from the fixed update loop.
-    /// </summary>
-    protected virtual void FixedUpdate() { }
+    protected virtual void OnLoad() { }
     
     /// <summary>
     /// Called when the scene is unloaded.
     /// </summary>
-    protected virtual void Unload() { }
-    
-    
-    public void Dispose()
+    protected virtual void OnUnload() { }
+
+    #endregion
+
+
+    #region Internal calls
+
+    internal void InternalLoad()
     {
-        Unload();
+        CreateLights();
+        SceneCamera = CreateSceneCamera();
         
-        _simulationSystems.Dispose();
-        _fixedSimulationSystems.Dispose();
-        _presentationSystems.Dispose();
-        World.Dispose();
-        //World.Destroy(World);
-        GC.SuppressFinalize(this);
+        OnLoad();
+    }
+    
+    
+    internal void InternalUpdate()
+    {
+        EntityScene.Update();
+    }
+    
+    
+    internal void InternalFixedUpdate()
+    {
+        EntityScene.FixedUpdate();
+    }
+    
+    
+    internal void InternalRender()
+    {
+        EntityScene.Render();
+    }
+
+    #endregion
+    
+    
+    private Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
     }
 }

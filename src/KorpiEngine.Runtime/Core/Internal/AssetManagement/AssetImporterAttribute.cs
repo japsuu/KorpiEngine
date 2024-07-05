@@ -1,6 +1,7 @@
 using System.Reflection;
+using KorpiEngine.Core.API;
 
-namespace KorpiEngine.Core.API.AssetManagement;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 /// <summary>
 /// Attach this attribute to a class that inherits from AssetImporter to allow the AssetDatabase to import files with the specified extensions.
@@ -22,9 +23,10 @@ public class AssetImporterAttribute : Attribute
     /// <returns>The importer type for that Extension</returns>
     public static Type? GetImporter(string extension) => ImportersByExtension.GetValueOrDefault(extension);
     public static bool SupportsExtension(string extension) => ImportersByExtension.ContainsKey(extension);
+    public static string GetSupportedExtensions() => string.Join(", ", ImportersByExtension.Keys);
 
 
-    [OnAssemblyLoad]
+    [OnApplicationLoad]
     public static void GenerateLookUp()
     {
         Application.Logger.Info("Generating Asset Importer Lookup Table");
@@ -54,7 +56,7 @@ public class AssetImporterAttribute : Attribute
     }
 
 
-    [OnAssemblyUnload]
+    [OnApplicationUnload]
     public static void ClearLookUp()
     {
         ImportersByExtension.Clear();

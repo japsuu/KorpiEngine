@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Core.API.AssetManagement;
+﻿using KorpiEngine.Core.Internal.AssetManagement;
+
+namespace KorpiEngine.Core.API.AssetManagement;
 
 public static partial class AssetDatabase
 {
@@ -19,7 +21,7 @@ public static partial class AssetDatabase
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T? LoadAsset<T>(string relativeAssetPath) where T : EngineObject
+    public static T? LoadAsset<T>(string relativeAssetPath) where T : Resource
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
@@ -39,7 +41,7 @@ public static partial class AssetDatabase
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="assetGuid">The GUID of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T? LoadAsset<T>(Guid assetGuid) where T : EngineObject
+    public static T? LoadAsset<T>(Guid assetGuid) where T : Resource
     {
         if (assetGuid == Guid.Empty)
             throw new ArgumentException("Asset Guid cannot be empty", nameof(assetGuid));
@@ -86,7 +88,7 @@ public static partial class AssetDatabase
         Application.Logger.Info($"Attempting to Import {relativePath}...");
         ArgumentNullException.ThrowIfNull(assetFile);
 
-        // Make sure path exists
+        // Make sure the path exists
         if (!File.Exists(assetFile.FullName))
         {
             Application.Logger.Error($"Failed to import {relativePath}. Asset does not exist.");
@@ -96,7 +98,8 @@ public static partial class AssetDatabase
         // Make sure the file extension of the asset file is supported
         if (!AssetImporterAttribute.SupportsExtension(assetFile.Extension))
         {
-            Application.Logger.Error($"Cannot import {relativePath}. Unsupported file extension.");
+            string supportedExtensions = AssetImporterAttribute.GetSupportedExtensions();
+            Application.Logger.Error($"Cannot import {relativePath}. Unsupported file extension. Supported extensions are: '{supportedExtensions}'.");
             return null;
         }
 
@@ -108,7 +111,7 @@ public static partial class AssetDatabase
                 throw new Exception($"No importer found for asset with extension {assetFile.Extension}");
         
             AssetImporter? importer = (AssetImporter?)Activator.CreateInstance(importerType);
-            EngineObject? instance = importer?.Import(assetFile);
+            Resource? instance = importer?.Import(assetFile);
             
             if (instance == null)
                 throw new Exception("The importer failed.");

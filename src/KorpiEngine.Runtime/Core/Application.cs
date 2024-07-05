@@ -56,6 +56,9 @@ public static class Application
         window.RenderFrame += OnRenderFrame;
         window.Unload += OnUnload;
         
+        AssemblyManager.Initialize();
+        OnApplicationLoadAttribute.Invoke();
+        
         window.Run();
     }
     
@@ -74,9 +77,6 @@ public static class Application
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
-        
-        AssemblyManager.Initialize();
-        OnAssemblyLoadAttribute.Invoke();
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
     }
@@ -167,7 +167,7 @@ public static class Application
 
     private static void OnUnload()
     {
-        OnAssemblyUnloadAttribute.Invoke();
+        OnApplicationUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         

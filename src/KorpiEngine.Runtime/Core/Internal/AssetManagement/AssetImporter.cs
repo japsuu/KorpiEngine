@@ -1,6 +1,6 @@
-namespace KorpiEngine.Core.API.AssetManagement;
+namespace KorpiEngine.Core.Internal.AssetManagement;
 
 public abstract class AssetImporter
 {
-    public abstract EngineObject? Import(FileInfo assetPath);
+    public abstract Resource? Import(FileInfo assetPath);
 }
