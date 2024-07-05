@@ -19,12 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
------------------------------------------------------------------------------
-
-
-Portions of the code are derived from the following sources:
-- LiteNetLib (https://github.com/RevenantX/LiteNetLib) by RevenantX (MIT License)
-- Prowl Engine (https://github.com/ProwlEngine/Prowl) by Michael Sakharov (MIT License)
-- Duality 2D framework (https://github.com/AdamsLair/duality) by AdamsLair (MIT License)
