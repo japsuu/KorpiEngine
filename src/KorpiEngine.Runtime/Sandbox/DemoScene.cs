@@ -33,12 +33,11 @@ internal class DemoScene : Scene
 
         for (int i = 0; i < 25; i++)
         {
-            // Create a new entity with a name, and add a custom component to make it oscillate
-            Entity root = new($"Sphere {i}");
-            //root.AddComponent<DemoOscillate>();
+            // Create a new entity with a name
+            Entity root = new($"Cube {i}");
 
-            // Create a sphere primitive and add it as a child of the root entity
-            Entity model = CreatePrimitive(PrimitiveType.Quad, "Sphere model");
+            // Create a cube primitive and add it as a child of the root entity
+            Entity model = CreatePrimitive(PrimitiveType.Cube, "Cube model");
             model.SetParent(root);
 
             // Move the root entity to a random position
