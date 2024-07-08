@@ -12,8 +12,8 @@ public class RenderPipeline
     public RenderPipeline()
     {
         // Create nodes, setup connections, and add to list.
-        PBRDeferredNode pbrDeferredNode = new();
-        PostPBRDeferredNode postPbrDeferredNode = new();
+        LightingPassNode lightingPassNode = new();
+        CombinePassNode combinePassNode = new();
         //ProceduralSkyboxNode proceduralSkyboxNode = new();
         // ScreenSpaceReflectionNode screenSpaceReflectionNode = new();
         // TAANode taaNode = new();
@@ -21,7 +21,7 @@ public class RenderPipeline
         // BloomNode bloomNode = new();
         // TonemappingNode toneMappingNode = new();
         
-        pbrDeferredNode.SetChild(postPbrDeferredNode);
+        lightingPassNode.SetChild(combinePassNode);
         //postPbrDeferredNode.SetChild(proceduralSkyboxNode);
         // proceduralSkyboxNode.SetChild(screenSpaceReflectionNode);
         // screenSpaceReflectionNode.SetChild(taaNode);
@@ -29,7 +29,7 @@ public class RenderPipeline
         // depthOfFieldNode.SetChild(bloomNode);
         // bloomNode.SetChild(toneMappingNode);
         
-        _rootNode = pbrDeferredNode;
+        _rootNode = lightingPassNode;
     }
     
     
