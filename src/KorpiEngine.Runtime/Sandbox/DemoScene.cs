@@ -13,10 +13,25 @@ internal class DemoScene : Scene
 {
     protected override void OnLoad()
     {
+        Entity e1 = new("Sphere 1");
+        Entity m1 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m1.SetParent(e1);
+        e1.Transform.Position = new Vector3(0, 6, 0);
+        
+        Entity e2 = new("Sphere 2");
+        Entity m2 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m2.SetParent(e2);
+        e2.Transform.Position = new Vector3(1, 4, -3);
+        
+        Entity e3 = new("Sphere 3");
+        Entity m3 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m3.SetParent(e3);
+        e3.Transform.Position = new Vector3(-2, 4, -2);
+        
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        for (int i = 0; i < 25; i++)
+        /*for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
@@ -43,7 +58,7 @@ internal class DemoScene : Scene
             // Move the root entity to a random position
             Vector2 randomPos = Random.InUnitCircle * 20;
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
-        }
+        }*/
 
         /*// ----------------------------------------
         // Creating a blue point light
@@ -65,14 +80,14 @@ internal class DemoScene : Scene
         redLight.Intensity = 3.0f;
         redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);*/
 
-        // ----------------------------------------
+        /*// ----------------------------------------
         // Creating a quad that moves and rotates
 
         // Create a primitive quad
         Entity quadEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
 
         // Add a custom behavior component to make it move and rotate
-        quadEntity.AddComponent<DemoMoveRotate>();
+        quadEntity.AddComponent<DemoMoveRotate>();*/
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
         // Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
@@ -90,7 +105,7 @@ internal class DemoScene : Scene
         CameraComponent component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(0, 1, -10);
+        component.Transform.Position = new Vector3(0, 5, -5);
         return component;
     }
 }
