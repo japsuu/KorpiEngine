@@ -71,11 +71,12 @@ Pass 0
 			vec3 upVector = (_MatView * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
 
 			// Calculate hemisphere/ambient lighting
-			float NdotUp = max(0.0, dot(gNormal, upVector));
+			float NdotUp = max(0.0, dot(gNormal, upVector));	// BUG: Incorrect
 
 			// Interpolate between _SkyColor and GroundColor based on NdotUp
 			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
 
+//			gBuffer_lighting = vec4(NdotUp, 0,0, 1.0);
 			gBuffer_lighting = vec4(gAlbedo * ambientColor, 1.0);
 		}
 
