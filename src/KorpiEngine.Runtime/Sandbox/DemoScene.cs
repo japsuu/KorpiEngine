@@ -2,6 +2,7 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -15,16 +16,19 @@ internal class DemoScene : Scene
     {
         Entity e1 = new("Sphere 1");
         Entity m1 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m1.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m1.SetParent(e1);
         e1.Transform.Position = new Vector3(0, 6, 0);
         
         Entity e2 = new("Sphere 2");
         Entity m2 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m2.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m2.SetParent(e2);
         e2.Transform.Position = new Vector3(1, 4, -3);
         
         Entity e3 = new("Sphere 3");
         Entity m3 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m3.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m3.SetParent(e3);
         e3.Transform.Position = new Vector3(-2, 4, -2);
         
