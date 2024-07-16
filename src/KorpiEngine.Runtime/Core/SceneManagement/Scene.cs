@@ -48,7 +48,7 @@ public abstract class Scene : IDisposable
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
-        MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
+        MeshRenderer c = e.AddComponent<MeshRenderer>();
         Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);

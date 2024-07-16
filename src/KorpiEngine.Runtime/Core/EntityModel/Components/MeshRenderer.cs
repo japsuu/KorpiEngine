@@ -8,7 +8,7 @@ using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.EntityModel.Components;
 
-public class MeshRendererComponent : EntityComponent
+public class MeshRenderer : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
