@@ -49,9 +49,9 @@ public sealed class DirectionalLight : EntityComponent
         _lightMat.SetColor("_LightColor", Color);
         _lightMat.SetFloat("_LightIntensity", Intensity);
 
-        _lightMat.SetTexture("_GAlbedoAO", CameraComponent.RenderingCamera.GBuffer!.AlbedoAO);
-        _lightMat.SetTexture("_GNormalMetallic", CameraComponent.RenderingCamera.GBuffer.NormalMetallic);
-        _lightMat.SetTexture("_GPositionRoughness", CameraComponent.RenderingCamera.GBuffer.PositionRoughness);
+        _lightMat.SetTexture("_GAlbedoAO", Camera.RenderingCamera.GBuffer!.AlbedoAO);
+        _lightMat.SetTexture("_GNormalMetallic", Camera.RenderingCamera.GBuffer.NormalMetallic);
+        _lightMat.SetTexture("_GPositionRoughness", Camera.RenderingCamera.GBuffer.PositionRoughness);
 
         if (CastShadows)
         {
@@ -108,7 +108,7 @@ public sealed class DirectionalLight : EntityComponent
             _shadowMap.Begin();
             
             Graphics.Clear(1, 1, 1, 1);
-            CameraComponent.RenderingCamera.RenderDepthGeometry();
+            Camera.RenderingCamera.RenderDepthGeometry();
             
             _shadowMap.End();
         }

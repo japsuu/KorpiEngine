@@ -99,10 +99,10 @@ internal class DemoScene : Scene
     // ----------------------------------------
     // Creating a camera entity
     
-    protected override CameraComponent CreateSceneCamera()
+    protected override Camera CreateSceneCamera()
     {
         // We override the CreateSceneCamera method to add our custom camera component to the scene camera entity
-        CameraComponent component = base.CreateSceneCamera();
+        Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
         component.Transform.Position = new Vector3(0, 5, -5);

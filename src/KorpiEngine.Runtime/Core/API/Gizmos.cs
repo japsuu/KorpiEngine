@@ -19,15 +19,15 @@ public static class Gizmos
 
     public static void DrawLine(Vector3 from, Vector3 to)
     {
-        from -= CameraComponent.RenderingCamera.Entity.Transform.Position;
-        to -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        from -= Camera.RenderingCamera.Entity.Transform.Position;
+        to -= Camera.RenderingCamera.Entity.Transform.Position;
         Add(new LineGizmo(from, to, Color));
     }
 
 
     public static void DrawCube(Vector3 center, Vector3 size)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix4x4.CreateScale(size) * Matrix * Matrix4x4.CreateTranslation(center);
         Add(new CubeGizmo(Color));
     }
@@ -36,14 +36,14 @@ public static class Gizmos
     public static void DrawPolygon(Vector3[] points, bool closed = false)
     {
         for (int i = 0; i < points.Length; i++)
-            points[i] -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+            points[i] -= Camera.RenderingCamera.Entity.Transform.Position;
         Add(new PolygonGizmo(points, Color, closed));
     }
 
 
     public static void DrawCylinder(Vector3 center, float radius, float height)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix4x4.CreateScale(new Vector3(radius * 2f, height, radius * 2f)) * Matrix * Matrix4x4.CreateTranslation(center);
         Add(new CylinderGizmo(Color));
     }
@@ -51,7 +51,7 @@ public static class Gizmos
 
     public static void DrawCapsule(Vector3 center, float radius, float height)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix4x4.CreateScale(new Vector3(radius * 2f, height, radius * 2f)) * Matrix * Matrix4x4.CreateTranslation(center);
         Add(new CapsuleGizmo(Color));
     }
@@ -59,7 +59,7 @@ public static class Gizmos
 
     public static void DrawCircle(Vector3 center, float radius)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix4x4.CreateScale(new Vector3(radius, radius, radius)) * Matrix * Matrix4x4.CreateTranslation(center);
         Add(new CircleGizmo(Color));
     }
@@ -67,7 +67,7 @@ public static class Gizmos
 
     public static void DrawSphere(Vector3 center, float radius)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix4x4.CreateScale(new Vector3(radius, radius, radius)) * Matrix * Matrix4x4.CreateTranslation(center);
         Add(new SphereGizmo(Color));
     }
@@ -75,7 +75,7 @@ public static class Gizmos
 
     public static void DrawDirectionalLight(Vector3 center)
     {
-        center -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        center -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix * Matrix4x4.CreateTranslation(center);
         Add(new DirectionalLightGizmo(Color));
     }
@@ -83,7 +83,7 @@ public static class Gizmos
 
     public static void DrawSpotlight(Vector3 position, float distance, float spotAngle)
     {
-        position -= CameraComponent.RenderingCamera.Entity.Transform.Position;
+        position -= Camera.RenderingCamera.Entity.Transform.Position;
         Matrix = Matrix * Matrix4x4.CreateTranslation(position);
         Add(new SpotlightGizmo(distance, spotAngle, Color));
     }

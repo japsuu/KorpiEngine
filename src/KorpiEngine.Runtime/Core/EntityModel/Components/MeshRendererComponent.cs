@@ -23,7 +23,7 @@ public class MeshRendererComponent : EntityComponent
     protected override void OnRenderObject()
     {
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
-        int camID = CameraComponent.RenderingCamera.InstanceID;
+        int camID = Camera.RenderingCamera.InstanceID;
         
         _previousTransforms.TryAdd(camID, transform);
         Matrix4x4 previousTransform = _previousTransforms[camID];

@@ -101,7 +101,7 @@ public static class Graphics
     /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
-        if (CameraComponent.RenderingCamera == null)
+        if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -128,8 +128,8 @@ public static class Graphics
         material.SetInt("_Frame", Time.TotalFrameCount, true);
         
         // Camera data
-        material.SetVector("_Camera_WorldPosition", CameraComponent.RenderingCamera.Transform.Position, true);
-        material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward, true);
+        material.SetVector("_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position, true);
+        material.SetVector("_Camera_Forward", Camera.RenderingCamera.Transform.Forward, true);
         
         // Matrices
         material.SetMatrix("_MatModel", camRelativeTransform, true);
@@ -168,7 +168,7 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
-        if (CameraComponent.RenderingCamera == null)
+        if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)

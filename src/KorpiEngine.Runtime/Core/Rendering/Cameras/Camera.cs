@@ -16,11 +16,11 @@ namespace KorpiEngine.Core.Rendering.Cameras;
 /// before any other geometric transformations affect them.
 /// It then sets the world space Camera position to 0,0,0 and modifies all relevant matrices accordingly.
 /// </summary>
-public sealed class CameraComponent : EntityComponent
+public sealed class Camera : EntityComponent
 {
     private const int RENDER_TEXTURE_MAX_UNUSED_FRAMES = 10;
     
-    internal static CameraComponent RenderingCamera { get; private set; } = null!;
+    internal static Camera RenderingCamera { get; private set; } = null!;
     
     public event Action<int, int>? Resized;
 

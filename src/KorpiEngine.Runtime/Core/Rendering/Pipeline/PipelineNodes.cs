@@ -81,7 +81,7 @@ public class LightingPassNode : RenderPassNode
         lightingTex.Begin();
 
         Graphics.Clear();
-        CameraComponent.RenderingCamera.RenderLights();
+        Camera.RenderingCamera.RenderLights();
 
         lightingTex.End();
 
@@ -96,7 +96,7 @@ public class CombinePassNode : RenderPassNode
 
     protected override RenderTexture? Render(RenderTexture? lightingTex)
     {
-        GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
 
         if (lightingTex == null)
             return null;
@@ -121,7 +121,7 @@ public class ProceduralSkyboxNode : RenderPassNode
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         if (source == null)
@@ -161,7 +161,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         _mat ??= new Material(Shader.Find("Defaults/SSR.shader"), "SSR material");
@@ -235,7 +235,7 @@ public class TAANode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_S]);
@@ -274,7 +274,7 @@ public class DepthOfFieldNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         _mat ??= new Material(Shader.Find("Defaults/DOF.shader"), "DOF material");
