@@ -67,6 +67,8 @@ public sealed class CameraComponent : EntityComponent
     public float NearClipPlane = 0.01f;
     public float FarClipPlane = 1000f;
 
+    public bool ShowGizmos = false;
+
     /// <summary>
     /// The view matrix of this camera.
     /// Matrix that transforms from world to camera space.
@@ -160,6 +162,17 @@ public sealed class CameraComponent : EntityComponent
         
         _oldView = Graphics.ViewMatrix;
         _oldProjection = Graphics.ProjectionMatrix;
+        
+        if (ShowGizmos)
+        {
+            TargetTexture.Res?.Begin();
+            if (Graphics.UseJitter)
+                Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
+            Gizmos.Render();
+            TargetTexture.Res?.End();
+        }
+#warning TODO: Currently gizmos are handled in the Entity.RenderObject method, but it should all be inside a custom OnDrawGizmos, so for now reset every render (it should be once per frame)
+        Gizmos.Clear();
         
         RenderingCamera = null!;
         Graphics.UseJitter = false;
