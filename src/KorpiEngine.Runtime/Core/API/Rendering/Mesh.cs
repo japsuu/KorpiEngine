@@ -281,7 +281,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         for (int i = 0; i < vertices.Length; i++)
-            normals[i] = -System.Numerics.Vector3.Normalize(normals[i]);
+            normals[i] = System.Numerics.Vector3.Normalize(normals[i]);
 
         SetNormals(normals);
     }
