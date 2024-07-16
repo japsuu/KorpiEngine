@@ -67,7 +67,7 @@ public sealed class Camera : EntityComponent
     public float NearClipPlane = 0.01f;
     public float FarClipPlane = 1000f;
 
-    public bool ShowGizmos = false;
+    public bool ShowGizmos = true;
 
     /// <summary>
     /// The view matrix of this camera.
