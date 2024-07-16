@@ -806,6 +806,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
+#warning TODO: Fix Mesh.CreateSphere
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
         List<System.Numerics.Vector3> vertices = [];
