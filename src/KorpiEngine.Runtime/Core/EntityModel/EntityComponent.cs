@@ -263,9 +263,12 @@ public abstract class EntityComponent
     protected virtual void OnPostUpdate() { }
     protected virtual void OnPreRender() { }
     protected virtual void OnRenderObject() { }
-#warning TODO: Entity.OnRenderGizmos() implementation
     protected virtual void OnPostRender() { }
     protected virtual void OnRenderDepth() { }
+    /// <summary>
+    /// Called when Gizmos are drawn.
+    /// Called even when the component is disabled.
+    /// </summary>
     protected virtual void OnDrawGizmos() { }
     protected virtual void OnDestroy() { }
 

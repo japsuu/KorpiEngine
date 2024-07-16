@@ -98,15 +98,7 @@ public static class Gizmos
 
     public static void Render()
     {
-        try
-        {
-            gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.shader"), "Gizmos Material");
-        }
-        catch
-        {
-            return; // Happens when no project is loaded (Or no Gizmos shader was found)
-        }
-
+        gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.shader"), "Gizmos Material");
         lineBatch ??= new PrimitiveBatch(Topology.Lines);
 
         if (lineBatch.IsUploaded == false)

@@ -165,14 +165,19 @@ public sealed class Camera : EntityComponent
         
         if (ShowGizmos)
         {
+            // Prepare gizmos
+            DrawGizmos();
+            
+            // Draw gizmos
             TargetTexture.Res?.Begin();
             if (Graphics.UseJitter)
                 Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
             Gizmos.Render();
             TargetTexture.Res?.End();
+        
+            // End gizmos
+            Gizmos.Clear();
         }
-#warning TODO: Currently gizmos are handled in the Entity.RenderObject method, but it should all be inside a custom OnDrawGizmos, so for now reset every render (it should be once per frame)
-        Gizmos.Clear();
         
         RenderingCamera = null!;
         Graphics.UseJitter = false;
@@ -182,6 +187,7 @@ public sealed class Camera : EntityComponent
     internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
     internal void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
     internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
+    internal void RenderGizmos() => Entity.Scene.EntityScene.InvokeDrawGizmos();
 
 
     private void GeometryPass()

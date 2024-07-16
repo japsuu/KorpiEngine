@@ -200,6 +200,13 @@ internal sealed class EntityScene
                 if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
                     comp.RenderObjectDepth();
     }
+    
+    
+    internal void InvokeDrawGizmos()
+    {
+        foreach (EntityComponent comp in Components)
+            comp.DrawGizmos();
+    }
 
 
     internal T? FindObjectOfType<T>() where T : EntityComponent
