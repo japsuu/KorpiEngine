@@ -48,8 +48,8 @@ public class PointLight : EntityComponent
             Graphics.DrawMeshNow(_mesh, mat, _lightMat);
         }
 
-        /*Gizmos.Matrix = Entity.Transform.localToWorldMatrix;
-        Gizmos.Color = Color.yellow;
-        Gizmos.DrawSphere(Vector3.zero, radius);*/
+        Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
+        Gizmos.Color = Color.Yellow;
+        Gizmos.DrawSphere(Vector3.Zero, Radius);
     }
 }
