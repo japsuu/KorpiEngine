@@ -28,6 +28,14 @@ public static class Gizmos
     }
 
 
+    public static void DrawArrow(Vector3 from, Vector3 to)
+    {
+        from -= Camera.RenderingCamera.Entity.Transform.Position;
+        to -= Camera.RenderingCamera.Entity.Transform.Position;
+        Add(new ArrowGizmo(from, to, Color));
+    }
+
+
     public static void DrawCube(Vector3 center, Vector3 size)
     {
         center -= Camera.RenderingCamera.Entity.Transform.Position;

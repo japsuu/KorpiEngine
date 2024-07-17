@@ -26,6 +26,26 @@ public class LineGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
     }
 }
 
+public class ArrowGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
+{
+    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    {
+        Matrix = m;
+        
+        // Body
+        batch.Line(Pos(start), Pos(end), color, color);
+        
+        // Head
+        Vector3 direction = end - start;
+        Vector3 arrowHead = end - direction * 0.1f;
+        Vector3 arrowLeft = arrowHead + Vector3.Transform(Vector3.Left * 0.1f, Matrix4x4.CreateFromAxisAngle(direction, MathF.PI / 6f));
+        Vector3 arrowRight = arrowHead + Vector3.Transform(Vector3.Right * 0.1f, Matrix4x4.CreateFromAxisAngle(direction, MathF.PI / 6f));
+        
+        batch.Line(Pos(arrowHead), Pos(arrowLeft), color, color);
+        batch.Line(Pos(arrowHead), Pos(arrowRight), color, color);
+    }
+}
+
 public class PolygonGizmo(Vector3[] points, Color color, bool closed = false) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 m)
