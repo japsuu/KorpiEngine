@@ -13,6 +13,8 @@ public static class Gizmos
     private static readonly List<(Gizmo, Matrix4x4)> GizmosList = new(100);
     private static PrimitiveBatch? lineBatch;
     private static Material? gizmosMat;
+    
+    internal static bool AllowCreation = false;
 
     public static Matrix4x4 Matrix = Matrix4x4.Identity;
     public static Color Color = DefaultColor;
@@ -92,9 +94,11 @@ public static class Gizmos
 
     public static void Add(Gizmo gizmo)
     {
+        if (!AllowCreation)
+            throw new InvalidOperationException("Gizmos should only be drawn inside OnDrawGizmos().");
+        
         GizmosList.Add((gizmo, Matrix));
         Matrix = Matrix4x4.Identity;
-        Color = Color.White;
     }
 
 
@@ -133,5 +137,11 @@ public static class Gizmos
     {
         GizmosList.Clear();
         lineBatch?.Reset();
+    }
+    
+    
+    public static void ResetColor()
+    {
+        Color = DefaultColor;
     }
 }

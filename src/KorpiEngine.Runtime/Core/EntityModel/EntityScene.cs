@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering.Cameras;
 
@@ -204,8 +205,13 @@ internal sealed class EntityScene
     
     internal void InvokeDrawGizmos()
     {
+        Gizmos.AllowCreation = true;
         foreach (EntityComponent comp in Components)
+        {
             comp.DrawGizmos();
+            Gizmos.ResetColor();
+        }
+        Gizmos.AllowCreation = false;
     }
 
 
