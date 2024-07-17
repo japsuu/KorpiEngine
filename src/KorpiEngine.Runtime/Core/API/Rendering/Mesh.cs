@@ -109,11 +109,11 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// </summary>
     public Bounds Bounds { get; private set; }
 
-    public bool HasUV0 => (_vertexTexCoord0?.Length ?? 0) > 0;
-    public bool HasUV1 => (_vertexTexCoord1?.Length ?? 0) > 0;
-    public bool HasNormals => (_vertexNormals?.Length ?? 0) > 0;
-    public bool HasColors => (_vertexColors?.Length ?? 0) > 0;
-    public bool HasTangents => (_vertexTangents?.Length ?? 0) > 0;
+    public bool HasVertexUV0 => (_vertexTexCoord0?.Length ?? 0) > 0;
+    public bool HasVertexUV1 => (_vertexTexCoord1?.Length ?? 0) > 0;
+    public bool HasVertexNormals => (_vertexNormals?.Length ?? 0) > 0;
+    public bool HasVertexColors => (_vertexColors?.Length ?? 0) > 0;
+    public bool HasVertexTangents => (_vertexTangents?.Length ?? 0) > 0;
 
     internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
@@ -228,7 +228,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         bool empty = true;
         System.Numerics.Vector3 minVec = System.Numerics.Vector3.One * 99999f;
         System.Numerics.Vector3 maxVec = System.Numerics.Vector3.One * -99999f;
-        foreach (System.Numerics.Vector3 ptVector in GetPositions()!)
+        foreach (System.Numerics.Vector3 ptVector in GetVertexPositions()!)
         {
             minVec.X = minVec.X < ptVector.X ? minVec.X : ptVector.X;
             minVec.Y = minVec.Y < ptVector.Y ? minVec.Y : ptVector.Y;
@@ -253,7 +253,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (_vertexPositions == null || _indexData == null)
             return;
         
-        System.Numerics.Vector3[] vertices = GetPositions()!;
+        System.Numerics.Vector3[] vertices = GetVertexPositions()!;
         if (vertices.Length < 3)
             return;
         
@@ -283,7 +283,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         for (int i = 0; i < vertices.Length; i++)
             normals[i] = System.Numerics.Vector3.Normalize(normals[i]);
 
-        SetNormals(normals);
+        SetVertexNormals(normals);
     }
 
 
@@ -292,7 +292,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (_vertexPositions == null || _indexData == null)
             return;
         
-        System.Numerics.Vector3[] vertices = GetPositions()!;
+        System.Numerics.Vector3[] vertices = GetVertexPositions()!;
         if (vertices.Length < 3)
             return;
         
@@ -302,7 +302,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         
         if (_vertexTexCoord0 == null)
             return;
-        System.Numerics.Vector2[] uv = GetUVs(0)!;
+        System.Numerics.Vector2[] uv = GetVertexUVs(0)!;
 
         System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
 
@@ -333,46 +333,46 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         for (int i = 0; i < vertices.Length; i++)
             tangents[i] = System.Numerics.Vector3.Normalize(tangents[i]);
 
-        SetTangents(tangents);
+        SetVertexTangents(tangents);
     }
 
 
     #region SIMPLE API
 
-    public int GetPositionsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
+    public int GetVertexPositionsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
 
-    public System.Numerics.Vector3[]? GetPositions() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexPositions);
+    public System.Numerics.Vector3[]? GetVertexPositions() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexPositions);
 
-    public void SetPositions(ArraySegment<System.Numerics.Vector3>? positions) => SetVertexAttributeData(positions, ref _vertexPositions);
+    public void SetVertexPositions(ArraySegment<System.Numerics.Vector3>? positions) => SetVertexAttributeData(positions, ref _vertexPositions);
 
-    public int GetNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
+    public int GetVertexNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
 
-    public System.Numerics.Vector3[]? GetNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
+    public System.Numerics.Vector3[]? GetVertexNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
 
-    public void SetNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
+    public void SetVertexNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
 
-    public int GetTangentsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
+    public int GetVertexTangentsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
 
-    public System.Numerics.Vector3[]? GetTangents() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexTangents);
+    public System.Numerics.Vector3[]? GetVertexTangents() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexTangents);
 
-    public void SetTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
+    public void SetVertexTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
 
-    public int GetColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
+    public int GetVertexColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
 
-    public Color32[]? GetColors() => GetVertexAttributeData<Color32>(_vertexColors);
+    public Color32[]? GetVertexColors() => GetVertexAttributeData<Color32>(_vertexColors);
 
-    public void SetColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
+    public void SetVertexColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
 
 
-    public int GetUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
+    public int GetVertexUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
         VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1, destination);
 
 
-    public System.Numerics.Vector2[]? GetUVs(int channel) =>
+    public System.Numerics.Vector2[]? GetVertexUVs(int channel) =>
         GetVertexAttributeData<System.Numerics.Vector2>(VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1);
 
 
-    public void SetUVs(ArraySegment<System.Numerics.Vector2>? uvs, int channel)
+    public void SetVertexUVs(ArraySegment<System.Numerics.Vector2>? uvs, int channel)
     {
         if (channel == 0)
             SetVertexAttributeData(uvs, ref _vertexTexCoord0);
@@ -716,8 +716,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 int[] indices = [0, 1, 2, 0, 2, 3];
 
                 Mesh mesh = new();
-                mesh.SetPositions(positions);
-                mesh.SetUVs(uvs, 0);
+                mesh.SetVertexPositions(positions);
+                mesh.SetVertexUVs(uvs, 0);
                 mesh.SetIndices(indices);
                 
                 mesh.RecalculateBounds();
@@ -781,8 +781,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 ];
 
                 Mesh mesh = new();
-                mesh.SetPositions(positions);
-                mesh.SetUVs(uvs, 0);
+                mesh.SetVertexPositions(positions);
+                mesh.SetVertexUVs(uvs, 0);
                 mesh.SetIndices(indices);
                 
                 mesh.RecalculateBounds();
@@ -848,8 +848,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         Mesh mesh = new();
-        mesh.SetPositions(vertices.ToArray());
-        mesh.SetUVs(uvs.ToArray(), 0);
+        mesh.SetVertexPositions(vertices.ToArray());
+        mesh.SetVertexUVs(uvs.ToArray(), 0);
         mesh.SetIndices(indices.ToArray());
 
         mesh.RecalculateBounds();
@@ -879,9 +879,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         uvs[2] = new System.Numerics.Vector2(0, 1);
         uvs[3] = new System.Numerics.Vector2(1, 1);
 
-        mesh.SetPositions(positions);
+        mesh.SetVertexPositions(positions);
         mesh.SetIndices(indices);
-        mesh.SetUVs(uvs, 0);
+        mesh.SetVertexUVs(uvs, 0);
         
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
@@ -957,19 +957,19 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         List<MeshVertexLayout.VertexAttributeDescriptor> attributes =
             [new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeType.Float, 3)];
 
-        if (HasUV0)
+        if (HasVertexUV0)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeType.Float, 2));
 
-        if (HasUV1)
+        if (HasVertexUV1)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeType.Float, 2));
 
-        if (HasNormals)
+        if (HasVertexNormals)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeType.Float, 3, true));
 
-        if (HasColors)
+        if (HasVertexColors)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeType.Float, 4));
 
-        if (HasTangents)
+        if (HasVertexTangents)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeType.Float, 3, true));
 
         return new MeshVertexLayout(attributes.ToArray());

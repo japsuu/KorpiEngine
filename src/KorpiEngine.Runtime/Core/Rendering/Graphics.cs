@@ -153,11 +153,11 @@ public static class Graphics
         material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
-        material.SetKeyword("HAS_UV", mesh.HasUV0);
-        material.SetKeyword("HAS_UV2", mesh.HasUV1);
-        material.SetKeyword("HAS_NORMALS", mesh.HasNormals);
-        material.SetKeyword("HAS_COLORS", mesh.HasColors);
-        material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
+        material.SetKeyword("HAS_UV", mesh.HasVertexUV0);
+        material.SetKeyword("HAS_UV2", mesh.HasVertexUV1);
+        material.SetKeyword("HAS_NORMALS", mesh.HasVertexNormals);
+        material.SetKeyword("HAS_COLORS", mesh.HasVertexColors);
+        material.SetKeyword("HAS_TANGENTS", mesh.HasVertexTangents);
 
         // All material uniforms have been assigned; it's time to buffer them
         material.ApplyPropertyBlock(Driver.CurrentProgram);
