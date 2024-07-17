@@ -28,11 +28,11 @@ public static class Gizmos
     }
 
 
-    public static void DrawArrow(Vector3 from, Vector3 to)
+    public static void DrawArrow(Vector3 from, Vector3 to, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f)
     {
         from -= Camera.RenderingCamera.Entity.Transform.Position;
         to -= Camera.RenderingCamera.Entity.Transform.Position;
-        Add(new ArrowGizmo(from, to, Color));
+        Add(new ArrowGizmo(from, to, Color, arrowHeadLength, arrowHeadAngle));
     }
 
 

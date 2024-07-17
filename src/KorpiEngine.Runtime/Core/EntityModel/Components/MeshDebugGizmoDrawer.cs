@@ -109,7 +109,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
         {
             Vector3 position = positions[i] + (Vector3)Transform.Position;
             Vector3 direction = directions[i];
-            Gizmos.DrawLine(position, position + direction * length);
+            Gizmos.DrawArrow(position, position + direction * length);
         }
     }
 }

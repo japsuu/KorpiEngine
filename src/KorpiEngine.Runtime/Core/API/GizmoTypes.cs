@@ -26,23 +26,22 @@ public class LineGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
     }
 }
 
-public class ArrowGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
+public class ArrowGizmo(Vector3 start, Vector3 end, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 m)
     {
         Matrix = m;
+        double length = (end - start).Magnitude;
         
         // Body
         batch.Line(Pos(start), Pos(end), color, color);
         
-        // Head
+        // Arrow Head
         Vector3 direction = end - start;
-        Vector3 arrowHead = end - direction * 0.1f;
-        Vector3 arrowLeft = arrowHead + Vector3.Transform(Vector3.Left * 0.1f, Matrix4x4.CreateFromAxisAngle(direction, MathF.PI / 6f));
-        Vector3 arrowRight = arrowHead + Vector3.Transform(Vector3.Right * 0.1f, Matrix4x4.CreateFromAxisAngle(direction, MathF.PI / 6f));
-        
-        batch.Line(Pos(arrowHead), Pos(arrowLeft), color, color);
-        batch.Line(Pos(arrowHead), Pos(arrowRight), color, color);
+        Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        batch.Line(Pos(end), Pos(end + right * length * arrowHeadLength), color, color);
+        batch.Line(Pos(end), Pos(end + left * length * arrowHeadLength), color, color);
     }
 }
 
