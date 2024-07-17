@@ -14,7 +14,7 @@ public static class Gizmos
     private static Material? gizmosMat;
 
     public static Matrix4x4 Matrix = Matrix4x4.Identity;
-    public static Color Color = Color.Red;
+    public static Color Color = Color.White;
 
 
     public static void DrawLine(Vector3 from, Vector3 to)
@@ -131,5 +131,6 @@ public static class Gizmos
     {
         GizmosList.Clear();
         lineBatch?.Reset();
+        Color = Color.White;
     }
 }
