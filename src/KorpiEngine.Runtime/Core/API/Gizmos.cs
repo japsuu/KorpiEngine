@@ -14,7 +14,7 @@ public static class Gizmos
     private static Material? gizmosMat;
 
     public static Matrix4x4 Matrix = Matrix4x4.Identity;
-    public static Color Color;
+    public static Color Color = Color.Red;
 
 
     public static void DrawLine(Vector3 from, Vector3 to)
