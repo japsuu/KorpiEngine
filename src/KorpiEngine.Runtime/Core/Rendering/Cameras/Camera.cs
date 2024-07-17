@@ -127,6 +127,22 @@ public sealed class Camera : EntityComponent
             return;
         }
         
+        if (ShowGizmos)
+        {
+            // Prepare gizmos
+            RenderGizmos();
+            
+            // Draw gizmos
+            result.Begin();
+            // if (Graphics.UseJitter)
+            //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
+            Gizmos.Render();
+            result.End();
+        
+            // End gizmos
+            Gizmos.Clear();
+        }
+        
         // Draw to Screen
         bool doClear = ClearType == CameraClearType.SolidColor;
         switch (DebugDrawType)
@@ -163,31 +179,16 @@ public sealed class Camera : EntityComponent
         _oldView = Graphics.ViewMatrix;
         _oldProjection = Graphics.ProjectionMatrix;
         
-        if (ShowGizmos)
-        {
-            // Prepare gizmos
-            DrawGizmos();
-            
-            // Draw gizmos
-            TargetTexture.Res?.Begin();
-            if (Graphics.UseJitter)
-                Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
-            Gizmos.Render();
-            TargetTexture.Res?.End();
-        
-            // End gizmos
-            Gizmos.Clear();
-        }
-        
         RenderingCamera = null!;
         Graphics.UseJitter = false;
     }
     
     
     internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
-    internal void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
     internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
-    internal void RenderGizmos() => Entity.Scene.EntityScene.InvokeDrawGizmos();
+
+    private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
+    private void RenderGizmos() => Entity.Scene.EntityScene.InvokeDrawGizmos();
 
 
     private void GeometryPass()
