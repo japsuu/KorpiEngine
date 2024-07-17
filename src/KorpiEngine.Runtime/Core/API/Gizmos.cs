@@ -9,12 +9,13 @@ namespace KorpiEngine.Core.API;
 
 public static class Gizmos
 {
+    private static readonly Color DefaultColor = Color.White;
     private static readonly List<(Gizmo, Matrix4x4)> GizmosList = new(100);
     private static PrimitiveBatch? lineBatch;
     private static Material? gizmosMat;
 
     public static Matrix4x4 Matrix = Matrix4x4.Identity;
-    public static Color Color = Color.White;
+    public static Color Color = DefaultColor;
 
 
     public static void DrawLine(Vector3 from, Vector3 to)
@@ -93,6 +94,7 @@ public static class Gizmos
     {
         GizmosList.Add((gizmo, Matrix));
         Matrix = Matrix4x4.Identity;
+        Color = Color.White;
     }
 
 
@@ -131,6 +133,5 @@ public static class Gizmos
     {
         GizmosList.Clear();
         lineBatch?.Reset();
-        Color = Color.White;
     }
 }
