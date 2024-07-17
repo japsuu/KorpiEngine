@@ -27,6 +27,9 @@ public class MeshDebugGizmoDrawer : EntityComponent
     
     protected override void OnDrawGizmos()
     {
+        if (!Enabled)
+            return;
+        
         if (_renderer == null)
             return;
         
