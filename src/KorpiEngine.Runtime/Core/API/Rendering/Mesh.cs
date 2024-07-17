@@ -347,7 +347,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
     public int GetNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
 
-    public System.Numerics.Vector3[]? GetNormalsNonAlloc() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
+    public System.Numerics.Vector3[]? GetNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
 
     public void SetNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
 
