@@ -819,19 +819,19 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         #region Vertices
 
         System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * rings + 2];
-        float _pi = MathF.PI;
-        float _2pi = _pi * 2f;
+        const float pi = MathF.PI;
+        const float pi2 = pi * 2f;
 
         vertices[0] = Vector3.Up * radius;
         for (int lat = 0; lat < rings; lat++)
         {
-            float a1 = _pi * (lat + 1) / (rings + 1);
+            float a1 = pi * (lat + 1) / (rings + 1);
             float sin1 = MathF.Sin(a1);
             float cos1 = MathF.Cos(a1);
 
             for (int lon = 0; lon <= slices; lon++)
             {
-                float a2 = _2pi * (lon == slices ? 0 : lon) / slices;
+                float a2 = pi2 * (lon == slices ? 0 : lon) / slices;
                 float sin2 = MathF.Sin(a2);
                 float cos2 = MathF.Cos(a2);
 
