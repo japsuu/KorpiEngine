@@ -826,46 +826,46 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
         #region Vertices
 
-        Vector3[] vertices = new Vector3[(nbLong + 1) * nbLat + 2];
-        float _pi = Mathf.PI;
+        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(nbLong + 1) * nbLat + 2];
+        float _pi = MathF.PI;
         float _2pi = _pi * 2f;
 
-        vertices[0] = Vector3.up * radius;
+        vertices[0] = Vector3.Up * radius;
         for (int lat = 0; lat < nbLat; lat++)
         {
-            float a1 = _pi * (float)(lat + 1) / (nbLat + 1);
-            float sin1 = Mathf.Sin(a1);
-            float cos1 = Mathf.Cos(a1);
+            float a1 = _pi * (lat + 1) / (nbLat + 1);
+            float sin1 = MathF.Sin(a1);
+            float cos1 = MathF.Cos(a1);
 
             for (int lon = 0; lon <= nbLong; lon++)
             {
-                float a2 = _2pi * (float)(lon == nbLong ? 0 : lon) / nbLong;
-                float sin2 = Mathf.Sin(a2);
-                float cos2 = Mathf.Cos(a2);
+                float a2 = _2pi * (lon == nbLong ? 0 : lon) / nbLong;
+                float sin2 = MathF.Sin(a2);
+                float cos2 = MathF.Cos(a2);
 
                 vertices[lon + lat * (nbLong + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
             }
         }
 
-        vertices[vertices.Length - 1] = Vector3.up * -radius;
+        vertices[^1] = Vector3.Up * -radius;
 
         #endregion
 
 
-        #region Normales
+        #region Normals
 
-        Vector3[] normales = new Vector3[vertices.Length];
+        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
-            normales[n] = vertices[n].normalized;
+            normals[n] = System.Numerics.Vector3.Normalize(vertices[n]);
 
         #endregion
 
 
         #region UVs
 
-        Vector2[] uvs = new Vector2[vertices.Length];
-        uvs[0] = Vector2.up;
-        uvs[uvs.Length - 1] = Vector2.zero;
+        System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
+        uvs[0] = Vector2.Up;
+        uvs[^1] = Vector2.Zero;
         for (int lat = 0; lat < nbLat; lat++)
         for (int lon = 0; lon <= nbLong; lon++)
             uvs[lon + lat * (nbLong + 1) + 1] = new Vector2((float)lon / nbLong, 1f - (float)(lat + 1) / (nbLat + 1));
@@ -880,7 +880,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         int nbIndexes = nbTriangles * 3;
         int[] triangles = new int[nbIndexes];
 
-        //Top Cap
+        // Top Cap
         int i = 0;
         for (int lon = 0; lon < nbLong; lon++)
         {
@@ -889,7 +889,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             triangles[i++] = 0;
         }
 
-        //Middle
+        // Middle
         for (int lat = 0; lat < nbLat - 1; lat++)
         for (int lon = 0; lon < nbLong; lon++)
         {
@@ -905,7 +905,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             triangles[i++] = next;
         }
 
-        //Bottom Cap
+        // Bottom Cap
         for (int lon = 0; lon < nbLong; lon++)
         {
             triangles[i++] = vertices.Length - 1;
@@ -917,9 +917,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
 
         Mesh mesh = new();
-        mesh.SetVertexPositions(vertices.ToArray());
-        mesh.SetVertexUVs(uvs.ToArray(), 0);
-        mesh.SetIndices(indices.ToArray());
+        mesh.SetVertexPositions(vertices);
+        mesh.SetVertexUVs(uvs, 0);
+        mesh.SetIndices(triangles);
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
@@ -928,7 +928,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         return mesh;
     }
 
-
+    
+#warning Mesh.CreateTorus is not working properly
     public static Mesh CreateTorus(float radiusOuter, float radiusInner, int radialSegments, int sideSegments)
     {
         System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(radialSegments + 1) * (sideSegments + 1)];
@@ -947,7 +948,6 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             {
                 int currSide = side == sideSegments ? 0 : side;
 
-                // Vector3 normale = Vector3.Cross(r1, Vector3.Up);
                 float t2 = (float)currSide / sideSegments * _2pi;
                 Vector3 r2 = Quaternion.AngleAxis(-t1 * Mathd.RAD_2_DEG, Vector3.Up) * new Vector3(MathF.Sin(t2) * radiusInner, MathF.Cos(t2) * radiusInner, 0);
 
@@ -957,11 +957,10 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
         #endregion
 
+        
+        /*#region Normals
 
-        //TODO: Test if necessary
-        #region Normales
-
-        System.Numerics.Vector3[] normales = new System.Numerics.Vector3[vertices.Length];
+        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
         for (int seg = 0; seg <= radialSegments; seg++)
         {
             int currSeg = seg == radialSegments ? 0 : seg;
@@ -970,10 +969,10 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             Vector3 r1 = new(MathF.Cos(t1) * radiusOuter, 0f, MathF.Sin(t1) * radiusOuter);
 
             for (int side = 0; side <= sideSegments; side++)
-                normales[side + seg * (sideSegments + 1)] = ((Vector3)vertices[side + seg * (sideSegments + 1)] - r1).Normalized;
+                normals[side + seg * (sideSegments + 1)] = ((Vector3)vertices[side + seg * (sideSegments + 1)] - r1).Normalized;
         }
 
-        #endregion
+        #endregion*/
 
 
         #region UVs
@@ -1018,12 +1017,11 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
         Mesh mesh = new();
         mesh.SetVertexPositions(vertices);
-        mesh.SetVertexNormals(normales);
         mesh.SetVertexUVs(uvs, 0);
         mesh.SetIndices(triangles);
 
         mesh.RecalculateBounds();
-        //mesh.RecalculateNormals();
+        mesh.RecalculateNormals();
         mesh.RecalculateTangents();
 
         return mesh;
