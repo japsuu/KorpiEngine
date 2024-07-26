@@ -49,7 +49,6 @@ public class MeshDebugGizmoDrawer : EntityComponent
         Vector3[]? vertices = GetMeshVertexPositions();
         Vector3[]? normals = GetMeshNormals();
         
-        Gizmos.Color = Color.Cyan;
         DrawLines(vertices, normals, NormalLength);
     }
     
@@ -59,7 +58,6 @@ public class MeshDebugGizmoDrawer : EntityComponent
         Vector3[]? vertices = GetMeshVertexPositions();
         Vector3[]? tangents = GetMeshTangents();
         
-        Gizmos.Color = Color.Yellow;
         DrawLines(vertices, tangents, TangentLength);
     }
     
@@ -109,6 +107,13 @@ public class MeshDebugGizmoDrawer : EntityComponent
         {
             Vector3 position = positions[i] + (Vector3)Transform.Position;
             Vector3 direction = directions[i];
+            
+            // Decide the line color based on the normal, ensure there are no black lines
+            float r = Math.Max(0.1f, Math.Abs(direction.X));
+            float g = Math.Max(0.1f, Math.Abs(direction.Y));
+            float b = Math.Max(0.1f, Math.Abs(direction.Z));
+            Gizmos.Color = new Color(r, g, b, 1f);
+            
             Gizmos.DrawArrow(position, position + direction * length);
         }
     }
