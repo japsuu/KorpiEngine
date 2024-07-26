@@ -794,8 +794,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             case PrimitiveType.Sphere:
             {
                 const float radius = 0.5f;
-                const int rings = 16;
-                const int slices = 16;
+                const int rings = 8;
+                const int slices = 8;
                 return CreateSphere(radius, rings, slices);
             }
             case PrimitiveType.Capsule:
@@ -814,36 +814,28 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
-#warning TODO: Fix Mesh.CreateSphere
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
-        // Longitude |||
-        int nbLong = 24;
-
-        // Latitude ---
-        int nbLat = 16;
-
-
         #region Vertices
 
-        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(nbLong + 1) * nbLat + 2];
+        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * rings + 2];
         float _pi = MathF.PI;
         float _2pi = _pi * 2f;
 
         vertices[0] = Vector3.Up * radius;
-        for (int lat = 0; lat < nbLat; lat++)
+        for (int lat = 0; lat < rings; lat++)
         {
-            float a1 = _pi * (lat + 1) / (nbLat + 1);
+            float a1 = _pi * (lat + 1) / (rings + 1);
             float sin1 = MathF.Sin(a1);
             float cos1 = MathF.Cos(a1);
 
-            for (int lon = 0; lon <= nbLong; lon++)
+            for (int lon = 0; lon <= slices; lon++)
             {
-                float a2 = _2pi * (lon == nbLong ? 0 : lon) / nbLong;
+                float a2 = _2pi * (lon == slices ? 0 : lon) / slices;
                 float sin2 = MathF.Sin(a2);
                 float cos2 = MathF.Cos(a2);
 
-                vertices[lon + lat * (nbLong + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
+                vertices[lon + lat * (slices + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
             }
         }
 
@@ -866,9 +858,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
         uvs[0] = Vector2.Up;
         uvs[^1] = Vector2.Zero;
-        for (int lat = 0; lat < nbLat; lat++)
-        for (int lon = 0; lon <= nbLong; lon++)
-            uvs[lon + lat * (nbLong + 1) + 1] = new Vector2((float)lon / nbLong, 1f - (float)(lat + 1) / (nbLat + 1));
+        for (int lat = 0; lat < rings; lat++)
+        for (int lon = 0; lon <= slices; lon++)
+            uvs[lon + lat * (slices + 1) + 1] = new Vector2((float)lon / slices, 1f - (float)(lat + 1) / (rings + 1));
 
         #endregion
 
@@ -882,7 +874,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
         // Top Cap
         int i = 0;
-        for (int lon = 0; lon < nbLong; lon++)
+        for (int lon = 0; lon < slices; lon++)
         {
             triangles[i++] = lon + 2;
             triangles[i++] = lon + 1;
@@ -890,11 +882,11 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         // Middle
-        for (int lat = 0; lat < nbLat - 1; lat++)
-        for (int lon = 0; lon < nbLong; lon++)
+        for (int lat = 0; lat < rings - 1; lat++)
+        for (int lon = 0; lon < slices; lon++)
         {
-            int current = lon + lat * (nbLong + 1) + 1;
-            int next = current + nbLong + 1;
+            int current = lon + lat * (slices + 1) + 1;
+            int next = current + slices + 1;
 
             triangles[i++] = current;
             triangles[i++] = current + 1;
@@ -906,7 +898,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         // Bottom Cap
-        for (int lon = 0; lon < nbLong; lon++)
+        for (int lon = 0; lon < slices; lon++)
         {
             triangles[i++] = vertices.Length - 1;
             triangles[i++] = vertices.Length - (lon + 2) - 1;
