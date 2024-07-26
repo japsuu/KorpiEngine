@@ -949,7 +949,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
                 // Vector3 normale = Vector3.Cross(r1, Vector3.Up);
                 float t2 = (float)currSide / sideSegments * _2pi;
-                Vector3 r2 = Quaternion.AngleAxis(-t1 * Maths.RAD_2_DEG, Vector3.Up) * new Vector3(MathF.Sin(t2) * radiusInner, MathF.Cos(t2) * radiusInner, 0);
+                Vector3 r2 = Quaternion.AngleAxis(-t1 * Mathd.RAD_2_DEG, Vector3.Up) * new Vector3(MathF.Sin(t2) * radiusInner, MathF.Cos(t2) * radiusInner, 0);
 
                 vertices[side + seg * (sideSegments + 1)] = r1 + r2;
             }

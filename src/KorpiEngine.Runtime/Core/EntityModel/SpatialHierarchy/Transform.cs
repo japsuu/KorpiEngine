@@ -232,7 +232,7 @@ public class Transform
 
     public void Rotate(Vector3 axis, double angle, bool relativeToSelf = true)
     {
-        RotateAroundInternal(relativeToSelf ? TransformDirection(axis) : axis, angle * Maths.DEG_2_RAD);
+        RotateAroundInternal(relativeToSelf ? TransformDirection(axis) : axis, angle * Mathd.DEG_2_RAD);
     }
 
 
@@ -244,14 +244,14 @@ public class Transform
         dif = q * dif;
         worldPos = point + dif;
         Position = worldPos;
-        RotateAroundInternal(axis, angle * Maths.DEG_2_RAD);
+        RotateAroundInternal(axis, angle * Mathd.DEG_2_RAD);
     }
 
 
     private void RotateAroundInternal(Vector3 worldAxis, double rad)
     {
         Vector3 localAxis = InverseTransformDirection(worldAxis);
-        if (localAxis.SqrMagnitude > Maths.EPSILON)
+        if (localAxis.SqrMagnitude > Mathd.EPSILON)
         {
             localAxis.Normalize();
             Quaternion q = Quaternion.AngleAxis(rad, localAxis);
@@ -360,6 +360,6 @@ public class Transform
     private static double MakeSafe(double v) => double.IsNaN(v) ? 0 : v;
     private static Vector3 MakeSafe(Vector3 v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z));
     private static Quaternion MakeSafe(Quaternion v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z), MakeSafe(v.W));
-    private static double InverseSafe(double f) => Math.Abs(f) > Maths.EPSILON ? 1.0F / f : 0.0F;
+    private static double InverseSafe(double f) => Math.Abs(f) > Mathd.EPSILON ? 1.0F / f : 0.0F;
     private static Vector3 InverseSafe(Vector3 v) => new(InverseSafe(v.X), InverseSafe(v.Y), InverseSafe(v.Z));
 }

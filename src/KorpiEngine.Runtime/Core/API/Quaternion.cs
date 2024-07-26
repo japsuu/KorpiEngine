@@ -183,10 +183,10 @@ public struct Quaternion : IEquatable<Quaternion>
         double angle = Math.Acos(dotProd);
 
         // Handle parallel vectors
-        if (crossProd.Magnitude < Maths.EPSILON)
+        if (crossProd.Magnitude < Mathd.EPSILON)
         {
             // If vectors are opposite
-            if (dotProd < -1 + Maths.EPSILON)
+            if (dotProd < -1 + Mathd.EPSILON)
             {
                 // Find an orthogonal vector to use as the rotation axis
                 Vector3 orthogonal = Math.Abs(fromDirection.X) < Math.Abs(fromDirection.Y) ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0);
@@ -209,7 +209,7 @@ public struct Quaternion : IEquatable<Quaternion>
     public static Quaternion NormalizeSafe(Quaternion q)
     {
         double mag = q.Magnitude();
-        if (mag < Maths.EPSILON)
+        if (mag < Mathd.EPSILON)
             return Identity;
         else
             return q / mag;
@@ -534,13 +534,13 @@ public struct Quaternion : IEquatable<Quaternion>
     /// <summary>
     /// Returns the angle in degrees between two rotations.</para>
     /// </summary>
-    public static double Angle(Quaternion a, Quaternion b) => Maths.Acos(Maths.Min(Maths.Abs(Dot(a, b)), 1.0)) * 2.0 * Maths.RAD_2_DEG;
+    public static double Angle(Quaternion a, Quaternion b) => Mathd.Acos(Mathd.Min(Mathd.Abs(Dot(a, b)), 1.0)) * 2.0 * Mathd.RAD_2_DEG;
 
 
     public static Quaternion RotateTowards(Quaternion from, Quaternion to, double maxDegreesDelta)
     {
         double angle = Angle(from, to);
-        return angle == 0.0 ? to : Slerp(from, to, Maths.Min(1.0, maxDegreesDelta / angle));
+        return angle == 0.0 ? to : Slerp(from, to, Mathd.Min(1.0, maxDegreesDelta / angle));
     }
 
 

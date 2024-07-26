@@ -63,7 +63,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
 
     public Vector4 Normalized => Normalize(this);
 
-    public double Magnitude => Maths.Sqrt(X * X + Y * Y + Z * Z + W * W);
+    public double Magnitude => Mathd.Sqrt(X * X + Y * Y + Z * Z + W * W);
 
     public double SqrMagnitude => X * X + Y * Y + Z * Z + W * W;
 
@@ -122,7 +122,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     public static Vector4 Forward => new(0.0, 0.0, 1.0, 0.0);
     public static Vector4 UnitW => new(0.0, 0.0, 0.0, 1.0);
 
-    public static readonly Vector4 Infinity = new(Maths.INFINITY, Maths.INFINITY, Maths.INFINITY, Maths.INFINITY);
+    public static readonly Vector4 Infinity = new(Mathd.INFINITY, Mathd.INFINITY, Mathd.INFINITY, Mathd.INFINITY);
 
     #endregion Public Static Properties
 
@@ -236,7 +236,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     }
 
 
-    public bool IsFinate() => Maths.IsValid(X) && Maths.IsValid(Y) && Maths.IsValid(Z) && Maths.IsValid(W);
+    public bool IsFinate() => Mathd.IsValid(X) && Mathd.IsValid(Y) && Mathd.IsValid(Z) && Mathd.IsValid(W);
 
     #endregion Public Instance Methods
 
