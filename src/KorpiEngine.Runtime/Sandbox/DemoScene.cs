@@ -14,23 +14,32 @@ internal class DemoScene : Scene
 {
     protected override void OnLoad()
     {
-        Entity e1 = new("Sphere 1");
-        Entity m1 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        m1.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m1.SetParent(e1);
-        e1.Transform.Position = new Vector3(0, 6, 0);
+        Entity e;
+        Entity m;
         
-        Entity e2 = new("Sphere 2");
-        Entity m2 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        m2.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m2.SetParent(e2);
-        e2.Transform.Position = new Vector3(1, 4, -3);
+        e = new Entity("Sphere 1");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(0, 6, 0);
         
-        Entity e3 = new("Sphere 3");
-        Entity m3 = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        m3.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m3.SetParent(e3);
-        e3.Transform.Position = new Vector3(-2, 4, -2);
+        e = new Entity("Sphere 2");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(1, 4, -3);
+        
+        e = new Entity("Sphere 3");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(-2, 4, -2);
+        
+        e = new Entity("Torus 1");
+        m = CreatePrimitive(PrimitiveType.Torus, "Torus model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(0, -1, 2);
         
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
