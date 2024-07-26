@@ -800,6 +800,14 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             }
             case PrimitiveType.Capsule:
                 return null!;
+            case PrimitiveType.Torus:
+            {
+                const float radius1 = 1f;
+                const float radius2 = .3f;
+                const int nbRadSeg = 24;
+                const int nbSides = 18;
+                return CreateTorus(radius1, radius2, nbRadSeg, nbSides);
+            }
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
@@ -855,7 +863,108 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
-                
+
+        return mesh;
+    }
+
+
+    public static Mesh CreateTorus(float radiusOuter, float radiusInner, int radialSegments, int sideSegments)
+    {
+        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(radialSegments + 1) * (sideSegments + 1)];
+
+        #region Vertices
+
+        const float _2pi = MathF.PI * 2f;
+        for (int seg = 0; seg <= radialSegments; seg++)
+        {
+            int currSeg = seg == radialSegments ? 0 : seg;
+
+            float t1 = (float)currSeg / radialSegments * _2pi;
+            Vector3 r1 = new(MathF.Cos(t1) * radiusOuter, 0f, MathF.Sin(t1) * radiusOuter);
+
+            for (int side = 0; side <= sideSegments; side++)
+            {
+                int currSide = side == sideSegments ? 0 : side;
+
+                // Vector3 normale = Vector3.Cross(r1, Vector3.Up);
+                float t2 = (float)currSide / sideSegments * _2pi;
+                Vector3 r2 = Quaternion.AngleAxis(-t1 * Maths.RAD_2_DEG, Vector3.Up) * new Vector3(MathF.Sin(t2) * radiusInner, MathF.Cos(t2) * radiusInner, 0);
+
+                vertices[side + seg * (sideSegments + 1)] = r1 + r2;
+            }
+        }
+
+        #endregion
+
+
+        //TODO: Test if necessary
+        #region Normales
+
+        System.Numerics.Vector3[] normales = new System.Numerics.Vector3[vertices.Length];
+        for (int seg = 0; seg <= radialSegments; seg++)
+        {
+            int currSeg = seg == radialSegments ? 0 : seg;
+
+            float t1 = (float)currSeg / radialSegments * _2pi;
+            Vector3 r1 = new(MathF.Cos(t1) * radiusOuter, 0f, MathF.Sin(t1) * radiusOuter);
+
+            for (int side = 0; side <= sideSegments; side++)
+                normales[side + seg * (sideSegments + 1)] = ((Vector3)vertices[side + seg * (sideSegments + 1)] - r1).Normalized;
+        }
+
+        #endregion
+
+
+        #region UVs
+
+        System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
+        for (int seg = 0; seg <= radialSegments; seg++)
+        for (int side = 0; side <= sideSegments; side++)
+            uvs[side + seg * (sideSegments + 1)] = new System.Numerics.Vector2((float)seg / radialSegments, (float)side / sideSegments);
+
+        #endregion
+
+
+        #region Triangles
+
+        int nbFaces = vertices.Length;
+        int nbTriangles = nbFaces * 2;
+        int nbIndexes = nbTriangles * 3;
+        int[] triangles = new int[nbIndexes];
+
+        int maxTriangles = triangles.Length - 6;
+        int triangle = 0;
+        
+        for (int seg = 0; seg <= radialSegments; seg++)
+        for (int side = 0; side <= sideSegments - 1; side++)
+        {
+            int current = side + seg * (sideSegments + 1);
+            int next = side + (seg < radialSegments ? (seg + 1) * (sideSegments + 1) : 0);
+
+            if (triangle >= maxTriangles)
+                continue;
+            
+            triangles[triangle++] = current;
+            triangles[triangle++] = next;
+            triangles[triangle++] = next + 1;
+
+            triangles[triangle++] = current;
+            triangles[triangle++] = next + 1;
+            triangles[triangle++] = current + 1;
+        }
+
+        #endregion
+
+        Mesh mesh = new();
+        mesh.SetVertexPositions(vertices);
+        mesh.SetVertexNormals(normales);
+        mesh.SetVertexUVs(uvs, 0);
+        mesh.SetIndices(triangles);
+
+        mesh.RecalculateBounds();
+        //mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+
         return mesh;
     }
 
