@@ -115,7 +115,10 @@ public sealed class Camera : EntityComponent
         _pipeline.Prepare(width, height);
         
         // Render all meshes
-        GeometryPass();
+        if (DebugDrawType == CameraDebugDrawType.Wireframe)
+            GeometryPassWireframe();
+        else
+            GeometryPass();
         
         RenderTexture? result = _pipeline.Render();
 
@@ -170,6 +173,7 @@ public sealed class Camera : EntityComponent
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Velocity, doClear);
                 break;
             case CameraDebugDrawType.ObjectID:
+            case CameraDebugDrawType.Wireframe: // Hack: Wireframe uses the ObjectID buffer to color the wireframe red
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.ObjectIDs, doClear);
                 break;
             default:
@@ -200,6 +204,19 @@ public sealed class Camera : EntityComponent
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();
+    }
+    
+    
+    private void GeometryPassWireframe()
+    {
+        // Set the wireframe rendering mode
+        Graphics.Driver.SetWireframeMode(true);
+
+        // Render all meshes in wireframe mode
+        GeometryPass();
+
+        // Reset the wireframe rendering mode
+        Graphics.Driver.SetWireframeMode(false);
     }
     
     
@@ -267,7 +284,8 @@ public sealed class Camera : EntityComponent
             CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
             CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
             CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
-            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
+            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Wireframe,
+            CameraDebugDrawType.Wireframe => CameraDebugDrawType.Off,
             _ => throw new ArgumentOutOfRangeException()
         };
         Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
