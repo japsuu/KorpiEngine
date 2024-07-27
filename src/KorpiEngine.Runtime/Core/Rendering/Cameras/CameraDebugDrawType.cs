@@ -9,5 +9,6 @@ public enum CameraDebugDrawType
     Emission,
     Depth,
     Velocity,
-    ObjectID
+    ObjectID,
+    Wireframe
 }
