@@ -17,7 +17,7 @@ internal abstract class GraphicsDriver
 
     public void Initialize()
     {
-        Logger.Info("Initializing...");
+        Logger.Info($"Initializing {nameof(GraphicsDriver)}...");
         InitializeInternal();
     }
 
@@ -27,7 +27,7 @@ internal abstract class GraphicsDriver
 
     public void Shutdown()
     {
-        Logger.Info("Shutting down...");
+        Logger.Info($"Shutting down {nameof(GraphicsDriver)}...");
         ShutdownInternal();
     }
 
