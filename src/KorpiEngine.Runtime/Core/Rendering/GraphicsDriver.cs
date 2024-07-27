@@ -46,6 +46,8 @@ internal abstract class GraphicsDriver
     public abstract void UpdateViewport(int x, int y, int width, int height);
 
     public abstract void Clear(float r, float g, float b, float a, ClearFlags flags);
+    
+    public abstract void SetWireframeMode(bool enabled);
 
     #endregion
     

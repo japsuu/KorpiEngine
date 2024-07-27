@@ -171,6 +171,12 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.Clear(clearBufferMask);
     }
 
+
+    public override void SetWireframeMode(bool enabled)
+    {
+        GL.PolygonMode(MaterialFace.FrontAndBack, enabled ? PolygonMode.Line : PolygonMode.Fill);
+    }
+
     #endregion
 
 
