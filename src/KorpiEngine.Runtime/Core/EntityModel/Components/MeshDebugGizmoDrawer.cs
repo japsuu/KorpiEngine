@@ -12,6 +12,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     public bool DrawNormals = false;
     public bool DrawTangents = false;
     public bool DrawBounds = false;
+    public bool IgnoreDepth = false;
     
     public float NormalLength = 0.1f;
     public float TangentLength = 0.1f;
@@ -26,6 +27,24 @@ public class MeshDebugGizmoDrawer : EntityComponent
     
     
     protected override void OnDrawGizmos()
+    {
+        if (!IgnoreDepth)
+            return;
+        
+        Draw();
+    }
+    
+    
+    protected override void OnDrawDepthGizmos()
+    {
+        if (IgnoreDepth)
+            return;
+
+        Draw();
+    }
+
+
+    private void Draw()
     {
         if (!Enabled)
             return;
@@ -42,8 +61,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (DrawBounds)
             DrawBoundsGizmos();
     }
-    
-    
+
+
     private void DrawNormalsGizmos()
     {
         Vector3[]? vertices = GetMeshVertexPositions();
