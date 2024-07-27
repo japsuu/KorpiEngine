@@ -131,20 +131,7 @@ public sealed class Camera : EntityComponent
         }
         
         if (ShowGizmos)
-        {
-            // Prepare gizmos
-            RenderGizmos();
-            
-            // Draw gizmos
-            result.Begin();
-            // if (Graphics.UseJitter)
-            //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
-            Gizmos.Render();
-            result.End();
-        
-            // End gizmos
-            Gizmos.Clear();
-        }
+            RenderGizmos(result);
         
         // Draw to Screen
         bool doClear = ClearType == CameraClearType.SolidColor;
@@ -190,10 +177,32 @@ public sealed class Camera : EntityComponent
     
     internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
     internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
-
+    
     private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
-    private void RenderGizmos() => Entity.Scene.EntityScene.InvokeDrawGizmos();
-    private void RenderDepthGizmos() => Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
+
+
+    private void RenderGizmos(RenderTexture result)
+    {
+        Entity.Scene.EntityScene.InvokeDrawGizmos();
+        // if (Graphics.UseJitter)
+        //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
+        
+        // Draw gizmos
+        result.Begin();
+        Gizmos.Render();
+        result.End();
+        
+        // End gizmos
+        Gizmos.Clear();
+    }
+
+
+    private void RenderDepthGizmos()
+    {
+        Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
+        Gizmos.Render();
+        Gizmos.Clear();
+    }
 
 
     private void GeometryPass()
@@ -202,6 +211,8 @@ public sealed class Camera : EntityComponent
         
         GBuffer!.Begin();
         RenderGeometry();
+        if (ShowGizmos)
+            RenderDepthGizmos();
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();
