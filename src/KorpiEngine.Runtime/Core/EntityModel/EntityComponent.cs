@@ -129,6 +129,7 @@ public abstract class EntityComponent
     internal void PostRender() => OnPostRender();
     internal void RenderObjectDepth() => OnRenderDepth();
     internal void DrawGizmos() => OnDrawGizmos();
+    internal void DrawDepthGizmos() => OnDrawDepthGizmos();
 
 
     internal void Destroy()
@@ -267,9 +268,16 @@ public abstract class EntityComponent
     protected virtual void OnRenderDepth() { }
     /// <summary>
     /// Called when Gizmos are drawn.
+    /// These gizmos ignore depth and are drawn on top of all scene geometry.
     /// Called even when the component is disabled.
     /// </summary>
     protected virtual void OnDrawGizmos() { }
+    /// <summary>
+    /// Called when Gizmos are drawn.
+    /// These gizmos respect depth and may be occluded by scene geometry.
+    /// Called even when the component is disabled.
+    /// </summary>
+    protected virtual void OnDrawDepthGizmos() { }
     protected virtual void OnDestroy() { }
 
 

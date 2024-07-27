@@ -193,6 +193,7 @@ public sealed class Camera : EntityComponent
 
     private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
     private void RenderGizmos() => Entity.Scene.EntityScene.InvokeDrawGizmos();
+    private void RenderDepthGizmos() => Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
 
 
     private void GeometryPass()

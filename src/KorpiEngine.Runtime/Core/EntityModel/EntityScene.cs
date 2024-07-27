@@ -213,6 +213,18 @@ internal sealed class EntityScene
         }
         Gizmos.AllowCreation = false;
     }
+    
+    
+    internal void InvokeDrawDepthGizmos()
+    {
+        Gizmos.AllowCreation = true;
+        foreach (EntityComponent comp in Components)
+        {
+            comp.DrawDepthGizmos();
+            Gizmos.ResetColor();
+        }
+        Gizmos.AllowCreation = false;
+    }
 
 
     internal T? FindObjectOfType<T>() where T : EntityComponent
