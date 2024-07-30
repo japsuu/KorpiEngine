@@ -6,6 +6,8 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering;
 
+#warning Remove System.Numerics.VectorX and replace with KorpiEngine variants
+
 /// <summary>
 /// Represents a 3D mesh.<br/><br/>
 /// 
@@ -814,109 +816,128 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
+    /// <summary>
+    /// Creates a new mesh with a sphere shape.
+    /// </summary>
+    /// <param name="radius">The radius of the sphere.</param>
+    /// <param name="rings">Latitude ---</param>
+    /// <param name="slices">Longitude |||</param>
+    /// <returns></returns>
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
-        #region Vertices
-
-        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * rings + 2];
-        const float pi = MathF.PI;
-        const float pi2 = pi * 2f;
-
-        vertices[0] = Vector3.Up * radius;
-        for (int lat = 0; lat < rings; lat++)
+        void CreateTangents(System.Numerics.Vector3[] vertices, System.Numerics.Vector3[] tangents)
         {
-            float a1 = pi * (lat + 1) / (rings + 1);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                System.Numerics.Vector3 v = vertices[i];
+                v.Y = 0f;
+                v = System.Numerics.Vector3.Normalize(v);
+                System.Numerics.Vector3 tangent;
+                tangent.X = -v.Z;
+                tangent.Y = 0f;
+                tangent.Z = v.X;
+                tangents[i] = tangent;
+            }
+
+            //tangents[vertices.Length - 4] = tangents[0] = new Vector3(-1f, 0, -1f).normalized;
+            //tangents[vertices.Length - 3] = tangents[1] = new Vector3(1f, 0f, -1f).normalized;
+            //tangents[vertices.Length - 2] = tangents[2] = new Vector3(1f, 0f, 1f).normalized;
+            //tangents[vertices.Length - 1] = tangents[3] = new Vector3(-1f, 0f, 1f).normalized;
+            /*for (int i = 0; i < 4; i++)
+            {
+                tangents[vertices.Length - 1 - i].w = tangents[i].w = -1f;
+            }*/
+        }
+        
+        #region Vertices
+        
+        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * (rings + 1)];
+        const float pi = MathF.PI;
+        const float _2pi = pi * 2f;
+
+        for (int lat = 0; lat <= rings; lat++)
+        {
+            float a1 = pi * lat / rings;
             float sin1 = MathF.Sin(a1);
             float cos1 = MathF.Cos(a1);
 
             for (int lon = 0; lon <= slices; lon++)
             {
-                float a2 = pi2 * (lon == slices ? 0 : lon) / slices;
+                float a2 = pi + _2pi * (lon == slices ? 0 : lon) / slices;
                 float sin2 = MathF.Sin(a2);
                 float cos2 = MathF.Cos(a2);
 
-                vertices[lon + lat * (slices + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
+                vertices[lon + lat * (slices + 1)] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
             }
         }
-
-        vertices[^1] = Vector3.Up * -radius;
-
+        
         #endregion
 
-
+        
         #region Normals
-
+        
         System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
             normals[n] = System.Numerics.Vector3.Normalize(vertices[n]);
-
+        
         #endregion
 
-
+        
         #region UVs
-
+        
         System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
         uvs[0] = Vector2.Up;
         uvs[^1] = Vector2.Zero;
-        for (int lat = 0; lat < rings; lat++)
-        for (int lon = 0; lon <= slices; lon++)
-            uvs[lon + lat * (slices + 1) + 1] = new Vector2((float)lon / slices, 1f - (float)(lat + 1) / (rings + 1));
-
+        for (int lat = 0; lat <= rings; lat++)
+            for (int lon = 0; lon <= slices; lon++)
+                uvs[lon + lat * (slices + 1)] = new Vector2((float)lon / slices, 1f - (float)lat / rings);
+        
         #endregion
 
-
+        
         #region Triangles
-
+        
         int nbFaces = vertices.Length;
         int nbTriangles = nbFaces * 2;
         int nbIndexes = nbTriangles * 3;
         int[] triangles = new int[nbIndexes];
 
-        // Top Cap
-        int i = 0;
-        for (int lon = 0; lon < slices; lon++)
-        {
-            triangles[i++] = lon + 2;
-            triangles[i++] = lon + 1;
-            triangles[i++] = 0;
-        }
-
         // Middle
-        for (int lat = 0; lat < rings - 1; lat++)
-        for (int lon = 0; lon < slices; lon++)
+        int i = 0;
+        for (int lat = 0; lat < rings; lat++)
         {
-            int current = lon + lat * (slices + 1) + 1;
-            int next = current + slices + 1;
+            for (int lon = 0; lon < slices; lon++)
+            {
+                int current = lon + lat * (slices + 1);
+                int next = current + (slices + 1);
 
-            triangles[i++] = current;
-            triangles[i++] = current + 1;
-            triangles[i++] = next + 1;
+                triangles[i++] = current;
+                triangles[i++] = current + 1;
+                triangles[i++] = next + 1;
 
-            triangles[i++] = current;
-            triangles[i++] = next + 1;
-            triangles[i++] = next;
+                triangles[i++] = current;
+                triangles[i++] = next + 1;
+                triangles[i++] = next;
+            }
         }
-
-        // Bottom Cap
-        for (int lon = 0; lon < slices; lon++)
-        {
-            triangles[i++] = vertices.Length - 1;
-            triangles[i++] = vertices.Length - (lon + 2) - 1;
-            triangles[i++] = vertices.Length - (lon + 1) - 1;
-        }
-
+        
         #endregion
 
+        
+        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
+        CreateTangents(vertices, tangents);
 
         Mesh mesh = new();
+        if (vertices.Length > 65535)
+            mesh.IndexFormat = IndexFormat.UInt32;
+        
+        mesh.Name = "UV Sphere";
         mesh.SetVertexPositions(vertices);
+        mesh.SetVertexNormals(normals);
         mesh.SetVertexUVs(uvs, 0);
+        mesh.SetVertexTangents(tangents);
         mesh.SetIndices(triangles);
-
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-
+        
         return mesh;
     }
 
