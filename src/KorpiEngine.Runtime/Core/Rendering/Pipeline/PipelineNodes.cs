@@ -113,6 +113,21 @@ public class LightingCombinePassNode : RenderPassNode
     }
 }
 
+public class UnlitCombinePassNode : RenderPassNode
+{
+    protected override RenderTexture? Render(RenderTexture? source)
+    {
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
+
+        if (source == null)
+            return null;
+
+        Graphics.Blit(source, gBuffer.Unlit, false);
+
+        return source;
+    }
+}
+
 public class ProceduralSkyboxNode : RenderPassNode
 {
     public float FogDensity = 0.08f;
