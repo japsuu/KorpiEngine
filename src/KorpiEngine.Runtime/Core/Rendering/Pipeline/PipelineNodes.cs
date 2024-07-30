@@ -89,7 +89,7 @@ public class LightingPassNode : RenderPassNode
     }
 }
 
-public class CombinePassNode : RenderPassNode
+public class LightingCombinePassNode : RenderPassNode
 {
     private Material? _combineShader;
 
