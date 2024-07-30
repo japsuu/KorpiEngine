@@ -10,5 +10,6 @@ public enum CameraDebugDrawType
     Depth,
     Velocity,
     ObjectID,
+    Unlit,
     Wireframe
 }

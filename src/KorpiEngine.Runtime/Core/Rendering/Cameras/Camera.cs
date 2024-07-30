@@ -159,6 +159,9 @@ public sealed class Camera : EntityComponent
             case CameraDebugDrawType.Velocity:
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Velocity, doClear);
                 break;
+            case CameraDebugDrawType.Unlit:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Unlit, doClear);
+                break;
             case CameraDebugDrawType.ObjectID:
             case CameraDebugDrawType.Wireframe: // Hack: Wireframe uses the ObjectID buffer to color the wireframe red
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.ObjectIDs, doClear);
@@ -295,7 +298,8 @@ public sealed class Camera : EntityComponent
             CameraDebugDrawType.Position => CameraDebugDrawType.Emission,
             CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
             CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
-            CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
+            CameraDebugDrawType.Velocity => CameraDebugDrawType.Unlit,
+            CameraDebugDrawType.Unlit => CameraDebugDrawType.ObjectID,
             CameraDebugDrawType.ObjectID => CameraDebugDrawType.Wireframe,
             CameraDebugDrawType.Wireframe => CameraDebugDrawType.Off,
             _ => throw new ArgumentOutOfRangeException()
