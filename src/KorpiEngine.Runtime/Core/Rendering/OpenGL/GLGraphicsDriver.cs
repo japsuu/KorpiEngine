@@ -70,20 +70,9 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     public override void SetState(RasterizerState state, bool force = false)
     {
-        if (_depthTest != state.EnableDepthTest || force)
-        {
-            if (state.EnableDepthTest)
-                GL.Enable(EnableCap.DepthTest);
-            else
-                GL.Disable(EnableCap.DepthTest);
-            _depthTest = state.EnableDepthTest;
-        }
+        SetEnableDepthTest(state.EnableDepthTest, force);
 
-        if (_depthWrite != state.EnableDepthWrite || force)
-        {
-            GL.DepthMask(state.EnableDepthWrite);
-            _depthWrite = state.EnableDepthWrite;
-        }
+        SetEnableDepthWrite(state.EnableDepthWrite, force);
 
         if (_depthMode != state.DepthMode || force)
         {
@@ -91,14 +80,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             _depthMode = state.DepthMode;
         }
 
-        if (_doBlend != state.EnableBlend || force)
-        {
-            if (state.EnableBlend)
-                GL.Enable(EnableCap.Blend);
-            else
-                GL.Disable(EnableCap.Blend);
-            _doBlend = state.EnableBlend;
-        }
+        SetEnableBlending(state.EnableBlend, force);
 
         if (_blendSrc != state.BlendSrc || _blendDst != state.BlendDst || force)
         {
@@ -113,14 +95,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             _blendEquation = state.BlendMode;
         }
 
-        if (_doCull != state.EnableCulling || force)
-        {
-            if (state.EnableCulling)
-                GL.Enable(EnableCap.CullFace);
-            else
-                GL.Disable(EnableCap.CullFace);
-            _doCull = state.EnableCulling;
-        }
+        SetEnableCulling(state.EnableCulling, force);
 
         if (_cullFace != state.FaceCulling || force)
         {
@@ -133,6 +108,59 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             GL.FrontFace((FrontFaceDirection)state.WindingOrder);
             _winding = state.WindingOrder;
         }
+    }
+
+
+    public override void SetEnableDepthTest(bool enable, bool force)
+    {
+        if (_depthTest == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.DepthTest);
+        else
+            GL.Disable(EnableCap.DepthTest);
+        
+        _depthTest = enable;
+    }
+
+
+    public override void SetEnableDepthWrite(bool enable, bool force)
+    {
+        if (_depthWrite == enable && !force)
+            return;
+        
+        GL.DepthMask(enable);
+        
+        _depthWrite = enable;
+    }
+
+
+    public override void SetEnableBlending(bool enable, bool force)
+    {
+        if (_doBlend == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.Blend);
+        else
+            GL.Disable(EnableCap.Blend);
+        
+        _doBlend = enable;
+    }
+
+
+    public override void SetEnableCulling(bool enable, bool force)
+    {
+        if (_doCull == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.CullFace);
+        else
+            GL.Disable(EnableCap.CullFace);
+        
+        _doCull = enable;
     }
 
 
