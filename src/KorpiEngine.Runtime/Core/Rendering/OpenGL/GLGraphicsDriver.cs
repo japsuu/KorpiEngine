@@ -111,7 +111,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetEnableDepthTest(bool enable, bool force)
+    public override void SetEnableDepthTest(bool enable, bool force = false)
     {
         if (_depthTest == enable && !force)
             return;
@@ -125,7 +125,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetEnableDepthWrite(bool enable, bool force)
+    public override void SetEnableDepthWrite(bool enable, bool force = false)
     {
         if (_depthWrite == enable && !force)
             return;
@@ -136,7 +136,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetEnableBlending(bool enable, bool force)
+    public override void SetEnableBlending(bool enable, bool force = false)
     {
         if (_doBlend == enable && !force)
             return;
@@ -150,7 +150,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetEnableCulling(bool enable, bool force)
+    public override void SetEnableCulling(bool enable, bool force = false)
     {
         if (_doCull == enable && !force)
             return;

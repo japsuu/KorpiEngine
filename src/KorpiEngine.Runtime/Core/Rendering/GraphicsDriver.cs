@@ -41,10 +41,10 @@ internal abstract class GraphicsDriver
     
     public abstract void SetState(RasterizerState state, bool force = false);
     // State overrides:
-    public abstract void SetEnableDepthTest(bool enable, bool force);
-    public abstract void SetEnableDepthWrite(bool enable, bool force);
-    public abstract void SetEnableBlending(bool enable, bool force);
-    public abstract void SetEnableCulling(bool enable, bool force);
+    public abstract void SetEnableDepthTest(bool enable, bool force = false);
+    public abstract void SetEnableDepthWrite(bool enable, bool force = false);
+    public abstract void SetEnableBlending(bool enable, bool force = false);
+    public abstract void SetEnableCulling(bool enable, bool force = false);
     
     public abstract RasterizerState GetState();
 
