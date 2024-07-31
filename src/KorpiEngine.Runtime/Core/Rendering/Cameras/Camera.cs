@@ -16,11 +16,11 @@ namespace KorpiEngine.Core.Rendering.Cameras;
 /// before any other geometric transformations affect them.
 /// It then sets the world space Camera position to 0,0,0 and modifies all relevant matrices accordingly.
 /// </summary>
-public sealed class CameraComponent : EntityComponent
+public sealed class Camera : EntityComponent
 {
     private const int RENDER_TEXTURE_MAX_UNUSED_FRAMES = 10;
     
-    internal static CameraComponent RenderingCamera { get; private set; } = null!;
+    internal static Camera RenderingCamera { get; private set; } = null!;
     
     public event Action<int, int>? Resized;
 
@@ -66,6 +66,8 @@ public sealed class CameraComponent : EntityComponent
     
     public float NearClipPlane = 0.01f;
     public float FarClipPlane = 1000f;
+
+    public bool ShowGizmos = true;
 
     /// <summary>
     /// The view matrix of this camera.
@@ -113,7 +115,10 @@ public sealed class CameraComponent : EntityComponent
         _pipeline.Prepare(width, height);
         
         // Render all meshes
-        GeometryPass();
+        if (DebugDrawType == CameraDebugDrawType.Wireframe)
+            GeometryPassWireframe();
+        else
+            GeometryPass();
         
         RenderTexture? result = _pipeline.Render();
 
@@ -151,7 +156,11 @@ public sealed class CameraComponent : EntityComponent
             case CameraDebugDrawType.Velocity:
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Velocity, doClear);
                 break;
+            case CameraDebugDrawType.Unlit:
+                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Unlit, doClear);
+                break;
             case CameraDebugDrawType.ObjectID:
+            case CameraDebugDrawType.Wireframe: // Hack: Wireframe uses the ObjectID buffer to color the wireframe red
                 Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.ObjectIDs, doClear);
                 break;
             default:
@@ -167,8 +176,23 @@ public sealed class CameraComponent : EntityComponent
     
     
     internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
-    internal void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
     internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
+    
+    private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
+
+
+    private void RenderGizmos()
+    {
+        // if (Graphics.UseJitter)
+        //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter
+        Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
+        Gizmos.Render(true);
+        Gizmos.Clear();
+        
+        Entity.Scene.EntityScene.InvokeDrawGizmos();
+        Gizmos.Render(false);
+        Gizmos.Clear();
+    }
 
 
     private void GeometryPass()
@@ -176,10 +200,28 @@ public sealed class CameraComponent : EntityComponent
         Entity.Scene.EntityScene.InvokePreRender();
         
         GBuffer!.Begin();
+        
         RenderGeometry();
+        
+        if (ShowGizmos)
+            RenderGizmos();
+        
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();
+    }
+    
+    
+    private void GeometryPassWireframe()
+    {
+        // Set the wireframe rendering mode
+        Graphics.Driver.SetWireframeMode(true);
+
+        // Render all meshes in wireframe mode
+        GeometryPass();
+
+        // Reset the wireframe rendering mode
+        Graphics.Driver.SetWireframeMode(false);
     }
     
     
@@ -246,8 +288,10 @@ public sealed class CameraComponent : EntityComponent
             CameraDebugDrawType.Position => CameraDebugDrawType.Emission,
             CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
             CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
-            CameraDebugDrawType.Velocity => CameraDebugDrawType.ObjectID,
-            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Off,
+            CameraDebugDrawType.Velocity => CameraDebugDrawType.Unlit,
+            CameraDebugDrawType.Unlit => CameraDebugDrawType.ObjectID,
+            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Wireframe,
+            CameraDebugDrawType.Wireframe => CameraDebugDrawType.Off,
             _ => throw new ArgumentOutOfRangeException()
         };
         Console.WriteLine($"Debug Draw Type: {DebugDrawType}");

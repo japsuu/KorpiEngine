@@ -45,7 +45,7 @@ public sealed class Material : Resource
 
 
     #region KEYWORDS
-
+#warning TODO: Print warning if keywords are set after SetPass has been called. SetPass should be called after all keywords are set, since it compiles the shader.
     public void SetKeyword(string keyword, bool state)
     {
         if (state)
@@ -121,7 +121,7 @@ public sealed class Material : Resource
 
 
     #region VARIANT COMPILATION
-
+#warning TODO: Fix shader complied variant naming
     private Shader.CompiledShader GetCompiledVariant()
     {
         //return GetVariantExperimental(_materialKeywords.ToArray());

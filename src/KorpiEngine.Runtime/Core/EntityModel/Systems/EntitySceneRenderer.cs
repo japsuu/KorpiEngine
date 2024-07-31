@@ -4,24 +4,24 @@ namespace KorpiEngine.Core.EntityModel.Systems;
 
 internal sealed class EntitySceneRenderer
 {
-    private readonly List<CameraComponent> _cameras = [];
+    private readonly List<Camera> _cameras = [];
     
     /// <summary>
     /// Cameras that will be rendered to the screen.
     /// </summary>
-    private readonly PriorityQueue<CameraComponent, short> _renderQueueScreen = new();
+    private readonly PriorityQueue<Camera, short> _renderQueueScreen = new();
     
     /// <summary>
     /// Cameras that will be rendered to a RenderTexture.
     /// </summary>
-    private readonly PriorityQueue<CameraComponent, short> _renderQueueTexture = new();
+    private readonly PriorityQueue<Camera, short> _renderQueueTexture = new();
 
 
     public void TryRegisterComponent<T>(T c)
     {
         switch (c)
         {
-            case CameraComponent camera:
+            case Camera camera:
                 _cameras.Add(camera);
                 break;
         }
@@ -32,7 +32,7 @@ internal sealed class EntitySceneRenderer
     {
         switch (c)
         {
-            case CameraComponent camera:
+            case Camera camera:
                 _cameras.Remove(camera);
                 break;
         }
@@ -42,7 +42,7 @@ internal sealed class EntitySceneRenderer
     public void Render()
     {
         // Construct ordered render queues
-        foreach (CameraComponent c in _cameras)
+        foreach (Camera c in _cameras)
         {
             if (!c.EnabledInHierarchy)
                 continue;

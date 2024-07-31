@@ -21,6 +21,7 @@ public class GBuffer
     public Texture2D Emission => Buffer.InternalTextures[3];
     public Texture2D Velocity => Buffer.InternalTextures[4];
     public Texture2D ObjectIDs => Buffer.InternalTextures[5];
+    public Texture2D Unlit => Buffer.InternalTextures[6];
     public Texture2D? Depth => Buffer.InternalDepth;
 
 
@@ -33,9 +34,10 @@ public class GBuffer
             TextureImageFormat.RGBA_16_S,   // Position & Roughness
             TextureImageFormat.RGB_16_S,    // Emission
             TextureImageFormat.RG_16_S,     // Velocity
-            TextureImageFormat.R_32_F       // ObjectIDs
+            TextureImageFormat.R_32_F,      // ObjectIDs
+            TextureImageFormat.RGBA_16_S    // Unlit objects
         ];
-        Buffer = new RenderTexture(width, height, 6, true, formats);
+        Buffer = new RenderTexture(width, height, 7, true, formats);
     }
 
 
@@ -96,6 +98,7 @@ public class GBuffer
         Emission.Dispose();
         Velocity.Dispose();
         ObjectIDs.Dispose();
+        Unlit.Dispose();
         Depth?.Dispose();
         FrameBuffer.Dispose();
     }

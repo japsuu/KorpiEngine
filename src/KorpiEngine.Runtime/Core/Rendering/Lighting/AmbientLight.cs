@@ -26,7 +26,7 @@ public class AmbientLight : EntityComponent
         _lightMat.SetFloat("_SkyIntensity", SkyIntensity);
         _lightMat.SetFloat("_GroundIntensity", GroundIntensity);
 
-        GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
         _lightMat.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _lightMat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _lightMat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);

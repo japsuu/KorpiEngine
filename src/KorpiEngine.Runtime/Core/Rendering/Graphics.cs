@@ -101,7 +101,7 @@ public static class Graphics
     /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
-        if (CameraComponent.RenderingCamera == null)
+        if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)
@@ -128,8 +128,8 @@ public static class Graphics
         material.SetInt("_Frame", Time.TotalFrameCount, true);
         
         // Camera data
-        material.SetVector("_Camera_WorldPosition", CameraComponent.RenderingCamera.Transform.Position, true);
-        material.SetVector("_Camera_Forward", CameraComponent.RenderingCamera.Transform.Forward, true);
+        material.SetVector("_Camera_WorldPosition", Camera.RenderingCamera.Transform.Position, true);
+        material.SetVector("_Camera_Forward", Camera.RenderingCamera.Transform.Forward, true);
         
         // Matrices
         material.SetMatrix("_MatModel", camRelativeTransform, true);
@@ -153,11 +153,11 @@ public static class Graphics
         material.SetMatrix("_MatMVPInverse", matMVPInverse, true);
 
         // Mesh data can vary from mesh to mesh, so we need to let the shader know which attributes are currently in use
-        material.SetKeyword("HAS_UV", mesh.HasUV0);
-        material.SetKeyword("HAS_UV2", mesh.HasUV1);
-        material.SetKeyword("HAS_NORMALS", mesh.HasNormals);
-        material.SetKeyword("HAS_COLORS", mesh.HasColors);
-        material.SetKeyword("HAS_TANGENTS", mesh.HasTangents);
+        material.SetKeyword("HAS_UV", mesh.HasVertexUV0);
+        material.SetKeyword("HAS_UV2", mesh.HasVertexUV1);
+        material.SetKeyword("HAS_NORMALS", mesh.HasVertexNormals);
+        material.SetKeyword("HAS_COLORS", mesh.HasVertexColors);
+        material.SetKeyword("HAS_TANGENTS", mesh.HasVertexTangents);
 
         // All material uniforms have been assigned; it's time to buffer them
         material.ApplyPropertyBlock(Driver.CurrentProgram);
@@ -168,7 +168,7 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
-        if (CameraComponent.RenderingCamera == null)
+        if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
         if (Driver.CurrentProgram == null)

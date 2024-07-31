@@ -55,9 +55,12 @@ internal class MeshVertexLayout
         public readonly bool Normalized;
 
         
-        public VertexAttributeDescriptor(VertexAttribute attribute, VertexAttributeType attributeType, byte count, bool normalized = false)
+        public VertexAttributeDescriptor(VertexAttribute attribute, VertexAttributeType attributeType, byte count, bool normalized = false) : this((int)attribute, attributeType, count, normalized) { }
+
+        
+        public VertexAttributeDescriptor(int semantic, VertexAttributeType attributeType, byte count, bool normalized = false)
         {
-            Semantic = (int)attribute;
+            Semantic = semantic;
             AttributeType = attributeType;
             Count = count;
             Normalized = normalized;

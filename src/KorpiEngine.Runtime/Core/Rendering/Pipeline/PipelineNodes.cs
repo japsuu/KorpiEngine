@@ -67,49 +67,64 @@ public abstract class RenderPassNode
     }
 }
 
-public class PBRDeferredNode : RenderPassNode
+public class LightingPassNode : RenderPassNode
 {
     public TextureImageFormat Format = TextureImageFormat.RGB_16_S;
 
     public float Scale = 1.0f;
 
 
-    protected override RenderTexture Render(RenderTexture? source)
+    protected override RenderTexture Render(RenderTexture? _)
     {
-        RenderTexture result = GetRenderTexture(Scale, [Format]);
+        RenderTexture lightingTex = GetRenderTexture(Scale, [Format]);
 
-        result.Begin();
+        lightingTex.Begin();
 
         Graphics.Clear();
-        CameraComponent.RenderingCamera.RenderLights();
+        Camera.RenderingCamera.RenderLights();
 
-        result.End();
+        lightingTex.End();
+
+        return lightingTex;
+    }
+}
+
+public class LightingCombinePassNode : RenderPassNode
+{
+    private Material? _combineShader;
+
+
+    protected override RenderTexture? Render(RenderTexture? lightingTex)
+    {
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
+
+        if (lightingTex == null)
+            return null;
+
+        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.shader"), "G-buffer combine material");
+        _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
+        _combineShader.SetTexture("_GLighting", lightingTex.InternalTextures[0]);
+
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        Graphics.Blit(result, _combineShader, 0, true);
+        ReleaseRenderTexture(lightingTex);
 
         return result;
     }
 }
 
-public class PostPBRDeferredNode : RenderPassNode
+public class UnlitCombinePassNode : RenderPassNode
 {
-    private Material? _combineShader;
-
-
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
 
         if (source == null)
             return null;
 
-        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.shader"), "G-buffer combine material");
-        _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
-        _combineShader.SetTexture("_GLighting", source.InternalTextures[0]);
+        Graphics.Blit(source, gBuffer.Unlit, false);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
-        Graphics.Blit(result, _combineShader, 0, true);
-        ReleaseRenderTexture(source);
-
-        return result;
+        return source;
     }
 }
 
@@ -121,7 +136,7 @@ public class ProceduralSkyboxNode : RenderPassNode
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         if (source == null)
@@ -161,7 +176,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         _mat ??= new Material(Shader.Find("Defaults/SSR.shader"), "SSR material");
@@ -235,7 +250,7 @@ public class TAANode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_S]);
@@ -274,7 +289,7 @@ public class DepthOfFieldNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         _mat ??= new Material(Shader.Find("Defaults/DOF.shader"), "DOF material");

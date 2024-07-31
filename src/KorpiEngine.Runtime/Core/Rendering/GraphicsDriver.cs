@@ -17,7 +17,7 @@ internal abstract class GraphicsDriver
 
     public void Initialize()
     {
-        Logger.Info("Initializing...");
+        Logger.Info($"Initializing {nameof(GraphicsDriver)}...");
         InitializeInternal();
     }
 
@@ -27,7 +27,7 @@ internal abstract class GraphicsDriver
 
     public void Shutdown()
     {
-        Logger.Info("Shutting down...");
+        Logger.Info($"Shutting down {nameof(GraphicsDriver)}...");
         ShutdownInternal();
     }
 
@@ -40,12 +40,19 @@ internal abstract class GraphicsDriver
     #region State
     
     public abstract void SetState(RasterizerState state, bool force = false);
+    // State overrides:
+    public abstract void SetEnableDepthTest(bool enable, bool force = false);
+    public abstract void SetEnableDepthWrite(bool enable, bool force = false);
+    public abstract void SetEnableBlending(bool enable, bool force = false);
+    public abstract void SetEnableCulling(bool enable, bool force = false);
     
     public abstract RasterizerState GetState();
 
     public abstract void UpdateViewport(int x, int y, int width, int height);
 
     public abstract void Clear(float r, float g, float b, float a, ClearFlags flags);
+    
+    public abstract void SetWireframeMode(bool enabled);
 
     #endregion
     

@@ -20,7 +20,7 @@ public abstract class Scene : IDisposable
 {
     internal readonly EntityScene EntityScene;
     
-    protected CameraComponent SceneCamera { get; private set; } = null!;
+    protected Camera SceneCamera { get; private set; } = null!;
 
 
     #region Creation and destruction
@@ -48,7 +48,7 @@ public abstract class Scene : IDisposable
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
-        MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
+        MeshRenderer c = e.AddComponent<MeshRenderer>();
         Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
@@ -99,15 +99,15 @@ public abstract class Scene : IDisposable
 
     #region Protected overridable methods
 
-    protected virtual CameraComponent CreateSceneCamera()
+    protected virtual Camera CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
-        CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
+        Camera camera = cameraEntity.AddComponent<Camera>();
         
-        cameraComponent.RenderPriority = 0;
-        cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
+        camera.RenderPriority = 0;
+        camera.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
         
-        return cameraComponent;
+        return camera;
     }
 
     protected virtual void CreateLights()
@@ -121,7 +121,7 @@ public abstract class Scene : IDisposable
         //alComp.SkyIntensity = 0.4f;
         //alComp.GroundIntensity = 0.1f;
         alComp.SkyIntensity = 1f;
-        alComp.GroundIntensity = 0f;
+        alComp.GroundIntensity = 1f;
     }
     
     

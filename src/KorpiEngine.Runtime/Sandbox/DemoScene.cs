@@ -2,6 +2,7 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -13,10 +14,43 @@ internal class DemoScene : Scene
 {
     protected override void OnLoad()
     {
+        Entity e;
+        Entity m;
+        
+        e = new Entity("Sphere 1");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(0, 6, 0);
+        
+        e = new Entity("Sphere 2");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(1, 4, -3);
+        
+        e = new Entity("Sphere 3");
+        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(-2, 4, -2);
+        
+        e = new Entity("Torus 1");
+        m = CreatePrimitive(PrimitiveType.Torus, "Torus model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(0, -1, -2);
+        
+        e = new Entity("Cube 1");
+        m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
+        m.SetParent(e);
+        e.Transform.Position = new Vector3(0, -1, 2);
+        
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        for (int i = 0; i < 25; i++)
+        /*for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
@@ -43,7 +77,7 @@ internal class DemoScene : Scene
             // Move the root entity to a random position
             Vector2 randomPos = Random.InUnitCircle * 20;
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
-        }
+        }*/
 
         /*// ----------------------------------------
         // Creating a blue point light
@@ -65,14 +99,14 @@ internal class DemoScene : Scene
         redLight.Intensity = 3.0f;
         redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);*/
 
-        // ----------------------------------------
+        /*// ----------------------------------------
         // Creating a quad that moves and rotates
 
         // Create a primitive quad
         Entity quadEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
 
         // Add a custom behavior component to make it move and rotate
-        quadEntity.AddComponent<DemoMoveRotate>();
+        quadEntity.AddComponent<DemoMoveRotate>();*/
 
         // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
         // Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
@@ -84,13 +118,13 @@ internal class DemoScene : Scene
     // ----------------------------------------
     // Creating a camera entity
     
-    protected override CameraComponent CreateSceneCamera()
+    protected override Camera CreateSceneCamera()
     {
         // We override the CreateSceneCamera method to add our custom camera component to the scene camera entity
-        CameraComponent component = base.CreateSceneCamera();
+        Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(0, 1, -10);
+        component.Transform.Position = new Vector3(0, 5, -5);
         return component;
     }
 }
@@ -209,7 +243,7 @@ internal class DemoFreeCam : EntityComponent
 
         // Calculate new pitch and clamp it
         _pitch += Input.MouseDelta.Y * LOOK_SENSITIVITY;
-        _pitch = Maths.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
+        _pitch = Mathd.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
         // Apply the new rotation
         Transform.Rotation = Quaternion.Euler((float)_pitch, (float)_yaw, 0f);
