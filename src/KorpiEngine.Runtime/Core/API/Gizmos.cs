@@ -110,7 +110,7 @@ public static class Gizmos
     }
 
 
-    public static void Render()
+    public static void Render(bool enableDepthTest)
     {
         gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.shader"), "Gizmos Material");
         lineBatch ??= new PrimitiveBatch(Topology.Lines);
@@ -135,8 +135,14 @@ public static class Gizmos
         Matrix4x4 mvp = Matrix4x4.Identity;
         mvp = Matrix4x4.Multiply(mvp, Graphics.ViewMatrix);
         mvp = Matrix4x4.Multiply(mvp, Graphics.ProjectionMatrix);
+        
         gizmosMat.SetMatrix("_MatMVP", mvp);
         gizmosMat.SetPass(0, true);
+        
+        // Set raster state overrides
+        Graphics.Driver.SetEnableDepthTest(enableDepthTest);
+        Graphics.Driver.SetEnableDepthWrite(enableDepthTest);
+        
         lineBatch.Draw();
     }
 

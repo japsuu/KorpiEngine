@@ -45,7 +45,7 @@ public sealed class Material : Resource
 
 
     #region KEYWORDS
-
+#warning TODO: Print warning if keywords are set after SetPass has been called. SetPass should be called after all keywords are set, since it compiles the shader.
     public void SetKeyword(string keyword, bool state)
     {
         if (state)
