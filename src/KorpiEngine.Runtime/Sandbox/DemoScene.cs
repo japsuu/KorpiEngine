@@ -43,7 +43,7 @@ internal class DemoScene : Scene
         
         e = new Entity("Cube 1");
         m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
-        m.AddComponent<MeshDebugGizmoDrawer>().DrawTangents = true;
+        m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, -1, 2);
         
