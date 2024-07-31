@@ -245,8 +245,11 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
         if (empty)
             throw new ArgumentException();
+        
+        Vector3 center = (minVec + maxVec) / 2f;
+        Vector3 size = maxVec - minVec;
 
-        Bounds = new Bounds(minVec, maxVec);
+        Bounds = new Bounds(center, size);
     }
 
 
@@ -731,67 +734,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             case PrimitiveType.Cube:
             {
                 System.Numerics.Vector3 size = new(1, 1, 1);
-                float x = size.X / 2f;
-                float y = size.Y / 2f;
-                float z = size.Z / 2f;
-
-                System.Numerics.Vector3[] positions =
-                [
-                    // Front face
-                    new(-x, -y, z), new(x, -y, z), new(x, y, z), new(-x, y, z),
-                
-                    // Back face
-                    new(-x, -y, -z), new(x, -y, -z), new(x, y, -z), new(-x, y, -z),
-                
-                    // Left face
-                    new(-x, -y, -z), new(-x, y, -z), new(-x, y, z), new(-x, -y, z),
-                
-                    // Right face
-                    new(x, -y, z), new(x, y, z), new(x, y, -z), new(x, -y, -z),
-                
-                    // Top face
-                    new(-x, y, z), new(x, y, z), new(x, y, -z), new(-x, y, -z),
-                
-                    // Bottom face
-                    new(-x, -y, -z), new(x, -y, -z), new(x, -y, z), new(-x, -y, z)
-                ];
-
-                System.Numerics.Vector2[] uvs =
-                [
-                    // Front face
-                    new(0, 0), new(1, 0), new(1, 1), new(0, 1),
-                    // Back face
-                    new(1, 0), new(0, 0), new(0, 1), new(1, 1),
-                    // Left face
-                    new(0, 0), new(1, 0), new(1, 1), new(0, 1),
-                    // Right face
-                    new(1, 0), new(1, 1), new(0, 1), new(0, 0),
-                    // Top face
-                    new(0, 1), new(1, 1), new(1, 0), new(0, 0),
-                    // Bottom face
-                    new(0, 0), new(1, 0), new(1, 1), new(0, 1)
-                ];
-
-                int[] indices =
-                [
-                    1, 2, 0, 0, 2, 3,       // Front face
-                    5, 4, 6, 6, 4, 7,       // Back face
-                    9, 8, 10, 10, 8, 11,    // Left face
-                    13, 12, 14, 14, 12, 15, // Right face
-                    17, 18, 16, 16, 18, 19, // Top face
-                    21, 22, 20, 20, 22, 23  // Bottom face
-                ];
-
-                Mesh mesh = new();
-                mesh.SetVertexPositions(positions);
-                mesh.SetVertexUVs(uvs, 0);
-                mesh.SetIndices(indices);
-                
-                mesh.RecalculateBounds();
-                mesh.RecalculateNormals();
-                mesh.RecalculateTangents();
-
-                return mesh;
+                return CreateCube(size);
             }
             case PrimitiveType.Sphere:
             {
@@ -813,6 +756,72 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             default:
                 throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null);
         }
+    }
+
+
+    public static Mesh CreateCube(System.Numerics.Vector3 size)
+    {
+        float x = size.X / 2f;
+        float y = size.Y / 2f;
+        float z = size.Z / 2f;
+
+        System.Numerics.Vector3[] positions =
+        [
+            // Front face
+            new(-x, -y, z), new(x, -y, z), new(x, y, z), new(-x, y, z),
+                
+            // Back face
+            new(-x, -y, -z), new(x, -y, -z), new(x, y, -z), new(-x, y, -z),
+                
+            // Left face
+            new(-x, -y, -z), new(-x, y, -z), new(-x, y, z), new(-x, -y, z),
+                
+            // Right face
+            new(x, -y, z), new(x, y, z), new(x, y, -z), new(x, -y, -z),
+                
+            // Top face
+            new(-x, y, z), new(x, y, z), new(x, y, -z), new(-x, y, -z),
+                
+            // Bottom face
+            new(-x, -y, -z), new(x, -y, -z), new(x, -y, z), new(-x, -y, z)
+        ];
+
+        System.Numerics.Vector2[] uvs =
+        [
+            // Front face
+            new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+            // Back face
+            new(1, 0), new(0, 0), new(0, 1), new(1, 1),
+            // Left face
+            new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+            // Right face
+            new(1, 0), new(1, 1), new(0, 1), new(0, 0),
+            // Top face
+            new(0, 1), new(1, 1), new(1, 0), new(0, 0),
+            // Bottom face
+            new(0, 0), new(1, 0), new(1, 1), new(0, 1)
+        ];
+
+        int[] indices =
+        [
+            1, 2, 0, 0, 2, 3,       // Front face
+            5, 4, 6, 6, 4, 7,       // Back face
+            9, 8, 10, 10, 8, 11,    // Left face
+            13, 12, 14, 14, 12, 15, // Right face
+            17, 18, 16, 16, 18, 19, // Top face
+            21, 22, 20, 20, 22, 23  // Bottom face
+        ];
+
+        Mesh mesh = new();
+        mesh.SetVertexPositions(positions);
+        mesh.SetVertexUVs(uvs, 0);
+        mesh.SetIndices(indices);
+                
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
+        return mesh;
     }
 
 
@@ -937,6 +946,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         mesh.SetVertexUVs(uvs, 0);
         mesh.SetVertexTangents(tangents);
         mesh.SetIndices(triangles);
+        mesh.RecalculateBounds();
         
         return mesh;
     }
@@ -1033,9 +1043,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         mesh.SetVertexUVs(uvs, 0);
         mesh.SetIndices(triangles);
 
-        mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
 
         return mesh;
     }
@@ -1064,9 +1074,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         mesh.SetIndices(indices);
         mesh.SetVertexUVs(uvs, 0);
         
-        mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
 
         fullScreenQuadCached = mesh;
         return mesh;
