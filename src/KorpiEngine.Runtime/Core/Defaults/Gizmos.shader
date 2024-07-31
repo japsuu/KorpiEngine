@@ -31,13 +31,13 @@ Pass 0
 
 	Fragment
 	{
+		layout (location = 6) out vec4 gUnlit; // Unlit obj buffer
+		
 		in vec4 VertColor;
-
-		out vec4 finalColor;
 
 		void main()
 		{
-			finalColor = VertColor;
+			gUnlit = VertColor;
 		}
 	}
 }
