@@ -130,9 +130,6 @@ public sealed class Camera : EntityComponent
             return;
         }
         
-        if (ShowGizmos)
-            RenderGizmos(result);
-        
         // Draw to Screen
         bool doClear = ClearType == CameraClearType.SolidColor;
         switch (DebugDrawType)
@@ -184,26 +181,16 @@ public sealed class Camera : EntityComponent
     private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
 
 
-    private void RenderGizmos(RenderTexture result)
+    private void RenderGizmos()
     {
-        Entity.Scene.EntityScene.InvokeDrawGizmos();
         // if (Graphics.UseJitter)
-        //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter if there is any
-        
-        // Draw gizmos
-        result.Begin();
-        Gizmos.Render();
-        result.End();
-        
-        // End gizmos
-        Gizmos.Clear();
-    }
-
-
-    private void RenderDepthGizmos()
-    {
+        //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter
         Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
-        Gizmos.Render();
+        Gizmos.Render(true);
+        Gizmos.Clear();
+        
+        Entity.Scene.EntityScene.InvokeDrawGizmos();
+        Gizmos.Render(false);
         Gizmos.Clear();
     }
 
@@ -213,9 +200,12 @@ public sealed class Camera : EntityComponent
         Entity.Scene.EntityScene.InvokePreRender();
         
         GBuffer!.Begin();
+        
         RenderGeometry();
+        
         if (ShowGizmos)
-            RenderDepthGizmos();
+            RenderGizmos();
+        
         GBuffer.End();
         
         Entity.Scene.EntityScene.InvokePostRender();
