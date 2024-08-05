@@ -9,8 +9,8 @@ public class AmbientLight : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Color SkyColor = Color.White;
-    public Color GroundColor = Color.White;
+    public Color SkyColor = Color.Red;
+    public Color GroundColor = Color.Blue;
     public float SkyIntensity = 0.4f;
     public float GroundIntensity = 0.05f;
 
