@@ -35,13 +35,14 @@ internal class DemoScene : Scene
         m.SetParent(e);
         e.Transform.Position = new Vector3(-2, 4, -2);
         
-        e = new Entity("Torus 1");
-        m = CreatePrimitive(PrimitiveType.Torus, "Torus model");
+        e = new Entity("Cube 1");
+        m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, -1, -2);
+        e.Transform.Rotation = Quaternion.Euler(45, 45, 45);
         
-        e = new Entity("Cube 1");
+        e = new Entity("Cube 2");
         m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
