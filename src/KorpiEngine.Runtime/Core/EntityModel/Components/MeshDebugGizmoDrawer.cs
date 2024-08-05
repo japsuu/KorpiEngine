@@ -127,10 +127,16 @@ public class MeshDebugGizmoDrawer : EntityComponent
             Vector3 position = positions[i] + (Vector3)Transform.Position;
             Vector3 direction = directions[i];
             
+            if (direction.LengthSquared() < 0.001f)
+            {
+                Application.Logger.Warn("Normal or tangent direction is zero, skip drawing line.");
+                continue;
+            }
+            
             // Decide the line color based on the normal, ensure there are no black lines
-            float r = Math.Max(0.1f, Math.Abs(direction.X));
-            float g = Math.Max(0.1f, Math.Abs(direction.Y));
-            float b = Math.Max(0.1f, Math.Abs(direction.Z));
+            float r = Math.Abs(direction.X);
+            float g = Math.Abs(direction.Y);
+            float b = Math.Abs(direction.Z);
             Gizmos.Color = new Color(r, g, b, 1f);
             
             Gizmos.DrawArrow(position, position + direction * length);
