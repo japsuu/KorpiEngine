@@ -28,6 +28,7 @@ internal class DemoScene : Scene
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(1, 4, -3);
+        e.Transform.Rotation = Quaternion.Euler(0, -45, 45);
         
         e = new Entity("Sphere 3");
         m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
