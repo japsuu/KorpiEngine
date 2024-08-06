@@ -69,7 +69,7 @@ public abstract class RenderPassNode
 
 public class LightingPassNode : RenderPassNode
 {
-    public TextureImageFormat Format = TextureImageFormat.RGB_16_S;
+    public TextureImageFormat Format = TextureImageFormat.RGB_16_F;
 
     public float Scale = 1.0f;
 
@@ -105,7 +105,7 @@ public class LightingCombinePassNode : RenderPassNode
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _combineShader.SetTexture("_GLighting", lightingTex.InternalTextures[0]);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _combineShader, 0, true);
         ReleaseRenderTexture(lightingTex);
 
@@ -154,7 +154,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         else // Fallback to a reasonable default
             _mat.SetVector("_SunPos", new Vector3(0.5f, 0.5f, 0.5f));
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -189,7 +189,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         _mat.SetInt("_SSRSteps", Math.Clamp(Steps, 16, 32));
         _mat.SetInt("_SSRBisteps", Math.Clamp(RefineSteps, 0, 16));
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -253,7 +253,7 @@ public class TAANode : RenderPassNode
         Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_S]);
+        RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_F]);
 
         _mat ??= new Material(Shader.Find("Defaults/TAA.shader"), "TAA material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
@@ -267,7 +267,7 @@ public class TAANode : RenderPassNode
         _mat.SetVector("_Jitter", Graphics.Jitter);
         _mat.SetVector("_PreviousJitter", Graphics.PreviousJitter);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         Graphics.Blit(history, result.InternalTextures[0], true);
 
@@ -300,7 +300,7 @@ public class DepthOfFieldNode : RenderPassNode
         _mat.SetFloat("_BlurRadius", Math.Clamp(BlurRadius, 2, 40));
         _mat.SetFloat("_FocusStrength", FocusStrength);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -324,8 +324,8 @@ public class BloomNode : RenderPassNode
 
         _mat ??= new Material(Shader.Find("Defaults/Bloom.shader"), "bloom material");
 
-        RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
-        RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
+        RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         RenderTexture[] rts = [front, back];
 
         _mat.SetFloat("_Alpha", 1.0f);
@@ -424,7 +424,7 @@ public class TonemappingNode : RenderPassNode
         else
             _acesMat.DisableKeyword("GAMMACORRECTION");
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _acesMat, 0, true);
         ReleaseRenderTexture(source);
 

@@ -29,13 +29,13 @@ public class GBuffer
     {
         TextureImageFormat[] formats =
         [
-            TextureImageFormat.RGBA_16_S,   // Albedo & AO
-            TextureImageFormat.RGBA_16_S,   // Normal & Metalness
-            TextureImageFormat.RGBA_16_S,   // Position & Roughness
-            TextureImageFormat.RGB_16_S,    // Emission
-            TextureImageFormat.RG_16_S,     // Velocity
+            TextureImageFormat.RGBA_16_F,   // Albedo & AO
+            TextureImageFormat.RGBA_16_F,   // Normal & Metalness
+            TextureImageFormat.RGBA_16_F,   // Position & Roughness
+            TextureImageFormat.RGB_16_F,    // Emission
+            TextureImageFormat.RG_16_F,     // Velocity
             TextureImageFormat.R_32_F,      // ObjectIDs
-            TextureImageFormat.RGBA_16_S    // Unlit objects
+            TextureImageFormat.RGBA_16_F    // Unlit objects
         ];
         Buffer = new RenderTexture(width, height, 7, true, formats);
     }
@@ -69,7 +69,7 @@ public class GBuffer
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Driver.BindFramebuffer(FrameBuffer);
-        float result = Graphics.Driver.ReadPixels<float>(5, x, y, TextureImageFormat.R_16_S);
+        float result = Graphics.Driver.ReadPixels<float>(5, x, y, TextureImageFormat.R_16_F);
         return (int)result;
     }
 
@@ -82,7 +82,7 @@ public class GBuffer
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Driver.BindFramebuffer(FrameBuffer);
-        Vector3 result = Graphics.Driver.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_S);
+        Vector3 result = Graphics.Driver.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
         return result;
     }
 
