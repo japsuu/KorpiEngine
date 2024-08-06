@@ -121,7 +121,7 @@ public abstract class Scene : IDisposable
         //alComp.SkyIntensity = 0.4f;
         //alComp.GroundIntensity = 0.1f;
         alComp.SkyIntensity = 1f;
-        alComp.GroundIntensity = 1f;
+        alComp.GroundIntensity = 0f;
     }
     
     
