@@ -30,6 +30,8 @@ public class AmbientLight : EntityComponent
         _lightMat.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _lightMat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _lightMat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
+        
+        _lightMat.SetMatrix("_MatView", Graphics.ViewMatrix);
 
         Graphics.Blit(_lightMat);
     }

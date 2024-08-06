@@ -71,9 +71,10 @@ Pass 0
 			
 			// Obtain the local up vector in view space
 			vec3 upVector = (_MatView * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
+//			vec3 upVector = vec3(0.0, 1.0, 0.0);
 
 			// Calculate hemisphere/ambient lighting
-			float NdotUp = max(0.0, dot(gNormal, upVector));	// BUG: Incorrect
+			float NdotUp = max(0.0, dot(gNormal, upVector));
 
 			// Interpolate between _SkyColor and GroundColor based on NdotUp
 			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
