@@ -1,5 +1,7 @@
 ﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
+using KorpiEngine.Core.API.Rendering.Materials;
+using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
@@ -26,6 +28,7 @@ public sealed class Camera : EntityComponent
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
+    private Material _debugMaterial = null!;
     private Matrix4x4? _oldView;
     private Matrix4x4? _oldProjection;
 
@@ -56,7 +59,7 @@ public sealed class Camera : EntityComponent
     public CameraClearType ClearType = CameraClearType.SolidColor;
     public CameraClearFlags ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
     public Color ClearColor = Color.Gray;
-    public CameraDebugDrawType DebugDrawType = CameraDebugDrawType.Off;
+    public CameraDebugDrawType DebugDrawType = CameraDebugDrawType.OFF;
 
     /// <summary>
     /// The field of view (FOV degrees, the vertical angle of the camera view).
@@ -82,6 +85,12 @@ public sealed class Camera : EntityComponent
     public Matrix4x4 GetProjectionMatrix(float width, float height) => ProjectionType == CameraProjectionType.Orthographic
         ? System.Numerics.Matrix4x4.CreateOrthographicOffCenterLeftHanded(-OrthographicSize, OrthographicSize, -OrthographicSize, OrthographicSize, NearClipPlane, FarClipPlane).ToDouble()
         : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), width / height, NearClipPlane, FarClipPlane).ToDouble();
+
+
+    protected override void OnAwake()
+    {
+        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.shader"), "g buffer debug material");
+    }
 
 
     internal void Render(int width = -1, int height = -1)
@@ -115,7 +124,7 @@ public sealed class Camera : EntityComponent
         _pipeline.Prepare(width, height);
         
         // Render all meshes
-        if (DebugDrawType == CameraDebugDrawType.Wireframe)
+        if (DebugDrawType == CameraDebugDrawType.WIREFRAME)
             GeometryPassWireframe();
         else
             GeometryPass();
@@ -132,39 +141,23 @@ public sealed class Camera : EntityComponent
         
         // Draw to Screen
         bool doClear = ClearType == CameraClearType.SolidColor;
-        switch (DebugDrawType)
+        if (DebugDrawType == CameraDebugDrawType.OFF)
         {
-            case CameraDebugDrawType.Off:
-                Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
-                Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
-                break;
-            case CameraDebugDrawType.Albedo:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.AlbedoAO, doClear);
-                break;
-            case CameraDebugDrawType.Normals:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.NormalMetallic, doClear);
-                break;
-            case CameraDebugDrawType.Position:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.PositionRoughness, doClear);
-                break;
-            case CameraDebugDrawType.Emission:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Emission, doClear);
-                break;
-            case CameraDebugDrawType.Depth:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Depth!, doClear);
-                break;
-            case CameraDebugDrawType.Velocity:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Velocity, doClear);
-                break;
-            case CameraDebugDrawType.Unlit:
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.Unlit, doClear);
-                break;
-            case CameraDebugDrawType.ObjectID:
-            case CameraDebugDrawType.Wireframe: // Hack: Wireframe uses the ObjectID buffer to color the wireframe red
-                Graphics.Blit(TargetTexture.Res ?? null, GBuffer!.ObjectIDs, doClear);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
+            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
+        }
+        else
+        {
+            _debugMaterial.SetTexture("_GAlbedoAO", GBuffer!.AlbedoAO);
+            _debugMaterial.SetTexture("_GNormalMetallic", GBuffer!.NormalMetallic);
+            _debugMaterial.SetTexture("_GPositionRoughness", GBuffer!.PositionRoughness);
+            _debugMaterial.SetTexture("_GEmission", GBuffer!.Emission);
+            _debugMaterial.SetTexture("_GVelocity", GBuffer!.Velocity);
+            _debugMaterial.SetTexture("_GObjectID", GBuffer!.ObjectIDs);
+            _debugMaterial.SetTexture("_GDepth", GBuffer!.Depth!);
+            _debugMaterial.SetTexture("_GUnlit", GBuffer!.Unlit);
+            
+            Graphics.Blit(TargetTexture.Res ?? null, _debugMaterial, 0, doClear);
         }
         
         _oldView = Graphics.ViewMatrix;
@@ -279,22 +272,12 @@ public sealed class Camera : EntityComponent
     {
         if (!Input.GetKeyDown(KeyCode.F1))
             return;
+
+        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), false);
+        DebugDrawType = DebugDrawType.Next();
+        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), true);
         
-        DebugDrawType = DebugDrawType switch
-        {
-            CameraDebugDrawType.Off => CameraDebugDrawType.Albedo,
-            CameraDebugDrawType.Albedo => CameraDebugDrawType.Normals,
-            CameraDebugDrawType.Normals => CameraDebugDrawType.Position,
-            CameraDebugDrawType.Position => CameraDebugDrawType.Emission,
-            CameraDebugDrawType.Emission => CameraDebugDrawType.Depth,
-            CameraDebugDrawType.Depth => CameraDebugDrawType.Velocity,
-            CameraDebugDrawType.Velocity => CameraDebugDrawType.Unlit,
-            CameraDebugDrawType.Unlit => CameraDebugDrawType.ObjectID,
-            CameraDebugDrawType.ObjectID => CameraDebugDrawType.Wireframe,
-            CameraDebugDrawType.Wireframe => CameraDebugDrawType.Off,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        Console.WriteLine($"Debug Draw Type: {DebugDrawType}");
+        Console.WriteLine($"Debug Draw Type: {DebugDrawType.AsShaderKeyword()}");
     }
 
 
