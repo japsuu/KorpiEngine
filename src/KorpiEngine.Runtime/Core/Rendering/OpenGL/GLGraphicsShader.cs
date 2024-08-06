@@ -53,14 +53,14 @@ internal class GLGraphicsShader : GraphicsObject
     {
         GL.ShaderSource(Handle, source);
         GL.CompileShader(Handle);
-        CheckCompileStatus();
+        CheckCompileStatus(source);
     }
 
 
     /// <summary>
     /// Assert that no compile error occured.
     /// </summary>
-    private void CheckCompileStatus()
+    private void CheckCompileStatus(string source)
     {
         // check compile status
         GL.GetShader(Handle, ShaderParameter.CompileStatus, out int compileStatus);
@@ -69,13 +69,31 @@ internal class GLGraphicsShader : GraphicsObject
         // check shader info log
         string? info = GL.GetShaderInfoLog(Handle);
         info = SourceRegex.Replace(info, GetSource);
-        if (!string.IsNullOrEmpty(info)) Logger.InfoFormat("Compile log:\n{0}", info);
 
         // log message and throw exception on compile error
-        if (compileStatus == 1) return;
+        if (compileStatus == 1)
+        {
+            if (!string.IsNullOrEmpty(info))
+                Logger.InfoFormat("Compile log:\n{0}", info);
+            
+            return;
+        }
+        
         const string msg = "Error compiling shader.";
-        Logger.Error(msg);
+        Logger.Error($"{msg} Source:\n{InjectLineNumbers(source)}");
         throw new ShaderCompileException(msg, info);
+    }
+
+
+    private static string InjectLineNumbers(string source)
+    {
+        string[] lines = source.Split('\n');
+        System.Text.StringBuilder sb = new();
+        sb.AppendLine("----------------------------------------");
+        for (int i = 0; i < lines.Length; i++)
+            sb.AppendLine($"{i + 1}: {lines[i]}");
+        sb.AppendLine("----------------------------------------");
+        return sb.ToString();
     }
 
 
