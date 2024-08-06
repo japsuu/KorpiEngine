@@ -180,8 +180,8 @@ Pass 0
 
 			// Normal & Metallic
 			vec3 normal = texture(_NormalTex, uv).rgb;
-			normal = normal * 2.0 - 1.0;   
-			normal = normalize(TBN * normal); 
+			normal = normal * 2.0 - 1.0;		// Convert from [0, 1] to [-1, 1]
+			normal = normalize(TBN * normal);	// Transform to view space
 			gNormalMetallic = vec4((_MatView * vec4(normal, 0)).rgb, surface.b);
 			
 			// Emission

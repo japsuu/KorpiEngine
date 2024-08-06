@@ -51,16 +51,18 @@ Pass 0
 		uniform float _SkyIntensity;
 		uniform float _GroundIntensity;
 		
-		uniform sampler2D _GAlbedoAO; // Albedo & Roughness
-		uniform sampler2D _GNormalMetallic; // Normal & Metalness
-		uniform sampler2D _GPositionRoughness; // Depth
+		uniform sampler2D _GAlbedoAO;			// Albedo (r,g,b) & Ambient Occlusion (a)
+		uniform sampler2D _GNormalMetallic;		// Normal (r,g,b) & Metalness (a)
+		uniform sampler2D _GPositionRoughness;	// Position (r,g,b) & Roughness (a)
 		
 		// ----------------------------------------------------------------------------
 
 		void main()
 		{
 			vec4 gPosRough = textureLod(_GPositionRoughness, TexCoords, 0);
-			if(gPosRough.rgb == vec3(0, 0, 0)) discard;
+			
+			if(gPosRough.rgb == vec3(0, 0, 0))
+				discard;
 		
 			vec3 gAlbedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
 
@@ -76,7 +78,6 @@ Pass 0
 			// Interpolate between _SkyColor and GroundColor based on NdotUp
 			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
 
-//			gBuffer_lighting = vec4(NdotUp, 0,0, 1.0);
 			gBuffer_lighting = vec4(gAlbedo * ambientColor, 1.0);
 		}
 
