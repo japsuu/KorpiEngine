@@ -66,7 +66,7 @@ Pass 0
 		
 		void main()
 		{
-			gAlbedoAO = vec4(1.0, 0.0, 1.0, 0.0);
+			gAlbedoAO = vec4(1.0, 0.0, 1.0, 0.5);
 			gPositionRoughness = vec4(FragPos, 0.5);
 			gNormalMetallic = vec4(VertNormal, 0.5);
 
