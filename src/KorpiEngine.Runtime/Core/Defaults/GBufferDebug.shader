@@ -69,7 +69,8 @@ Pass 0
 			
 			
 #ifdef NORMAL
-			color = vec4(texture(_GNormalMetallic, TexCoords).rgb, 1.0);
+			vec3 normals = texture(_GNormalMetallic, TexCoords).rgb;	// Normal in View Space
+			color = vec4(normals, 1.0);
 #endif
 
 			
