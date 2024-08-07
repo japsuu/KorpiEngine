@@ -101,7 +101,7 @@ public class LightingCombinePassNode : RenderPassNode
         if (lightingTex == null)
             return null;
 
-        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.shader"), "G-buffer combine material");
+        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.kshader"), "G-buffer combine material");
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _combineShader.SetTexture("_GLighting", lightingTex.InternalTextures[0]);
 
@@ -142,7 +142,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Defaults/ProceduralSkybox.shader"), "procedural skybox material");
+        _mat ??= new Material(Shader.Find("Defaults/ProceduralSkybox.kshader"), "procedural skybox material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
         _mat.SetFloat("_FogDensity", FogDensity);
@@ -179,7 +179,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Defaults/SSR.shader"), "SSR material");
+        _mat ??= new Material(Shader.Find("Defaults/SSR.kshader"), "SSR material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -255,7 +255,7 @@ public class TAANode : RenderPassNode
 
         RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_F]);
 
-        _mat ??= new Material(Shader.Find("Defaults/TAA.shader"), "TAA material");
+        _mat ??= new Material(Shader.Find("Defaults/TAA.kshader"), "TAA material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GHistory", history.InternalTextures[0]);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -292,7 +292,7 @@ public class DepthOfFieldNode : RenderPassNode
         Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Defaults/DOF.shader"), "DOF material");
+        _mat ??= new Material(Shader.Find("Defaults/DOF.kshader"), "DOF material");
         _mat.SetTexture("_GCombined", source.InternalTextures[0]);
         _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
@@ -322,7 +322,7 @@ public class BloomNode : RenderPassNode
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Defaults/Bloom.shader"), "bloom material");
+        _mat ??= new Material(Shader.Find("Defaults/Bloom.kshader"), "bloom material");
 
         RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
@@ -382,7 +382,7 @@ public class TonemappingNode : RenderPassNode
         if (source == null)
             return null;
 
-        _acesMat ??= new Material(Shader.Find("Defaults/Tonemapper.shader"), "tonemapping material");
+        _acesMat ??= new Material(Shader.Find("Defaults/Tonemapper.kshader"), "tonemapping material");
         _acesMat.SetTexture("_GAlbedo", source.InternalTextures[0]);
         _acesMat.SetFloat("_Contrast", Math.Clamp(Contrast, 0, 2));
         _acesMat.SetFloat("_Saturation", Math.Clamp(Saturation, 0, 2));

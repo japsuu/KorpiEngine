@@ -39,7 +39,7 @@ public static class Graphics
     {
         Driver = new T();
         Window = korpiWindow;
-        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.shader"), "basic material");
+        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material");
         Driver.Initialize();
     }
 
