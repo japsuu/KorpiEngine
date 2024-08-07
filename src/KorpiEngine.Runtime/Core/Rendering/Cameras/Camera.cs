@@ -117,11 +117,13 @@ public sealed class Camera : EntityComponent
         
         Graphics.ViewMatrix = ViewMatrix;
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
-        Matrix4x4.Invert(Graphics.ViewMatrix, out Graphics.InverseViewMatrix);
+        if (!Matrix4x4.Invert(Graphics.ViewMatrix, out Graphics.InverseViewMatrix))
+            throw new InvalidOperationException("Failed to invert the View Matrix!");
         
         Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
-        Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
+        if (!Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix))
+            throw new InvalidOperationException("Failed to invert the Projection Matrix!");
         
         _pipeline.Prepare(width, height);
         
