@@ -71,13 +71,11 @@ internal class GLGraphicsShader : GraphicsObject
         info = SourceRegex.Replace(info, GetSource);
 
         // log message and throw exception on compile error
+        if (!string.IsNullOrEmpty(info))
+            Logger.WarnFormat("Compile log:\n{0}", info);
+        
         if (compileStatus == 1)
-        {
-            if (!string.IsNullOrEmpty(info))
-                Logger.InfoFormat("Compile log:\n{0}", info);
-            
             return;
-        }
         
         const string msg = "Error compiling shader.";
         Logger.Error($"{msg} Source:\n{InjectLineNumbers(source)}");
