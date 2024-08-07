@@ -116,8 +116,10 @@ public sealed class Camera : EntityComponent
         RenderingCamera = this;
         
         Graphics.ViewMatrix = ViewMatrix;
-        Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
+        Matrix4x4.Invert(Graphics.ViewMatrix, out Graphics.InverseViewMatrix);
+        
+        Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
         Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix);
         
