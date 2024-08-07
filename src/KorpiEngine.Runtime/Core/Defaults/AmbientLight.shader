@@ -55,23 +55,21 @@ Pass 0
 		uniform sampler2D _GNormalMetallic;		// Normal (r,g,b) & Metalness (a)
 		uniform sampler2D _GPositionRoughness;	// Position (r,g,b) & Roughness (a)
 		
-		// ----------------------------------------------------------------------------
-
 		void main()
 		{
+			// Test the view-space position for valid data.
+			// If invalid (e.g. skybox, post-processing effects), discard the fragment.
 			vec4 gPosRough = textureLod(_GPositionRoughness, TexCoords, 0);
-			
-			if(gPosRough.rgb == vec3(0, 0, 0))
+			vec3 viewSpacePos = gPosRough.xyz;
+			if(viewSpacePos == vec3(0, 0, 0))
 				discard;
-		
-			vec3 gAlbedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
 
+			// Get view-space normal
 			vec4 gNormalMetal = textureLod(_GNormalMetallic, TexCoords, 0);
-			vec3 gNormal = gNormalMetal.rgb; // in View space
+			vec3 gNormal = gNormalMetal.xyz;
 			
 			// Obtain the local up vector in view space
 			vec3 upVector = (_MatView * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
-//			vec3 upVector = vec3(0.0, 1.0, 0.0);
 
 			// Calculate hemisphere/ambient lighting
 			float NdotUp = max(0.0, dot(gNormal, upVector));
@@ -79,8 +77,9 @@ Pass 0
 			// Interpolate between _SkyColor and GroundColor based on NdotUp
 			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
 
-			gBuffer_lighting = vec4(gAlbedo * ambientColor, 1.0);
+			// Apply ambient lighting to the albedo
+			vec3 albedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
+			gBuffer_lighting = vec4(albedo * ambientColor, 1.0);
 		}
-
 	}
 }
