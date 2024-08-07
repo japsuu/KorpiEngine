@@ -161,40 +161,58 @@ Pass 0
 		void main()
 		{
 			vec2 uv = UnjitterTextureUV(TexCoords0, _Jitter);
-			//vec2 uv = TexCoords;
-
-			vec4 alb = texture(_MainTex, uv).rgba; 
-			float rng = InterleavedGradientNoise(gl_FragCoord.xy, _Frame % 32);
-			if(rng > alb.a * _MainColor.a) discard;
-			alb.rgb *= VertColor.rgb;
-
-			// AO, Roughness, Metallic
-			vec3 surface = texture(_SurfaceTex, uv).rgb;
-			// Albedo
-			//gAlbedoAO = vec4(alb.xyz * _MainColor.rgb, ao);
-			gAlbedoAO = vec4(pow(alb.xyz * _MainColor.rgb, vec3(2.2)), surface.r);
-			//gAlbedoAO = vec4(alb.xyz, 1);
-	
-			// Position & Roughness
-			gPositionRoughness = vec4(FragPos, surface.g);
-
-			// Normal & Metallic
-			vec3 normal = texture(_NormalTex, uv).rgb;
-			normal = normal * 2.0 - 1.0;		// Convert from [0, 1] to [-1, 1]
-			normal = normalize(TBN * normal);	// Transform to view space
-			//gNormalMetallic = vec4((_MatView * vec4(normal, 0)).rgb, surface.b);
-			gNormalMetallic = vec4(VertNormal, surface.b); // Fixes holes in Normals
+			vec4 mainTexture = texture(_MainTex, uv).rgba;
 			
-			// Emission
+			// Discard pixels based on noise
+			float rng = InterleavedGradientNoise(gl_FragCoord.xy, _Frame % 32);
+			if(rng > mainTexture.a * _MainColor.a)
+				discard;
+			
+			// Apply vertex color
+			mainTexture.rgb *= VertColor.rgb;
+
+
+			// -------- AO, Roughness, Metallic -------- //
+			vec3 surface = texture(_SurfaceTex, uv).rgb;
+			float ambientOcclusion = surface.r;
+			float roughness = surface.g;
+			float metallic = surface.b;
+			vec3 albedo = pow(mainTexture.rgb * _MainColor.rgb, vec3(2.2));
+			gAlbedoAO = vec4(albedo, ambientOcclusion);
+
+
+			// -------- Position & Roughness -------- //
+			gPositionRoughness = vec4(FragPos, roughness);
+
+			
+			// -------- Normal & Metallic -------- //
+			vec3 worldSpaceNormal = VertNormal;		// R=X+, G=Y+, B=Z+
+			
+			// Z could be recalculated from X and Y, since it's a unit vector always pointing towards the camera.
+			vec3 textureNormal = texture(_NormalTex, uv).rgb;
+			
+			// Convert from [0, 1] range to [-1, 1] range
+			vec3 normal = textureNormal * 2.0 - 1.0;
+			
+			// Transform texture normal to view space
+			normal = normalize(TBN * normal);
+			
+			gNormalMetallic = vec4(normal, metallic);		// Fixes holes in Normals
+			//gNormalMetallic = vec4(worldSpaceNormal, metallic);		// Fixes holes in Normals
+			//gNormalMetallic = vec4((_MatView * vec4(normal, 0)).rgb, surface.b);
+			
+			
+			// -------- Emission -------- //
 			gEmission.rgb = (texture(_EmissionTex, uv).rgb + _EmissiveColor.rgb) * _EmissionIntensity;
 
-			// Velocity
+			
+			// -------- Velocity -------- //
 			vec2 a = (PosProj.xy / PosProj.w) - _Jitter;
 			vec2 b = (PosProjOld.xy / PosProjOld.w) - _PreviousJitter;
 			gVelocity.xy = (b - a) * 0.5;
 
 
-
+			// -------- Object ID -------- //
 			gObjectID = float(_ObjectID);
 		}
 	}
