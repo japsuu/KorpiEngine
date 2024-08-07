@@ -54,6 +54,7 @@ Pass 0
 		layout (location = 2) out vec4 gPositionRoughness; // PositionX, PositionY, PositionZ, Roughness
 		layout (location = 4) out vec2 gVelocity; // VelocityX, VelocityY
 		layout (location = 5) out float gObjectID; // ObjectID
+		layout (location = 6) out vec4 gUnlit; // Unlit objects
 
 		in vec3 FragPos;
 		in vec3 VertNormal;
@@ -76,6 +77,7 @@ Pass 0
 			gVelocity.xy = (b - a) * 0.5;
 
 			gObjectID = float(_ObjectID);
+			gUnlit = vec4(1.0, 0.0, 1.0, 1.0);
 		}
 	}
 }
