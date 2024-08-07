@@ -197,20 +197,21 @@ Pass 0
 
 			
 			// -------- Normal & Metallic -------- //
-			vec3 worldSpaceNormal = VertNormal;		// R=X+, G=Y+, B=Z+
-			
+			// Sample the normal texture in [0, 1] range
 			// Z could be recalculated from X and Y, since it's a unit vector always pointing towards the camera.
 			vec3 textureNormal = texture(_NormalTex, uv).rgb;
 			
-			// Convert from [0, 1] range to [-1, 1] range
+			// Convert to [-1, 1] range
 			vec3 normal = textureNormal * 2.0 - 1.0;
 			
-			// Transform texture normal to view space
+			// Transform texture normal to world space
 			normal = normalize(TBN * normal);
 			
-			gNormalMetallic = vec4(normal, metallic);		// Fixes holes in Normals
-			//gNormalMetallic = vec4(worldSpaceNormal, metallic);		// Fixes holes in Normals
-			//gNormalMetallic = vec4((_MatView * vec4(normal, 0)).rgb, surface.b);
+			// Transform world space normal to view space
+			normal = normalize((_MatView * vec4(normal, 0.0)).xyz);
+			
+			// Write the transformed view space normal to buffer
+			gNormalMetallic = vec4(normal, metallic);
 			
 			
 			// -------- Emission -------- //
