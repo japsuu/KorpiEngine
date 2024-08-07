@@ -2,7 +2,7 @@
 
 Properties
 {
-	_MatView("view matrix", MATRIX_4X4)
+	_MatViewInverse("inverse view matrix", MATRIX_4X4)
 	_SkyColor("sky color", FLOAT4)
 	_GroundColor("ground color", FLOAT4)
 	_SkyIntensity("sky intensity", FLOAT)
@@ -40,9 +40,9 @@ Pass 0
 
 	Fragment
 	{
-		layout(location = 0) out vec4 gBuffer_lighting;
+		layout(location = 0) out vec4 gLighting;
 		
-		uniform mat4 _MatView;
+		uniform mat4 _MatViewInverse;
 		
 		in vec2 TexCoords;
 		
@@ -59,27 +59,29 @@ Pass 0
 		{
 			// Test the view-space position for valid data.
 			// If invalid (e.g. skybox, post-processing effects), discard the fragment.
-			vec4 gPosRough = textureLod(_GPositionRoughness, TexCoords, 0);
-			vec3 viewSpacePos = gPosRough.xyz;
+			vec3 viewSpacePos = textureLod(_GPositionRoughness, TexCoords, 0).xyz;
 			if(viewSpacePos == vec3(0, 0, 0))
 				discard;
 
 			// Get view-space normal
-			vec4 gNormalMetal = textureLod(_GNormalMetallic, TexCoords, 0);
-			vec3 gNormal = gNormalMetal.xyz;
+			vec3 viewSpaceNormal = textureLod(_GNormalMetallic, TexCoords, 0).xyz;
 			
-			// Obtain the local up vector in view space
-			vec3 upVector = (_MatView * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
+			// Transform the normal from view-space to world-space
+   			vec3 worldSpaceNormal = normalize(_MatViewInverse * vec4(viewSpaceNormal, 1.0)).xyz;
 
-			// Calculate hemisphere/ambient lighting
-			float NdotUp = max(0.0, dot(gNormal, upVector));
+   			// Obtain the local up vector in world space
+   			vec3 upVector = vec3(0.0, 1.0, 0.0);
 
-			// Interpolate between _SkyColor and GroundColor based on NdotUp
-			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, NdotUp);
+			// Calculate how much the normal is pointing upwards
+			float normalUp = max(0.0, dot(worldSpaceNormal, upVector));
+
+			// Interpolate between _SkyColor and GroundColor based on normalUp
+			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, normalUp);
 
 			// Apply ambient lighting to the albedo
-			vec3 albedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
-			gBuffer_lighting = vec4(albedo * ambientColor, 1.0);
+			//vec3 albedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
+			//gLighting = vec4(albedo * ambientColor, 1.0);
+			gLighting = vec4(worldSpaceNormal,1);
 		}
 	}
 }
