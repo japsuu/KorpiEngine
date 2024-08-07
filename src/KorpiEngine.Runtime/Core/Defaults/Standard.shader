@@ -91,9 +91,20 @@ Pass 0
 			mat3 normalMatrix = transpose(inverse(mat3(_MatModel)));
 			VertNormal = normalize(normalMatrix * boneVertexNormal);
 			
+			// Transform the tangent vector from object space to world space
 			vec3 T = normalize(vec3(_MatModel * vec4(boneVertexTangent, 0.0)));
+			
+			// Compute the bitangent vector by taking the cross product of the normal and tangent vectors
 			vec3 B = normalize(vec3(_MatModel * vec4(cross(boneVertexNormal, boneVertexTangent), 0.0)));
+			
+			// Transform the normal vector from object space to world space
 			vec3 N = normalize(vec3(_MatModel * vec4(boneVertexNormal, 0.0)));
+			
+			// Construct the TBN matrix.
+			// TBN matrix is used to transform normals from tangent space (normal maps) to world space.
+			// T: Tangent vector
+			// B: Bitangent vector
+			// N: Normal vector
 		    TBN = mat3(T, B, N);
 		
 		    PosProj = _MatMVP * vec4(boneVertexPosition, 1.0);
