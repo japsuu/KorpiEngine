@@ -9,7 +9,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         Application.Run(
-            new WindowingSettings(new Vector2i(1280, 720), "KorpiEngine Sandbox"),
+            new WindowingSettings(new Vector2i(1920, 1080), "KorpiEngine Sandbox"),
             new DemoScene());
     }
 }

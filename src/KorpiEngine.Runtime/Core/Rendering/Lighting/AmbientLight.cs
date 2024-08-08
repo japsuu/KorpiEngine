@@ -19,7 +19,7 @@ public class AmbientLight : EntityComponent
     
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.shader"), "ambient light material");
+        _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.kshader"), "ambient light material");
 
         _lightMat.SetColor("_SkyColor", SkyColor);
         _lightMat.SetColor("_GroundColor", GroundColor);

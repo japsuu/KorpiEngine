@@ -22,6 +22,7 @@ public static class Graphics
     
     public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
     public static Matrix4x4 OldViewMatrix = Matrix4x4.Identity;
+    public static Matrix4x4 InverseViewMatrix = Matrix4x4.Identity;
     public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
     public static Matrix4x4 OldProjectionMatrix = Matrix4x4.Identity;
     public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
@@ -38,7 +39,7 @@ public static class Graphics
     {
         Driver = new T();
         Window = korpiWindow;
-        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.shader"), "basic material");
+        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material");
         Driver.Initialize();
     }
 
@@ -134,6 +135,7 @@ public static class Graphics
         // Matrices
         material.SetMatrix("_MatModel", camRelativeTransform, true);
         material.SetMatrix("_MatView", ViewMatrix, true);
+        material.SetMatrix("_MatViewInverse", InverseViewMatrix, true);
         material.SetMatrix("_MatProjection", ProjectionMatrix, true);
         material.SetMatrix("_MatProjectionInverse", InverseProjectionMatrix, true);
         

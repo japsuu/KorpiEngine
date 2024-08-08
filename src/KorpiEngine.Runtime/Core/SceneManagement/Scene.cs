@@ -49,7 +49,7 @@ public abstract class Scene : IDisposable
     {
         Entity e = CreateEntity(name);
         MeshRenderer c = e.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
+        Material mat = new Material(Shader.Find("Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;
@@ -57,7 +57,7 @@ public abstract class Scene : IDisposable
         mat.SetColor("_MainColor", Color.White);
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
-        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/grid.png"));
+        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
         mat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
         mat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
         mat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
@@ -118,10 +118,8 @@ public abstract class Scene : IDisposable
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
-        //alComp.SkyIntensity = 0.4f;
-        //alComp.GroundIntensity = 0.1f;
-        alComp.SkyIntensity = 1f;
-        alComp.GroundIntensity = 1f;
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
     }
     
     

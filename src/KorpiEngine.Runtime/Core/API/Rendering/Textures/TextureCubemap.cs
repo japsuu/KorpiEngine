@@ -15,7 +15,7 @@ public sealed class TextureCubemap : Texture
     /// </summary>
     /// <param name="size">The size (width and height) of the cubemap's faces.</param>
     /// <param name="imageFormat">The image format for this <see cref="TextureCubemap"/>.</param>
-    public TextureCubemap(int size, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_B) : base(TextureType.TextureCubeMap, imageFormat)
+    public TextureCubemap(int size, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(TextureType.TextureCubeMap, imageFormat)
     {
         if (size <= 0 || size > SystemInfo.MaxCubeMapTextureSize)
             throw new ArgumentOutOfRangeException(nameof(size), size, $"Cubemap size must be in the range (0, {SystemInfo.MaxCubeMapTextureSize}]");
