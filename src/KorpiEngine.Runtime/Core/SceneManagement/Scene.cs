@@ -118,10 +118,8 @@ public abstract class Scene : IDisposable
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
-        //alComp.SkyIntensity = 0.4f;
-        //alComp.GroundIntensity = 0.1f;
-        alComp.SkyIntensity = 1f;
-        alComp.GroundIntensity = 0f;
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
     }
     
     
