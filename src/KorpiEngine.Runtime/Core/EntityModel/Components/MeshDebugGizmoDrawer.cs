@@ -121,10 +121,12 @@ public class MeshDebugGizmoDrawer : EntityComponent
     {
         if (positions == null || directions == null)
             return;
+        
+        Matrix4x4 localToWorldMatrix = Transform.LocalToWorldMatrix;
 
         for (int i = 0; i < positions.Length; i++)
         {
-            Vector3 position = positions[i] + (Vector3)Transform.Position;
+            Vector3 position = positions[i];
             Vector3 direction = directions[i];
             
             if (direction.LengthSquared() < 0.001f)
@@ -132,6 +134,10 @@ public class MeshDebugGizmoDrawer : EntityComponent
                 Application.Logger.Warn("Normal or tangent direction is zero, skip drawing line.");
                 continue;
             }
+            
+            // Transform the position and direction vectors by the local-to-world matrix
+            position = KorpiEngine.Core.API.Vector3.Transform(position, localToWorldMatrix);
+            direction = KorpiEngine.Core.API.Vector3.TransformNormal(direction, localToWorldMatrix);
             
             // Decide the line color based on the normal, ensure there are no black lines
             float r = Math.Abs(direction.X);
