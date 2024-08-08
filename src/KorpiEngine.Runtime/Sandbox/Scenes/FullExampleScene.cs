@@ -8,7 +8,7 @@ using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using Random = KorpiEngine.Core.API.Random;
 
-namespace Sandbox;
+namespace Sandbox.Scenes;
 
 /// <summary>
 /// This scene demonstrates a variety of features, including
