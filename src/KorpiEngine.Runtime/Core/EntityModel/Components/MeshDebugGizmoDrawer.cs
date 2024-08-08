@@ -128,10 +128,11 @@ public class MeshDebugGizmoDrawer : EntityComponent
         {
             Vector3 position = positions[i];
             Vector3 direction = directions[i];
-            
-            if (direction.LengthSquared() < 0.001f)
+
+            float dirLength = direction.Length();
+            if (dirLength < 0.001f || dirLength > 1f)
             {
-                Application.Logger.Warn("Normal or tangent direction is zero, skip drawing line.");
+                Application.Logger.Warn($"Normal or tangent direction is invalid ({dirLength}), skip drawing line.");
                 continue;
             }
             
