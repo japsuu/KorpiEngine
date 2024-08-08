@@ -11,7 +11,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
 {
     public bool DrawNormals = false;
     public bool DrawTangents = false;
-    public bool DrawBounds = true;
+    public bool DrawBounds = false;
     public bool IgnoreDepth = false;
     
     public float NormalLength = 0.1f;
@@ -121,16 +121,29 @@ public class MeshDebugGizmoDrawer : EntityComponent
     {
         if (positions == null || directions == null)
             return;
+        
+        Matrix4x4 localToWorldMatrix = Transform.LocalToWorldMatrix;
 
         for (int i = 0; i < positions.Length; i++)
         {
-            Vector3 position = positions[i] + (Vector3)Transform.Position;
+            Vector3 position = positions[i];
             Vector3 direction = directions[i];
+
+            float dirLength = direction.Length();
+            if (dirLength < 0.001f || dirLength > 1f)
+            {
+                Application.Logger.Warn($"Normal or tangent direction is invalid ({dirLength}), skip drawing line.");
+                continue;
+            }
+            
+            // Transform the position and direction vectors by the local-to-world matrix
+            position = KorpiEngine.Core.API.Vector3.Transform(position, localToWorldMatrix);
+            direction = KorpiEngine.Core.API.Vector3.TransformNormal(direction, localToWorldMatrix);
             
             // Decide the line color based on the normal, ensure there are no black lines
-            float r = Math.Max(0.1f, Math.Abs(direction.X));
-            float g = Math.Max(0.1f, Math.Abs(direction.Y));
-            float b = Math.Max(0.1f, Math.Abs(direction.Z));
+            float r = Math.Abs(direction.X);
+            float g = Math.Abs(direction.Y);
+            float b = Math.Abs(direction.Z);
             Gizmos.Color = new Color(r, g, b, 1f);
             
             Gizmos.DrawArrow(position, position + direction * length);

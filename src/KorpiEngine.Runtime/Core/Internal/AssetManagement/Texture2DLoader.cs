@@ -20,7 +20,7 @@ public static class Texture2DLoader
 
         image.Flip();
 
-        const TextureImageFormat format = TextureImageFormat.RGBA_16_US;
+        const TextureImageFormat format = TextureImageFormat.RGBA_16_UF;
         image.ColorSpace = ColorSpace.sRGB;
         image.ColorType = ColorType.TrueColorAlpha;
 

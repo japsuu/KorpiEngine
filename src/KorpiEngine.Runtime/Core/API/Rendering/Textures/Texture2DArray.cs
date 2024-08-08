@@ -19,7 +19,7 @@ public sealed class Texture2DArray : Texture
     public int Depth { get; private set; }
 
 
-    public Texture2DArray(int width, int height, int depth, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_B) : base(
+    public Texture2DArray(int width, int height, int depth, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(
         TextureType.Texture2DArray, imageFormat)
     {
         RecreateImage(width, height, depth); //this also binds the texture

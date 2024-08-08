@@ -834,28 +834,20 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// <returns></returns>
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
-        void CreateTangents(System.Numerics.Vector3[] vertices, System.Numerics.Vector3[] tangents)
+        System.Numerics.Vector3[] CreateTangents(System.Numerics.Vector3[] vertices)
         {
+            System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
+            
             for (int i = 0; i < vertices.Length; i++)
             {
                 System.Numerics.Vector3 v = vertices[i];
-                v.Y = 0f;
-                v = System.Numerics.Vector3.Normalize(v);
-                System.Numerics.Vector3 tangent;
-                tangent.X = -v.Z;
-                tangent.Y = 0f;
-                tangent.Z = v.X;
-                tangents[i] = tangent;
+                if (v.X == 0 && v.Z == 0)
+                    tangents[i] = new System.Numerics.Vector3(1, 0, 0);
+                else
+                    tangents[i] = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(v.Z, 0, -v.X));
             }
 
-            //tangents[vertices.Length - 4] = tangents[0] = new Vector3(-1f, 0, -1f).normalized;
-            //tangents[vertices.Length - 3] = tangents[1] = new Vector3(1f, 0f, -1f).normalized;
-            //tangents[vertices.Length - 2] = tangents[2] = new Vector3(1f, 0f, 1f).normalized;
-            //tangents[vertices.Length - 1] = tangents[3] = new Vector3(-1f, 0f, 1f).normalized;
-            /*for (int i = 0; i < 4; i++)
-            {
-                tangents[vertices.Length - 1 - i].w = tangents[i].w = -1f;
-            }*/
+            return tangents;
         }
         
         #region Vertices
@@ -933,8 +925,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         #endregion
 
         
-        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
-        CreateTangents(vertices, tangents);
+        System.Numerics.Vector3[] tangents = CreateTangents(vertices);
 
         Mesh mesh = new();
         if (vertices.Length > 65535)

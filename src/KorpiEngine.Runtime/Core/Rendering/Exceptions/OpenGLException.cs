@@ -9,4 +9,8 @@ public class OpenGLException : Exception
     internal OpenGLException(string message) : base(message)
     {
     }
+    
+    internal OpenGLException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 }

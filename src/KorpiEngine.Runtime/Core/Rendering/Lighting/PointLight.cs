@@ -26,7 +26,7 @@ public class PointLight : EntityComponent
         Matrix4x4 mat = Matrix4x4.CreateScale(Radius) * Entity.GlobalCameraRelativeTransform;
         if (_lightMat == null)
         {
-            _lightMat = new Material(Shader.Find("Defaults/PointLight.shader"), "point light material");
+            _lightMat = new Material(Shader.Find("Defaults/PointLight.kshader"), "point light material");
         }
         else
         {

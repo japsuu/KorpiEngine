@@ -5,7 +5,7 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
 
-[AssetImporter(".shader")]
+[AssetImporter(".kshader")]
 internal class ShaderImporter : AssetImporter
 {
     private static readonly Regex PreprocessorIncludeRegex = new(@"^\s*#include\s*[""<](.+?)["">]\s*$", RegexOptions.Multiline);

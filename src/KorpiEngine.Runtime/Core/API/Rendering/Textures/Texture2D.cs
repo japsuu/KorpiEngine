@@ -20,7 +20,7 @@ public sealed class Texture2D : Texture, ISerializable
     public int Height { get; private set; }
 
 
-    public Texture2D() : base(TextureType.Texture2D, TextureImageFormat.RGBA_8_B)
+    public Texture2D() : base(TextureType.Texture2D, TextureImageFormat.RGBA_8_UF)
     {
     }
 
@@ -32,7 +32,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="height">The height of the <see cref="Texture2D"/>.</param>
     /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture2D"/>.</param>
     /// <param name="imageFormat">The image format for this <see cref="Texture2D"/>.</param>
-    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_B) : base(TextureType.Texture2D, imageFormat)
+    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(TextureType.Texture2D, imageFormat)
     {
         RecreateImage(width, height); //This also binds the texture
 
@@ -162,22 +162,22 @@ public sealed class Texture2D : Texture, ISerializable
                 return size * 3;
             
             // 16 bits per pixel
-            case TextureImageFormat.R_16_S:
-            case TextureImageFormat.R_16_US:
+            case TextureImageFormat.R_16_F:
+            case TextureImageFormat.R_16_UF:
             case TextureImageFormat.DEPTH_16:
                 return size * 2 * 1;
-            case TextureImageFormat.RG_16_S:
-            case TextureImageFormat.RG_16_US:
+            case TextureImageFormat.RG_16_F:
+            case TextureImageFormat.RG_16_UF:
                 return size * 2 * 2;
-            case TextureImageFormat.RGB_16_S:
-            case TextureImageFormat.RGB_16_US:
+            case TextureImageFormat.RGB_16_F:
+            case TextureImageFormat.RGB_16_UF:
                 return size * 2 * 3;
-            case TextureImageFormat.RGBA_16_S:
-            case TextureImageFormat.RGBA_16_US:
+            case TextureImageFormat.RGBA_16_F:
+            case TextureImageFormat.RGBA_16_UF:
                 return size * 2 * 4;
             
             // 8 bits per pixel
-            case TextureImageFormat.RGBA_8_B:
+            case TextureImageFormat.RGBA_8_UF:
                 return size;
             
             default:

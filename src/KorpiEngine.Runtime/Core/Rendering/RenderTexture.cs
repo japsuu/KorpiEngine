@@ -39,7 +39,7 @@ public sealed class RenderTexture : Resource
         {
             textureFormats = new TextureImageFormat[numTextures];
             for (int i = 0; i < numTextures; i++)
-                textureFormats[i] = TextureImageFormat.RGBA_8_B;
+                textureFormats[i] = TextureImageFormat.RGBA_8_UF;
         }
         else
         {
