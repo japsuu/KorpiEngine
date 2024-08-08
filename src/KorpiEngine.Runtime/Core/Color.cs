@@ -36,4 +36,7 @@ public readonly struct Color
         b = B;
         a = A;
     }
+
+
+    public override string ToString() => $"({R}, {G}, {B}, {A})";
 }
