@@ -11,7 +11,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
 {
     public bool DrawNormals = false;
     public bool DrawTangents = false;
-    public bool DrawBounds = true;
+    public bool DrawBounds = false;
     public bool IgnoreDepth = false;
     
     public float NormalLength = 0.1f;
