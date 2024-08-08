@@ -1,5 +1,13 @@
 ﻿namespace KorpiEngine.Core.Rendering.Primitives;
 
+/// <summary>
+/// The format of a texture image.<br/>
+/// The formats are named according to the following syntax:<br/>
+/// [COMPONENTS]_[SIZE]_[TYPE]<br/>
+/// - COMPONENTS: List of components the image stores per pixel.<br/>
+/// - SIZE: The bit-depth of each component.<br/>
+/// - TYPE: The type of the component. (F = Float, UF = Unsigned Float, I = Integer, UI = Unsigned Integer)
+/// </summary>
 public enum TextureImageFormat
 {
     #region BYTE formats
