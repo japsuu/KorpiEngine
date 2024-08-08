@@ -54,7 +54,6 @@ public abstract class Scene : IDisposable
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;
         
-        mat.SetColor("_MainColor", Color.White);
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
         mat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
