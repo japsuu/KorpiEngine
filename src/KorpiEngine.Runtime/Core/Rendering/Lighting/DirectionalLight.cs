@@ -78,7 +78,11 @@ public sealed class DirectionalLight : EntityComponent
         }
 
         Graphics.Blit(_lightMat);
+    }
 
+
+    protected override void OnDrawGizmos()
+    {
         Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
         Gizmos.Color = Color.Yellow;
         Gizmos.DrawDirectionalLight(Vector3.Zero);
