@@ -2,6 +2,7 @@
 
 Properties
 {
+	_MatView("view matrix", MATRIX_4X4)
 	_MatViewInverse("inverse view matrix", MATRIX_4X4)
 	_SkyColor("sky color", FLOAT4)
 	_GroundColor("ground color", FLOAT4)
@@ -42,6 +43,7 @@ Pass 0
 	{
 		layout(location = 0) out vec4 gLighting;
 		
+		uniform mat4 _MatView;
 		uniform mat4 _MatViewInverse;
 		
 		in vec2 TexCoords;
@@ -63,25 +65,34 @@ Pass 0
 			if(viewSpacePos == vec3(0, 0, 0))
 				discard;
 
-			// Get view-space normal
-			vec3 viewSpaceNormal = textureLod(_GNormalMetallic, TexCoords, 0).xyz;
+			// Get view-space normal in [0, 1] range.
+			// The normal is relative to the rendering camera:
+			// (0, 0, 1) is directly away from the camera,
+			// (0, 0, -1) is directly towards the camera,
+			// (1, 0, 0) is to the right of the camera,
+			// (0, 1, 0) is up from the camera.
+			vec3 normal = textureLod(_GNormalMetallic, TexCoords, 0).xyz;
 			
-			// Transform the normal from view-space to world-space
-   			vec3 worldSpaceNormal = normalize(_MatViewInverse * vec4(viewSpaceNormal, 1.0)).xyz;
-
-   			// Obtain the local up vector in world space
-   			vec3 upVector = vec3(0.0, 1.0, 0.0);
-
-			// Calculate how much the normal is pointing upwards
-			float normalUp = max(0.0, dot(worldSpaceNormal, upVector));
-
-			// Interpolate between _SkyColor and GroundColor based on normalUp
-			vec3 ambientColor = mix(_GroundColor.rgb * _GroundIntensity, _SkyColor.rgb * _SkyIntensity, normalUp);
-
-			// Apply ambient lighting to the albedo
-			//vec3 albedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
-			//gLighting = vec4(albedo * ambientColor, 1.0);
-			gLighting = vec4(worldSpaceNormal,1);
+			// Get albedo color in [0, 1] range
+			vec3 albedo = textureLod(_GAlbedoAO, TexCoords, 0).rgb;
+			
+			// We could either transform the normal from view-space to world-space,
+			// or the world-space up vector to view-space. I chose the latter.
+			vec3 worldUp = vec3(0.0, 1.0, 0.0);
+			vec3 localUp = (_MatView * vec4(worldUp, 0.0)).xyz;
+			
+			// Calculate the hemisphere lighting based on the world-space normal.
+			// The hemisphere lighting is a simple approximation of ambient lighting.
+			// The sky color is used for the top hemisphere, and the ground color is used for the bottom hemisphere.
+			float hemisphere = dot(normal, localUp);
+			vec3 groundColor = _GroundColor.rgb * _GroundIntensity;
+			vec3 skyColor = _SkyColor.rgb * _SkyIntensity;
+			vec3 hemisphereColor = mix(groundColor, skyColor, hemisphere);
+			
+			// Apply hemisphere color to the albedo color.
+			vec3 finalColor = albedo * hemisphereColor;
+			
+			gLighting = vec4(finalColor, 1.0);
 		}
 	}
 }
