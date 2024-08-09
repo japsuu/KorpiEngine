@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using KorpiEngine.Core.Logging;
 
-namespace KorpiEngine.Core.UI.ImGui;
+namespace KorpiEngine.Core.UI.DearImGui;
 
 public abstract class ImGuiWindow : IDisposable
 {

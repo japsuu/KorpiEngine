@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 
-namespace KorpiEngine.Core.UI.ImGui;
+namespace KorpiEngine.Core.UI.DearImGui;
 
 public static class ImGuiWindowManager
 {

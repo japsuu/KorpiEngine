@@ -4,7 +4,7 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.UI.ImGui;
+using KorpiEngine.Core.UI.DearImGui;
 
 namespace KorpiEngine.Core.Rendering.Lighting;
 
@@ -171,7 +171,5 @@ internal class DirectionalLightEditor(DirectionalLight target) : ImGuiWindow(tru
             ImGui.DragInt("Quality Samples", ref target.QualitySamples, 1, 1, 64);
             ImGui.DragInt("Blocker Samples", ref target.BlockerSamples, 1, 1, 64);
         }
-        
-        Console.WriteLine("Drawn editor");
     }
 }

@@ -5,7 +5,7 @@ using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
-using KorpiEngine.Core.UI.ImGui;
+using KorpiEngine.Core.UI.DearImGui;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Windowing.Common;
 
@@ -48,7 +48,6 @@ public static class Application
         InitializeLog4Net();
         
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        imGuiController = new ImGuiController(window);
         initialScene = scene;
         
         window.Load += OnLoad;
@@ -77,6 +76,7 @@ public static class Application
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
+        imGuiController = new ImGuiController(window);
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
     }
