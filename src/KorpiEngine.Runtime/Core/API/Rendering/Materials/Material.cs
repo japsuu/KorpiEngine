@@ -110,11 +110,11 @@ public sealed class Material : Resource
     private void InternalSetPass(Shader.CompiledShader.Pass pass, bool apply = false)
     {
         // Set the shader
-        Graphics.Driver.SetState(pass.State);
-        Graphics.Driver.BindProgram(pass.Program);
+        Graphics.Device.SetState(pass.State);
+        Graphics.Device.BindProgram(pass.Program);
 
         if (apply)
-            ApplyPropertyBlock(Graphics.Driver.CurrentProgram!);
+            ApplyPropertyBlock(Graphics.Device.CurrentProgram!);
     }
 
     #endregion

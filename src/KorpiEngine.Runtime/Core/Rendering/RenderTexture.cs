@@ -72,14 +72,14 @@ public sealed class RenderTexture : Resource
             };
         }
 
-        FrameBuffer = Graphics.Driver.CreateFramebuffer(attachments);
+        FrameBuffer = Graphics.Device.CreateFramebuffer(attachments);
     }
 
 
     public void Begin()
     {
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        Graphics.Driver.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
         Graphics.UpdateViewport(Width, Height);
         Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
@@ -87,7 +87,7 @@ public sealed class RenderTexture : Resource
 
     public void End()
     {
-        Graphics.Driver.UnbindFramebuffer();
+        Graphics.Device.UnbindFramebuffer();
         Graphics.UpdateViewport(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
 #warning Possible bug: FrameBufferSize is not set to the window size
         Graphics.FrameBufferSize = new Vector2i(Width, Height);

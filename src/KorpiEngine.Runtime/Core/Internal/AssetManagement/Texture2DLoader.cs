@@ -31,7 +31,7 @@ public static class Texture2DLoader
         {
             unsafe
             {
-                Graphics.Driver.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, (void*)pixels);
+                Graphics.Device.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, (void*)pixels);
             }
 
             if (generateMipmaps)

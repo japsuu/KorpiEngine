@@ -6,9 +6,9 @@ using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.Rendering;
 
-internal abstract class GraphicsDriver
+internal abstract class GraphicsDevice
 {
-    protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDriver));
+    protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDevice));
 
     public abstract GraphicsProgram? CurrentProgram { get; }
 
@@ -17,7 +17,7 @@ internal abstract class GraphicsDriver
 
     public void Initialize()
     {
-        Logger.Info($"Initializing {nameof(GraphicsDriver)}...");
+        Logger.Info($"Initializing {nameof(GraphicsDevice)}...");
         InitializeInternal();
     }
 
@@ -27,7 +27,7 @@ internal abstract class GraphicsDriver
 
     public void Shutdown()
     {
-        Logger.Info($"Shutting down {nameof(GraphicsDriver)}...");
+        Logger.Info($"Shutting down {nameof(GraphicsDevice)}...");
         ShutdownInternal();
     }
 

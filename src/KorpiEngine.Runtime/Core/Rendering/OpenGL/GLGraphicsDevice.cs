@@ -12,7 +12,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 /// <summary>
 /// OpenGL graphics driver.
 /// </summary>
-internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
+internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 {
 #if DEBUG
     private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;

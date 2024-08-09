@@ -102,29 +102,29 @@ public class MaterialPropertyBlock
     private static void Apply(MaterialPropertyBlock propertyBlock, GraphicsProgram shader, string materialName)
     {
         foreach (KeyValuePair<string, float> item in propertyBlock._floats)
-            Graphics.Driver.SetUniformF(shader, item.Key, item.Value);
+            Graphics.Device.SetUniformF(shader, item.Key, item.Value);
 
         foreach (KeyValuePair<string, int> item in propertyBlock._integers)
-            Graphics.Driver.SetUniformI(shader, item.Key, item.Value);
+            Graphics.Device.SetUniformI(shader, item.Key, item.Value);
 
         foreach (KeyValuePair<string, Vector2> item in propertyBlock._vectors2)
-            Graphics.Driver.SetUniformV2(shader, item.Key, item.Value);
+            Graphics.Device.SetUniformV2(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, Vector3> item in propertyBlock._vectors3)
-            Graphics.Driver.SetUniformV3(shader, item.Key, item.Value);
+            Graphics.Device.SetUniformV3(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, Vector4> item in propertyBlock._vectors4)
-            Graphics.Driver.SetUniformV4(shader, item.Key, item.Value);
+            Graphics.Device.SetUniformV4(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, Color> item in propertyBlock._colors)
-            Graphics.Driver.SetUniformV4(shader, item.Key, new Vector4(item.Value.R, item.Value.G, item.Value.B, item.Value.A));
+            Graphics.Device.SetUniformV4(shader, item.Key, new Vector4(item.Value.R, item.Value.G, item.Value.B, item.Value.A));
 
         foreach ((string? key, Matrix4x4 mat) in propertyBlock._matrices)
         {
             System.Numerics.Matrix4x4 fMat = mat.ToFloat();
-            Graphics.Driver.SetUniformMatrix(shader, key, 1, false, in fMat.M11);
+            Graphics.Device.SetUniformMatrix(shader, key, 1, false, in fMat.M11);
         }
 
         foreach ((string? key, System.Numerics.Matrix4x4[]? mats) in propertyBlock._matrixArrays)
         {
-            Graphics.Driver.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].M11);
+            Graphics.Device.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].M11);
         }
 
         uint texSlot = 0;
@@ -137,12 +137,12 @@ public class MaterialPropertyBlock
                 Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available");
                 
                 // Clear the texture slot
-                Graphics.Driver.ClearUniformTexture(shader, item.Key, (int)texSlot);
+                Graphics.Device.ClearUniformTexture(shader, item.Key, (int)texSlot);
                 continue;
             }
             
             texSlot++;
-            Graphics.Driver.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Res!.Handle);
+            Graphics.Device.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Res!.Handle);
 
             keysToUpdate.Add((item.Key, tex));
         }

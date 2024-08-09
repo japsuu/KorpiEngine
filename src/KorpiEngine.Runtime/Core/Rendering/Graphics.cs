@@ -15,7 +15,7 @@ public static class Graphics
     private static Material defaultBlitMaterial = null!;
     
     internal static KorpiWindow Window { get; private set; } = null!;
-    internal static GraphicsDriver Driver = null!;
+    internal static GraphicsDevice Device = null!;
     internal static Vector2i FrameBufferSize;
     
     public static Vector2 Resolution { get; private set; } = Vector2.Zero;
@@ -35,24 +35,24 @@ public static class Graphics
     public static Vector2 PreviousJitter { get; set; }
     
 
-    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
+    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDevice, new()
     {
-        Driver = new T();
+        Device = new T();
         Window = korpiWindow;
         defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material");
-        Driver.Initialize();
+        Device.Initialize();
     }
 
 
     internal static void Shutdown()
     {
-        Driver.Shutdown();
+        Device.Shutdown();
     }
     
 
     internal static void UpdateViewport(int width, int height)
     {
-        Driver.UpdateViewport(0, 0, width, height);
+        Device.UpdateViewport(0, 0, width, height);
         Resolution = new Vector2(width, height);
     }
     
@@ -63,7 +63,7 @@ public static class Graphics
         if (color) flags |= ClearFlags.Color;
         if (depth) flags |= ClearFlags.Depth;
         if (stencil) flags |= ClearFlags.Stencil;
-        Driver.Clear(r, g, b, a, flags);
+        Device.Clear(r, g, b, a, flags);
     }
 
 
@@ -78,7 +78,7 @@ public static class Graphics
         Clear();
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
-        Driver.SetState(new RasterizerState(), true);
+        Device.SetState(new RasterizerState(), true);
     }
 
 
@@ -105,7 +105,7 @@ public static class Graphics
         if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
-        if (Driver.CurrentProgram == null)
+        if (Device.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
         
         oldCamRelativeTransform ??= camRelativeTransform;
@@ -162,7 +162,7 @@ public static class Graphics
         material.SetKeyword("HAS_TANGENTS", mesh.HasVertexTangents);
 
         // All material uniforms have been assigned; it's time to buffer them
-        material.ApplyPropertyBlock(Driver.CurrentProgram);
+        material.ApplyPropertyBlock(Device.CurrentProgram);
 
         DrawMeshNowDirect(mesh);
     }
@@ -173,16 +173,16 @@ public static class Graphics
         if (Camera.RenderingCamera == null)
             throw new Exception("DrawMeshNow must be called during a rendering context!");
         
-        if (Driver.CurrentProgram == null)
+        if (Device.CurrentProgram == null)
             throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         mesh.UploadMeshData();
 
         unsafe
         {
-            Driver.BindVertexArray(mesh.VertexArrayObject);
-            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
-            Driver.BindVertexArray(null);
+            Device.BindVertexArray(mesh.VertexArrayObject);
+            Device.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
+            Device.BindVertexArray(null);
         }
     }
 
@@ -238,15 +238,15 @@ public static class Graphics
     /// <param name="destination">The destination render texture.</param>
     internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
     {
-        Driver.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
+        Device.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
         
         if(destination != null)
-            Driver.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
+            Device.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
 
-        Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
+        Device.BlitFramebuffer(0, 0, source.Width, source.Height,
             0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
             ClearFlags.Depth, BlitFilter.Nearest
         );
-        Driver.UnbindFramebuffer();
+        Device.UnbindFramebuffer();
     }
 }

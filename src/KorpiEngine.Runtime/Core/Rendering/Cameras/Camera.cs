@@ -212,13 +212,13 @@ public sealed class Camera : EntityComponent
     private void GeometryPassWireframe()
     {
         // Set the wireframe rendering mode
-        Graphics.Driver.SetWireframeMode(true);
+        Graphics.Device.SetWireframeMode(true);
 
         // Render all meshes in wireframe mode
         GeometryPass();
 
         // Reset the wireframe rendering mode
-        Graphics.Driver.SetWireframeMode(false);
+        Graphics.Device.SetWireframeMode(false);
     }
     
     

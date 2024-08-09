@@ -21,19 +21,19 @@ public sealed class TextureCubemap : Texture
             throw new ArgumentOutOfRangeException(nameof(size), size, $"Cubemap size must be in the range (0, {SystemInfo.MaxCubeMapTextureSize}]");
 
         Size = size;
-        Graphics.Driver.SetWrapS(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetWrapT(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetWrapR(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Graphics.Device.SetWrapS(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetWrapT(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetWrapR(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
 
         unsafe
         {
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, (void*)0);
         }
     }
 
@@ -52,7 +52,7 @@ public sealed class TextureCubemap : Texture
         ValidateCubemapFace(face);
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-        Graphics.Driver.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+        Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
     }
 
 
@@ -75,7 +75,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
         }
     }
 
@@ -100,7 +100,7 @@ public sealed class TextureCubemap : Texture
     public unsafe void GetDataPtr(CubemapFace face, void* ptr)
     {
         ValidateCubemapFace(face);
-        Graphics.Driver.GetTexImage(Handle, 0, ptr);
+        Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
 
 
@@ -119,7 +119,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, ptr);
         }
     }
 
@@ -132,9 +132,9 @@ public sealed class TextureCubemap : Texture
     /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate.</param>
     public void SetWrapModes(TextureWrap sWrapMode, TextureWrap tWrapMode, TextureWrap rWrapMode)
     {
-        Graphics.Driver.SetWrapS(Handle, sWrapMode);
-        Graphics.Driver.SetWrapT(Handle, tWrapMode);
-        Graphics.Driver.SetWrapR(Handle, rWrapMode);
+        Graphics.Device.SetWrapS(Handle, sWrapMode);
+        Graphics.Device.SetWrapT(Handle, tWrapMode);
+        Graphics.Device.SetWrapR(Handle, rWrapMode);
     }
 
 

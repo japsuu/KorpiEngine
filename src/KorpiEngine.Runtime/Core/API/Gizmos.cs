@@ -140,8 +140,8 @@ public static class Gizmos
         gizmosMat.SetPass(0, true);
         
         // Set raster state overrides
-        Graphics.Driver.SetEnableDepthTest(enableDepthTest);
-        Graphics.Driver.SetEnableDepthWrite(enableDepthTest);
+        Graphics.Device.SetEnableDepthTest(enableDepthTest);
+        Graphics.Device.SetEnableDepthWrite(enableDepthTest);
         
         lineBatch.Draw();
     }

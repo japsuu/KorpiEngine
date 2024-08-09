@@ -24,7 +24,7 @@ public sealed class Texture2DArray : Texture
     {
         RecreateImage(width, height, depth); //this also binds the texture
 
-        Graphics.Driver.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Graphics.Device.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
     }
 
 
@@ -42,7 +42,7 @@ public sealed class Texture2DArray : Texture
     {
         ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
-        Graphics.Driver.TexSubImage3D(Handle, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, ptr);
+        Graphics.Device.TexSubImage3D(Handle, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, ptr);
     }
 
 
@@ -65,7 +65,7 @@ public sealed class Texture2DArray : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.TexSubImage3D(Handle, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, ptr);
+            Graphics.Device.TexSubImage3D(Handle, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, ptr);
         }
     }
 
@@ -88,7 +88,7 @@ public sealed class Texture2DArray : Texture
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
     public unsafe void GetDataPtr(void* ptr)
     {
-        Graphics.Driver.GetTexImage(Handle, 0, ptr);
+        Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
 
 
@@ -103,7 +103,7 @@ public sealed class Texture2DArray : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, ptr);
         }
     }
 
@@ -115,8 +115,8 @@ public sealed class Texture2DArray : Texture
     /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate.</param>
     public void SetWrapModes(TextureWrap sWrapMode, TextureWrap tWrapMode)
     {
-        Graphics.Driver.SetWrapS(Handle, sWrapMode);
-        Graphics.Driver.SetWrapT(Handle, tWrapMode);
+        Graphics.Device.SetWrapS(Handle, sWrapMode);
+        Graphics.Device.SetWrapT(Handle, tWrapMode);
     }
 
 
@@ -144,7 +144,7 @@ public sealed class Texture2DArray : Texture
         Height = height;
         Depth = depth;
 
-        Graphics.Driver.TexImage3D(Handle, 0, width, height, depth, 0, (void*)0);
+        Graphics.Device.TexImage3D(Handle, 0, width, height, depth, 0, (void*)0);
     }
 
 
