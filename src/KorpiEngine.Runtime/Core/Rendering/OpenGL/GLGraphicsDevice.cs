@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Xml.Xsl;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.Rendering;
@@ -27,6 +28,9 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     private bool _depthTest = true;
     private bool _depthWrite = true;
     private DepthMode _depthMode = DepthMode.LessOrEqual;
+    
+    private bool _scissorTest = false;
+    private int _scissorLeft, _scissorBottom, _scissorWidth, _scissorHeight, _scissorIndex;
 
     private bool _doBlend = true;
     private BlendType _blendSrc = BlendType.SrcAlpha;
@@ -79,7 +83,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
             GL.DepthFunc((DepthFunction)state.DepthMode);
             _depthMode = state.DepthMode;
         }
-
+        
         SetEnableBlending(state.EnableBlend, force);
 
         if (_blendSrc != state.BlendSrc || _blendDst != state.BlendDst || force)
@@ -161,6 +165,32 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
             GL.Disable(EnableCap.CullFace);
         
         _doCull = enable;
+    }
+    
+    
+    public override void SetEnableScissorTest(bool enable, bool force = false)
+    {
+        if (_scissorTest == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.ScissorTest);
+        else
+            GL.Disable(EnableCap.ScissorTest);
+        
+        _scissorTest = enable;
+    }
+
+
+    public override void SetScissorRect(int index, int left, int bottom, int width, int height)
+    {
+        GL.ScissorIndexed(index, left, bottom, width, height);
+        
+        _scissorLeft = left;
+        _scissorBottom = bottom;
+        _scissorWidth = width;
+        _scissorHeight = height;
+        _scissorIndex = index;
     }
 
 

@@ -45,6 +45,8 @@ internal abstract class GraphicsDevice
     public abstract void SetEnableDepthWrite(bool enable, bool force = false);
     public abstract void SetEnableBlending(bool enable, bool force = false);
     public abstract void SetEnableCulling(bool enable, bool force = false);
+    public abstract void SetEnableScissorTest(bool enable, bool force = false);
+    public abstract void SetScissorRect(int index, int left, int bottom, int width, int height);
     
     public abstract RasterizerState GetState();
 
