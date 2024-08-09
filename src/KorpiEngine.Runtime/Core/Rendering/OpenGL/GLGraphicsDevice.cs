@@ -230,10 +230,17 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, int offsetInBytes, T[] data)
     {
-        fixed (void* dat = data)
+        fixed (void* ptr = data)
         {
-            (buffer as GLBuffer)!.Update(offsetInBytes, data.Length * sizeof(T), dat);
+            int sizeInBytes = data.Length * sizeof(T);
+            UpdateBuffer(buffer, offsetInBytes, sizeInBytes, ptr);
         }
+    }
+
+
+    public override void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, void* data)
+    {
+        (buffer as GLBuffer)!.Update(offsetInBytes, sizeInBytes, data);
     }
 
 
