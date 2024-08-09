@@ -20,10 +20,10 @@ public sealed class DirectionalLight : EntityComponent
 
     public Resolution ShadowResolution = Resolution._1024;
 
-    public Color Color = Color.White;
+    public Color Color = Color.Red;
     public float Intensity = 8f;
-    public float QualitySamples = 16;
-    public float BlockerSamples = 16;
+    public int QualitySamples = 16;
+    public int BlockerSamples = 16;
     public float ShadowDistance = 50f;
     public float ShadowRadius = 0.02f;
     public float ShadowPenumbra = 80f;
@@ -52,29 +52,24 @@ public sealed class DirectionalLight : EntityComponent
         _lightMat.SetTexture("_GAlbedoAO", Camera.RenderingCamera.GBuffer!.AlbedoAO);
         _lightMat.SetTexture("_GNormalMetallic", Camera.RenderingCamera.GBuffer.NormalMetallic);
         _lightMat.SetTexture("_GPositionRoughness", Camera.RenderingCamera.GBuffer.PositionRoughness);
+        
+        _lightMat.SetKeyword("CASTSHADOWS", CastShadows);
 
         if (CastShadows)
         {
-            _lightMat.EnableKeyword("CASTSHADOWS");
             _lightMat.SetTexture("_ShadowMap", _shadowMap!.InternalDepth!);
 
-            Matrix4x4.Invert(Graphics.ViewMatrix, out Matrix4x4 viewInverse);
-
-            _lightMat.SetMatrix("_MatCamViewInverse", viewInverse);
+            _lightMat.SetMatrix("_MatCamViewInverse", Graphics.InverseViewMatrix);
             _lightMat.SetMatrix("_MatShadowView", Graphics.DepthViewMatrix);
             _lightMat.SetMatrix("_MatShadowSpace", _depthMVP);
 
             _lightMat.SetFloat("_Radius", ShadowRadius);
             _lightMat.SetFloat("_Penumbra", ShadowPenumbra);
             _lightMat.SetFloat("_MinimumPenumbra", ShadowMinimumPenumbra);
-            _lightMat.SetInt("_QualitySamples", (int)QualitySamples);
-            _lightMat.SetInt("_BlockerSamples", (int)BlockerSamples);
+            _lightMat.SetInt("_QualitySamples", QualitySamples);
+            _lightMat.SetInt("_BlockerSamples", BlockerSamples);
             _lightMat.SetFloat("_Bias", ShadowBias);
             _lightMat.SetFloat("_NormalBias", ShadowNormalBias);
-        }
-        else
-        {
-            _lightMat.DisableKeyword("CASTSHADOWS");
         }
 
         Graphics.Blit(_lightMat);
@@ -106,8 +101,6 @@ public sealed class DirectionalLight : EntityComponent
             _depthMVP = Matrix4x4.Identity;
             _depthMVP = Matrix4x4.Multiply(_depthMVP, Graphics.DepthViewMatrix);
             _depthMVP = Matrix4x4.Multiply(_depthMVP, Graphics.DepthProjectionMatrix);
-
-            //Graphics.MatDepth = depthMVP;
 
             _shadowMap.Begin();
             
