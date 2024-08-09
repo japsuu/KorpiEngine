@@ -47,7 +47,14 @@ internal sealed class GLBuffer : GraphicsBuffer
     public unsafe void Update(int offsetInBytes, int sizeInBytes, void* data)
     {
         Bind();
-        GL.BufferSubData(Target, (IntPtr)offsetInBytes, (IntPtr)sizeInBytes, (IntPtr)data);
+        GL.BufferSubData(Target, offsetInBytes, sizeInBytes, (IntPtr)data);
+    }
+
+
+    public void Update(int offsetInBytes, int sizeInBytes, nint data)
+    {
+        Bind();
+        GL.BufferSubData(Target, offsetInBytes, sizeInBytes, data);
     }
 
 

@@ -244,6 +244,12 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
+    public override void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, nint data)
+    {
+        (buffer as GLBuffer)!.Update(offsetInBytes, sizeInBytes, data);
+    }
+
+
     public override void BindBuffer(GraphicsBuffer buffer)
     {
         if (buffer is GLBuffer glBuffer)

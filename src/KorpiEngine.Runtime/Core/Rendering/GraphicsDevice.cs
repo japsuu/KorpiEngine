@@ -68,6 +68,7 @@ internal abstract class GraphicsDevice
     /// <summary> Update the given buffer with the given data at the given offset in bytes. </summary>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, int offsetInBytes, T[] data) where T : unmanaged;
     public abstract unsafe void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, void* data);
+    public abstract void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, nint data);
 
     public abstract void BindBuffer(GraphicsBuffer buffer);
 
