@@ -7,9 +7,10 @@ internal sealed class GLBuffer : GraphicsBuffer
 {
     public readonly BufferType OriginalType;
     public readonly BufferTarget Target;
-    public readonly int SizeInBytes;
 
     private static readonly int[] BoundBuffers = new int[(int)BufferType.Count];
+    
+    internal override int SizeInBytes { get; }
 
 
     public unsafe GLBuffer(BufferType type, int sizeInBytes, void* data, bool dynamic) : base(GL.GenBuffer())
