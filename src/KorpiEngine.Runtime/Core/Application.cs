@@ -161,7 +161,6 @@ public static class Application
     {
         SceneManager.Render();
         imGuiController.Render();
-        ImGuiController.CheckGlError("End of frame");
     }
 
 
