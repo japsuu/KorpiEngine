@@ -20,7 +20,7 @@ public sealed class DirectionalLight : EntityComponent
         _4096 = 4096
     }
 
-    public Resolution ShadowResolution = Resolution._1024;
+    public Resolution ShadowResolution = Resolution._1024;  //TODO: Getter/setter that invalidates the shadowmap automatically.
 
     public Color Color = Color.Red;
     public float Intensity = 8f;
@@ -127,9 +127,15 @@ public sealed class DirectionalLight : EntityComponent
         }
         else
         {
-            _shadowMap?.DestroyImmediate();
-            _shadowMap = null;
+            InvalidateShadowmap();
         }
+    }
+
+
+    public void InvalidateShadowmap()
+    {
+        _shadowMap?.DestroyImmediate();
+        _shadowMap = null;
     }
 }
 
@@ -157,7 +163,10 @@ internal class DirectionalLightEditor(DirectionalLight target) : ImGuiWindow(tru
             {
                 foreach (DirectionalLight.Resolution e in Enum.GetValues<DirectionalLight.Resolution>())
                     if (ImGui.Selectable(e.ToString(), target.ShadowResolution.ToString() == e.ToString()))
+                    {
                         target.ShadowResolution = e;
+                        target.InvalidateShadowmap();
+                    }
 
                 ImGui.EndCombo();
             }
