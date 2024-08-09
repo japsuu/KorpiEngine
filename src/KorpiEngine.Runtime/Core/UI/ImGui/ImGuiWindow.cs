@@ -6,8 +6,8 @@ namespace KorpiEngine.Core.UI.ImGui;
 public abstract class ImGuiWindow : IDisposable
 {
     protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ImGuiWindow));
-    
-    protected ImGuiWindowFlags Flags = ImGuiWindowFlags.None;
+
+    protected virtual ImGuiWindowFlags Flags { get; } = ImGuiWindowFlags.None;
     
     public abstract string Title { get; }
     
@@ -31,7 +31,7 @@ public abstract class ImGuiWindow : IDisposable
     
     public void Update()
     {
-        // Only update if the window is visible and the time since the last update exceeds the update rate.
+        // Only update if the window is visible.
         if (!IsVisible || _isDestroyed)
             return;
         
