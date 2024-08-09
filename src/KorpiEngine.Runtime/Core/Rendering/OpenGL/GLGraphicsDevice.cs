@@ -214,7 +214,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     {
         fixed (void* dat = data)
         {
-            return new GLBuffer(bufferType, data.Length * sizeof(T), dat, dynamic);
+            return new GLBuffer(bufferType, data.Length * sizeof(T), (nint)dat, dynamic);
         }
     }
 
@@ -223,7 +223,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     {
         fixed (void* dat = data)
         {
-            (buffer as GLBuffer)!.Set(data.Length * sizeof(T), dat, dynamic);
+            (buffer as GLBuffer)!.Set(data.Length * sizeof(T), (nint)dat, dynamic);
         }
     }
 
@@ -233,14 +233,8 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         fixed (void* ptr = data)
         {
             int sizeInBytes = data.Length * sizeof(T);
-            UpdateBuffer(buffer, offsetInBytes, sizeInBytes, ptr);
+            UpdateBuffer(buffer, offsetInBytes, sizeInBytes, (nint)ptr);
         }
-    }
-
-
-    public override void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, void* data)
-    {
-        (buffer as GLBuffer)!.Update(offsetInBytes, sizeInBytes, data);
     }
 
 
@@ -528,31 +522,31 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
     public override void GenerateMipmap(GraphicsTexture texture) => (texture as GLTexture)!.GenerateMipmap();
 
-    public override void GetTexImage(GraphicsTexture texture, int mipLevel, void* data) => (texture as GLTexture)!.GetTexImage(mipLevel, data);
+    public override void GetTexImage(GraphicsTexture texture, int mipLevel, nint data) => (texture as GLTexture)!.GetTexImage(mipLevel, data);
 
 
-    public override void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, void* data) =>
+    public override void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, nint data) =>
         (texture as GLTexture)!.TexImage2D((texture as GLTexture)!.Target, mipLevel, width, height, border, data);
 
 
-    public override void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, void* data) =>
+    public override void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, nint data) =>
         (texture as GLTexture)!.TexImage2D((TextureTarget)face, mipLevel, width, height, border, data);
 
 
-    public override void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, void* data) =>
+    public override void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, nint data) =>
         (texture as GLTexture)!.TexImage3D((texture as GLTexture)!.Target, mipLevel, width, height, depth, border, data);
 
 
-    public override void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, void* data) =>
+    public override void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, nint data) =>
         (texture as GLTexture)!.TexSubImage2D((texture as GLTexture)!.Target, mipLevel, xOffset, yOffset, width, height, data);
 
 
-    public override void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, void* data) =>
+    public override void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, nint data) =>
         (texture as GLTexture)!.TexSubImage2D((TextureTarget)face, mipLevel, xOffset, yOffset, width, height, data);
 
 
     public override void TexSubImage3D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth,
-        void* data) =>
+        nint data) =>
         (texture as GLTexture)!.TexSubImage3D((texture as GLTexture)!.Target, mipLevel, xOffset, yOffset, zOffset, width, height, depth, data);
 
     #endregion
@@ -578,7 +572,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
-    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* indexOffset)
+    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, nint indexOffset)
     {
         PType mode = triangles switch
         {
@@ -592,7 +586,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
             Topology.Quads => PType.Quads,
             _ => throw new ArgumentOutOfRangeException(nameof(triangles), triangles, null)
         };
-        GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, (IntPtr)indexOffset);
+        GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, indexOffset);
     }
 
     #endregion

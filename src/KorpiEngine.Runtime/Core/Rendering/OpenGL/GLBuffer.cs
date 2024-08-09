@@ -13,7 +13,7 @@ internal sealed class GLBuffer : GraphicsBuffer
     internal override int SizeInBytes { get; }
 
 
-    public unsafe GLBuffer(BufferType type, int sizeInBytes, void* data, bool dynamic) : base(GL.GenBuffer())
+    public unsafe GLBuffer(BufferType type, int sizeInBytes, nint data, bool dynamic) : base(GL.GenBuffer())
     {
         if (type == BufferType.Count)
             throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -36,18 +36,11 @@ internal sealed class GLBuffer : GraphicsBuffer
     }
 
 
-    public unsafe void Set(int sizeInBytes, void* data, bool dynamic)
+    public void Set(int sizeInBytes, nint data, bool dynamic)
     {
         Bind();
         BufferUsageHint usage = dynamic ? BufferUsageHint.DynamicDraw : BufferUsageHint.StaticDraw;
-        GL.BufferData(Target, sizeInBytes, (IntPtr)data, usage);
-    }
-
-
-    public unsafe void Update(int offsetInBytes, int sizeInBytes, void* data)
-    {
-        Bind();
-        GL.BufferSubData(Target, offsetInBytes, sizeInBytes, (IntPtr)data);
+        GL.BufferData(Target, sizeInBytes, data, usage);
     }
 
 

@@ -67,7 +67,6 @@ internal abstract class GraphicsDevice
 
     /// <summary> Update the given buffer with the given data at the given offset in bytes. </summary>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, int offsetInBytes, T[] data) where T : unmanaged;
-    public abstract unsafe void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, void* data);
     public abstract void UpdateBuffer(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, nint data);
 
     public abstract void BindBuffer(GraphicsBuffer buffer);
@@ -134,14 +133,14 @@ internal abstract class GraphicsDevice
     public abstract void SetTextureFilters(GraphicsTexture texture, TextureMin min, TextureMag mag);
     public abstract void GenerateMipmap(GraphicsTexture texture);
 
-    public abstract unsafe void GetTexImage(GraphicsTexture texture, int mipLevel, void* data);
+    public abstract void GetTexImage(GraphicsTexture texture, int mipLevel, nint data);
 
-    public abstract unsafe void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, void* data);
-    public abstract unsafe void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, void* data);
-    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, void* data);
-    public abstract unsafe void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, void* data);
-    public abstract unsafe void TexSubImage3D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, void* data);
-    public abstract unsafe void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, void* data);
+    public abstract void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, nint data);
+    public abstract void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, nint data);
+    public abstract void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, nint data);
+    public abstract void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, nint data);
+    public abstract void TexSubImage3D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, nint data);
+    public abstract void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, nint data);
 
     #endregion
 
@@ -149,7 +148,7 @@ internal abstract class GraphicsDevice
     #region Drawing
 
     public abstract void DrawArrays(Topology primitiveType, int startIndex, int count);
-    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* indexOffset);
+    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, nint indexOffset);
 
     #endregion
 }

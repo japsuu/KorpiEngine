@@ -28,12 +28,12 @@ public sealed class TextureCubemap : Texture
 
         unsafe
         {
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, (void*)0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, (void*)0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, (void*)0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, (void*)0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, (void*)0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, 0);
         }
     }
 
@@ -47,7 +47,7 @@ public sealed class TextureCubemap : Texture
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(CubemapFace face, void* ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public void SetDataPtr(CubemapFace face, nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateCubemapFace(face);
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
@@ -75,7 +75,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, (nint)ptr);
         }
     }
 
@@ -97,7 +97,7 @@ public sealed class TextureCubemap : Texture
     /// </summary>
     /// <param name="face">The face of the cubemap to set data for.</param>
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
-    public unsafe void GetDataPtr(CubemapFace face, void* ptr)
+    public void GetDataPtr(CubemapFace face, nint ptr)
     {
         ValidateCubemapFace(face);
         Graphics.Device.GetTexImage(Handle, 0, ptr);
@@ -110,7 +110,6 @@ public sealed class TextureCubemap : Texture
     /// <typeparam name="T">A struct with the same format as this <see cref="TextureCubemap"/>'s pixels.</typeparam>
     /// <param name="face">The face of the <see cref="TextureCubemap"/> to set data for.</param>
     /// <param name="data">The array in which to write the texture data.</param>
-    /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
     public unsafe void GetData<T>(CubemapFace face, Span<T> data) where T : unmanaged
     {
         ValidateCubemapFace(face);
@@ -119,7 +118,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Device.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, (nint)ptr);
         }
     }
 

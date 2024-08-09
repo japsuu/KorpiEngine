@@ -64,7 +64,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(void* ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public unsafe void SetDataPtr(nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
@@ -89,7 +89,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, (nint)ptr);
         }
     }
 
@@ -109,7 +109,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// Gets the data of the entire <see cref="Texture2D"/>.
     /// </summary>
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
-    public unsafe void GetDataPtr(void* ptr)
+    public void GetDataPtr(nint ptr)
     {
         Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
@@ -127,7 +127,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Device.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, (nint)ptr);
         }
     }
 
@@ -211,7 +211,7 @@ public sealed class Texture2D : Texture, ISerializable
         Width = width;
         Height = height;
 
-        Graphics.Device.TexImage2D(Handle, 0, Width, Height, 0, (void*)0);
+        Graphics.Device.TexImage2D(Handle, 0, Width, Height, 0, 0);
     }
 
 

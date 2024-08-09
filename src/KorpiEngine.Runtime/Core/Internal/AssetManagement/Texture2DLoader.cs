@@ -29,10 +29,7 @@ public static class Texture2DLoader
         Texture2D texture = new(image.Width, image.Height, false, format);
         try
         {
-            unsafe
-            {
-                Graphics.Device.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, (void*)pixels);
-            }
+            Graphics.Device.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, pixels);
 
             if (generateMipmaps)
                 texture.GenerateMipmaps();
