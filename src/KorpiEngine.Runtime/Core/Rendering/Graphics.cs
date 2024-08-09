@@ -178,12 +178,9 @@ public static class Graphics
 
         mesh.UploadMeshData();
 
-        unsafe
-        {
-            Device.BindVertexArray(mesh.VertexArrayObject);
-            Device.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, 0);
-            Device.BindVertexArray(null);
-        }
+        Device.BindVertexArray(mesh.VertexArrayObject);
+        Device.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, 0);
+        Device.BindVertexArray(null);
     }
 
 
