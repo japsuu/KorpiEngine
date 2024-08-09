@@ -147,8 +147,8 @@ public static class Application
         Time.Update(deltaTime, fixedAlpha);
         Input.Update(window.KeyboardState, window.MouseState);
         
-        ImGuiWindowManager.Update();
         imGuiController.Update();
+        ImGuiWindowManager.Update();
         
         SceneManager.Update();
         
