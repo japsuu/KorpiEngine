@@ -113,7 +113,7 @@ public abstract class Scene : IDisposable
     {
         Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
-        dlComp.Transform.LocalEulerAngles = new Vector3(50, 225, 0);
+        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
