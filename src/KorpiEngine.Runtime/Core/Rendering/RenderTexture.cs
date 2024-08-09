@@ -89,6 +89,7 @@ public sealed class RenderTexture : Resource
     {
         Graphics.Driver.UnbindFramebuffer();
         Graphics.UpdateViewport(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
+#warning Possible bug: FrameBufferSize is not set to the window size
         Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
 
