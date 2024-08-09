@@ -150,7 +150,8 @@ internal abstract class GraphicsDevice
     #region Drawing
 
     public abstract void DrawArrays(Topology primitiveType, int startIndex, int count);
-    public abstract unsafe void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, nint indexOffset);
+    public abstract void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, int indexOffset);
+    public abstract void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, int indexOffset, int vertexOffset);
 
     #endregion
 }

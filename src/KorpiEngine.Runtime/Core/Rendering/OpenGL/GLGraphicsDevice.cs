@@ -602,7 +602,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
-    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, nint indexOffset)
+    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, int indexOffset)
     {
         PType mode = triangles switch
         {
@@ -617,6 +617,24 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
             _ => throw new ArgumentOutOfRangeException(nameof(triangles), triangles, null)
         };
         GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, indexOffset);
+    }
+
+
+    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, int indexOffset, int vertexOffset)
+    {
+        PType mode = triangles switch
+        {
+            Topology.Points => PType.Points,
+            Topology.Lines => PType.Lines,
+            Topology.LineLoop => PType.LineLoop,
+            Topology.LineStrip => PType.LineStrip,
+            Topology.Triangles => PType.Triangles,
+            Topology.TriangleStrip => PType.TriangleStrip,
+            Topology.TriangleFan => PType.TriangleFan,
+            Topology.Quads => PType.Quads,
+            _ => throw new ArgumentOutOfRangeException(nameof(triangles), triangles, null)
+        };
+        GL.DrawElementsBaseVertex(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, indexOffset, vertexOffset);
     }
 
     #endregion
