@@ -10,8 +10,6 @@ namespace KorpiEngine.Core.Rendering.Lighting;
 
 public sealed class DirectionalLight : EntityComponent
 {
-    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
-
     public enum Resolution
     {
         _512 = 512,
@@ -19,36 +17,41 @@ public sealed class DirectionalLight : EntityComponent
         _2048 = 2048,
         _4096 = 4096
     }
+    
+    public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Resolution ShadowResolution = Resolution._1024;  //TODO: Getter/setter that invalidates the shadowmap automatically.
+    public Resolution ShadowResolution
+    {
+        get => _shadowResolution;
+        set
+        {
+            _shadowResolution = value;
+            InvalidateShadowmap();
+        }
+    }
 
     public Color Color = Color.Red;
     public float Intensity = 8f;
     public int QualitySamples = 16;
     public int BlockerSamples = 16;
+    public bool CastShadows = true;
     public float ShadowDistance = 50f;
     public float ShadowRadius = 0.02f;
     public float ShadowPenumbra = 80f;
     public float ShadowMinimumPenumbra = 0.02f;
     public float ShadowBias = 0.00004f;
     public float ShadowNormalBias = 0.02f;
-    public bool CastShadows = true;
 
+    private Resolution _shadowResolution = Resolution._1024;
     private Material? _lightMat;
     private RenderTexture? _shadowMap;
     private Matrix4x4 _depthMVP;
-    private DirectionalLightEditor _editor;
+    private DirectionalLightEditor? _editor;
 
     
     protected override void OnStart()
     {
         _editor = new DirectionalLightEditor(this);
-    }
-
-
-    protected override void OnDestroy()
-    {
-        _editor.Destroy();
     }
 
 
@@ -139,46 +142,75 @@ public sealed class DirectionalLight : EntityComponent
     }
 }
 
-internal class DirectionalLightEditor(DirectionalLight target) : ImGuiWindow(true)
+internal class DirectionalLightEditor(DirectionalLight target) : EntityComponentEditor(target)
 {
-    public override string Title => "Directional Light Editor";
-
-
-    protected override void DrawContent()
+    protected override void DrawEditor()
     {
         ImGui.Text("Color");
         System.Numerics.Vector4 color = new(target.Color.R, target.Color.G, target.Color.B, target.Color.A);
         if (ImGui.ColorEdit4("##Color", ref color))
             target.Color = new Color(color);
         
-        ImGui.DragFloat("Intensity", ref target.Intensity, 0.5f, 0.5f, 50f);
+        float intensity = target.Intensity;
+        if (ImGui.DragFloat("Intensity", ref intensity, 0.5f, 0.5f, 50f))
+            target.Intensity = intensity;
         
         ImGui.Separator();
         
-        ImGui.Checkbox("Cast Shadows", ref target.CastShadows);
-        
-        if (target.CastShadows)
-        {
-            if (ImGui.BeginCombo("Shadow Resolution", target.ShadowResolution.ToString()))
-            {
-                foreach (DirectionalLight.Resolution e in Enum.GetValues<DirectionalLight.Resolution>())
-                    if (ImGui.Selectable(e.ToString(), target.ShadowResolution.ToString() == e.ToString()))
-                    {
-                        target.ShadowResolution = e;
-                        target.InvalidateShadowmap();
-                    }
+        bool castShadows = target.CastShadows;
+        if (ImGui.Checkbox("Cast Shadows", ref castShadows))
+            target.CastShadows = castShadows;
 
-                ImGui.EndCombo();
+        if (target.CastShadows)
+            DrawShadowSettings();
+    }
+
+
+    private void DrawShadowSettings()
+    {
+        if (ImGui.BeginCombo("Shadow Resolution", target.ShadowResolution.ToString()))
+        {
+            foreach (DirectionalLight.Resolution e in Enum.GetValues<DirectionalLight.Resolution>())
+            {
+                if (!ImGui.Selectable(e.ToString(), target.ShadowResolution.ToString() == e.ToString()))
+                    continue;
+
+                target.ShadowResolution = e;
             }
-            
-            ImGui.DragFloat("Shadow Distance", ref target.ShadowDistance, 1f, 1f, 100f);
-            ImGui.DragFloat("Shadow Radius", ref target.ShadowRadius, 0.001f, 0.001f, 0.1f);
-            ImGui.DragFloat("Shadow Penumbra", ref target.ShadowPenumbra, 0.1f, 0.1f, 200f);
-            ImGui.DragFloat("Shadow Minimum Penumbra", ref target.ShadowMinimumPenumbra, 0.001f, 0.001f, 0.1f);
-            ImGui.DragFloat("Shadow Bias", ref target.ShadowBias, 0.00001f, 0.00001f, 0.1f);
-            ImGui.DragFloat("Shadow Normal Bias", ref target.ShadowNormalBias, 0.001f, 0.001f, 0.1f);
-            ImGui.DragInt("Quality Samples", ref target.QualitySamples, 1, 1, 64);
-            ImGui.DragInt("Blocker Samples", ref target.BlockerSamples, 1, 1, 64);
+
+            ImGui.EndCombo();
         }
+
+        float shadowDistance = target.ShadowDistance;
+        if (ImGui.DragFloat("Shadow Distance", ref shadowDistance, 1f, 1f, 100f))
+            target.ShadowDistance = shadowDistance;
+
+        float shadowRadius = target.ShadowRadius;
+        if (ImGui.DragFloat("Shadow Radius", ref shadowRadius, 0.001f, 0.001f, 0.1f))
+            target.ShadowRadius = shadowRadius;
+
+        float shadowPenumbra = target.ShadowPenumbra;
+        if (ImGui.DragFloat("Shadow Penumbra", ref shadowPenumbra, 0.1f, 0.1f, 200f))
+            target.ShadowPenumbra = shadowPenumbra;
+
+        float shadowMinimumPenumbra = target.ShadowMinimumPenumbra;
+        if (ImGui.DragFloat("Shadow Minimum Penumbra", ref shadowMinimumPenumbra, 0.001f, 0.001f, 0.1f))
+            target.ShadowMinimumPenumbra = shadowMinimumPenumbra;
+
+        float shadowBias = target.ShadowBias;
+        if (ImGui.DragFloat("Shadow Bias", ref shadowBias, 0.00001f, 0.00001f, 0.1f))
+            target.ShadowBias = shadowBias;
+
+        float shadowNormalBias = target.ShadowNormalBias;
+        if (ImGui.DragFloat("Shadow Normal Bias", ref shadowNormalBias, 0.001f, 0.001f, 0.1f))
+            target.ShadowNormalBias = shadowNormalBias;
+
+        int qualitySamples = target.QualitySamples;
+        if (ImGui.DragInt("Quality Samples", ref qualitySamples, 1, 1, 64))
+            target.QualitySamples = qualitySamples;
+
+        int blockerSamples = target.BlockerSamples;
+        if (ImGui.DragInt("Blocker Samples", ref blockerSamples, 1, 1, 64))
+            target.BlockerSamples = blockerSamples;
     }
 }
