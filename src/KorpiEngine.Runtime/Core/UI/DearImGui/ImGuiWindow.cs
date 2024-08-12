@@ -50,13 +50,15 @@ public abstract class ImGuiWindow : IDisposable
         if (_isDestroyed)
             return;
         
+        OnDestroy();
+        
         ImGuiWindowManager.UnregisterWindow(this);
         _isDestroyed = true;
     }
     
     
     protected virtual void PreUpdate() { }
-    protected virtual void OnDispose() { }
+    protected virtual void OnDestroy() { }
 
     
     protected abstract void DrawContent();
@@ -64,7 +66,6 @@ public abstract class ImGuiWindow : IDisposable
 
     public void Dispose()
     {
-        OnDispose();
         Destroy();
         GC.SuppressFinalize(this);
     }

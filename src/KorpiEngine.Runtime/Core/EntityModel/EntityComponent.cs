@@ -9,6 +9,8 @@ namespace KorpiEngine.Core.EntityModel;
 
 public abstract class EntityComponent
 {
+    public event Action? Destroying;
+    
     /// <summary>
     /// The unique identifier of this component.
     /// </summary>
@@ -134,6 +136,7 @@ public abstract class EntityComponent
 
     internal void Destroy()
     {
+        Destroying?.Invoke();
         Enabled = false;
         
         // OnDestroy is only called for components that have previously been active
