@@ -48,7 +48,7 @@ public static class ImGuiWindowManager
     }
 
 
-    internal static void Dispose()
+    internal static void DisposeWindows()
     {
         foreach (ImGuiWindow window in RegisteredWindows.Keys)
             window.Dispose();

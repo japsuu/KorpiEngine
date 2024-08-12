@@ -44,7 +44,14 @@ public abstract class Scene : IDisposable
 
 
     #region Public API
+    
+    public Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
+    }
 
+    
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
@@ -69,13 +76,6 @@ public abstract class Scene : IDisposable
     {
         return EntityScene.FindObjectOfType<T>();
     }
-    
-    
-    /*public void Instantiate<T>(T prefab) where T : Entity
-    {
-        Entity e = prefab.Clone();
-        EntityScene.AddEntity(e);
-    }*/
 
     #endregion
 
@@ -164,11 +164,4 @@ public abstract class Scene : IDisposable
     }
 
     #endregion
-    
-    
-    private Entity CreateEntity(string name)
-    {
-        Entity e = new(this, name);
-        return e;
-    }
 }

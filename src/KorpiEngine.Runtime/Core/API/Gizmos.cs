@@ -13,11 +13,10 @@ public static class Gizmos
     private static readonly List<(Gizmo, Matrix4x4)> GizmosList = new(100);
     private static PrimitiveBatch? lineBatch;
     private static Material? gizmosMat;
-    
-    internal static bool AllowCreation = false;
 
-    public static Matrix4x4 Matrix = Matrix4x4.Identity;
-    public static Color Color = DefaultColor;
+    internal static bool AllowCreation { get; set; } = false;
+    public static Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
+    public static Color Color { get; set; } = DefaultColor;
 
 
     public static void DrawLine(Vector3 from, Vector3 to)
@@ -115,7 +114,7 @@ public static class Gizmos
         gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.kshader"), "Gizmos Material");
         lineBatch ??= new PrimitiveBatch(Topology.Lines);
 
-        if (lineBatch.IsUploaded == false)
+        if (!lineBatch.IsUploaded)
         {
             foreach ((Gizmo, Matrix4x4) gizmo in GizmosList)
             {

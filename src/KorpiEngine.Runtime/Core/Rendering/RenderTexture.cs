@@ -30,7 +30,7 @@ public sealed class RenderTexture : Resource
     {
         TextureImageFormat[] textureFormats;
         if (numTextures < 0 || numTextures > SystemInfo.MaxFramebufferColorAttachments)
-            throw new Exception("Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
+            throw new ArgumentOutOfRangeException("Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
 
         Width = width;
         Height = height;
@@ -81,7 +81,6 @@ public sealed class RenderTexture : Resource
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         Graphics.Device.BindFramebuffer(FrameBuffer);
         Graphics.UpdateViewport(Width, Height);
-        Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
 
 
@@ -89,8 +88,6 @@ public sealed class RenderTexture : Resource
     {
         Graphics.Device.UnbindFramebuffer();
         Graphics.UpdateViewport(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
-#warning Possible bug: FrameBufferSize is not set to the window size
-        Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
 
 
@@ -135,8 +132,8 @@ public sealed class RenderTexture : Resource
             int hash = 17;
             hash = hash * 23 + _width.GetHashCode();
             hash = hash * 23 + _height.GetHashCode();
-            foreach (TextureImageFormat format in _format)
-                hash = hash * 23 + ((int)format).GetHashCode();
+            foreach (TextureImageFormat texFormat in _format)
+                hash = hash * 23 + ((int)texFormat).GetHashCode();
             return hash;
         }
 

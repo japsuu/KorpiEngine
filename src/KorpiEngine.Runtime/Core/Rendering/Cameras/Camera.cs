@@ -36,41 +36,41 @@ public sealed class Camera : EntityComponent
     /// The render priority of this camera.
     /// The Camera with the highest render priority will be rendered last.
     /// </summary>
-    public short RenderPriority = 0;
+    public short RenderPriority { get; set; } = 0;
     
     /// <summary>
     /// The render resolution multiplier of this camera.
     /// </summary>
-    public float RenderResolution = 1f;
+    public float RenderResolution { get; set; } = 1f;
 
     /// <summary>
     /// The render target texture of this camera.
     /// If set, the camera will render to this texture.
     /// If not set, the camera will render to the screen.
     /// </summary>
-    public ResourceRef<RenderTexture> TargetTexture;
+    public ResourceRef<RenderTexture> TargetTexture { get; set; }
     
     /// <summary>
     /// The G-buffer of this camera.
     /// </summary>
     public GBuffer? GBuffer { get; private set; }
 
-    public CameraProjectionType ProjectionType = CameraProjectionType.Perspective;
-    public CameraClearType ClearType = CameraClearType.SolidColor;
-    public CameraClearFlags ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
-    public Color ClearColor = Color.Gray;
-    public CameraDebugDrawType DebugDrawType = CameraDebugDrawType.OFF;
+    public CameraProjectionType ProjectionType { get; set; } = CameraProjectionType.Perspective;
+    public CameraClearType ClearType { get; set; } = CameraClearType.SolidColor;
+    public CameraClearFlags ClearFlags { get; set; } = CameraClearFlags.Color | CameraClearFlags.Depth;
+    public Color ClearColor { get; set; } = Color.Gray;
+    public CameraDebugDrawType DebugDrawType { get; set; } = CameraDebugDrawType.OFF;
 
     /// <summary>
     /// The field of view (FOV degrees, the vertical angle of the camera view).
     /// </summary>
-    public float FOVDegrees = 60;
-    public float OrthographicSize = 0.5f;
+    public float FOVDegrees { get; set; } = 60;
+    public float OrthographicSize { get; set; } = 0.5f;
     
-    public float NearClipPlane = 0.01f;
-    public float FarClipPlane = 1000f;
+    public float NearClipPlane { get; set; } = 0.01f;
+    public float FarClipPlane { get; set; } = 1000f;
 
-    public bool ShowGizmos = true;
+    public bool ShowGizmos { get; set; } = true;
 
     /// <summary>
     /// The view matrix of this camera.
@@ -117,13 +117,15 @@ public sealed class Camera : EntityComponent
         
         Graphics.ViewMatrix = ViewMatrix;
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;
-        if (!Matrix4x4.Invert(Graphics.ViewMatrix, out Graphics.InverseViewMatrix))
+        if (!Matrix4x4.Invert(Graphics.ViewMatrix, out Matrix4x4 inverseViewMatrix))
             throw new InvalidOperationException("Failed to invert the View Matrix!");
+        Graphics.InverseViewMatrix = inverseViewMatrix;
         
         Graphics.ProjectionMatrix = GetProjectionMatrix(width, height);
         Graphics.OldProjectionMatrix = _oldProjection ?? Graphics.ProjectionMatrix;
-        if (!Matrix4x4.Invert(Graphics.ProjectionMatrix, out Graphics.InverseProjectionMatrix))
+        if (!Matrix4x4.Invert(Graphics.ProjectionMatrix, out Matrix4x4 inverseProjectionMatrix))
             throw new InvalidOperationException("Failed to invert the Projection Matrix!");
+        Graphics.InverseProjectionMatrix = inverseProjectionMatrix;
         
         _pipeline.Prepare(width, height);
         
@@ -233,8 +235,6 @@ public sealed class Camera : EntityComponent
     
     private void CheckGBuffer()
     {
-        // RenderResolution = Math.Clamp(RenderResolution, 0.1f, 4.0f);
-
         Vector2 renderSize = GetRenderTargetSize() * RenderResolution;
         
         if (GBuffer == null)

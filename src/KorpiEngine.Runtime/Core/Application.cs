@@ -170,7 +170,7 @@ public static class Application
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
         
-        ImGuiWindowManager.Dispose();
+        ImGuiWindowManager.DisposeWindows();
         imGuiController.Dispose();
         window.Dispose();
     }

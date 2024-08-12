@@ -12,7 +12,7 @@ internal abstract class EntityComponentEditor : ImGuiWindow
     private readonly string _componentType;
 
     
-    protected EntityComponentEditor(EntityComponent target) : base(true)
+    protected EntityComponentEditor(EntityComponent target) : base(false)
     {
         _target = target;
         _target.Destroying += Destroy;

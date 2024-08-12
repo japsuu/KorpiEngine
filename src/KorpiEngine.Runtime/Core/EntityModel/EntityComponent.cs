@@ -63,7 +63,7 @@ public abstract class EntityComponent
     }
 
 
-    private void Dispose()
+    private void Cleanup()
     {
         Entity = null!;
         _coroutines.Clear();
@@ -80,10 +80,10 @@ public abstract class EntityComponent
         if (HasAwoken)
             return;
         HasAwoken = true;
-        OnAwake();
+        ExecuteSafe(OnAwake);
 
         if (EnabledInHierarchy)
-            OnEnable();
+            ExecuteSafe(OnEnable);
     }
 
 
@@ -92,7 +92,7 @@ public abstract class EntityComponent
         if (HasStarted)
             return;
         HasStarted = true;
-        OnStart();
+        ExecuteSafe(OnStart);
     }
 
 
@@ -102,23 +102,23 @@ public abstract class EntityComponent
         {
             case EntityUpdateStage.PreUpdate:
                 UpdateCoroutines();
-                OnPreUpdate();
+                ExecuteSafe(OnPreUpdate);
                 break;
             case EntityUpdateStage.Update:
-                OnUpdate();
+                ExecuteSafe(OnUpdate);
                 break;
             case EntityUpdateStage.PostUpdate:
-                OnPostUpdate();
+                ExecuteSafe(OnPostUpdate);
                 UpdateEndOfFrameCoroutines();
                 break;
             case EntityUpdateStage.PreFixedUpdate:
-                OnPreFixedUpdate();
+                ExecuteSafe(OnPreFixedUpdate);
                 break;
             case EntityUpdateStage.FixedUpdate:
-                OnFixedUpdate();
+                ExecuteSafe(OnFixedUpdate);
                 break;
             case EntityUpdateStage.PostFixedUpdate:
-                OnPostFixedUpdate();
+                ExecuteSafe(OnPostFixedUpdate);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(stage), stage, null);
@@ -126,12 +126,12 @@ public abstract class EntityComponent
     }
     
     
-    internal void PreRender() => OnPreRender();
-    internal void RenderObject() => OnRenderObject();
-    internal void PostRender() => OnPostRender();
-    internal void RenderObjectDepth() => OnRenderDepth();
-    internal void DrawGizmos() => OnDrawGizmos();
-    internal void DrawDepthGizmos() => OnDrawDepthGizmos();
+    internal void PreRender() => ExecuteSafe(OnPreRender);
+    internal void RenderObject() => ExecuteSafe(OnRenderObject);
+    internal void PostRender() => ExecuteSafe(OnPostRender);
+    internal void RenderObjectDepth() => ExecuteSafe(OnRenderDepth);
+    internal void DrawGizmos() => ExecuteSafe(OnDrawGizmos);
+    internal void DrawDepthGizmos() => ExecuteSafe(OnDrawDepthGizmos);
 
 
     internal void Destroy()
@@ -141,9 +141,9 @@ public abstract class EntityComponent
         
         // OnDestroy is only called for components that have previously been active
         if (HasStarted)
-            OnDestroy();
+            ExecuteSafe(OnDestroy);
         
-        Dispose();
+        Cleanup();
     }
     
 
@@ -155,9 +155,9 @@ public abstract class EntityComponent
 
         _enabledInHierarchy = newState;
         if (newState)
-            OnEnable();
+            ExecuteSafe(OnEnable);
         else
-            OnDisable();
+            ExecuteSafe(OnDisable);
     }
 
 
@@ -254,7 +254,6 @@ public abstract class EntityComponent
 
     #region Overrideable behaviour methods
 
-    // NOTE: Calls to these could be wrapped in ExecuteSafe to catch exceptions and trim the stack trace.
     protected virtual void OnAwake() { }
     protected virtual void OnEnable() { }
     protected virtual void OnDisable() { }
@@ -284,7 +283,7 @@ public abstract class EntityComponent
     protected virtual void OnDestroy() { }
 
 
-    /*internal static void ExecuteSafe(Action action)
+    internal static void ExecuteSafe(Action action)
     {
         try
         {
@@ -292,9 +291,9 @@ public abstract class EntityComponent
         }
         catch (Exception e)
         {
-            Application.Logger.Error($"Error: {e.Message} \n StackTrace: {e.StackTrace}");
+            Application.Logger.Error($"Error: {e.Message} \n StackTrace: {e.StackTrace}", e);
         }
-    }*/
+    }
 
     #endregion
 }

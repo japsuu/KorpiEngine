@@ -30,28 +30,27 @@ public sealed class DirectionalLight : EntityComponent
         }
     }
 
-    public Color Color = Color.Red;
-    public float Intensity = 8f;
-    public int QualitySamples = 16;
-    public int BlockerSamples = 16;
-    public bool CastShadows = true;
-    public float ShadowDistance = 50f;
-    public float ShadowRadius = 0.02f;
-    public float ShadowPenumbra = 80f;
-    public float ShadowMinimumPenumbra = 0.02f;
-    public float ShadowBias = 0.00004f;
-    public float ShadowNormalBias = 0.02f;
+    public Color Color {get; set; } = Color.Red;
+    public float Intensity {get; set; } = 8f;
+    public int QualitySamples {get; set; } = 16;
+    public int BlockerSamples {get; set; } = 16;
+    public bool CastShadows {get; set; } = true;
+    public float ShadowDistance {get; set; } = 50f;
+    public float ShadowRadius {get; set; } = 0.02f;
+    public float ShadowPenumbra {get; set; } = 80f;
+    public float ShadowMinimumPenumbra {get; set; } = 0.02f;
+    public float ShadowBias {get; set; } = 0.00004f;
+    public float ShadowNormalBias {get; set; } = 0.02f;
 
     private Resolution _shadowResolution = Resolution._1024;
     private Material? _lightMat;
     private RenderTexture? _shadowMap;
     private Matrix4x4 _depthMVP;
-    private DirectionalLightEditor? _editor;
 
     
     protected override void OnStart()
     {
-        _editor = new DirectionalLightEditor(this);
+        ImGuiWindowManager.RegisterWindow(new DirectionalLightEditor(this));
     }
 
 

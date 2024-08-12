@@ -5,6 +5,7 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
 
@@ -15,24 +16,22 @@ public static class Graphics
     private static Material defaultBlitMaterial = null!;
     
     internal static KorpiWindow Window { get; private set; } = null!;
-    internal static GraphicsDevice Device = null!;
-    internal static Vector2i FrameBufferSize;
+    internal static GraphicsDevice Device { get; private set; } = null!;
     
-    public static Vector2 Resolution { get; private set; } = Vector2.Zero;
-    
-    public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 OldViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 InverseViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 OldProjectionMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
-    
-    public static Matrix4x4 DepthProjectionMatrix;
-    public static Matrix4x4 DepthViewMatrix;
-
-    public static bool UseJitter;
+    public static bool UseJitter { get; set; }
     public static Vector2 Jitter { get; set; }
     public static Vector2 PreviousJitter { get; set; }
+    public static Vector2 ViewportResolution { get; private set; } = Vector2.Zero;
+    
+    public static Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 DepthProjectionMatrix { get; set; }
+    public static Matrix4x4 DepthViewMatrix { get; set; }
     
 
     internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDevice, new()
@@ -53,7 +52,7 @@ public static class Graphics
     internal static void UpdateViewport(int width, int height)
     {
         Device.UpdateViewport(0, 0, width, height);
-        Resolution = new Vector2(width, height);
+        ViewportResolution = new Vector2(width, height);
     }
     
 
@@ -88,7 +87,7 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        
+        // Additional functionality before the frame ends
     }
 
 
@@ -103,10 +102,10 @@ public static class Graphics
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
         if (Camera.RenderingCamera == null)
-            throw new Exception("DrawMeshNow must be called during a rendering context!");
+            throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
         if (Device.CurrentProgram == null)
-            throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
+            throw new RenderStateException("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
         
         oldCamRelativeTransform ??= camRelativeTransform;
 
@@ -124,7 +123,7 @@ public static class Graphics
             material.SetVector("_PreviousJitter", Vector2.Zero, true);
         }
         
-        material.SetVector("_Resolution", Resolution, true);
+        material.SetVector("_Resolution", ViewportResolution, true);
         material.SetFloat("_Time", (float)Time.TotalTime, true);
         material.SetInt("_Frame", Time.TotalFrameCount, true);
         
@@ -171,10 +170,10 @@ public static class Graphics
     public static void DrawMeshNowDirect(Mesh mesh)
     {
         if (Camera.RenderingCamera == null)
-            throw new Exception("DrawMeshNow must be called during a rendering context!");
+            throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
         if (Device.CurrentProgram == null)
-            throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
+            throw new RenderStateException("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         mesh.UploadMeshData();
 
@@ -241,7 +240,7 @@ public static class Graphics
             Device.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
 
         Device.BlitFramebuffer(0, 0, source.Width, source.Height,
-            0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
+            0, 0, destination?.Width ?? (int)ViewportResolution.X, destination?.Height ?? (int)ViewportResolution.Y,
             ClearFlags.Depth, BlitFilter.Nearest
         );
         Device.UnbindFramebuffer();
