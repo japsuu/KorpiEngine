@@ -68,7 +68,14 @@ public class MaterialPropertyBlock
 
     public Matrix4x4 GetMatrix(string name) => _matrices.TryGetValue(name, out Matrix4x4 value) ? value : Matrix4x4.Identity;
 
-    public void SetTexture(string name, Texture2D value) => _textures[name] = value;
+    public void SetTexture(string name, Texture2D? value)
+    {
+        if (value == null)
+            _textures.Remove(name);
+        else
+            _textures[name] = value;
+    }
+
 
     public void SetTexture(string name, ResourceRef<Texture2D> value) => _textures[name] = value;
 
@@ -134,10 +141,14 @@ public class MaterialPropertyBlock
             ResourceRef<Texture2D> tex = item.Value;
             if (!tex.IsAvailable)
             {
-                Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available");
+                Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available (has it been destroyed?)");
                 
                 // Clear the texture slot
                 Graphics.Device.ClearUniformTexture(shader, item.Key, (int)texSlot);
+                
+                // Remove from the property block
+                propertyBlock.SetTexture(item.Key, null);
+                
                 continue;
             }
             
