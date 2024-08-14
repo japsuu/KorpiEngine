@@ -30,7 +30,7 @@ public sealed class DirectionalLight : EntityComponent
         }
     }
 
-    public Color Color { get; set; } = Color.Red;
+    public Color Color { get; set; } = Color.White;
     public float Intensity { get; set; } = 8f;
     public int QualitySamples { get; set; } = 16;
     public int BlockerSamples { get; set; } = 16;
