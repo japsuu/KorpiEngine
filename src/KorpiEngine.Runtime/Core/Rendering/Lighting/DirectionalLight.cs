@@ -32,15 +32,15 @@ public sealed class DirectionalLight : EntityComponent
 
     public Color Color { get; set; } = Color.White;
     public float Intensity { get; set; } = 8f;
-    public int QualitySamples { get; set; } = 16;
-    public int BlockerSamples { get; set; } = 16;
+    public int QualitySamples { get; set; } = 64;
+    public int BlockerSamples { get; set; } = 64;
     public bool CastShadows { get; set; } = true;
     public float ShadowDistance { get; set; } = 50f;
-    public float ShadowRadius { get; set; } = 0.02f;
+    public float ShadowRadius { get; set; } = 0.035f;
     public float ShadowPenumbra { get; set; } = 80f;
-    public float ShadowMinimumPenumbra { get; set; } = 0.02f;
+    public float ShadowMinimumPenumbra { get; set; } = 0.1f;
     public float ShadowBias { get; set; } = 0.001f;
-    public float ShadowNormalBias { get; set; } = 0.02f;
+    public float ShadowNormalBias { get; set; } = 0.1f;
 
     private Resolution _shadowResolution = Resolution._1024;
     private Material? _lightMat;
