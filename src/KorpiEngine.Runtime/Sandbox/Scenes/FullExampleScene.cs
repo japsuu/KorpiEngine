@@ -8,55 +8,25 @@ using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 using Random = KorpiEngine.Core.API.Random;
 
-namespace Sandbox;
+namespace Sandbox.Scenes;
 
-internal class DemoScene : Scene
+/// <summary>
+/// This scene demonstrates a variety of features, including
+/// entity creation, component addition, input handling.
+/// </summary>
+internal class FullExampleScene : Scene
 {
     protected override void OnLoad()
     {
-        Entity e;
-        Entity m;
-        
-        e = new Entity("Sphere 1");
-        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        ////m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m.SetParent(e);
-        e.Transform.Position = new Vector3(0, 6, 0);
-        
-        e = new Entity("Sphere 2");
-        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        ////m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m.SetParent(e);
-        e.Transform.Position = new Vector3(1, 4, -3);
-        e.Transform.Rotation = Quaternion.Euler(0, -45, 45);
-        
-        e = new Entity("Sphere 3");
-        m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
-        ////m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m.SetParent(e);
-        e.Transform.Position = new Vector3(-2, 4, -2);
-        
-        e = new Entity("Cube 1");
-        m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
-        ////m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m.SetParent(e);
-        e.Transform.Position = new Vector3(0, -1, -2);
-        e.Transform.Rotation = Quaternion.Euler(45, 45, 45);
-        
-        e = new Entity("Cube 2");
-        m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
-        ////m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
-        m.SetParent(e);
-        e.Transform.Position = new Vector3(0, -1, 2);
-        
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
-        /*for (int i = 0; i < 25; i++)
+        for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
-            //root.AddComponent<DemoOscillate>();
+            if (i % 2 == 0)
+                root.AddComponent<DemoOscillate>();
 
             // Create a sphere primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
@@ -75,45 +45,16 @@ internal class DemoScene : Scene
             // Create a cube primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Cube, "Cube model");
             model.SetParent(root);
+            
+            // Get the material of the mesh renderer component (provided by CreatePrimitive),
+            // and randomize the color
+            model.GetComponent<MeshRenderer>()!.MainColor = Random.ColorFullAlpha;
 
             // Move the root entity to a random position
             Vector2 randomPos = Random.InUnitCircle * 20;
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
-        }*/
-
-        /*// ----------------------------------------
-        // Creating a blue point light
-        
-        Entity blueLightEntity = new("Point Light");
-        PointLight blueLight = blueLightEntity.AddComponent<PointLight>();
-        blueLight.Color = Color.Blue;
-        blueLight.Radius = 10.0f;
-        blueLight.Intensity = 3.0f;
-        blueLightEntity.Transform.Position = new Vector3(0, 2, 0);
-
-        // ----------------------------------------
-        // Creating a red point light
-        
-        Entity redLightEntity = new("Point Light");
-        PointLight redLight = redLightEntity.AddComponent<PointLight>();
-        redLight.Color = Color.Red;
-        redLight.Radius = 10.0f;
-        redLight.Intensity = 3.0f;
-        redLightEntity.Transform.Position = new Vector3(-2, 1.5, 1);*/
-
-        /*// ----------------------------------------
-        // Creating a quad that moves and rotates
-
-        // Create a primitive quad
-        Entity quadEntity = CreatePrimitive(PrimitiveType.Quad, "Blue Quad");
-
-        // Add a custom behavior component to make it move and rotate
-        quadEntity.AddComponent<DemoMoveRotate>();*/
-
-        // Get the material of the mesh renderer component (provided by CreatePrimitive), and set the material color to blue
-        // Material material = quadEntity.GetComponent<MeshRendererComponent>()!.Material.Res!;
-        // material.SetColor(Material.DEFAULT_COLOR_PROPERTY, Color.Blue);
-        // material.SetTexture(Material.DEFAULT_SURFACE_TEX_PROPERTY, AssetDatabase.LoadAsset<Texture2D>("Defaults/white_pixel.png")!);
+            root.Transform.Rotation = Random.Rotation;
+        }
     }
 
 
@@ -131,6 +72,9 @@ internal class DemoScene : Scene
     }
 }
 
+/// <summary>
+/// This component makes the entity oscillate up and down.
+/// </summary>
 internal class DemoOscillate : EntityComponent
 {
     private const float OSCILLATION_SPEED = 1f;
@@ -155,22 +99,9 @@ internal class DemoOscillate : EntityComponent
     }
 }
 
-internal class DemoMoveRotate : EntityComponent
-{
-    protected override void OnUpdate()
-    {
-        // Rotate the entity
-        const float rotSpeedY = 15f;
-        const float rotSpeedZ = 30f;
-        Vector3 newEulerAngles = new(0, rotSpeedY * Time.DeltaTime, rotSpeedZ * Time.DeltaTime);
-        Transform.Rotate(newEulerAngles);
-
-        // Move the entity
-        const float moveSpeed = 0.5f;
-        Transform.Translate(new Vector3(1f, 0f, 0f) * moveSpeed * Time.DeltaTime);
-    }
-}
-
+/// <summary>
+/// This component allows the camera to be moved/rotated by the user.
+/// </summary>
 internal class DemoFreeCam : EntityComponent
 {
     private const float LOOK_SENSITIVITY = 0.2f;

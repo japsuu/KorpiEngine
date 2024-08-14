@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -30,7 +29,7 @@ public sealed class RenderTexture : Resource
     {
         TextureImageFormat[] textureFormats;
         if (numTextures < 0 || numTextures > SystemInfo.MaxFramebufferColorAttachments)
-            throw new Exception("Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
+            throw new ArgumentOutOfRangeException("Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
 
         Width = width;
         Height = height;
@@ -72,24 +71,22 @@ public sealed class RenderTexture : Resource
             };
         }
 
-        FrameBuffer = Graphics.Driver.CreateFramebuffer(attachments);
+        FrameBuffer = Graphics.Device.CreateFramebuffer(attachments);
     }
 
 
     public void Begin()
     {
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        Graphics.Driver.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
         Graphics.UpdateViewport(Width, Height);
-        Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
 
 
     public void End()
     {
-        Graphics.Driver.UnbindFramebuffer();
+        Graphics.Device.UnbindFramebuffer();
         Graphics.UpdateViewport(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
-        Graphics.FrameBufferSize = new Vector2i(Width, Height);
     }
 
 
@@ -97,6 +94,8 @@ public sealed class RenderTexture : Resource
     {
         foreach (Texture2D texture in InternalTextures)
             texture.Dispose();
+        
+        InternalDepth?.Dispose();
 
         FrameBuffer?.Dispose();
     }
@@ -134,8 +133,8 @@ public sealed class RenderTexture : Resource
             int hash = 17;
             hash = hash * 23 + _width.GetHashCode();
             hash = hash * 23 + _height.GetHashCode();
-            foreach (TextureImageFormat format in _format)
-                hash = hash * 23 + ((int)format).GetHashCode();
+            foreach (TextureImageFormat texFormat in _format)
+                hash = hash * 23 + ((int)texFormat).GetHashCode();
             return hash;
         }
 

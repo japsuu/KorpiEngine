@@ -39,7 +39,7 @@ public sealed class Texture2D : Texture, ISerializable
         if (generateMipmaps)
             GenerateMipmaps();
 
-        Graphics.Driver.SetTextureFilters(Handle, IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Graphics.Device.SetTextureFilters(Handle, IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
         MinFilter = IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER;
         MagFilter = DEFAULT_MAG_FILTER;
     }
@@ -64,11 +64,11 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(void* ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public unsafe void SetDataPtr(nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-        Graphics.Driver.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+        Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
     }
 
 
@@ -89,7 +89,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Driver.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, (nint)ptr);
         }
     }
 
@@ -109,9 +109,9 @@ public sealed class Texture2D : Texture, ISerializable
     /// Gets the data of the entire <see cref="Texture2D"/>.
     /// </summary>
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
-    public unsafe void GetDataPtr(void* ptr)
+    public void GetDataPtr(nint ptr)
     {
-        Graphics.Driver.GetTexImage(Handle, 0, ptr);
+        Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
 
 
@@ -127,7 +127,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Driver.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, (nint)ptr);
         }
     }
 
@@ -193,8 +193,8 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate.</param>
     public void SetWrapModes(TextureWrap sWrapMode, TextureWrap tWrapMode)
     {
-        Graphics.Driver.SetWrapS(Handle, sWrapMode);
-        Graphics.Driver.SetWrapT(Handle, tWrapMode);
+        Graphics.Device.SetWrapS(Handle, sWrapMode);
+        Graphics.Device.SetWrapT(Handle, tWrapMode);
     }
 
 
@@ -211,7 +211,7 @@ public sealed class Texture2D : Texture, ISerializable
         Width = width;
         Height = height;
 
-        Graphics.Driver.TexImage2D(Handle, 0, Width, Height, 0, (void*)0);
+        Graphics.Device.TexImage2D(Handle, 0, Width, Height, 0, 0);
     }
 
 

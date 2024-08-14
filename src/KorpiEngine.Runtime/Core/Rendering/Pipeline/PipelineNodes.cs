@@ -236,8 +236,10 @@ public class TAANode : RenderPassNode
         if (Jitter2X)
             _jitter *= 2.0;
 
-        Graphics.ProjectionMatrix.M31 += _jitter.X / width;
-        Graphics.ProjectionMatrix.M32 += _jitter.Y / height;
+        Matrix4x4 proj = Graphics.ProjectionMatrix;
+        proj.M31 += _jitter.X / width;
+        proj.M32 += _jitter.Y / height;
+        Graphics.ProjectionMatrix = proj;
 
         Graphics.UseJitter = true; // This applies the jitter to the Velocity Buffer/Motion Vectors
         Graphics.Jitter = _jitter / new Vector2(width, height);

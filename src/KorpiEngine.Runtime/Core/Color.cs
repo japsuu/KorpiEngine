@@ -6,16 +6,6 @@ public readonly struct Color
     public readonly float G;
     public readonly float B;
     public readonly float A;
-
-
-    public Color(float r, float g, float b, float a)
-    {
-        R = r;
-        G = g;
-        B = b;
-        A = a;
-    }
-    
     
     public static Color White => new Color(1, 1, 1, 1);
     public static Color Black => new Color(0, 0, 0, 1);
@@ -29,6 +19,24 @@ public readonly struct Color
     public static Color Transparent => new Color(0, 0, 0, 0);
 
 
+    public Color(float r, float g, float b, float a)
+    {
+        R = r;
+        G = g;
+        B = b;
+        A = a;
+    }
+
+
+    public Color(System.Numerics.Vector4 color)
+    {
+        R = color.X;
+        G = color.Y;
+        B = color.Z;
+        A = color.W;
+    }
+
+
     public void Deconstruct(out float r, out float g, out float b, out float a)
     {
         r = R;
@@ -36,4 +44,7 @@ public readonly struct Color
         b = B;
         a = A;
     }
+
+
+    public override string ToString() => $"({R}, {G}, {B}, {A})";
 }

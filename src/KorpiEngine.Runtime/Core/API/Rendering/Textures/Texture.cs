@@ -49,10 +49,10 @@ public abstract class Texture : Resource
         ImageFormat = imageFormat;
         IsMipmapped = false;
         _isNotMipmappable = !IsTextureTypeMipmappable(type);
-        Handle = Graphics.Driver.CreateTexture(type, imageFormat);
-        Graphics.Driver.SetWrapS(Handle, TextureWrap.Repeat);
-        Graphics.Driver.SetWrapT(Handle, TextureWrap.Repeat);
-        Graphics.Driver.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Handle = Graphics.Device.CreateTexture(type, imageFormat);
+        Graphics.Device.SetWrapS(Handle, TextureWrap.Repeat);
+        Graphics.Device.SetWrapT(Handle, TextureWrap.Repeat);
+        Graphics.Device.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
         MinFilter = DEFAULT_MIN_FILTER;
         MagFilter = DEFAULT_MAG_FILTER;
         WrapMode = TextureWrap.Repeat;
@@ -66,7 +66,7 @@ public abstract class Texture : Resource
     /// <param name="magFilter">The desired magnifying filter for the <see cref="Texture"/>.</param>
     public void SetTextureFilters(TextureMin minFilter, TextureMag magFilter)
     {
-        Graphics.Driver.SetTextureFilters(Handle, minFilter, magFilter);
+        Graphics.Device.SetTextureFilters(Handle, minFilter, magFilter);
         MinFilter = minFilter;
         MagFilter = magFilter;
     }
@@ -81,7 +81,7 @@ public abstract class Texture : Resource
         if (_isNotMipmappable)
             throw new InvalidOperationException(string.Concat("This texture type is not mipmappable! Type: ", Type.ToString()));
 
-        Graphics.Driver.GenerateMipmap(Handle);
+        Graphics.Device.GenerateMipmap(Handle);
         IsMipmapped = true;
     }
 

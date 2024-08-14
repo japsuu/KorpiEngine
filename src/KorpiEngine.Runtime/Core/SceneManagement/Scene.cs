@@ -44,7 +44,14 @@ public abstract class Scene : IDisposable
 
 
     #region Public API
+    
+    public Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
+    }
 
+    
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
@@ -54,7 +61,6 @@ public abstract class Scene : IDisposable
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;
         
-        mat.SetColor("_MainColor", Color.White);
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
         mat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
@@ -70,13 +76,6 @@ public abstract class Scene : IDisposable
     {
         return EntityScene.FindObjectOfType<T>();
     }
-    
-    
-    /*public void Instantiate<T>(T prefab) where T : Entity
-    {
-        Entity e = prefab.Clone();
-        EntityScene.AddEntity(e);
-    }*/
 
     #endregion
 
@@ -112,9 +111,9 @@ public abstract class Scene : IDisposable
 
     protected virtual void CreateLights()
     {
-        /*Entity dlEntity = CreateEntity("Directional Light");
+        Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
-        dlComp.Transform.LocalEulerAngles = new Vector3(50, 225, 0);*/
+        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
@@ -165,11 +164,4 @@ public abstract class Scene : IDisposable
     }
 
     #endregion
-    
-    
-    private Entity CreateEntity(string name)
-    {
-        Entity e = new(this, name);
-        return e;
-    }
 }

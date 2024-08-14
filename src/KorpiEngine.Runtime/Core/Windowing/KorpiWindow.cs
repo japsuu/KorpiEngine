@@ -16,7 +16,7 @@ internal sealed class KorpiWindow(GameWindowSettings gameWindowSettings, NativeW
         WindowInfo.Initialize(this);
         Core.API.InputManagement.Cursor.Initialize(this);
 
-        Graphics.Initialize<GLGraphicsDriver>(this);
+        Graphics.Initialize<GLGraphicsDevice>(this);
         
         base.OnLoad();
     }
