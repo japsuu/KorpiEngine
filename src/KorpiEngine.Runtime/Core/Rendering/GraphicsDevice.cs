@@ -20,6 +20,7 @@ internal abstract class GraphicsDevice
     public ulong RasterizerStateWrites { get; private set; }
     public ulong RasterizerStateOverrides { get; private set; }
     public ulong ShaderUniformWrites { get; private set; }
+    public ulong TextureSwaps { get; internal set; }
     public ulong Clears { get; private set; }
 #endif
 
@@ -662,6 +663,7 @@ internal abstract class GraphicsDevice
         RasterizerStateWrites = 0;
         RasterizerStateOverrides = 0;
         ShaderUniformWrites = 0;
+        TextureSwaps = 0;
         Clears = 0;
     }
 #endif

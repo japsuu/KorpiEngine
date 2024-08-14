@@ -511,7 +511,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
         BindProgram(program);
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
-        GL.BindTexture(glTexture.Target, glTexture.Handle);
+        glTexture.Bind();
         GL.Uniform1(loc, slot);
     }
 
@@ -532,6 +532,9 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(location, 0);
+#if DEBUG
+        TextureSwaps++;
+#endif
     }
 
     #endregion
