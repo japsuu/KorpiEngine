@@ -39,7 +39,7 @@ public sealed class DirectionalLight : EntityComponent
     public float ShadowRadius { get; set; } = 0.02f;
     public float ShadowPenumbra { get; set; } = 80f;
     public float ShadowMinimumPenumbra { get; set; } = 0.02f;
-    public float ShadowBias { get; set; } = 0.00004f;
+    public float ShadowBias { get; set; } = 0.001f;
     public float ShadowNormalBias { get; set; } = 0.02f;
 
     private Resolution _shadowResolution = Resolution._1024;
@@ -198,7 +198,7 @@ internal class DirectionalLightEditor(DirectionalLight target) : EntityComponent
             target.ShadowMinimumPenumbra = shadowMinimumPenumbra;
 
         float shadowBias = target.ShadowBias;
-        if (ImGui.DragFloat("Shadow Bias", ref shadowBias, 0.00001f, 0.00001f, 0.1f))
+        if (ImGui.DragFloat("Shadow Bias", ref shadowBias, 0.001f, 0.001f, 0.1f))
             target.ShadowBias = shadowBias;
 
         float shadowNormalBias = target.ShadowNormalBias;
