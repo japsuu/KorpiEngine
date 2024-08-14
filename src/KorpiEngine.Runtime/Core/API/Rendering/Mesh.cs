@@ -205,11 +205,11 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (vertexDataBlob == null || _indexData == null)
             return;
 
-        _vertexBuffer = Graphics.Driver.CreateBuffer(BufferType.VertexBuffer, vertexDataBlob);
-        _indexBuffer = Graphics.Driver.CreateBuffer(BufferType.ElementsBuffer, _indexData);
-        VertexArrayObject = Graphics.Driver.CreateVertexArray(vertexLayout, _vertexBuffer, _indexBuffer);
+        _vertexBuffer = Graphics.Device.CreateBuffer(BufferType.VertexBuffer, vertexDataBlob);
+        _indexBuffer = Graphics.Device.CreateBuffer(BufferType.ElementsBuffer, _indexData);
+        VertexArrayObject = Graphics.Device.CreateVertexArray(vertexLayout, _vertexBuffer, _indexBuffer);
 
-        Graphics.Driver.BindVertexArray(null);
+        Graphics.Device.BindVertexArray(null);
 
         Application.Logger.Debug($"[VAO ID={VertexArrayObject}] Mesh uploaded successfully to VRAM (GPU)");
 

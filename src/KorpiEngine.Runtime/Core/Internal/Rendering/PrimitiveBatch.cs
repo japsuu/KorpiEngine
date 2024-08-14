@@ -31,7 +31,7 @@ public class PrimitiveBatch
     {
         _primitiveType = primitiveType;
 
-        _vbo = Graphics.Driver.CreateBuffer(BufferType.VertexBuffer, Array.Empty<byte>(), true);
+        _vbo = Graphics.Device.CreateBuffer(BufferType.VertexBuffer, Array.Empty<byte>(), true);
 
         MeshVertexLayout format = new(
         [
@@ -39,7 +39,7 @@ public class PrimitiveBatch
             new MeshVertexLayout.VertexAttributeDescriptor(1, VertexAttributeType.Float, 4)
         ]);
 
-        _vao = Graphics.Driver.CreateVertexArray(format, _vbo, null);
+        _vao = Graphics.Device.CreateVertexArray(format, _vbo, null);
 
         IsUploaded = false;
     }
@@ -86,7 +86,7 @@ public class PrimitiveBatch
         if (_vertices.Count == 0)
             return;
 
-        Graphics.Driver.SetBuffer(_vbo, _vertices.ToArray(), true);
+        Graphics.Device.SetBuffer(_vbo, _vertices.ToArray(), true);
 
         IsUploaded = true;
     }
@@ -97,7 +97,7 @@ public class PrimitiveBatch
         if (_vertices.Count == 0 || _vao == null)
             return;
 
-        Graphics.Driver.BindVertexArray(_vao);
-        Graphics.Driver.DrawArrays(_primitiveType, 0, _vertices.Count);
+        Graphics.Device.BindVertexArray(_vao);
+        Graphics.Device.DrawArrays(_primitiveType, 0, _vertices.Count);
     }
 }

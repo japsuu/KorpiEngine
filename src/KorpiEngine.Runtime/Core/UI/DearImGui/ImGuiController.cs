@@ -11,7 +11,7 @@ using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using Vector4 = System.Numerics.Vector4;
 
-namespace KorpiEngine.Core.UI.ImGui;
+namespace KorpiEngine.Core.UI.DearImGui;
 
 internal class ImGuiController : IDisposable
 {
@@ -26,14 +26,12 @@ internal class ImGuiController : IDisposable
     private int _indexBuffer;
     private int _indexBufferSize;
 
-    //private Texture _fontTexture;
-
     private int _fontTexture;
 
     private int _shader;
     private int _shaderFontTextureLocation;
     private int _shaderProjectionMatrixLocation;
-        
+
     private int _windowWidth;
     private int _windowHeight;
 
@@ -44,6 +42,7 @@ internal class ImGuiController : IDisposable
     private readonly int _glVersion;
     private readonly bool _compatibilityProfile;
 
+
     /// <summary>
     /// Constructs a new ImGuiController.
     /// </summary>
@@ -53,7 +52,7 @@ internal class ImGuiController : IDisposable
         window.Resize += args => WindowResized(args.Width, args.Height);
         window.TextInput += e => PressChar((char)e.Unicode);
         window.MouseWheel += e => MouseScroll(e.Offset);
-        
+
         _windowWidth = window.ClientSize.X;
         _windowHeight = window.ClientSize.Y;
 
@@ -74,7 +73,8 @@ internal class ImGuiController : IDisposable
         io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
         CreateDeviceResources();
-        SetKeyMappings();
+
+        //SetKeyMappings();
 
         SetPerFrameImGuiData(1f / 60f);
 
@@ -82,11 +82,13 @@ internal class ImGuiController : IDisposable
         _frameBegun = true;
     }
 
+
     public void WindowResized(int width, int height)
     {
         _windowWidth = width;
         _windowHeight = height;
     }
+
 
     public void CreateDeviceResources()
     {
@@ -162,6 +164,7 @@ void main()
         CheckGlError("End of ImGui setup");
     }
 
+
     /// <summary>
     /// Recreates the device texture used to render text.
     /// </summary>
@@ -170,7 +173,7 @@ void main()
         ImGuiIOPtr io = ImGuiNET.ImGui.GetIO();
         io.Fonts.GetTexDataAsRGBA32(out IntPtr pixels, out int width, out int height, out int _);
 
-        int mips = (int)System.Math.Floor(System.Math.Log(System.Math.Max(width, height), 2));
+        int mips = (int)Math.Floor(Math.Log(Math.Max(width, height), 2));
 
         int prevActiveTexture = GL.GetInteger(GetPName.ActiveTexture);
         GL.ActiveTexture(TextureUnit.Texture0);
@@ -202,18 +205,21 @@ void main()
         io.Fonts.ClearTexData();
     }
 
+
     /// <summary>
     /// Renders the ImGui draw list data.
     /// </summary>
     public void Render()
     {
-        if (_frameBegun)
-        {
-            _frameBegun = false;
-            ImGuiNET.ImGui.Render();
-            RenderImDrawData(ImGuiNET.ImGui.GetDrawData());
-        }
+        if (!_frameBegun)
+            return;
+        
+        _frameBegun = false;
+
+        ImGuiNET.ImGui.Render();
+        RenderImDrawData(ImGuiNET.ImGui.GetDrawData());
     }
+
 
     /// <summary>
     /// Updates ImGui input and IO configuration state.
@@ -224,13 +230,11 @@ void main()
         Vector2 mousePos = Input.MouseState.Position;
         if (_window.CursorState == CursorState.Grabbed)
             mousePos = new Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
-        
+
         float deltaSeconds = Time.DeltaTime;
-        
+
         if (_frameBegun)
-        {
             ImGuiNET.ImGui.Render();
-        }
 
         SetPerFrameImGuiData(deltaSeconds);
         UpdateImGuiInput(mousePos);
@@ -238,6 +242,7 @@ void main()
         _frameBegun = true;
         ImGuiNET.ImGui.NewFrame();
     }
+
 
     /// <summary>
     /// Sets per-frame data based on the associated window.
@@ -253,11 +258,14 @@ void main()
         io.DeltaTime = deltaSeconds; // DeltaTime is in seconds.
     }
 
-    readonly List<char> _pressedChars = new List<char>();
+
+    private readonly List<char> _pressedChars = new();
+
     private static readonly Keys[] AllKeys = Enum.GetValues(typeof(Keys))
         .Cast<Keys>()
         .Where(k => k != Keys.Unknown)
         .ToArray();
+
 
     // NOTE: Modified to take in an override mouse position
     private void UpdateImGuiInput(Vector2 mousePos)
@@ -273,20 +281,15 @@ void main()
         io.MouseDown[3] = mouseState[MouseButton.Button4];
         io.MouseDown[4] = mouseState[MouseButton.Button5];
 
-        // Vector2i screenPoint = new Vector2i((int)mouseState.X, (int)mouseState.Y);
-        // Vector2i point = screenPoint;//wnd.PointToClient(screenPoint);
         io.MousePos = new System.Numerics.Vector2((int)mousePos.X, (int)mousePos.Y);
-        
+
         // NOTE: Optimized to allocation free
         foreach (Keys key in AllKeys)
-        {
-            io.KeysDown[(int)key] = keyboardState.IsKeyDown(key);
-        }
+            if (TryMapKey(key, out ImGuiKey imKey))
+                io.AddKeyEvent(imKey, keyboardState.IsKeyDown(key));
 
         foreach (char c in _pressedChars)
-        {
             io.AddInputCharacter(c);
-        }
         _pressedChars.Clear();
 
         io.KeyCtrl = keyboardState.IsKeyDown(Keys.LeftControl) || keyboardState.IsKeyDown(Keys.RightControl);
@@ -295,20 +298,86 @@ void main()
         io.KeySuper = keyboardState.IsKeyDown(Keys.LeftSuper) || keyboardState.IsKeyDown(Keys.RightSuper);
     }
 
+
+    private bool TryMapKey(Keys key, out ImGuiKey result)
+    {
+        ImGuiKey KeyToImGuiKeyShortcut(Keys keyToConvert, Keys startKey1, ImGuiKey startKey2)
+        {
+            int changeFromStart1 = (int)keyToConvert - (int)startKey1;
+            return startKey2 + changeFromStart1;
+        }
+
+        result = key switch
+        {
+            >= Keys.F1 and <= Keys.F24 => KeyToImGuiKeyShortcut(key, Keys.F1, ImGuiKey.F1),
+            >= Keys.KeyPad0 and <= Keys.KeyPad9 => KeyToImGuiKeyShortcut(key, Keys.KeyPad0, ImGuiKey.Keypad0),
+            >= Keys.A and <= Keys.Z => KeyToImGuiKeyShortcut(key, Keys.A, ImGuiKey.A),
+            >= Keys.D0 and <= Keys.D9 => KeyToImGuiKeyShortcut(key, Keys.D0, ImGuiKey._0),
+            Keys.LeftShift or Keys.RightShift => ImGuiKey.ModShift,
+            Keys.LeftControl or Keys.RightControl => ImGuiKey.ModCtrl,
+            Keys.LeftAlt or Keys.RightAlt => ImGuiKey.ModAlt,
+            Keys.LeftSuper or Keys.RightSuper => ImGuiKey.ModSuper,
+            Keys.Menu => ImGuiKey.Menu,
+            Keys.Up => ImGuiKey.UpArrow,
+            Keys.Down => ImGuiKey.DownArrow,
+            Keys.Left => ImGuiKey.LeftArrow,
+            Keys.Right => ImGuiKey.RightArrow,
+            Keys.Enter => ImGuiKey.Enter,
+            Keys.Escape => ImGuiKey.Escape,
+            Keys.Space => ImGuiKey.Space,
+            Keys.Tab => ImGuiKey.Tab,
+            Keys.Backspace => ImGuiKey.Backspace,
+            Keys.Insert => ImGuiKey.Insert,
+            Keys.Delete => ImGuiKey.Delete,
+            Keys.PageUp => ImGuiKey.PageUp,
+            Keys.PageDown => ImGuiKey.PageDown,
+            Keys.Home => ImGuiKey.Home,
+            Keys.End => ImGuiKey.End,
+            Keys.CapsLock => ImGuiKey.CapsLock,
+            Keys.ScrollLock => ImGuiKey.ScrollLock,
+            Keys.PrintScreen => ImGuiKey.PrintScreen,
+            Keys.Pause => ImGuiKey.Pause,
+            Keys.NumLock => ImGuiKey.NumLock,
+            Keys.KeyPadDivide => ImGuiKey.KeypadDivide,
+            Keys.KeyPadMultiply => ImGuiKey.KeypadMultiply,
+            Keys.KeyPadSubtract => ImGuiKey.KeypadSubtract,
+            Keys.KeyPadAdd => ImGuiKey.KeypadAdd,
+            Keys.KeyPadDecimal => ImGuiKey.KeypadDecimal,
+            Keys.KeyPadEnter => ImGuiKey.KeypadEnter,
+            Keys.GraveAccent => ImGuiKey.GraveAccent,
+            Keys.Minus => ImGuiKey.Minus,
+            Keys.Equal => ImGuiKey.Equal,
+            Keys.LeftBracket => ImGuiKey.LeftBracket,
+            Keys.RightBracket => ImGuiKey.RightBracket,
+            Keys.Semicolon => ImGuiKey.Semicolon,
+            Keys.Apostrophe => ImGuiKey.Apostrophe,
+            Keys.Comma => ImGuiKey.Comma,
+            Keys.Period => ImGuiKey.Period,
+            Keys.Slash => ImGuiKey.Slash,
+            Keys.Backslash => ImGuiKey.Backslash,
+            _ => ImGuiKey.None
+        };
+
+        return result != ImGuiKey.None;
+    }
+
+
     internal void PressChar(char keyChar)
     {
         _pressedChars.Add(keyChar);
     }
 
+
     internal void MouseScroll(Vector2 offset)
     {
         ImGuiIOPtr io = ImGuiNET.ImGui.GetIO();
-            
+
         io.MouseWheel = offset.Y;
         io.MouseWheelH = offset.X;
     }
 
-    private static void SetKeyMappings()
+
+    /*private static void SetKeyMappings()
     {
         ImGuiIOPtr io = ImGuiNET.ImGui.GetIO();
         io.KeyMap[(int)ImGuiKey.Tab] = (int)Keys.Tab;
@@ -330,14 +399,13 @@ void main()
         io.KeyMap[(int)ImGuiKey.X] = (int)Keys.X;
         io.KeyMap[(int)ImGuiKey.Y] = (int)Keys.Y;
         io.KeyMap[(int)ImGuiKey.Z] = (int)Keys.Z;
-    }
+    }*/
+
 
     private void RenderImDrawData(ImDrawDataPtr drawData)
     {
         if (drawData.CmdListsCount == 0)
-        {
             return;
-        }
 
         // Get intial state.
         int prevVao = GL.GetInteger(GetPName.VertexArrayBinding);
@@ -364,10 +432,11 @@ void main()
                 GL.GetInteger(GetPName.ScissorBox, iptr);
             }
         }
+
         Span<int> prevPolygonMode = stackalloc int[2];
         unsafe
         {
-            fixed(int* iptr = &prevPolygonMode[0])
+            fixed (int* iptr = &prevPolygonMode[0])
             {
                 GL.GetInteger(GetPName.PolygonMode, iptr);
             }
@@ -382,9 +451,10 @@ void main()
         {
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
-            
+
         // Bind the element buffer (thru the VAO) so that we can resize it.
         GL.BindVertexArray(_vertexArray);
+
         // Bind the vertex buffer so that we can resize it.
         GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
         for (int i = 0; i < drawData.CmdListsCount; i++)
@@ -394,8 +464,8 @@ void main()
             int vertexSize = cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>();
             if (vertexSize > _vertexBufferSize)
             {
-                int newSize = (int)System.Math.Max(_vertexBufferSize * 1.5f, vertexSize);
-                    
+                int newSize = (int)Math.Max(_vertexBufferSize * 1.5f, vertexSize);
+
                 GL.BufferData(BufferTarget.ArrayBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
                 _vertexBufferSize = newSize;
             }
@@ -403,7 +473,7 @@ void main()
             int indexSize = cmdList.IdxBuffer.Size * sizeof(ushort);
             if (indexSize > _indexBufferSize)
             {
-                int newSize = (int)System.Math.Max(_indexBufferSize * 1.5f, indexSize);
+                int newSize = (int)Math.Max(_indexBufferSize * 1.5f, indexSize);
                 GL.BufferData(BufferTarget.ElementArrayBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
                 _indexBufferSize = newSize;
             }
@@ -466,13 +536,11 @@ void main()
                     CheckGlError("Scissor");
 
                     if ((io.BackendFlags & ImGuiBackendFlags.RendererHasVtxOffset) != 0)
-                    {
-                        GL.DrawElementsBaseVertex(PrimitiveType.Triangles, (int)pcmd.ElemCount, DrawElementsType.UnsignedShort, (IntPtr)(pcmd.IdxOffset * sizeof(ushort)), unchecked((int)pcmd.VtxOffset));
-                    }
+                        GL.DrawElementsBaseVertex(
+                            PrimitiveType.Triangles, (int)pcmd.ElemCount, DrawElementsType.UnsignedShort, (IntPtr)(pcmd.IdxOffset * sizeof(ushort)),
+                            unchecked((int)pcmd.VtxOffset));
                     else
-                    {
                         GL.DrawElements(BeginMode.Triangles, (int)pcmd.ElemCount, DrawElementsType.UnsignedShort, (int)pcmd.IdxOffset * sizeof(ushort));
-                    }
                     CheckGlError("Draw");
                 }
             }
@@ -494,10 +562,22 @@ void main()
             (BlendingFactorDest)prevBlendFuncDstRgb,
             (BlendingFactorSrc)prevBlendFuncSrcAlpha,
             (BlendingFactorDest)prevBlendFuncDstAlpha);
-        if (prevBlendEnabled) GL.Enable(EnableCap.Blend); else GL.Disable(EnableCap.Blend);
-        if (prevDepthTestEnabled) GL.Enable(EnableCap.DepthTest); else GL.Disable(EnableCap.DepthTest);
-        if (prevCullFaceEnabled) GL.Enable(EnableCap.CullFace); else GL.Disable(EnableCap.CullFace);
-        if (prevScissorTestEnabled) GL.Enable(EnableCap.ScissorTest); else GL.Disable(EnableCap.ScissorTest);
+        if (prevBlendEnabled)
+            GL.Enable(EnableCap.Blend);
+        else
+            GL.Disable(EnableCap.Blend);
+        if (prevDepthTestEnabled)
+            GL.Enable(EnableCap.DepthTest);
+        else
+            GL.Disable(EnableCap.DepthTest);
+        if (prevCullFaceEnabled)
+            GL.Enable(EnableCap.CullFace);
+        else
+            GL.Disable(EnableCap.CullFace);
+        if (prevScissorTestEnabled)
+            GL.Enable(EnableCap.ScissorTest);
+        else
+            GL.Disable(EnableCap.ScissorTest);
         if (_glVersion <= 310 || _compatibilityProfile)
         {
             GL.PolygonMode(MaterialFace.Front, (PolygonMode)prevPolygonMode[0]);
@@ -508,6 +588,7 @@ void main()
             GL.PolygonMode(MaterialFace.FrontAndBack, (PolygonMode)prevPolygonMode[0]);
         }
     }
+
 
     /// <summary>
     /// Frees all graphics resources used by the renderer.
@@ -522,23 +603,27 @@ void main()
         GL.DeleteProgram(_shader);
     }
 
+
     public static void LabelObject(ObjectLabelIdentifier objLabelIdent, int glObject, string name)
     {
         if (khrDebugAvailable)
             GL.ObjectLabel(objLabelIdent, glObject, name.Length, name);
     }
 
-    static bool IsExtensionSupported(string name)
+
+    private static bool IsExtensionSupported(string name)
     {
         int n = GL.GetInteger(GetPName.NumExtensions);
         for (int i = 0; i < n; i++)
         {
             string extension = GL.GetString(StringNameIndexed.Extensions, i);
-            if (extension == name) return true;
+            if (extension == name)
+                return true;
         }
 
         return false;
     }
+
 
     public static int CreateProgram(string name, string vertexSource, string fragmentSoruce)
     {
@@ -569,6 +654,7 @@ void main()
         return program;
     }
 
+
     private static int CompileShader(string name, ShaderType type, string source)
     {
         int shader = GL.CreateShader(type);
@@ -587,13 +673,12 @@ void main()
         return shader;
     }
 
+
     public static void CheckGlError(string title)
     {
         ErrorCode error;
         int i = 1;
         while ((error = GL.GetError()) != ErrorCode.NoError)
-        {
             System.Diagnostics.Debug.Print($"{title} ({i++}): {error}");
-        }
     }
 }

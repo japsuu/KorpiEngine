@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 
-namespace KorpiEngine.Core.UI.ImGui;
+namespace KorpiEngine.Core.UI.DearImGui;
 
 public static class ImGuiWindowManager
 {
@@ -48,7 +48,7 @@ public static class ImGuiWindowManager
     }
 
 
-    internal static void Dispose()
+    internal static void DisposeWindows()
     {
         foreach (ImGuiWindow window in RegisteredWindows.Keys)
             window.Dispose();

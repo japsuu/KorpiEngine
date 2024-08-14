@@ -3,7 +3,6 @@
 /// <summary>
 /// The exception that is thrown when a program related error occurs.
 /// </summary>
-[Serializable]
 public class ProgramException : OpenGLException
 {
     public string InfoLog { get; private set; }

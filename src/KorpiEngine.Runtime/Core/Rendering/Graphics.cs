@@ -5,6 +5,7 @@ using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
 
@@ -15,45 +16,43 @@ public static class Graphics
     private static Material defaultBlitMaterial = null!;
     
     internal static KorpiWindow Window { get; private set; } = null!;
-    internal static GraphicsDriver Driver = null!;
-    internal static Vector2i FrameBufferSize;
+    internal static GraphicsDevice Device { get; private set; } = null!;
     
-    public static Vector2 Resolution { get; private set; } = Vector2.Zero;
-    
-    public static Matrix4x4 ViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 OldViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 InverseViewMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 ProjectionMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 OldProjectionMatrix = Matrix4x4.Identity;
-    public static Matrix4x4 InverseProjectionMatrix = Matrix4x4.Identity;
-    
-    public static Matrix4x4 DepthProjectionMatrix;
-    public static Matrix4x4 DepthViewMatrix;
-
-    public static bool UseJitter;
+    public static bool UseJitter { get; set; }
     public static Vector2 Jitter { get; set; }
     public static Vector2 PreviousJitter { get; set; }
+    public static Vector2 ViewportResolution { get; private set; } = Vector2.Zero;
+    
+    public static Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseViewMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 OldProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    public static Matrix4x4 InverseProjectionMatrix { get; set; } = Matrix4x4.Identity;
+    
+    public static Matrix4x4 DepthProjectionMatrix { get; set; }
+    public static Matrix4x4 DepthViewMatrix { get; set; }
     
 
-    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDriver, new()
+    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDevice, new()
     {
-        Driver = new T();
+        Device = new T();
         Window = korpiWindow;
         defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material");
-        Driver.Initialize();
+        Device.Initialize();
     }
 
 
     internal static void Shutdown()
     {
-        Driver.Shutdown();
+        Device.Shutdown();
     }
     
 
     internal static void UpdateViewport(int width, int height)
     {
-        Driver.UpdateViewport(0, 0, width, height);
-        Resolution = new Vector2(width, height);
+        Device.UpdateViewport(0, 0, width, height);
+        ViewportResolution = new Vector2(width, height);
     }
     
 
@@ -63,7 +62,7 @@ public static class Graphics
         if (color) flags |= ClearFlags.Color;
         if (depth) flags |= ClearFlags.Depth;
         if (stencil) flags |= ClearFlags.Stencil;
-        Driver.Clear(r, g, b, a, flags);
+        Device.Clear(r, g, b, a, flags);
     }
 
 
@@ -78,7 +77,10 @@ public static class Graphics
         Clear();
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
-        Driver.SetState(new RasterizerState(), true);
+        Device.SetState(new RasterizerState(), true);
+#if DEBUG
+        Device.ResetStatistics();
+#endif
     }
 
 
@@ -88,7 +90,7 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
-        
+        // Additional functionality before the frame ends
     }
 
 
@@ -103,10 +105,10 @@ public static class Graphics
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
         if (Camera.RenderingCamera == null)
-            throw new Exception("DrawMeshNow must be called during a rendering context!");
+            throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
-        if (Driver.CurrentProgram == null)
-            throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
+        if (Device.CurrentProgram == null)
+            throw new RenderStateException("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
         
         oldCamRelativeTransform ??= camRelativeTransform;
 
@@ -124,7 +126,7 @@ public static class Graphics
             material.SetVector("_PreviousJitter", Vector2.Zero, true);
         }
         
-        material.SetVector("_Resolution", Resolution, true);
+        material.SetVector("_Resolution", ViewportResolution, true);
         material.SetFloat("_Time", (float)Time.TotalTime, true);
         material.SetInt("_Frame", Time.TotalFrameCount, true);
         
@@ -162,7 +164,7 @@ public static class Graphics
         material.SetKeyword("HAS_TANGENTS", mesh.HasVertexTangents);
 
         // All material uniforms have been assigned; it's time to buffer them
-        material.ApplyPropertyBlock(Driver.CurrentProgram);
+        material.ApplyPropertyBlock(Device.CurrentProgram);
 
         DrawMeshNowDirect(mesh);
     }
@@ -171,19 +173,16 @@ public static class Graphics
     public static void DrawMeshNowDirect(Mesh mesh)
     {
         if (Camera.RenderingCamera == null)
-            throw new Exception("DrawMeshNow must be called during a rendering context!");
+            throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
-        if (Driver.CurrentProgram == null)
-            throw new Exception("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
+        if (Device.CurrentProgram == null)
+            throw new RenderStateException("No Program Assigned, Use Material.SetPass first before calling DrawMeshNow!");
 
         mesh.UploadMeshData();
 
-        unsafe
-        {
-            Driver.BindVertexArray(mesh.VertexArrayObject);
-            Driver.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, null);
-            Driver.BindVertexArray(null);
-        }
+        Device.BindVertexArray(mesh.VertexArrayObject);
+        Device.DrawElements(mesh.Topology, 0, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32);
+        Device.BindVertexArray(null);
     }
 
 
@@ -238,15 +237,15 @@ public static class Graphics
     /// <param name="destination">The destination render texture.</param>
     internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
     {
-        Driver.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
+        Device.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
         
         if(destination != null)
-            Driver.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
+            Device.BindFramebuffer(destination.FrameBuffer!, FBOTarget.DrawFramebuffer);
 
-        Driver.BlitFramebuffer(0, 0, source.Width, source.Height,
-            0, 0, destination?.Width ?? (int)Resolution.X, destination?.Height ?? (int)Resolution.Y,
+        Device.BlitFramebuffer(0, 0, source.Width, source.Height,
+            0, 0, destination?.Width ?? (int)ViewportResolution.X, destination?.Height ?? (int)ViewportResolution.Y,
             ClearFlags.Depth, BlitFilter.Nearest
         );
-        Driver.UnbindFramebuffer();
+        Device.UnbindFramebuffer();
     }
 }

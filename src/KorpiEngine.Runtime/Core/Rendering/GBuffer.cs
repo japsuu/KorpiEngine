@@ -45,7 +45,7 @@ public class GBuffer
     {
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Driver.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
 
         Graphics.UpdateViewport(Width, Height);
 
@@ -57,7 +57,7 @@ public class GBuffer
 
     public void End()
     {
-        Graphics.Driver.UnbindFramebuffer();
+        Graphics.Device.UnbindFramebuffer();
     }
 
 
@@ -68,8 +68,8 @@ public class GBuffer
 
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Driver.BindFramebuffer(FrameBuffer);
-        float result = Graphics.Driver.ReadPixels<float>(5, x, y, TextureImageFormat.R_16_F);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
+        float result = Graphics.Device.ReadPixels<float>(5, x, y, TextureImageFormat.R_16_F);
         return (int)result;
     }
 
@@ -81,8 +81,8 @@ public class GBuffer
         
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Driver.BindFramebuffer(FrameBuffer);
-        Vector3 result = Graphics.Driver.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
+        Vector3 result = Graphics.Device.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
         return result;
     }
 
