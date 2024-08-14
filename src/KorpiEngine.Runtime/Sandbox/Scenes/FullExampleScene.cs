@@ -25,7 +25,8 @@ internal class FullExampleScene : Scene
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
             Entity root = new($"Sphere {i}");
-            //root.AddComponent<DemoOscillate>();
+            if (i % 2 == 0)
+                root.AddComponent<DemoOscillate>();
 
             // Create a sphere primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
