@@ -16,11 +16,11 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 public sealed class Material : Resource
 {
     public readonly ResourceRef<Shader> Shader;
+    public readonly MaterialPropertyBlock PropertyBlock;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
     private readonly SortedSet<string> _materialKeywords = [];
-    private readonly MaterialPropertyBlock _propertyBlock;
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _materialKeywordsString = "";
@@ -34,13 +34,13 @@ public sealed class Material : Resource
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
-        _propertyBlock = new MaterialPropertyBlock();
+        PropertyBlock = new MaterialPropertyBlock();
     }
     
     
     internal void ApplyPropertyBlock(GraphicsProgram shader)
     {
-        _propertyBlock.Apply(shader, Name);
+        PropertyBlock.Apply(shader, Name);
     }
 
 
@@ -203,7 +203,7 @@ public sealed class Material : Resource
     public void SetColor(string name, Color value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetColor(name, value);
+            PropertyBlock.SetColor(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -212,7 +212,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector2 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            PropertyBlock.SetVector(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -221,7 +221,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector3 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            PropertyBlock.SetVector(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -230,7 +230,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector4 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            PropertyBlock.SetVector(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -239,7 +239,7 @@ public sealed class Material : Resource
     public void SetFloat(string name, float value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetFloat(name, value);
+            PropertyBlock.SetFloat(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -248,7 +248,7 @@ public sealed class Material : Resource
     public void SetInt(string name, int value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetInt(name, value);
+            PropertyBlock.SetInt(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -257,7 +257,7 @@ public sealed class Material : Resource
     public void SetMatrix(string name, Matrix4x4 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetMatrix(name, value);
+            PropertyBlock.SetMatrix(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -266,7 +266,7 @@ public sealed class Material : Resource
     public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetMatrices(name, value);
+            PropertyBlock.SetMatrices(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -276,7 +276,7 @@ public sealed class Material : Resource
     {
         if (HasVariable(name))
         {
-            _propertyBlock.SetTexture(name, value);
+            PropertyBlock.SetTexture(name, value);
         }
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
@@ -286,7 +286,7 @@ public sealed class Material : Resource
     public void SetTexture(string name, ResourceRef<Texture2D> value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetTexture(name, value);
+            PropertyBlock.SetTexture(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
