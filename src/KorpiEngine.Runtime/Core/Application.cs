@@ -21,6 +21,9 @@ public static class Application
     private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
+#if DEBUG
+    private static DebugStatsWindow debugStatsWindow = null!;
+#endif
     
     internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
@@ -79,6 +82,10 @@ public static class Application
         imGuiController = new ImGuiController(window);
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
+        
+#if DEBUG
+        debugStatsWindow = new DebugStatsWindow();
+#endif
     }
 
 
@@ -166,6 +173,10 @@ public static class Application
 
     private static void OnUnload()
     {
+#if DEBUG
+        debugStatsWindow.Destroy();
+#endif
+        
         OnApplicationUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
         GlobalJobPool.Shutdown();
