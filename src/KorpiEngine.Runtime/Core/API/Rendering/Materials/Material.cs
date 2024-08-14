@@ -277,7 +277,6 @@ public sealed class Material : Resource
         if (HasVariable(name))
         {
             _propertyBlock.SetTexture(name, value);
-            //Console.WriteLine($"SetTex {Name}: {name} - {value.Name}");
         }
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
