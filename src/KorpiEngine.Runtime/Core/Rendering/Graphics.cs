@@ -78,6 +78,9 @@ public static class Graphics
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Device.SetState(new RasterizerState(), true);
+#if DEBUG
+        Device.ResetStatistics();
+#endif
     }
 
 
@@ -178,7 +181,7 @@ public static class Graphics
         mesh.UploadMeshData();
 
         Device.BindVertexArray(mesh.VertexArrayObject);
-        Device.DrawElements(mesh.Topology, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32, 0);
+        Device.DrawElements(mesh.Topology, 0, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32);
         Device.BindVertexArray(null);
     }
 
