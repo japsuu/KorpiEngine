@@ -134,8 +134,9 @@ public sealed class DirectionalLight : EntityComponent
     }
 
 
-    public void InvalidateShadowmap()
+    private void InvalidateShadowmap()
     {
+        _lightMat?.SetTexture("_ShadowMap", null);
         _shadowMap?.DestroyImmediate();
         _shadowMap = null;
     }
