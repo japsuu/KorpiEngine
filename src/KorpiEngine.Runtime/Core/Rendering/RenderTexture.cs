@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -95,6 +94,8 @@ public sealed class RenderTexture : Resource
     {
         foreach (Texture2D texture in InternalTextures)
             texture.Dispose();
+        
+        InternalDepth?.Dispose();
 
         FrameBuffer?.Dispose();
     }
