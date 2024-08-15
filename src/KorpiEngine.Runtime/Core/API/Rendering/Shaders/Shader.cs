@@ -33,7 +33,8 @@ public sealed class Shader : Resource
             INT3,
             INT4,
             TEXTURE_2D,
-            MATRIX_4X4
+            MATRIX_4X4,
+            MATRIX_4X4_ARRAY
         }
     }
 

@@ -111,12 +111,19 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// </summary>
     public Bounds Bounds { get; private set; }
 
+    /// <summary>
+    /// The bind poses of the mesh, used for skinning.
+    /// </summary>
+    public System.Numerics.Matrix4x4[]? BindPoses { get; set; }
+
     public bool HasVertexUV0 => (_vertexTexCoord0?.Length ?? 0) > 0;
     public bool HasVertexUV1 => (_vertexTexCoord1?.Length ?? 0) > 0;
     public bool HasVertexNormals => (_vertexNormals?.Length ?? 0) > 0;
-    public bool HasVertexColors => (_vertexColors?.Length ?? 0) > 0;
     public bool HasVertexTangents => (_vertexTangents?.Length ?? 0) > 0;
-
+    public bool HasVertexColors => (_vertexColors?.Length ?? 0) > 0;
+    public bool HasBoneWeights => (_boneWeights?.Length ?? 0) > 0;
+    public bool HasBoneIndices => (_boneIndices?.Length ?? 0) > 0;
+    
     internal GraphicsVertexArrayObject? VertexArrayObject { get; private set; }
 
     private static Mesh? fullScreenQuadCached;
@@ -133,8 +140,10 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     private byte[]? _vertexTexCoord0;
     private byte[]? _vertexTexCoord1;
     private byte[]? _vertexNormals;
-    private byte[]? _vertexColors;
     private byte[]? _vertexTangents;
+    private byte[]? _vertexColors;
+    private byte[]? _boneWeights;
+    private byte[]? _boneIndices;
 
 
     protected override void OnDispose()
@@ -225,7 +234,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     public void RecalculateBounds()
     {
         if (_vertexPositions == null)
-            throw new ArgumentNullException();
+            throw new InvalidOperationException("Cannot recalculate bounds without vertex positions.");
 
         bool empty = true;
         System.Numerics.Vector3 minVec = System.Numerics.Vector3.One * 99999f;
@@ -244,7 +253,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         if (empty)
-            throw new ArgumentException();
+            throw new InvalidOperationException("Cannot recalculate bounds on an empty mesh.");
         
         Vector3 center = (minVec + maxVec) / 2f;
         Vector3 size = maxVec - minVec;
@@ -345,38 +354,14 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     #region SIMPLE API
 
     public int GetVertexPositionsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
-
     public System.Numerics.Vector3[]? GetVertexPositions() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexPositions);
-
     public void SetVertexPositions(ArraySegment<System.Numerics.Vector3>? positions) => SetVertexAttributeData(positions, ref _vertexPositions);
-
-    public int GetVertexNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
-
-    public System.Numerics.Vector3[]? GetVertexNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
-
-    public void SetVertexNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
-
-    public int GetVertexTangentsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
-
-    public System.Numerics.Vector3[]? GetVertexTangents() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexTangents);
-
-    public void SetVertexTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
-
-    public int GetVertexColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
-
-    public Color32[]? GetVertexColors() => GetVertexAttributeData<Color32>(_vertexColors);
-
-    public void SetVertexColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
 
 
     public int GetVertexUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
         VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1, destination);
-
-
     public System.Numerics.Vector2[]? GetVertexUVs(int channel) =>
         GetVertexAttributeData<System.Numerics.Vector2>(VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1);
-
-
     public void SetVertexUVs(ArraySegment<System.Numerics.Vector2>? uvs, int channel)
     {
         if (channel == 0)
@@ -384,6 +369,31 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         else
             SetVertexAttributeData(uvs, ref _vertexTexCoord1);
     }
+
+    
+    public int GetVertexNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
+    public System.Numerics.Vector3[]? GetVertexNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
+    public void SetVertexNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
+
+    
+    public int GetVertexTangentsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
+    public System.Numerics.Vector3[]? GetVertexTangents() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexTangents);
+    public void SetVertexTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
+
+    
+    public int GetVertexColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
+    public Color32[]? GetVertexColors() => GetVertexAttributeData<Color32>(_vertexColors);
+    public void SetVertexColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
+
+    
+    public int GetBoneWeightsNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneWeights, destination);
+    public System.Numerics.Vector4[]? GetBoneWeights() => GetVertexAttributeData<System.Numerics.Vector4>(_boneWeights);
+    public void SetBoneWeights(ArraySegment<System.Numerics.Vector4>? weights) => SetVertexAttributeData(weights, ref _boneWeights);
+
+    
+    public int GetBoneIndicesNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneIndices, destination);
+    public System.Numerics.Vector4[]? GetBoneIndices() => GetVertexAttributeData<System.Numerics.Vector4>(_boneIndices);
+    public void SetBoneIndices(ArraySegment<System.Numerics.Vector4>? indices) => SetVertexAttributeData(indices, ref _boneIndices);
 
 
     public int GetIndicesNonAlloc(IList<int> destination)
@@ -424,8 +434,6 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 throw new ArgumentOutOfRangeException();
         }
     }
-
-
     public int[]? GetIndices()
     {
         int[] indices = new int[IndexCount];
@@ -460,8 +468,6 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 throw new ArgumentOutOfRangeException();
         }
     }
-
-
     public void SetIndices(int[] indices)
     {
         // Validate the indices. Each index must be in the range [0, VertexCount - 1], and the number of indices must be a multiple of 3.
@@ -1125,11 +1131,15 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             return ref _vertexTexCoord1;
         if (attribute == VertexAttribute.Normal)
             return ref _vertexNormals;
-        if (attribute == VertexAttribute.Color)
-            return ref _vertexColors;
         if (attribute == VertexAttribute.Tangent)
             return ref _vertexTangents;
-        throw new ArgumentOutOfRangeException(nameof(attribute), attribute, null);
+        if (attribute == VertexAttribute.Color)
+            return ref _vertexColors;
+        if (attribute == VertexAttribute.BoneWeights)
+            return ref _boneWeights;
+        if (attribute == VertexAttribute.BoneIndices)
+            return ref _boneIndices;
+        throw new ArgumentOutOfRangeException(nameof(attributeSemantic), attribute, null);
     }
 
 
@@ -1148,11 +1158,17 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (HasVertexNormals)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeType.Float, 3, true));
 
-        if (HasVertexColors)
-            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeType.Float, 4));
-
         if (HasVertexTangents)
             attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeType.Float, 3, true));
+
+        if (HasVertexColors)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeType.Float, 4));
+        
+        if (HasBoneWeights)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.BoneWeights, VertexAttributeType.Float, 4));
+        
+        if (HasBoneIndices)
+            attributes.Add(new MeshVertexLayout.VertexAttributeDescriptor(VertexAttribute.BoneIndices, VertexAttributeType.Float, 4));
 
         return new MeshVertexLayout(attributes.ToArray());
     }
@@ -1164,8 +1180,10 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         _vertexTexCoord0 = null;
         _vertexTexCoord1 = null;
         _vertexNormals = null;
-        _vertexColors = null;
         _vertexTangents = null;
+        _vertexColors = null;
+        _boneWeights = null;
+        _boneIndices = null;
         VertexCount = 0;
         _isDirty = true;
     }
