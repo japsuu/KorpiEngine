@@ -18,11 +18,6 @@ public abstract class Resource : IDisposable
     public bool IsDestroyed { get; private set; }
 
 
-    protected Resource() : this(null)
-    {
-    }
-
-
     protected Resource(string? name = "New Resource")
     {
         InstanceID = nextID++;
