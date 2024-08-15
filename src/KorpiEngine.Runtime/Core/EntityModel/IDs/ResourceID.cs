@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.EntityModel.IDs;
 
-public static class EntityID
+public static class ResourceID
 {
     private static int nextID;
     
@@ -10,7 +10,7 @@ public static class EntityID
     public static int Generate()
     {
         int id = Interlocked.Increment(ref nextID);
-        Debug.Assert(id != int.MaxValue, "EntityID overflow!");
+        Debug.Assert(id != int.MaxValue, "ResourceID overflow!");
         return id;
     }
 }

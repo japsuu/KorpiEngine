@@ -1,13 +1,19 @@
-﻿namespace KorpiEngine.Core;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.EntityModel.IDs;
 
+namespace KorpiEngine.Core;
+
+#warning TODO: Implement leak detection similar to GraphicsResource.
 public abstract class Resource : IDisposable
 {
     private static readonly Stack<Resource> DestroyedResources = new();
     private static readonly Dictionary<int, WeakReference<Resource>> AllResources = new();
-    private static int nextID;
 
+    /// <summary>
+    /// Unique identifier for this resource.
+    /// </summary>
     public readonly int InstanceID;
-    public string Name;
+    public string Name { get; set; }
     
     // Asset path if we have one
     public Guid AssetID { get; internal set; } = Guid.Empty;
@@ -20,13 +26,20 @@ public abstract class Resource : IDisposable
 
     protected Resource(string? name = "New Resource")
     {
-        InstanceID = nextID++;
+        InstanceID = ResourceID.Generate();
         AllResources.Add(InstanceID, new WeakReference<Resource>(this));
 
-        if (name == null)
-            Name = "New " + GetType().Name;
-        else
-            Name = name;
+        Name = name ?? $"New {GetType().Name}";
+    }
+    
+    
+    ~Resource()
+    {
+        if (IsDestroyed)
+            return;
+
+        Application.Logger.Warn($"Resource {InstanceID} ({Name}) was not destroyed before being garbage collected. This is potentially a memory leak.");
+        DestroyImmediate();
     }
     
     
@@ -36,10 +49,10 @@ public abstract class Resource : IDisposable
     /// </summary>
     public void Dispose()
     {
-        IsDestroyed = true;
-        GC.SuppressFinalize(this);
         OnDispose();
+        IsDestroyed = true;
         AllResources.Remove(InstanceID);
+        GC.SuppressFinalize(this);
     }
 
 
@@ -51,7 +64,7 @@ public abstract class Resource : IDisposable
     private static void Destroy(Resource obj)
     {
         if (obj.IsDestroyed)
-            throw new Exception(obj.Name + " is already destroyed.");
+            throw new ResourceDestroyedException($"{obj.Name} is already destroyed.");
         obj.IsDestroyed = true;
         DestroyedResources.Push(obj);
     }
@@ -60,7 +73,7 @@ public abstract class Resource : IDisposable
     private static void DestroyImmediate(Resource obj)
     {
         if (obj.IsDestroyed)
-            throw new Exception(obj.Name + " is already destroyed.");
+            throw new ResourceDestroyedException($"{obj.Name} is already destroyed.");
         obj.IsDestroyed = true;
         obj.Dispose();
     }
@@ -110,12 +123,11 @@ public abstract class Resource : IDisposable
             return null;
 
         return t;
-    }*/
+    }
 
 
-    /*public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
+    public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
     {
-#warning TODO: Implement custom serialization for EngineObject
         if (obj.IsDestroyed)
             throw new Exception(obj.Name + " has been destroyed.");
 

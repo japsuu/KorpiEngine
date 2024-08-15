@@ -12,22 +12,12 @@ namespace KorpiEngine.Core.EntityModel;
 /// Container for components and systems.
 /// </summary>
 #warning TODO: Split Entity.cs to partial classes
-public sealed class Entity
+public sealed class Entity : Resource
 {
-    /// <summary>
-    /// Unique identifier for this entity.
-    /// </summary>
-    public readonly int InstanceID;
-    
     /// <summary>
     /// The scene this entity is in.
     /// </summary>
     public readonly Scene Scene;
-
-    /// <summary>
-    /// The name of this entity.
-    /// </summary>
-    public string Name;
 
     /// <summary>
     /// The transform of this entity.
@@ -90,7 +80,6 @@ public sealed class Entity
     /// </summary>
     public IReadOnlyList<Entity> Children => ChildList;
 
-    internal bool IsDestroyed { get; private set; }
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
     internal List<Entity> ChildList { get; } = [];
@@ -115,9 +104,8 @@ public sealed class Entity
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    internal Entity(Scene scene, string? name)
+    internal Entity(Scene scene, string? name) : base(name)
     {
-        InstanceID = EntityID.Generate();
         Name = name ?? $"Entity {InstanceID}";
         Scene = scene;
         _entityScene = scene.EntityScene;
@@ -126,24 +114,11 @@ public sealed class Entity
     }
 
 
-    ~Entity()
-    {
-        if (IsDestroyed)
-            return;
-
-        Application.Logger.Warn($"Entity {InstanceID} ({Name}) was not destroyed before being garbage collected. This is a memory leak.");
-        Destroy();
-    }
-
-
-    /// <summary>
-    /// Destroys the entity and all of its components and systems.
-    /// </summary>
-    public void Destroy()
+    protected override void OnDispose()
     {
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (ChildList.Count > 0)
-            ChildList[0].Destroy();
+            ChildList[0].DestroyImmediate();
 
         RemoveAllSystems();
 
@@ -155,8 +130,6 @@ public sealed class Entity
 
         _entityScene.UnregisterEntity(this);
         Parent?.ChildList.Remove(this);
-
-        IsDestroyed = true;
     }
 
     #endregion

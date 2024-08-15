@@ -154,7 +154,7 @@ internal sealed class EntityScene
         
         // Destroy all entities (includes their systems and components).
         foreach (Entity entity in _entities)
-            entity.Destroy();
+            entity.DestroyImmediate();
     }
 
     #endregion
