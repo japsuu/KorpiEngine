@@ -42,7 +42,7 @@ public sealed class DirectionalLight : EntityComponent
     public float ShadowBias { get; set; } = 0.001f;
     public float ShadowNormalBias { get; set; } = 0.1f;
 
-    private Resolution _shadowResolution = Resolution._1024;
+    private Resolution _shadowResolution = Resolution._2048;
     private Material? _lightMat;
     private RenderTexture? _shadowMap;
     private Matrix4x4 _depthMVP;
