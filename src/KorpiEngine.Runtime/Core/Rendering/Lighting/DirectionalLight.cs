@@ -146,6 +146,14 @@ internal class DirectionalLightEditor(DirectionalLight target) : EntityComponent
 {
     protected override void DrawEditor()
     {
+        ImGui.Text("Orientation");
+        System.Numerics.Vector3 forward = new((float)target.Entity.Transform.Forward.X, (float)target.Entity.Transform.Forward.Y, (float)target.Entity.Transform.Forward.Z);
+        if (ImGui.DragFloat3("Forward", ref forward, 0.01f))
+        {
+            Vector3 newForward = new Vector3(forward.X, forward.Y, forward.Z);
+            target.Entity.Transform.Forward = newForward;
+        }
+        
         ImGui.Text("Color");
         System.Numerics.Vector4 color = new(target.Color.R, target.Color.G, target.Color.B, target.Color.A);
         if (ImGui.ColorEdit4("##Color", ref color))
