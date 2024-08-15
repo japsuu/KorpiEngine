@@ -20,7 +20,7 @@ public static class Texture2DLoader
 
         image.Flip();
 
-        const TextureImageFormat format = TextureImageFormat.RGBA_16_US;
+        const TextureImageFormat format = TextureImageFormat.RGBA_16_UF;
         image.ColorSpace = ColorSpace.sRGB;
         image.ColorType = ColorType.TrueColorAlpha;
 
@@ -29,10 +29,7 @@ public static class Texture2DLoader
         Texture2D texture = new(image.Width, image.Height, false, format);
         try
         {
-            unsafe
-            {
-                Graphics.Driver.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, (void*)pixels);
-            }
+            Graphics.Device.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, pixels);
 
             if (generateMipmaps)
                 texture.GenerateMipmaps();

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Xml.Xsl;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.Rendering;
@@ -12,7 +13,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 /// <summary>
 /// OpenGL graphics driver.
 /// </summary>
-internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
+internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 {
 #if DEBUG
     private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
@@ -27,6 +28,9 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     private bool _depthTest = true;
     private bool _depthWrite = true;
     private DepthMode _depthMode = DepthMode.LessOrEqual;
+    
+    private bool _scissorTest = false;
+    private int _scissorLeft, _scissorBottom, _scissorWidth, _scissorHeight, _scissorIndex;
 
     private bool _doBlend = true;
     private BlendType _blendSrc = BlendType.SrcAlpha;
@@ -68,37 +72,19 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region State
 
-    public override void SetState(RasterizerState state, bool force = false)
+    protected override void SetStateInternal(RasterizerState state, bool force = false)
     {
-        if (_depthTest != state.EnableDepthTest || force)
-        {
-            if (state.EnableDepthTest)
-                GL.Enable(EnableCap.DepthTest);
-            else
-                GL.Disable(EnableCap.DepthTest);
-            _depthTest = state.EnableDepthTest;
-        }
+        SetEnableDepthTest(state.EnableDepthTest, force);
 
-        if (_depthWrite != state.EnableDepthWrite || force)
-        {
-            GL.DepthMask(state.EnableDepthWrite);
-            _depthWrite = state.EnableDepthWrite;
-        }
+        SetEnableDepthWrite(state.EnableDepthWrite, force);
 
         if (_depthMode != state.DepthMode || force)
         {
             GL.DepthFunc((DepthFunction)state.DepthMode);
             _depthMode = state.DepthMode;
         }
-
-        if (_doBlend != state.EnableBlend || force)
-        {
-            if (state.EnableBlend)
-                GL.Enable(EnableCap.Blend);
-            else
-                GL.Disable(EnableCap.Blend);
-            _doBlend = state.EnableBlend;
-        }
+        
+        SetEnableBlending(state.EnableBlend, force);
 
         if (_blendSrc != state.BlendSrc || _blendDst != state.BlendDst || force)
         {
@@ -113,14 +99,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             _blendEquation = state.BlendMode;
         }
 
-        if (_doCull != state.EnableCulling || force)
-        {
-            if (state.EnableCulling)
-                GL.Enable(EnableCap.CullFace);
-            else
-                GL.Disable(EnableCap.CullFace);
-            _doCull = state.EnableCulling;
-        }
+        SetEnableCulling(state.EnableCulling, force);
 
         if (_cullFace != state.FaceCulling || force)
         {
@@ -136,7 +115,86 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override RasterizerState GetState() =>
+    protected override void SetEnableDepthTestInternal(bool enable, bool force = false)
+    {
+        if (_depthTest == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.DepthTest);
+        else
+            GL.Disable(EnableCap.DepthTest);
+        
+        _depthTest = enable;
+    }
+
+
+    protected override void SetEnableDepthWriteInternal(bool enable, bool force = false)
+    {
+        if (_depthWrite == enable && !force)
+            return;
+        
+        GL.DepthMask(enable);
+        
+        _depthWrite = enable;
+    }
+
+
+    protected override void SetEnableBlendingInternal(bool enable, bool force = false)
+    {
+        if (_doBlend == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.Blend);
+        else
+            GL.Disable(EnableCap.Blend);
+        
+        _doBlend = enable;
+    }
+
+
+    protected override void SetEnableCullingInternal(bool enable, bool force = false)
+    {
+        if (_doCull == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.CullFace);
+        else
+            GL.Disable(EnableCap.CullFace);
+        
+        _doCull = enable;
+    }
+
+
+    protected override void SetEnableScissorTestInternal(bool enable, bool force = false)
+    {
+        if (_scissorTest == enable && !force)
+            return;
+        
+        if (enable)
+            GL.Enable(EnableCap.ScissorTest);
+        else
+            GL.Disable(EnableCap.ScissorTest);
+        
+        _scissorTest = enable;
+    }
+
+
+    protected override void SetScissorRectInternal(int index, int left, int bottom, int width, int height)
+    {
+        GL.ScissorIndexed(index, left, bottom, width, height);
+        
+        _scissorLeft = left;
+        _scissorBottom = bottom;
+        _scissorWidth = width;
+        _scissorHeight = height;
+        _scissorIndex = index;
+    }
+
+
+    protected override RasterizerState GetStateInternal() =>
         new()
         {
             EnableDepthTest = _depthTest,
@@ -151,13 +209,13 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         };
 
 
-    public override void UpdateViewport(int x, int y, int width, int height)
+    protected override void UpdateViewportInternal(int x, int y, int width, int height)
     {
         GL.Viewport(x, y, width, height);
     }
 
 
-    public override void Clear(float r, float g, float b, float a, ClearFlags flags)
+    protected override void ClearInternal(float r, float g, float b, float a, ClearFlags flags)
     {
         GL.ClearColor(r, g, b, a);
 
@@ -171,39 +229,52 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.Clear(clearBufferMask);
     }
 
+
+    protected override void SetWireframeModeInternal(bool enabled)
+    {
+        GL.PolygonMode(MaterialFace.FrontAndBack, enabled ? PolygonMode.Line : PolygonMode.Fill);
+    }
+
     #endregion
 
 
     #region Buffers
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    protected override GraphicsBuffer CreateBufferInternal<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data)
         {
-            return new GLBuffer(bufferType, data.Length * sizeof(T), dat, dynamic);
+            return new GLBuffer(bufferType, data.Length * sizeof(T), (nint)dat, dynamic);
         }
     }
 
 
-    public override void SetBuffer<T>(GraphicsBuffer buffer, T[] data, bool dynamic = false)
+    protected override void SetBufferInternal<T>(GraphicsBuffer buffer, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data)
         {
-            (buffer as GLBuffer)!.Set(data.Length * sizeof(T), dat, dynamic);
+            (buffer as GLBuffer)!.Set(data.Length * sizeof(T), (nint)dat, dynamic);
         }
     }
 
 
-    public override void UpdateBuffer<T>(GraphicsBuffer buffer, int offsetInBytes, T[] data)
+    protected override void UpdateBufferInternal<T>(GraphicsBuffer buffer, int offsetInBytes, T[] data)
     {
-        fixed (void* dat = data)
+        fixed (void* ptr = data)
         {
-            (buffer as GLBuffer)!.Update(offsetInBytes, data.Length * sizeof(T), dat);
+            int sizeInBytes = data.Length * sizeof(T);
+            UpdateBuffer(buffer, offsetInBytes, sizeInBytes, (nint)ptr);
         }
     }
 
 
-    public override void BindBuffer(GraphicsBuffer buffer)
+    protected override void UpdateBufferInternal(GraphicsBuffer buffer, int offsetInBytes, int sizeInBytes, nint data)
+    {
+        (buffer as GLBuffer)!.Update(offsetInBytes, sizeInBytes, data);
+    }
+
+
+    protected override void BindBufferInternal(GraphicsBuffer buffer)
     {
         if (buffer is GLBuffer glBuffer)
             GL.BindBuffer(glBuffer.Target, glBuffer.Handle);
@@ -214,11 +285,11 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Vertex Arrays
 
-    public override GraphicsVertexArrayObject CreateVertexArray(MeshVertexLayout layout, GraphicsBuffer vertices, GraphicsBuffer? indices) =>
+    protected override GraphicsVertexArrayObject CreateVertexArrayInternal(MeshVertexLayout layout, GraphicsBuffer vertices, GraphicsBuffer? indices) =>
         new GLVertexArrayObject(layout, vertices, indices);
 
 
-    public override void BindVertexArray(GraphicsVertexArrayObject? vertexArrayObject)
+    protected override void BindVertexArrayInternal(GraphicsVertexArrayObject? vertexArrayObject)
     {
         GL.BindVertexArray((vertexArrayObject as GLVertexArrayObject)?.Handle ?? 0);
     }
@@ -228,25 +299,25 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Frame Buffers
 
-    public override GraphicsFrameBuffer CreateFramebuffer(GraphicsFrameBuffer.Attachment[] attachments) => new GLFrameBuffer(attachments);
+    protected override GraphicsFrameBuffer CreateFramebufferInternal(GraphicsFrameBuffer.Attachment[] attachments) => new GLFrameBuffer(attachments);
 
-    public override void UnbindFramebuffer() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    protected override void UnbindFramebufferInternal() => GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
 
-    public override void BindFramebuffer(GraphicsFrameBuffer frameBuffer, FBOTarget target = FBOTarget.Framebuffer)
+    protected override void BindFramebufferInternal(GraphicsFrameBuffer frameBuffer, FBOTarget target = FBOTarget.Framebuffer)
     {
         GL.BindFramebuffer((FramebufferTarget)target, (frameBuffer as GLFrameBuffer)!.Handle);
     }
 
 
-    public override void BlitFramebuffer(int v1, int v2, int width, int height, int v3, int v4, int v5, int v6, ClearFlags v, BlitFilter filter)
+    protected override void BlitFramebufferInternal(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, ClearFlags clearFlags, BlitFilter filter)
     {
         ClearBufferMask clearBufferMask = 0;
-        if (v.HasFlag(ClearFlags.Color))
+        if (clearFlags.HasFlag(ClearFlags.Color))
             clearBufferMask |= ClearBufferMask.ColorBufferBit;
-        if (v.HasFlag(ClearFlags.Depth))
+        if (clearFlags.HasFlag(ClearFlags.Depth))
             clearBufferMask |= ClearBufferMask.DepthBufferBit;
-        if (v.HasFlag(ClearFlags.Stencil))
+        if (clearFlags.HasFlag(ClearFlags.Stencil))
             clearBufferMask |= ClearBufferMask.StencilBufferBit;
 
         BlitFramebufferFilter nearest = filter switch
@@ -256,11 +327,11 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             _ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
         };
 
-        GL.BlitFramebuffer(v1, v2, width, height, v3, v4, v5, v6, clearBufferMask, nearest);
+        GL.BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, clearBufferMask, nearest);
     }
 
 
-    public override void ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output)
+    protected override void ReadPixelsInternal<T>(int attachment, int x, int y, TextureImageFormat format, IntPtr output)
     {
         GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
         GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
@@ -268,7 +339,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override T ReadPixels<T>(int attachment, int x, int y, TextureImageFormat format)
+    protected override T ReadPixelsInternal<T>(int attachment, int x, int y, TextureImageFormat format)
     {
         GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
         GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
@@ -286,13 +357,12 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Shaders
 
-    public override GraphicsProgram CompileProgram(List<ShaderSourceDescriptor> shaders) => GLGraphicsProgramFactory.Create(shaders);
+    protected override GraphicsProgram CompileProgramInternal(List<ShaderSourceDescriptor> shaders) => GLGraphicsProgramFactory.Create(shaders);
+
+    protected override void BindProgramInternal(GraphicsProgram program) => (program as GLGraphicsProgram)!.Use();
 
 
-    public override void BindProgram(GraphicsProgram program) => (program as GLGraphicsProgram)!.Use();
-
-
-    public override int GetUniformLocation(GraphicsProgram program, string name)
+    protected override int GetUniformLocationInternal(GraphicsProgram program, string name)
     {
         string key = $"{program}:{name}";
         if (CachedUniformLocations.TryGetValue(key, out int loc))
@@ -306,7 +376,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override int GetAttribLocation(GraphicsProgram program, string name)
+    protected override int GetAttribLocationInternal(GraphicsProgram program, string name)
     {
         string key = $"{program}:{name}";
         if (CachedAttribLocations.TryGetValue(key, out int loc))
@@ -320,56 +390,56 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformF(GraphicsProgram program, string name, float value)
+    protected override void SetUniformFInternal(GraphicsProgram program, string name, float value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformF(program, loc, value);
     }
 
 
-    public override void SetUniformI(GraphicsProgram program, string name, int value)
+    protected override void SetUniformIInternal(GraphicsProgram program, string name, int value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformI(program, loc, value);
     }
 
 
-    public override void SetUniformV2(GraphicsProgram program, string name, Vector2 value)
+    protected override void SetUniformV2Internal(GraphicsProgram program, string name, Vector2 value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformV2(program, loc, value);
     }
 
 
-    public override void SetUniformV3(GraphicsProgram program, string name, Vector3 value)
+    protected override void SetUniformV3Internal(GraphicsProgram program, string name, Vector3 value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformV3(program, loc, value);
     }
 
 
-    public override void SetUniformV4(GraphicsProgram program, string name, Vector4 value)
+    protected override void SetUniformV4Internal(GraphicsProgram program, string name, Vector4 value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformV4(program, loc, value);
     }
 
 
-    public override void SetUniformMatrix(GraphicsProgram program, string name, int length, bool transpose, in float m11)
+    protected override void SetUniformMatrixInternal(GraphicsProgram program, string name, int length, bool transpose, in float m11)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformMatrix(program, loc, length, transpose, m11);
     }
 
 
-    public override void SetUniformTexture(GraphicsProgram program, string name, int slot, GraphicsTexture texture)
+    protected override void SetUniformTextureInternal(GraphicsProgram program, string name, int slot, GraphicsTexture texture)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformTexture(program, loc, slot, texture);
     }
 
 
-    public override void SetUniformF(GraphicsProgram program, int loc, float value)
+    protected override void SetUniformFInternal(GraphicsProgram program, int loc, float value)
     {
         if (loc == -1)
             return;
@@ -379,7 +449,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformI(GraphicsProgram program, int loc, int value)
+    protected override void SetUniformIInternal(GraphicsProgram program, int loc, int value)
     {
         if (loc == -1)
             return;
@@ -389,7 +459,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformV2(GraphicsProgram program, int loc, Vector2 value)
+    protected override void SetUniformV2Internal(GraphicsProgram program, int loc, Vector2 value)
     {
         if (loc == -1)
             return;
@@ -399,7 +469,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformV3(GraphicsProgram program, int loc, Vector3 value)
+    protected override void SetUniformV3Internal(GraphicsProgram program, int loc, Vector3 value)
     {
         if (loc == -1)
             return;
@@ -409,7 +479,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformV4(GraphicsProgram program, int loc, Vector4 value)
+    protected override void SetUniformV4Internal(GraphicsProgram program, int loc, Vector4 value)
     {
         if (loc == -1)
             return;
@@ -419,7 +489,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformMatrix(GraphicsProgram program, int loc, int length, bool transpose, in float m11)
+    protected override void SetUniformMatrixInternal(GraphicsProgram program, int loc, int length, bool transpose, in float m11)
     {
         if (loc == -1)
             return;
@@ -432,7 +502,7 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
     }
 
 
-    public override void SetUniformTexture(GraphicsProgram program, int loc, int slot, GraphicsTexture texture)
+    protected override void SetUniformTextureInternal(GraphicsProgram program, int loc, int slot, GraphicsTexture texture)
     {
         if (loc == -1)
             return;
@@ -441,19 +511,19 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
         BindProgram(program);
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
-        GL.BindTexture(glTexture.Target, glTexture.Handle);
+        glTexture.Bind();
         GL.Uniform1(loc, slot);
     }
 
 
-    public override void ClearUniformTexture(GraphicsProgram program, string name, int slot)
+    protected override void ClearUniformTextureInternal(GraphicsProgram program, string name, int slot)
     {
         int loc = GetUniformLocation(program, name);
         ClearUniformTexture(program, loc, slot);
     }
 
 
-    public override void ClearUniformTexture(GraphicsProgram program, int location, int slot)
+    protected override void ClearUniformTextureInternal(GraphicsProgram program, int location, int slot)
     {
         if (location == -1)
             return;
@@ -462,6 +532,9 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(location, 0);
+#if DEBUG
+        TextureSwaps++;
+#endif
     }
 
     #endregion
@@ -469,43 +542,44 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Textures
 
-    public override GraphicsTexture CreateTexture(TextureType type, TextureImageFormat format) => new GLTexture(type, format);
+    protected override GraphicsTexture CreateTextureInternal(TextureType type, TextureImageFormat format) => new GLTexture(type, format);
 
-    public override void SetWrapS(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapS(wrap);
+    protected override void SetWrapSInternal(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapS(wrap);
 
-    public override void SetWrapT(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapT(wrap);
+    protected override void SetWrapTInternal(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapT(wrap);
 
-    public override void SetWrapR(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapR(wrap);
+    protected override void SetWrapRInternal(GraphicsTexture texture, TextureWrap wrap) => (texture as GLTexture)!.SetWrapR(wrap);
 
-    public override void SetTextureFilters(GraphicsTexture texture, TextureMin min, TextureMag mag) => (texture as GLTexture)!.SetTextureFilters(min, mag);
+    protected override void SetTextureFiltersInternal(GraphicsTexture texture, TextureMin min, TextureMag mag) => (texture as GLTexture)!.SetTextureFilters(min, mag);
 
-    public override void GenerateMipmap(GraphicsTexture texture) => (texture as GLTexture)!.GenerateMipmap();
+    protected override void GenerateMipmapInternal(GraphicsTexture texture) => (texture as GLTexture)!.GenerateMipmap();
 
-    public override void GetTexImage(GraphicsTexture texture, int mipLevel, void* data) => (texture as GLTexture)!.GetTexImage(mipLevel, data);
+    protected override void GetTexImageInternal(GraphicsTexture texture, int mipLevel, IntPtr data) => (texture as GLTexture)!.GetTexImage(mipLevel, data);
 
 
-    public override void TexImage2D(GraphicsTexture texture, int mipLevel, int width, int height, int border, void* data) =>
+    protected override void TexImage2DInternal(GraphicsTexture texture, int mipLevel, int width, int height, int border, IntPtr data) =>
         (texture as GLTexture)!.TexImage2D((texture as GLTexture)!.Target, mipLevel, width, height, border, data);
 
 
-    public override void TexImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, void* data) =>
+    protected override void TexImage2DInternal(GraphicsTexture texture, CubemapFace face, int mipLevel, int width, int height, int border, IntPtr data) =>
         (texture as GLTexture)!.TexImage2D((TextureTarget)face, mipLevel, width, height, border, data);
 
 
-    public override void TexImage3D(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, void* data) =>
+    protected override void TexImage3DInternal(GraphicsTexture texture, int mipLevel, int width, int height, int depth, int border, IntPtr data) =>
         (texture as GLTexture)!.TexImage3D((texture as GLTexture)!.Target, mipLevel, width, height, depth, border, data);
 
 
-    public override void TexSubImage2D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, void* data) =>
+    protected override void TexSubImage2DInternal(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int width, int height, IntPtr data) =>
         (texture as GLTexture)!.TexSubImage2D((texture as GLTexture)!.Target, mipLevel, xOffset, yOffset, width, height, data);
 
 
-    public override void TexSubImage2D(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height, void* data) =>
+    protected override void TexSubImage2DInternal(GraphicsTexture texture, CubemapFace face, int mipLevel, int xOffset, int yOffset, int width, int height,
+        IntPtr data) =>
         (texture as GLTexture)!.TexSubImage2D((TextureTarget)face, mipLevel, xOffset, yOffset, width, height, data);
 
 
-    public override void TexSubImage3D(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth,
-        void* data) =>
+    protected override void TexSubImage3DInternal(GraphicsTexture texture, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth,
+        IntPtr data) =>
         (texture as GLTexture)!.TexSubImage3D((texture as GLTexture)!.Target, mipLevel, xOffset, yOffset, zOffset, width, height, depth, data);
 
     #endregion
@@ -513,9 +587,9 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
 
     #region Drawing
 
-    public override void DrawArrays(Topology primitiveType, int startIndex, int count)
+    protected override void DrawArraysInternal(Topology topology, int indexOffset, int count)
     {
-        PType mode = primitiveType switch
+        PType mode = topology switch
         {
             Topology.Points => PType.Points,
             Topology.Lines => PType.Lines,
@@ -525,15 +599,15 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             Topology.TriangleStrip => PType.TriangleStrip,
             Topology.TriangleFan => PType.TriangleFan,
             Topology.Quads => PType.Quads,
-            _ => throw new ArgumentOutOfRangeException(nameof(primitiveType), primitiveType, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(topology), topology, null)
         };
-        GL.DrawArrays(mode, startIndex, count);
+        GL.DrawArrays(mode, indexOffset, count);
     }
 
 
-    public override void DrawElements(Topology triangles, int indexCount, bool isIndex32Bit, void* indexOffset)
+    protected override void DrawElementsInternal(Topology topology, int indexOffset, int count, bool isIndex32Bit)
     {
-        PType mode = triangles switch
+        PType mode = topology switch
         {
             Topology.Points => PType.Points,
             Topology.Lines => PType.Lines,
@@ -543,9 +617,27 @@ internal sealed unsafe class GLGraphicsDriver : GraphicsDriver
             Topology.TriangleStrip => PType.TriangleStrip,
             Topology.TriangleFan => PType.TriangleFan,
             Topology.Quads => PType.Quads,
-            _ => throw new ArgumentOutOfRangeException(nameof(triangles), triangles, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(topology), topology, null)
         };
-        GL.DrawElements(mode, indexCount, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, (IntPtr)indexOffset);
+        GL.DrawElements(mode, count, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, indexOffset);
+    }
+
+
+    protected override void DrawElementsInternal(Topology topology, int indexOffset, int count, bool isIndex32Bit, int vertexOffset)
+    {
+        PType mode = topology switch
+        {
+            Topology.Points => PType.Points,
+            Topology.Lines => PType.Lines,
+            Topology.LineLoop => PType.LineLoop,
+            Topology.LineStrip => PType.LineStrip,
+            Topology.Triangles => PType.Triangles,
+            Topology.TriangleStrip => PType.TriangleStrip,
+            Topology.TriangleFan => PType.TriangleFan,
+            Topology.Quads => PType.Quads,
+            _ => throw new ArgumentOutOfRangeException(nameof(topology), topology, null)
+        };
+        GL.DrawElementsBaseVertex(mode, count, isIndex32Bit ? DrawElementsType.UnsignedInt : DrawElementsType.UnsignedShort, indexOffset, vertexOffset);
     }
 
     #endregion

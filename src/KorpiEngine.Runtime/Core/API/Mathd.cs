@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.API;
 
-public static class Maths
+public static class Mathd
 {
     private const MethodImplOptions IN = MethodImplOptions.AggressiveInlining;
 

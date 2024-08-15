@@ -15,25 +15,25 @@ public sealed class TextureCubemap : Texture
     /// </summary>
     /// <param name="size">The size (width and height) of the cubemap's faces.</param>
     /// <param name="imageFormat">The image format for this <see cref="TextureCubemap"/>.</param>
-    public TextureCubemap(int size, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_B) : base(TextureType.TextureCubeMap, imageFormat)
+    public TextureCubemap(int size, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(TextureType.TextureCubeMap, imageFormat)
     {
         if (size <= 0 || size > SystemInfo.MaxCubeMapTextureSize)
             throw new ArgumentOutOfRangeException(nameof(size), size, $"Cubemap size must be in the range (0, {SystemInfo.MaxCubeMapTextureSize}]");
 
         Size = size;
-        Graphics.Driver.SetWrapS(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetWrapT(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetWrapR(Handle, TextureWrap.ClampToEdge);
-        Graphics.Driver.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Graphics.Device.SetWrapS(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetWrapT(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetWrapR(Handle, TextureWrap.ClampToEdge);
+        Graphics.Device.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
 
         unsafe
         {
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, (void*)0);
-            Graphics.Driver.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, (void*)0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, 0);
+            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, 0);
         }
     }
 
@@ -47,12 +47,12 @@ public sealed class TextureCubemap : Texture
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(CubemapFace face, void* ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public void SetDataPtr(CubemapFace face, nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateCubemapFace(face);
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-        Graphics.Driver.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+        Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
     }
 
 
@@ -75,7 +75,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, face, 0, rectX, rectY, rectWidth, rectHeight, (nint)ptr);
         }
     }
 
@@ -97,10 +97,10 @@ public sealed class TextureCubemap : Texture
     /// </summary>
     /// <param name="face">The face of the cubemap to set data for.</param>
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
-    public unsafe void GetDataPtr(CubemapFace face, void* ptr)
+    public void GetDataPtr(CubemapFace face, nint ptr)
     {
         ValidateCubemapFace(face);
-        Graphics.Driver.GetTexImage(Handle, 0, ptr);
+        Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
 
 
@@ -110,7 +110,6 @@ public sealed class TextureCubemap : Texture
     /// <typeparam name="T">A struct with the same format as this <see cref="TextureCubemap"/>'s pixels.</typeparam>
     /// <param name="face">The face of the <see cref="TextureCubemap"/> to set data for.</param>
     /// <param name="data">The array in which to write the texture data.</param>
-    /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
     public unsafe void GetData<T>(CubemapFace face, Span<T> data) where T : unmanaged
     {
         ValidateCubemapFace(face);
@@ -119,7 +118,7 @@ public sealed class TextureCubemap : Texture
 
         fixed (void* ptr = data)
         {
-            Graphics.Driver.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, (nint)ptr);
         }
     }
 
@@ -132,9 +131,9 @@ public sealed class TextureCubemap : Texture
     /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate.</param>
     public void SetWrapModes(TextureWrap sWrapMode, TextureWrap tWrapMode, TextureWrap rWrapMode)
     {
-        Graphics.Driver.SetWrapS(Handle, sWrapMode);
-        Graphics.Driver.SetWrapT(Handle, tWrapMode);
-        Graphics.Driver.SetWrapR(Handle, rWrapMode);
+        Graphics.Device.SetWrapS(Handle, sWrapMode);
+        Graphics.Device.SetWrapT(Handle, tWrapMode);
+        Graphics.Device.SetWrapR(Handle, rWrapMode);
     }
 
 

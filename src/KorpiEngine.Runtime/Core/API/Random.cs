@@ -87,10 +87,10 @@ public static class Random
     public static Vector3 InUnitCube => new(Value, Value, Value);
 
     /// <summary> Returns a random angle in radians from 0 to TAU </summary>
-    public static double Angle => Value * Maths.TAU;
+    public static double Angle => Value * Mathd.TAU;
 
     /// <summary> Returns a random uniformly distributed rotation </summary>
-    public static Quaternion Rotation => new(OnUnitSphere, Value * Maths.TAU);
+    public static Quaternion Rotation => new(OnUnitSphere, Value * Mathd.TAU);
 
     /// <summary> Returns a random Boolean value </summary>
     public static bool Boolean => Value > 0.5f;

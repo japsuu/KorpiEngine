@@ -32,4 +32,22 @@ layout (location = 5) in vec3 vertexTangent;
 vec3 vertexTangent = vec3(1.0, 0.0, 0.0);
 #endif
 
+#ifdef SKINNED
+    #ifdef HAS_BONEINDICES
+    layout (location = 6) in vec4 vertexBoneIndices;
+    #else
+    vec4 vertexBoneIndices = vec4(0, 0, 0, 0);
+    #endif
+    
+    #ifdef HAS_BONEWEIGHTS
+    layout (location = 7) in vec4 vertexBoneWeights;
+    #else
+    vec4 vertexBoneWeights = vec4(0.0, 0.0, 0.0, 0.0);
+    #endif
+    
+    const int MAX_BONE_INFLUENCE = 4;
+    const int MAX_BONES = 100;
+    uniform mat4 bindPoses[MAX_BONES];
+    uniform mat4 boneTransforms[MAX_BONES];
+#endif
 #endif

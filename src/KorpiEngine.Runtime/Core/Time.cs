@@ -42,16 +42,20 @@ public static class Time
     /// For example, when the value of <see cref="FixedAlpha"/> is 0.5, it means we are halfway between the last frame and the next upcoming frame.
     /// </summary>
     public static double FixedAlpha { get; private set; }
+    
+    public static float FrameRate { get; private set; }
 
 
     public static void Update(double deltaTime, double fixedAlpha)
     {
         DeltaTimeDouble = deltaTime;
         DeltaTime = (float) deltaTime;
+        FrameRate = 1.0f / DeltaTime;
         
         FixedAlpha = fixedAlpha;
         
         TotalTime += deltaTime;
+        
         TotalFrameCount++;
     }
 
@@ -68,5 +72,8 @@ public static class Time
         DeltaTime = 0;
         TotalTime = 0;
         TotalFrameCount = 0;
+        TotalFixedFrameCount = 0;
+        FixedAlpha = 0;
+        FrameRate = 0;
     }
 }

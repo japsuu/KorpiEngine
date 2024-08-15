@@ -19,8 +19,8 @@ public sealed class Material : Resource
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
-    private readonly SortedSet<string> _materialKeywords = [];
     private readonly MaterialPropertyBlock _propertyBlock;
+    private readonly SortedSet<string> _materialKeywords = [];
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _materialKeywordsString = "";
@@ -45,7 +45,7 @@ public sealed class Material : Resource
 
 
     #region KEYWORDS
-
+#warning TODO: Print warning if keywords are set after SetPass has been called. SetPass should be called after all keywords are set, since it compiles the shader.
     public void SetKeyword(string keyword, bool state)
     {
         if (state)
@@ -110,18 +110,18 @@ public sealed class Material : Resource
     private void InternalSetPass(Shader.CompiledShader.Pass pass, bool apply = false)
     {
         // Set the shader
-        Graphics.Driver.SetState(pass.State);
-        Graphics.Driver.BindProgram(pass.Program);
+        Graphics.Device.SetState(pass.State);
+        Graphics.Device.BindProgram(pass.Program);
 
         if (apply)
-            ApplyPropertyBlock(Graphics.Driver.CurrentProgram!);
+            ApplyPropertyBlock(Graphics.Device.CurrentProgram!);
     }
 
     #endregion
 
 
     #region VARIANT COMPILATION
-
+#warning TODO: Fix shader complied variant naming
     private Shader.CompiledShader GetCompiledVariant()
     {
         //return GetVariantExperimental(_materialKeywords.ToArray());
@@ -272,13 +272,10 @@ public sealed class Material : Resource
     }
 
 
-    public void SetTexture(string name, Texture2D value, bool allowFail = false)
+    public void SetTexture(string name, Texture2D? value, bool allowFail = false)
     {
         if (HasVariable(name))
-        {
             _propertyBlock.SetTexture(name, value);
-            //Console.WriteLine($"SetTex {Name}: {name} - {value.Name}");
-        }
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }

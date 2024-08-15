@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
+﻿using KorpiEngine.Core.API;
+using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering.Cameras;
 
@@ -199,6 +200,30 @@ internal sealed class EntityScene
             if (comp.EnabledInHierarchy)
                 if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
                     comp.RenderObjectDepth();
+    }
+    
+    
+    internal void InvokeDrawGizmos()
+    {
+        Gizmos.AllowCreation = true;
+        foreach (EntityComponent comp in Components)
+        {
+            comp.DrawGizmos();
+            Gizmos.ResetColor();
+        }
+        Gizmos.AllowCreation = false;
+    }
+    
+    
+    internal void InvokeDrawDepthGizmos()
+    {
+        Gizmos.AllowCreation = true;
+        foreach (EntityComponent comp in Components)
+        {
+            comp.DrawDepthGizmos();
+            Gizmos.ResetColor();
+        }
+        Gizmos.AllowCreation = false;
     }
 
 

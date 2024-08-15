@@ -26,19 +26,19 @@ public class PointLight : EntityComponent
         Matrix4x4 mat = Matrix4x4.CreateScale(Radius) * Entity.GlobalCameraRelativeTransform;
         if (_lightMat == null)
         {
-            _lightMat = new Material(Shader.Find("Defaults/PointLight.shader"), "point light material");
+            _lightMat = new Material(Shader.Find("Defaults/PointLight.kshader"), "point light material");
         }
         else
         {
-            if (_lastCamID != CameraComponent.RenderingCamera.InstanceID)
+            if (_lastCamID != Camera.RenderingCamera.InstanceID)
             {
-                _lastCamID = CameraComponent.RenderingCamera.InstanceID;
-                _lightMat.SetTexture("_GAlbedoAO", CameraComponent.RenderingCamera.GBuffer!.AlbedoAO);
-                _lightMat.SetTexture("_GNormalMetallic", CameraComponent.RenderingCamera.GBuffer.NormalMetallic);
-                _lightMat.SetTexture("_GPositionRoughness", CameraComponent.RenderingCamera.GBuffer.PositionRoughness);
+                _lastCamID = Camera.RenderingCamera.InstanceID;
+                _lightMat.SetTexture("_GAlbedoAO", Camera.RenderingCamera.GBuffer!.AlbedoAO);
+                _lightMat.SetTexture("_GNormalMetallic", Camera.RenderingCamera.GBuffer.NormalMetallic);
+                _lightMat.SetTexture("_GPositionRoughness", Camera.RenderingCamera.GBuffer.PositionRoughness);
             }
 
-            _lightMat.SetVector("_LightPosition", Vector3.Transform(Entity.Transform.Position - CameraComponent.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
+            _lightMat.SetVector("_LightPosition", Vector3.Transform(Entity.Transform.Position - Camera.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
             _lightMat.SetColor("_LightColor", Color);
             _lightMat.SetFloat("_LightRadius", Radius);
             _lightMat.SetFloat("_LightIntensity", Intensity);
@@ -48,8 +48,8 @@ public class PointLight : EntityComponent
             Graphics.DrawMeshNow(_mesh, mat, _lightMat);
         }
 
-        /*Gizmos.Matrix = Entity.Transform.localToWorldMatrix;
-        Gizmos.Color = Color.yellow;
-        Gizmos.DrawSphere(Vector3.zero, radius);*/
+        Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
+        Gizmos.Color = Color.Yellow;
+        Gizmos.DrawSphere(Vector3.Zero, Radius);
     }
 }

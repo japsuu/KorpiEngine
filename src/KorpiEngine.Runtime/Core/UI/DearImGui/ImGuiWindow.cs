@@ -1,17 +1,19 @@
 ﻿using ImGuiNET;
 using KorpiEngine.Core.Logging;
 
-namespace KorpiEngine.Core.UI.ImGui;
+namespace KorpiEngine.Core.UI.DearImGui;
 
-public abstract class ImGuiWindow
+public abstract class ImGuiWindow : IDisposable
 {
     protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ImGuiWindow));
-    
-    protected ImGuiWindowFlags Flags = ImGuiWindowFlags.None;
+
+    protected virtual ImGuiWindowFlags Flags { get; } = ImGuiWindowFlags.None;
     
     public abstract string Title { get; }
     
     public bool IsVisible { get; private set; } = true;
+    
+    private bool _isDestroyed;
 
 
     protected ImGuiWindow(bool autoRegister)
@@ -29,8 +31,8 @@ public abstract class ImGuiWindow
     
     public void Update()
     {
-        // Only update if the window is visible and the time since the last update exceeds the update rate.
-        if (!IsVisible)
+        // Only update if the window is visible.
+        if (!IsVisible || _isDestroyed)
             return;
         
         PreUpdate();
@@ -43,11 +45,28 @@ public abstract class ImGuiWindow
     }
     
     
+    public void Destroy()
+    {
+        if (_isDestroyed)
+            return;
+        
+        OnDestroy();
+        
+        ImGuiWindowManager.UnregisterWindow(this);
+        _isDestroyed = true;
+    }
+    
+    
     protected virtual void PreUpdate() { }
-    
-    
-    public virtual void Dispose() { }
+    protected virtual void OnDestroy() { }
 
     
     protected abstract void DrawContent();
+
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this);
+    }
 }

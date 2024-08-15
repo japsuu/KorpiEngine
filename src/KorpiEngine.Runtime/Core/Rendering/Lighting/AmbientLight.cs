@@ -19,14 +19,14 @@ public class AmbientLight : EntityComponent
     
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.shader"), "ambient light material");
+        _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.kshader"), "ambient light material");
 
         _lightMat.SetColor("_SkyColor", SkyColor);
         _lightMat.SetColor("_GroundColor", GroundColor);
         _lightMat.SetFloat("_SkyIntensity", SkyIntensity);
         _lightMat.SetFloat("_GroundIntensity", GroundIntensity);
 
-        GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
         _lightMat.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _lightMat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _lightMat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);

@@ -39,7 +39,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
     public Vector2 Normalized => Normalize(this);
 
-    public double Magnitude => Maths.Sqrt(X * X + Y * Y);
+    public double Magnitude => Mathd.Sqrt(X * X + Y * Y);
 
     public double SqrMagnitude => X * X + Y * Y;
 
@@ -169,7 +169,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
 
-    public bool IsFinate() => Maths.IsValid(X) && Maths.IsValid(Y);
+    public bool IsFinate() => Mathd.IsValid(X) && Mathd.IsValid(Y);
 
     #endregion Public Instance Methods
 
@@ -183,8 +183,8 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     public static Vector2 Up => new(0.0, 1.0);
     public static Vector2 Down => new(0.0, 1.0);
 
-    public static readonly Vector2 Infinity = new(Maths.INFINITY, Maths.INFINITY);
-    public static readonly Vector2 NegativeInfinity = new(-Maths.INFINITY, -Maths.INFINITY);
+    public static readonly Vector2 Infinity = new(Mathd.INFINITY, Mathd.INFINITY);
+    public static readonly Vector2 NegativeInfinity = new(-Mathd.INFINITY, -Mathd.INFINITY);
 
     #endregion Public Static Properties
 
@@ -192,7 +192,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     #region Public Static Methods
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double AngleBetween(Vector2 from, Vector2 to) => Maths.Acos(Maths.Clamp(Dot(from.Normalized, to.Normalized), -1, 1)) * Maths.RAD_2_DEG;
+    public static double AngleBetween(Vector2 from, Vector2 to) => Mathd.Acos(Mathd.Clamp(Dot(from.Normalized, to.Normalized), -1, 1)) * Mathd.RAD_2_DEG;
 
 
     /// <summary>

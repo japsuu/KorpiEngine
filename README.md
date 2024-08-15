@@ -1,5 +1,17 @@
 # <p align="center">Korpi Engine</p>
 
+<div align="center">
+
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+
+</div>
+
 An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The engine uses a 64-bit
 (double) coordinate system on the CPU and camera-relative rendering on the GPU, to achieve large world support.
 

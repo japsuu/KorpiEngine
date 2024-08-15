@@ -1,0 +1,47 @@
+﻿Shader "Default/ImGui"
+
+Properties
+{
+	_MatProjection("projection matrix", MATRIX_4X4)
+	_MainTexture("main texture", TEXTURE_2D)
+}
+
+Pass 0
+{
+	BlendSrc SrcAlpha
+	BlendDst One
+
+	Vertex
+	{
+		in vec2 in_position;
+        in vec2 in_texCoords;
+        in vec4 in_color;
+        
+		uniform mat4 _MatProjection;
+        
+        out vec4 color;
+        out vec2 texCoords;
+
+		void main()
+        {
+            gl_Position = _MatProjection * vec4(in_position, 0, 1);
+            color = in_color;
+        	texCoords = in_texCoords;
+        }
+	}
+
+	Fragment
+	{
+		in vec4 color;
+        in vec2 texCoords;
+        
+		uniform sampler2D _MainTexture;
+		
+		out vec4 outputColor;
+		
+		void main()
+        {
+            outputColor = color * texture(_MainTexture, texCoords);
+        }
+	}
+}

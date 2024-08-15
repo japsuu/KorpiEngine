@@ -134,12 +134,82 @@ public struct Quaternion : IEquatable<Quaternion>
     /// </summary>
     /// <returns>The length squared of the Quaternion.</returns>
     public double SqrMagnitude() => X * X + Y * Y + Z * Z + W * W;
+    
+#warning TODO: Test Quaterion.LookRotation
+
+
+    #region UNTESTED CODE
+
+    public static Quaternion LookRotation(Vector3 forward, Vector3 upwards = default)
+    {
+        if (upwards == default)
+            upwards = Vector3.Up;
+
+        forward = Vector3.Normalize(forward);
+
+        // Return identity if forward is zero
+        if (forward == Vector3.Zero)
+            return Identity;
+
+        Vector3 right = Vector3.Cross(upwards, forward);
+
+        // If forward and upwards are colinear or upwards is zero, use FromToRotation
+        if (right == Vector3.Zero || upwards == Vector3.Zero)
+        {
+            return FromToRotation(new Vector3(0, 0, 1), forward);
+        }
+
+        right = Vector3.Normalize(right);
+        Vector3 up = Vector3.Cross(forward, right);
+
+        // Construct a rotation from the right, up, and forward vectors
+        Matrix4x4 m = new Matrix4x4(
+            right.X, right.Y, right.Z, 0,
+            up.X, up.Y, up.Z, 0,
+            forward.X, forward.Y, forward.Z, 0,
+            0, 0, 0, 1);
+
+        return MatrixToQuaternion(m);
+    }
+    
+    
+    public static Quaternion FromToRotation(Vector3 fromDirection, Vector3 toDirection)
+    {
+        fromDirection = Vector3.Normalize(fromDirection);
+        toDirection = Vector3.Normalize(toDirection);
+
+        Vector3 crossProd = Vector3.Cross(fromDirection, toDirection);
+        double dotProd = Vector3.Dot(fromDirection, toDirection);
+        double angle = Math.Acos(dotProd);
+
+        // Handle parallel vectors
+        if (crossProd.Magnitude < Mathd.EPSILON)
+        {
+            // If vectors are opposite
+            if (dotProd < -1 + Mathd.EPSILON)
+            {
+                // Find an orthogonal vector to use as the rotation axis
+                Vector3 orthogonal = Math.Abs(fromDirection.X) < Math.Abs(fromDirection.Y) ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0);
+                crossProd = Vector3.Cross(fromDirection, orthogonal);
+            }
+            else
+            {
+                // Vectors are the same
+                return Identity;
+            }
+        }
+
+        crossProd = Vector3.Normalize(crossProd);
+        return AngleAxis(angle, crossProd);
+    }
+
+    #endregion
 
 
     public static Quaternion NormalizeSafe(Quaternion q)
     {
         double mag = q.Magnitude();
-        if (mag < Maths.EPSILON)
+        if (mag < Mathd.EPSILON)
             return Identity;
         else
             return q / mag;
@@ -464,13 +534,13 @@ public struct Quaternion : IEquatable<Quaternion>
     /// <summary>
     /// Returns the angle in degrees between two rotations.</para>
     /// </summary>
-    public static double Angle(Quaternion a, Quaternion b) => Maths.Acos(Maths.Min(Maths.Abs(Dot(a, b)), 1.0)) * 2.0 * Maths.RAD_2_DEG;
+    public static double Angle(Quaternion a, Quaternion b) => Mathd.Acos(Mathd.Min(Mathd.Abs(Dot(a, b)), 1.0)) * 2.0 * Mathd.RAD_2_DEG;
 
 
     public static Quaternion RotateTowards(Quaternion from, Quaternion to, double maxDegreesDelta)
     {
         double angle = Angle(from, to);
-        return angle == 0.0 ? to : Slerp(from, to, Maths.Min(1.0, maxDegreesDelta / angle));
+        return angle == 0.0 ? to : Slerp(from, to, Mathd.Min(1.0, maxDegreesDelta / angle));
     }
 
 

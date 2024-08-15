@@ -91,9 +91,20 @@ Pass 0
 			mat3 normalMatrix = transpose(inverse(mat3(_MatModel)));
 			VertNormal = normalize(normalMatrix * boneVertexNormal);
 			
+			// Transform the tangent vector from object space to world space
 			vec3 T = normalize(vec3(_MatModel * vec4(boneVertexTangent, 0.0)));
+			
+			// Compute the bitangent vector by taking the cross product of the normal and tangent vectors
 			vec3 B = normalize(vec3(_MatModel * vec4(cross(boneVertexNormal, boneVertexTangent), 0.0)));
+			
+			// Transform the normal vector from object space to world space
 			vec3 N = normalize(vec3(_MatModel * vec4(boneVertexNormal, 0.0)));
+			
+			// Construct the TBN matrix.
+			// TBN matrix is used to transform normals from tangent space (normal maps) to world space.
+			// T: Tangent vector
+			// B: Bitangent vector
+			// N: Normal vector
 		    TBN = mat3(T, B, N);
 		
 		    PosProj = _MatMVP * vec4(boneVertexPosition, 1.0);
@@ -161,39 +172,59 @@ Pass 0
 		void main()
 		{
 			vec2 uv = UnjitterTextureUV(TexCoords0, _Jitter);
-			//vec2 uv = TexCoords;
-
-			vec4 alb = texture(_MainTex, uv).rgba; 
-			float rng = InterleavedGradientNoise(gl_FragCoord.xy, _Frame % 32);
-			if(rng > alb.a * _MainColor.a) discard;
-			alb.rgb *= VertColor.rgb;
-
-			// AO, Roughness, Metallic
-			vec3 surface = texture(_SurfaceTex, uv).rgb;
-			// Albedo
-			//gAlbedoAO = vec4(alb.xyz * _MainColor.rgb, ao);
-			gAlbedoAO = vec4(pow(alb.xyz * _MainColor.rgb, vec3(2.2)), surface.r);
-			//gAlbedoAO = vec4(alb.xyz, 1);
-	
-			// Position & Roughness
-			gPositionRoughness = vec4(FragPos, surface.g);
-
-			// Normal & Metallic
-			vec3 normal = texture(_NormalTex, uv).rgb;
-			normal = normal * 2.0 - 1.0;   
-			normal = normalize(TBN * normal); 
-			gNormalMetallic = vec4((_MatView * vec4(normal, 0)).rgb, surface.b);
+			vec4 mainTexture = texture(_MainTex, uv).rgba;
 			
-			// Emission
+			// Discard pixels based on noise
+			float rng = InterleavedGradientNoise(gl_FragCoord.xy, _Frame % 32);
+			if(rng > mainTexture.a * _MainColor.a)
+				discard;
+			
+			// Apply vertex color
+			mainTexture.rgb *= VertColor.rgb;
+
+
+			// -------- AO, Roughness, Metallic -------- //
+			vec3 surface = texture(_SurfaceTex, uv).rgb;
+			float ambientOcclusion = surface.r;
+			float roughness = surface.g;
+			float metallic = surface.b;
+			vec3 albedo = pow(mainTexture.rgb * _MainColor.rgb, vec3(2.2));
+			gAlbedoAO = vec4(albedo, ambientOcclusion);
+
+
+			// -------- Position & Roughness -------- //
+			gPositionRoughness = vec4(FragPos, roughness);
+
+			
+			// -------- Normal & Metallic -------- //
+			// Sample the normal texture in [0, 1] range
+			// Z could be recalculated from X and Y, since it's a unit vector always pointing towards the camera.
+			vec3 textureNormal = texture(_NormalTex, uv).rgb;
+			
+			// Convert to [-1, 1] range
+			vec3 normal = textureNormal * 2.0 - 1.0;
+			
+			// Transform texture normal to world space
+			normal = normalize(TBN * normal);
+			
+			// Transform world space normal to view space
+			normal = normalize((_MatView * vec4(normal, 0.0)).xyz);
+			
+			// Write the transformed view space normal to buffer
+			gNormalMetallic = vec4(normal, metallic);
+			
+			
+			// -------- Emission -------- //
 			gEmission.rgb = (texture(_EmissionTex, uv).rgb + _EmissiveColor.rgb) * _EmissionIntensity;
 
-			// Velocity
+			
+			// -------- Velocity -------- //
 			vec2 a = (PosProj.xy / PosProj.w) - _Jitter;
 			vec2 b = (PosProjOld.xy / PosProjOld.w) - _PreviousJitter;
 			gVelocity.xy = (b - a) * 0.5;
 
 
-
+			// -------- Object ID -------- //
 			gObjectID = float(_ObjectID);
 		}
 	}

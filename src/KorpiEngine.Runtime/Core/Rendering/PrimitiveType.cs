@@ -6,4 +6,5 @@ public enum PrimitiveType
     Sphere,
     Capsule,
     Quad,
+    Torus
 }

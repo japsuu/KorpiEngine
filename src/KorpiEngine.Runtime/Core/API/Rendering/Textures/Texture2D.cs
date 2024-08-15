@@ -20,7 +20,7 @@ public sealed class Texture2D : Texture, ISerializable
     public int Height { get; private set; }
 
 
-    public Texture2D() : base(TextureType.Texture2D, TextureImageFormat.RGBA_8_B)
+    public Texture2D() : base(TextureType.Texture2D, TextureImageFormat.RGBA_8_UF)
     {
     }
 
@@ -32,14 +32,14 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="height">The height of the <see cref="Texture2D"/>.</param>
     /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture2D"/>.</param>
     /// <param name="imageFormat">The image format for this <see cref="Texture2D"/>.</param>
-    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_B) : base(TextureType.Texture2D, imageFormat)
+    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(TextureType.Texture2D, imageFormat)
     {
         RecreateImage(width, height); //This also binds the texture
 
         if (generateMipmaps)
             GenerateMipmaps();
 
-        Graphics.Driver.SetTextureFilters(Handle, IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
+        Graphics.Device.SetTextureFilters(Handle, IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
         MinFilter = IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER;
         MagFilter = DEFAULT_MAG_FILTER;
     }
@@ -64,11 +64,11 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(void* ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public unsafe void SetDataPtr(nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-        Graphics.Driver.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+        Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
     }
 
 
@@ -89,7 +89,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Driver.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, ptr);
+            Graphics.Device.TexSubImage2D(Handle, 0, rectX, rectY, rectWidth, rectHeight, (nint)ptr);
         }
     }
 
@@ -109,9 +109,9 @@ public sealed class Texture2D : Texture, ISerializable
     /// Gets the data of the entire <see cref="Texture2D"/>.
     /// </summary>
     /// <param name="ptr">The pointer to which the pixel data will be written.</param>
-    public unsafe void GetDataPtr(void* ptr)
+    public void GetDataPtr(nint ptr)
     {
-        Graphics.Driver.GetTexImage(Handle, 0, ptr);
+        Graphics.Device.GetTexImage(Handle, 0, ptr);
     }
 
 
@@ -127,7 +127,7 @@ public sealed class Texture2D : Texture, ISerializable
 
         fixed (void* ptr = data.Span)
         {
-            Graphics.Driver.GetTexImage(Handle, 0, ptr);
+            Graphics.Device.GetTexImage(Handle, 0, (nint)ptr);
         }
     }
 
@@ -162,22 +162,22 @@ public sealed class Texture2D : Texture, ISerializable
                 return size * 3;
             
             // 16 bits per pixel
-            case TextureImageFormat.R_16_S:
-            case TextureImageFormat.R_16_US:
+            case TextureImageFormat.R_16_F:
+            case TextureImageFormat.R_16_UF:
             case TextureImageFormat.DEPTH_16:
                 return size * 2 * 1;
-            case TextureImageFormat.RG_16_S:
-            case TextureImageFormat.RG_16_US:
+            case TextureImageFormat.RG_16_F:
+            case TextureImageFormat.RG_16_UF:
                 return size * 2 * 2;
-            case TextureImageFormat.RGB_16_S:
-            case TextureImageFormat.RGB_16_US:
+            case TextureImageFormat.RGB_16_F:
+            case TextureImageFormat.RGB_16_UF:
                 return size * 2 * 3;
-            case TextureImageFormat.RGBA_16_S:
-            case TextureImageFormat.RGBA_16_US:
+            case TextureImageFormat.RGBA_16_F:
+            case TextureImageFormat.RGBA_16_UF:
                 return size * 2 * 4;
             
             // 8 bits per pixel
-            case TextureImageFormat.RGBA_8_B:
+            case TextureImageFormat.RGBA_8_UF:
                 return size;
             
             default:
@@ -193,8 +193,8 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate.</param>
     public void SetWrapModes(TextureWrap sWrapMode, TextureWrap tWrapMode)
     {
-        Graphics.Driver.SetWrapS(Handle, sWrapMode);
-        Graphics.Driver.SetWrapT(Handle, tWrapMode);
+        Graphics.Device.SetWrapS(Handle, sWrapMode);
+        Graphics.Device.SetWrapT(Handle, tWrapMode);
     }
 
 
@@ -211,7 +211,7 @@ public sealed class Texture2D : Texture, ISerializable
         Width = width;
         Height = height;
 
-        Graphics.Driver.TexImage2D(Handle, 0, Width, Height, 0, (void*)0);
+        Graphics.Device.TexImage2D(Handle, 0, Width, Height, 0, 0);
     }
 
 

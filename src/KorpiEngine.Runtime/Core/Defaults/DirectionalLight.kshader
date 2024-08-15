@@ -1,4 +1,4 @@
-﻿Shader "Default/DictionalLight"
+﻿Shader "Default/DirectionalLight"
 
 Properties
 {

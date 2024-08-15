@@ -38,10 +38,11 @@ internal static class GLGraphicsProgramFactory
             // link and return the shaderProgram
             program.Link();
         }
-        catch
+        catch (Exception e)
         {
             program.Dispose();
-            throw;
+            
+            throw new OpenGLException("Failed to create shaderProgram.", e);
         }
 
         return program;

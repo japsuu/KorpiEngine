@@ -69,7 +69,7 @@ public abstract class RenderPassNode
 
 public class LightingPassNode : RenderPassNode
 {
-    public TextureImageFormat Format = TextureImageFormat.RGB_16_S;
+    public TextureImageFormat Format = TextureImageFormat.RGB_16_F;
 
     public float Scale = 1.0f;
 
@@ -81,7 +81,7 @@ public class LightingPassNode : RenderPassNode
         lightingTex.Begin();
 
         Graphics.Clear();
-        CameraComponent.RenderingCamera.RenderLights();
+        Camera.RenderingCamera.RenderLights();
 
         lightingTex.End();
 
@@ -89,27 +89,42 @@ public class LightingPassNode : RenderPassNode
     }
 }
 
-public class CombinePassNode : RenderPassNode
+public class LightingCombinePassNode : RenderPassNode
 {
     private Material? _combineShader;
 
 
     protected override RenderTexture? Render(RenderTexture? lightingTex)
     {
-        GBuffer gBuffer = CameraComponent.RenderingCamera.GBuffer!;
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
 
         if (lightingTex == null)
             return null;
 
-        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.shader"), "G-buffer combine material");
+        _combineShader ??= new Material(Shader.Find("Defaults/GBufferCombine.kshader"), "G-buffer combine material");
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _combineShader.SetTexture("_GLighting", lightingTex.InternalTextures[0]);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _combineShader, 0, true);
         ReleaseRenderTexture(lightingTex);
 
         return result;
+    }
+}
+
+public class UnlitCombinePassNode : RenderPassNode
+{
+    protected override RenderTexture? Render(RenderTexture? source)
+    {
+        GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
+
+        if (source == null)
+            return null;
+
+        Graphics.Blit(source, gBuffer.Unlit, false);
+
+        return source;
     }
 }
 
@@ -121,13 +136,13 @@ public class ProceduralSkyboxNode : RenderPassNode
 
     protected override RenderTexture? Render(RenderTexture? source)
     {
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Defaults/ProceduralSkybox.shader"), "procedural skybox material");
+        _mat ??= new Material(Shader.Find("Defaults/ProceduralSkybox.kshader"), "procedural skybox material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
         _mat.SetFloat("_FogDensity", FogDensity);
@@ -139,7 +154,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         else // Fallback to a reasonable default
             _mat.SetVector("_SunPos", new Vector3(0.5f, 0.5f, 0.5f));
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -161,10 +176,10 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Defaults/SSR.shader"), "SSR material");
+        _mat ??= new Material(Shader.Find("Defaults/SSR.kshader"), "SSR material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -174,7 +189,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         _mat.SetInt("_SSRSteps", Math.Clamp(Steps, 16, 32));
         _mat.SetInt("_SSRBisteps", Math.Clamp(RefineSteps, 0, 16));
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -221,8 +236,10 @@ public class TAANode : RenderPassNode
         if (Jitter2X)
             _jitter *= 2.0;
 
-        Graphics.ProjectionMatrix.M31 += _jitter.X / width;
-        Graphics.ProjectionMatrix.M32 += _jitter.Y / height;
+        Matrix4x4 proj = Graphics.ProjectionMatrix;
+        proj.M31 += _jitter.X / width;
+        proj.M32 += _jitter.Y / height;
+        Graphics.ProjectionMatrix = proj;
 
         Graphics.UseJitter = true; // This applies the jitter to the Velocity Buffer/Motion Vectors
         Graphics.Jitter = _jitter / new Vector2(width, height);
@@ -235,12 +252,12 @@ public class TAANode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_S]);
+        RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_F]);
 
-        _mat ??= new Material(Shader.Find("Defaults/TAA.shader"), "TAA material");
+        _mat ??= new Material(Shader.Find("Defaults/TAA.kshader"), "TAA material");
         _mat.SetTexture("_GColor", source.InternalTextures[0]);
         _mat.SetTexture("_GHistory", history.InternalTextures[0]);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -252,7 +269,7 @@ public class TAANode : RenderPassNode
         _mat.SetVector("_Jitter", Graphics.Jitter);
         _mat.SetVector("_PreviousJitter", Graphics.PreviousJitter);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         Graphics.Blit(history, result.InternalTextures[0], true);
 
@@ -274,10 +291,10 @@ public class DepthOfFieldNode : RenderPassNode
         if (source == null)
             return null;
 
-        CameraComponent camera = CameraComponent.RenderingCamera;
+        Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Defaults/DOF.shader"), "DOF material");
+        _mat ??= new Material(Shader.Find("Defaults/DOF.kshader"), "DOF material");
         _mat.SetTexture("_GCombined", source.InternalTextures[0]);
         _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
@@ -285,7 +302,7 @@ public class DepthOfFieldNode : RenderPassNode
         _mat.SetFloat("_BlurRadius", Math.Clamp(BlurRadius, 2, 40));
         _mat.SetFloat("_FocusStrength", FocusStrength);
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _mat, 0, true);
         ReleaseRenderTexture(source);
 
@@ -307,10 +324,10 @@ public class BloomNode : RenderPassNode
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Defaults/Bloom.shader"), "bloom material");
+        _mat ??= new Material(Shader.Find("Defaults/Bloom.kshader"), "bloom material");
 
-        RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
-        RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
+        RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         RenderTexture[] rts = [front, back];
 
         _mat.SetFloat("_Alpha", 1.0f);
@@ -367,7 +384,7 @@ public class TonemappingNode : RenderPassNode
         if (source == null)
             return null;
 
-        _acesMat ??= new Material(Shader.Find("Defaults/Tonemapper.shader"), "tonemapping material");
+        _acesMat ??= new Material(Shader.Find("Defaults/Tonemapper.kshader"), "tonemapping material");
         _acesMat.SetTexture("_GAlbedo", source.InternalTextures[0]);
         _acesMat.SetFloat("_Contrast", Math.Clamp(Contrast, 0, 2));
         _acesMat.SetFloat("_Saturation", Math.Clamp(Saturation, 0, 2));
@@ -409,7 +426,7 @@ public class TonemappingNode : RenderPassNode
         else
             _acesMat.DisableKeyword("GAMMACORRECTION");
 
-        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_S]);
+        RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _acesMat, 0, true);
         ReleaseRenderTexture(source);
 

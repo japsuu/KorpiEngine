@@ -60,7 +60,7 @@ public sealed class Entity
         get
         {
             Matrix4x4 t = Transform.LocalToWorldMatrix;
-            t.Translation -= CameraComponent.RenderingCamera.Transform.Position;
+            t.Translation -= Camera.RenderingCamera.Transform.Position;
             return t;
         }
     }

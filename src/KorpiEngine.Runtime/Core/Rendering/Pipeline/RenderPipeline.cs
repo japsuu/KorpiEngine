@@ -13,7 +13,8 @@ public class RenderPipeline
     {
         // Create nodes, setup connections, and add to list.
         LightingPassNode lightingPassNode = new();
-        CombinePassNode combinePassNode = new();
+        LightingCombinePassNode lightingCombinePassNode = new();
+        UnlitCombinePassNode unlitCombinePassNode = new();
         //ProceduralSkyboxNode proceduralSkyboxNode = new();
         // ScreenSpaceReflectionNode screenSpaceReflectionNode = new();
         // TAANode taaNode = new();
@@ -21,7 +22,8 @@ public class RenderPipeline
         // BloomNode bloomNode = new();
         // TonemappingNode toneMappingNode = new();
         
-        lightingPassNode.SetChild(combinePassNode);
+        lightingPassNode.SetChild(lightingCombinePassNode);
+        lightingCombinePassNode.SetChild(unlitCombinePassNode);
         //postPbrDeferredNode.SetChild(proceduralSkyboxNode);
         // proceduralSkyboxNode.SetChild(screenSpaceReflectionNode);
         // screenSpaceReflectionNode.SetChild(taaNode);

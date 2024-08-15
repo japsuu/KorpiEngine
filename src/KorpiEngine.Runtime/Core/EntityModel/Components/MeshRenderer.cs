@@ -8,7 +8,7 @@ using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.EntityModel.Components;
 
-public class MeshRendererComponent : EntityComponent
+public class MeshRenderer : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
@@ -23,7 +23,7 @@ public class MeshRendererComponent : EntityComponent
     protected override void OnRenderObject()
     {
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
-        int camID = CameraComponent.RenderingCamera.InstanceID;
+        int camID = Camera.RenderingCamera.InstanceID;
         
         _previousTransforms.TryAdd(camID, transform);
         Matrix4x4 previousTransform = _previousTransforms[camID];
@@ -34,7 +34,7 @@ public class MeshRendererComponent : EntityComponent
         Material? material = Material.Res;
         if (material == null)
         {
-            invalidMaterial ??= new Material(Shader.Find("Defaults/Invalid.shader"), "invalid material");
+            invalidMaterial ??= new Material(Shader.Find("Defaults/Invalid.kshader"), "invalid material");
             material = invalidMaterial;
 #if DEBUG
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");

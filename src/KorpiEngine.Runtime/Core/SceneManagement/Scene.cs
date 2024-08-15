@@ -20,7 +20,7 @@ public abstract class Scene : IDisposable
 {
     internal readonly EntityScene EntityScene;
     
-    protected CameraComponent SceneCamera { get; private set; } = null!;
+    protected Camera SceneCamera { get; private set; } = null!;
 
 
     #region Creation and destruction
@@ -44,20 +44,26 @@ public abstract class Scene : IDisposable
 
 
     #region Public API
+    
+    public Entity CreateEntity(string name)
+    {
+        Entity e = new(this, name);
+        return e;
+    }
 
+    
     public Entity CreatePrimitive(PrimitiveType primitiveType, string name)
     {
         Entity e = CreateEntity(name);
-        MeshRendererComponent c = e.AddComponent<MeshRendererComponent>();
-        Material mat = new Material(Shader.Find("Defaults/Standard.shader"), "standard material");
+        MeshRenderer c = e.AddComponent<MeshRenderer>();
+        Material mat = new Material(Shader.Find("Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;
         
-        mat.SetColor("_MainColor", Color.White);
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
-        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/grid.png"));
+        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
         mat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
         mat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
         mat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
@@ -70,13 +76,6 @@ public abstract class Scene : IDisposable
     {
         return EntityScene.FindObjectOfType<T>();
     }
-    
-    
-    /*public void Instantiate<T>(T prefab) where T : Entity
-    {
-        Entity e = prefab.Clone();
-        EntityScene.AddEntity(e);
-    }*/
 
     #endregion
 
@@ -99,29 +98,27 @@ public abstract class Scene : IDisposable
 
     #region Protected overridable methods
 
-    protected virtual CameraComponent CreateSceneCamera()
+    protected virtual Camera CreateSceneCamera()
     {
         Entity cameraEntity = CreateEntity("Scene Camera");
-        CameraComponent cameraComponent = cameraEntity.AddComponent<CameraComponent>();
+        Camera camera = cameraEntity.AddComponent<Camera>();
         
-        cameraComponent.RenderPriority = 0;
-        cameraComponent.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
+        camera.RenderPriority = 0;
+        camera.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
         
-        return cameraComponent;
+        return camera;
     }
 
     protected virtual void CreateLights()
     {
-        /*Entity dlEntity = CreateEntity("Directional Light");
+        Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
-        dlComp.Transform.LocalEulerAngles = new Vector3(50, 225, 0);*/
+        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
-        //alComp.SkyIntensity = 0.4f;
-        //alComp.GroundIntensity = 0.1f;
-        alComp.SkyIntensity = 1f;
-        alComp.GroundIntensity = 0f;
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
     }
     
     
@@ -167,11 +164,4 @@ public abstract class Scene : IDisposable
     }
 
     #endregion
-    
-    
-    private Entity CreateEntity(string name)
-    {
-        Entity e = new(this, name);
-        return e;
-    }
 }
