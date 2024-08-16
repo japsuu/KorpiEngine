@@ -302,7 +302,13 @@ public sealed class Camera : EntityComponent
         _cachedRenderTextures.Clear();
     }
 
-    
+
+    protected override void OnDestroy()
+    {
+        _debugMaterial.Destroy();
+    }
+
+
     #region RT Cache
     
     public RenderTexture GetCachedRT(string name, int width, int height, TextureImageFormat[] format)
