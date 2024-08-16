@@ -68,7 +68,8 @@ public class ModelImporter : AssetImporter
         // Replicate the Assimp node hierarchy.
         // This creates an empty entity hierarchy with the same structure as the assimp scene.
         List<(Entity entity, Node node)> entityHierarchy = [];  //WARN: Replace with an actual tree structure
-        CreateEntityHierarchy(Path.GetFileNameWithoutExtension(assetPath.Name), scene.RootNode, ref entityHierarchy, scale);
+        string rootEntityName = $"{Path.GetFileNameWithoutExtension(assetPath.Name)} model";
+        CreateEntityHierarchy(rootEntityName, scene.RootNode, ref entityHierarchy, scale);
 
         // Materials
         List<ResourceRef<Material>> materials = [];
@@ -192,7 +193,7 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, double scaleFactor)
+    private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, double scaleFactor, int i = 0)
     {
         Entity entity = new(name ?? assimpNode.Name);
         hierarchy.Add((entity, assimpNode));
@@ -202,7 +203,7 @@ public class ModelImporter : AssetImporter
         {
             foreach (Node? cn in assimpNode.Children)
             {
-                Entity go = CreateEntityHierarchy(null, cn, ref hierarchy, scaleFactor);
+                Entity go = CreateEntityHierarchy(null, cn, ref hierarchy, scaleFactor, i + 1);
                 go.SetParent(entity, false);
             }
         }
@@ -211,7 +212,7 @@ public class ModelImporter : AssetImporter
         Assimp.Matrix4x4 t = assimpNode.Transform;
         t.Decompose(out Vector3D aSca, out Assimp.Quaternion aRot, out Vector3D aPos);
 
-        entity.Transform.LocalPosition = new Vector3(aPos.X, aPos.Y, aPos.Z) * scaleFactor;
+        entity.Transform.LocalPosition = new Vector3(aPos.X, aPos.Y + i, aPos.Z) * scaleFactor;
         entity.Transform.LocalRotation = new API.Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
         entity.Transform.LocalScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
 
@@ -280,11 +281,11 @@ public class ModelImporter : AssetImporter
             if (TryFindTextureFromPath(sourceMat.TextureDiffuse.FilePath, parentDir, out FileInfo? file))
                 LoadTextureIntoMesh("_MainTex", file, targetMat);
             else
-                targetMat.SetTexture("_MainTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_albedo.png")));
+                targetMat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
         }
         else
         {
-            targetMat.SetTexture("_MainTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_albedo.png")));
+            targetMat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
         }
     }
 
@@ -296,11 +297,11 @@ public class ModelImporter : AssetImporter
             if (TryFindTextureFromPath(sourceMat.TextureNormal.FilePath, parentDir, out FileInfo? file))
                 LoadTextureIntoMesh("_NormalTex", file, targetMat);
             else
-                targetMat.SetTexture("_NormalTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_normal.png")));
+                targetMat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
         }
         else
         {
-            targetMat.SetTexture("_NormalTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_normal.png")));
+            targetMat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
         }
     }
 
@@ -312,11 +313,11 @@ public class ModelImporter : AssetImporter
             if (TryFindTextureFromPath(surface.FilePath, parentDir, out FileInfo? file))
                 LoadTextureIntoMesh("_SurfaceTex", file, targetMat);
             else
-                targetMat.SetTexture("_SurfaceTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_surface.png")));
+                targetMat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
         }
         else
         {
-            targetMat.SetTexture("_SurfaceTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_surface.png")));
+            targetMat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
         }
     }
 
@@ -332,12 +333,12 @@ public class ModelImporter : AssetImporter
             }
             else
             {
-                targetMat.SetTexture("_EmissionTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_emission.png")));
+                targetMat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
             }
         }
         else
         {
-            targetMat.SetTexture("_EmissionTex", new ResourceRef<Texture2D>(AssetDatabase.GuidFromRelativePath("Defaults/default_emission.png")));
+            targetMat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
         }
     }
     
