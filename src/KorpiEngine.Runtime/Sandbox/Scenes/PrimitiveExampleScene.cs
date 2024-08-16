@@ -17,33 +17,33 @@ internal class PrimitiveExampleScene : Scene
         Entity e;
         Entity m;
         
-        e = new Entity("Sphere 1");
+        e = CreateEntity("Sphere 1");
         m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, 6, 0);
         
-        e = new Entity("Sphere 2");
+        e = CreateEntity("Sphere 2");
         m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(1, 4, -3);
         e.Transform.Rotation = Quaternion.Euler(0, -45, 45);
         
-        e = new Entity("Sphere 3");
+        e = CreateEntity("Sphere 3");
         m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(-2, 4, -2);
         
-        e = new Entity("Cube 1");
+        e = CreateEntity("Cube 1");
         m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, -1, -2);
         e.Transform.Rotation = Quaternion.Euler(45, 45, 45);
         
-        e = new Entity("Cube 2");
+        e = CreateEntity("Cube 2");
         m = CreatePrimitive(PrimitiveType.Cube, "Cube model");
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);

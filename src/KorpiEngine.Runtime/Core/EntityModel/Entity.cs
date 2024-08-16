@@ -16,8 +16,9 @@ public sealed class Entity : Resource
 {
     /// <summary>
     /// The scene this entity is in.
+    /// If null, the entity has not been spawned in a scene.
     /// </summary>
-    public readonly Scene Scene;
+    public Scene? Scene { get; private set; }
 
     /// <summary>
     /// The transform of this entity.
@@ -30,6 +31,11 @@ public sealed class Entity : Resource
             return _transform;
         }
     }
+    
+    /// <summary>
+    /// True if the entity is spawned in a scene, false otherwise.
+    /// </summary>
+    public bool IsSpawned => Scene != null;
 
     /// <summary>
     /// True if the entity is enabled explicitly, false otherwise.
@@ -73,52 +79,80 @@ public sealed class Entity : Resource
     /// <summary>
     /// True if this entity has children, false otherwise.
     /// </summary>
-    public bool HasChildren => ChildList.Count > 0;
+    public bool HasChildren => _childList.Count > 0;
 
     /// <summary>
     /// The entities parented to this entity.
     /// </summary>
-    public IReadOnlyList<Entity> Children => ChildList;
+    public IReadOnlyList<Entity> Children => _childList;
 
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
-    internal List<Entity> ChildList { get; } = [];
 
     private bool _enabled = true;
-    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
+    private EntityScene? _entityScene;
+    private readonly List<Entity> _childList = [];
     private readonly Transform _transform = new();
-    private readonly EntityScene _entityScene;
     private readonly List<EntityComponent> _components = [];
     private readonly MultiValueDictionary<Type, EntityComponent> _componentCache = new();
     private readonly Dictionary<ulong, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _systemBuckets = new();
+    
+    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
 
 
     #region Creation and destruction
 
-    public Entity(string? name = null) : this(SceneManager.CurrentScene, name)
+    public Entity(string? name = null) : this(null, name)
     {
+        Application.Logger.Warn($"Creating an entity '{Name}' without a scene reference. This entity needs to be manually spawned in a scene.");
     }
 
 
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    internal Entity(Scene scene, string? name) : base(name)
+    internal Entity(Scene? scene, string? name) : base(name)
     {
         Name = name ?? $"Entity {InstanceID}";
-        Scene = scene;
-        _entityScene = scene.EntityScene;
+        SetScene(scene);
+    }
+    
+    
+    public void Spawn(Scene scene)
+    {
+        if (IsSpawned)
+            throw new InvalidOperationException($"Entity {InstanceID} is already spawned in a scene.");
 
-        _entityScene.RegisterEntity(this);
+        SetScene(scene);
+    }
+    
+    
+    /// <summary>
+    /// Changes the scene of this entity.
+    /// </summary>
+    /// <param name="scene">The new scene to move the entity to. Null to remove the entity from the current scene.</param>
+    internal void SetScene(Scene? scene)
+    {
+        if (Scene == scene)
+            return;
+        
+        SetParent(null);
+
+        Scene? oldScene = Scene;
+        Scene = scene;
+        _entityScene = scene?.EntityScene;
+
+        oldScene?.EntityScene.UnregisterEntity(this);
+        scene?.EntityScene.RegisterEntity(this);
     }
 
 
     protected override void OnDispose()
     {
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
-        while (ChildList.Count > 0)
-            ChildList[0].DestroyImmediate();
+        while (_childList.Count > 0)
+            _childList[0].DestroyImmediate();
 
         RemoveAllSystems();
 
@@ -128,8 +162,8 @@ public sealed class Entity : Resource
         _components.Clear();
         _componentCache.Clear();
 
-        _entityScene.UnregisterEntity(this);
-        Parent?.ChildList.Remove(this);
+        _entityScene?.UnregisterEntity(this);
+        Parent?._childList.Remove(this);
     }
 
     #endregion
@@ -184,10 +218,10 @@ public sealed class Entity : Resource
 
         if (newParent != Parent)
         {
-            Parent?.ChildList.Remove(this);
+            Parent?._childList.Remove(this);
 
             if (newParent != null)
-                newParent.ChildList.Add(this);
+                newParent._childList.Add(this);
 
             Parent = newParent;
         }
@@ -226,7 +260,7 @@ public sealed class Entity : Resource
                 component.HierarchyStateChanged();
         }
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.HierarchyStateChanged();
     }
 
@@ -295,43 +329,6 @@ public sealed class Entity : Resource
 
         return comp;
     }
-
-
-    /*public void AddComponent(EntityComponent comp)
-    {
-        Type type = comp.GetType();
-        RequireComponentAttribute? requireComponentAttribute = type.GetCustomAttribute<RequireComponentAttribute>();
-        if (requireComponentAttribute != null)
-        {
-            foreach (Type requiredComponentType in requireComponentAttribute.Types)
-            {
-                if (!typeof(EntityComponent).IsAssignableFrom(requiredComponentType))
-                    continue;
-
-                // If there is already a component on the object
-                if (GetComponent(requiredComponentType) != null)
-                    continue;
-
-                // Recursive call to attempt to add the new component
-                AddComponent(requiredComponentType);
-            }
-        }
-
-        bool disallowMultiple = type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null;
-        bool hasComponent = GetComponent(type) != null;
-
-        if (disallowMultiple && hasComponent)
-            throw new InvalidOperationException(
-                $"Can't add the same component multiple times: the component of type {type.Name} does not allow multiple instances");
-
-        comp.Bind(this);
-
-        _components.Add(comp);
-        _componentCache.Add(comp.GetType(), comp);
-
-        if (EnabledInHierarchy)
-            comp.InternalAwake();
-    }*/
 
     #endregion
 
@@ -503,7 +500,7 @@ public sealed class Entity : Resource
         }
 
         // Now check all children
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             if (EnabledInHierarchy || includeInactive)
             {
                 component = child.GetComponent(componentType) ?? child.GetComponentInChildren(componentType);
@@ -523,7 +520,7 @@ public sealed class Entity : Resource
                 yield return component;
 
         // Now check all children
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             if (EnabledInHierarchy || includeInactive)
                 foreach (T component in child.GetComponentsInChildren<T>())
                     yield return component;
@@ -609,19 +606,21 @@ public sealed class Entity : Resource
 
     private void RegisterComponentWithSystems(EntityComponent component)
     {
+        //WARN: Does not take into account any scene changes.
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
 
-        _entityScene.RegisterComponent(component);
+        _entityScene?.RegisterComponent(component);
     }
 
 
     private void UnregisterComponentWithSystems(EntityComponent component)
     {
+        //WARN: Does not take into account any scene changes.
         foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
 
-        _entityScene.UnregisterComponent(component);
+        _entityScene?.UnregisterComponent(component);
     }
 
     #endregion
@@ -662,7 +661,7 @@ public sealed class Entity : Resource
         if (!HasChildren)
             return;
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.UpdateSystemsRecursive(stage);
     }
 
@@ -678,7 +677,7 @@ public sealed class Entity : Resource
         if (!HasChildren)
             return;
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.UpdateComponentsRecursive(stage);
     }
 

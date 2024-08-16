@@ -24,7 +24,7 @@ internal class FullExampleScene : Scene
         for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
-            Entity root = new($"Sphere {i}");
+            Entity root = CreateEntity($"Sphere {i}");
             if (i % 2 == 0)
                 root.AddComponent<DemoOscillate>();
 
@@ -40,7 +40,7 @@ internal class FullExampleScene : Scene
         for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name
-            Entity root = new($"Cube {i}");
+            Entity root = CreateEntity($"Cube {i}");
 
             // Create a cube primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Cube, "Cube model");

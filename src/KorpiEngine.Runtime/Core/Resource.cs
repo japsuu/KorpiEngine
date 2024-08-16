@@ -3,7 +3,6 @@ using KorpiEngine.Core.EntityModel.IDs;
 
 namespace KorpiEngine.Core;
 
-#warning TODO: Implement leak detection similar to GraphicsResource.
 public abstract class Resource : IDisposable
 {
     private static readonly Stack<Resource> DestroyedResources = new();
