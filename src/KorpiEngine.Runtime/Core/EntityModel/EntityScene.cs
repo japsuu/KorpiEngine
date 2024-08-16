@@ -19,7 +19,7 @@ internal sealed class EntityScene
     internal IReadOnlyList<EntityComponent> Components => _components;
 
 
-    #region Entity/Component/System registration
+    #region Entity/Component/System registration/deregistration
 
     internal void RegisterEntity(Entity entity)
     {
@@ -101,6 +101,28 @@ internal sealed class EntityScene
         
         system.OnUnregister();
     }
+    
+    
+    private void DestroyAllSceneSystems()
+    {
+        foreach (SceneSystem system in _sceneSystems.Values)
+            system.OnUnregister();
+        
+        _sceneSystems.Clear();
+    }
+    
+    
+    private void DestroyAllEntities()
+    {
+        foreach (Entity entity in _entities)
+        {
+            if (entity.IsRootEntity)
+                entity.DestroyImmediate();
+        }
+        
+        _entities.Clear();
+        _components.Clear();
+    }
 
     #endregion
 
@@ -148,13 +170,9 @@ internal sealed class EntityScene
     {
         _isBeingDestroyed = true;
         
-        // Destroy all scene systems.
-        foreach (SceneSystem system in _sceneSystems.Values)
-            system.OnUnregister();
+        DestroyAllSceneSystems();
         
-        // Destroy all entities (includes their systems and components).
-        foreach (Entity entity in _entities)
-            entity.DestroyImmediate();
+        DestroyAllEntities();
     }
 
     #endregion
