@@ -129,7 +129,7 @@ public static partial class AssetDatabase
         }
         catch (Exception e)
         {
-            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}. Reason: {e.Message}");
+            Application.Logger.Error($"Failed to import the asset {assetFile.FullName}.", e);
             return null;
         }
     }
