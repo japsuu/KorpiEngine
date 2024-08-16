@@ -130,7 +130,7 @@ public sealed class Entity : Resource
     
     
     /// <summary>
-    /// Changes the scene of this entity.
+    /// Changes the scene of this entity and all of its children.
     /// </summary>
     /// <param name="scene">The new scene to move the entity to. Null to remove the entity from the current scene.</param>
     internal void SetScene(Scene? scene)
@@ -139,17 +139,22 @@ public sealed class Entity : Resource
             return;
         
         SetParent(null);
-
+        
+        PropagateSceneChange(scene);
+    }
+    
+    
+    private void PropagateSceneChange(Scene? scene)
+    {
         Scene? oldScene = Scene;
         Scene = scene;
         _entityScene = scene?.EntityScene;
 
         oldScene?.EntityScene.UnregisterEntity(this);
         scene?.EntityScene.RegisterEntity(this);
-        
-        // Propagate the scene change to all children
+
         foreach (Entity child in _childList)
-            child.SetScene(scene);
+            child.PropagateSceneChange(scene);
     }
 
 
