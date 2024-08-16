@@ -25,12 +25,12 @@ internal sealed class EntityScene
     {
         if (_isBeingDestroyed)
             return;
-        
+
         if (entity.ComponentCount > 0)
-            throw new InvalidOperationException($"Entity {entity} has components before being registered. This is not allowed.");
-        
-        if (entity.SystemCount > 0)
-            throw new InvalidOperationException($"Entity {entity} has systems before being registered. This is not allowed.");
+        {
+            foreach (EntityComponent component in entity.Components)
+                RegisterComponent(component);
+        }
         
         _entities.Add(entity);
     }

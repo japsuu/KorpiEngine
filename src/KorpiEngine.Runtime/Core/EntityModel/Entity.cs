@@ -88,6 +88,7 @@ public sealed class Entity : Resource
 
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
+    internal IReadOnlyCollection<EntityComponent> Components => _components;
 
     private bool _enabled = true;
     private EntityScene? _entityScene;
@@ -145,6 +146,10 @@ public sealed class Entity : Resource
 
         oldScene?.EntityScene.UnregisterEntity(this);
         scene?.EntityScene.RegisterEntity(this);
+        
+        // Propagate the scene change to all children
+        foreach (Entity child in _childList)
+            child.SetScene(scene);
     }
 
 
@@ -606,7 +611,6 @@ public sealed class Entity : Resource
 
     private void RegisterComponentWithSystems(EntityComponent component)
     {
-        //WARN: Does not take into account any scene changes.
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
 
@@ -616,7 +620,6 @@ public sealed class Entity : Resource
 
     private void UnregisterComponentWithSystems(EntityComponent component)
     {
-        //WARN: Does not take into account any scene changes.
         foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
 
