@@ -3,7 +3,7 @@ using KorpiEngine.Core.EntityModel;
 
 namespace KorpiEngine.Core.UI.DearImGui;
 
-internal abstract class EntityComponentEditor : ImGuiWindow
+public abstract class EntityComponentEditor : ImGuiWindow
 {
     public override string Title => $"Entity Component Editor - {_componentType}";
     protected override ImGuiWindowFlags Flags => ImGuiWindowFlags.AlwaysAutoResize;

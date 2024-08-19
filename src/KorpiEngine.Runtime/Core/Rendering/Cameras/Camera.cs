@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.API;
+﻿using ImGuiNET;
+using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -7,6 +8,7 @@ using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Pipeline;
 using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Core.UI.DearImGui;
 
 namespace KorpiEngine.Core.Rendering.Cameras;
 
@@ -270,6 +272,12 @@ public sealed class Camera : EntityComponent
     {
         _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
+    
+    
+    protected override void OnStart()
+    {
+        ImGuiWindowManager.RegisterWindow(new CameraEditor(this));
+    }
 
 
     protected override void OnUpdate()
@@ -432,4 +440,75 @@ public sealed class Camera : EntityComponent
     }
 
     #endregion
+}
+
+internal class CameraEditor(Camera target) : EntityComponentEditor(target)
+{
+    protected override void DrawEditor()
+    {
+        ImGui.Text("Camera Settings");
+
+        int renderPriority = target.RenderPriority;
+        if (ImGui.DragInt("Render Priority", ref renderPriority, 1, short.MinValue, short.MaxValue))
+            target.RenderPriority = (short)renderPriority;
+
+        float renderResolution = target.RenderResolution;
+        if (ImGui.DragFloat("Render Resolution", ref renderResolution, 0.1f, 0.1f, 10f))
+            target.RenderResolution = renderResolution;
+
+        ImGui.Text("Projection Type");
+        if (ImGui.BeginCombo("Projection Type", target.ProjectionType.ToString()))
+        {
+            foreach (CameraProjectionType type in Enum.GetValues<CameraProjectionType>())
+            {
+                if (ImGui.Selectable(type.ToString(), target.ProjectionType == type))
+                    target.ProjectionType = type;
+            }
+            ImGui.EndCombo();
+        }
+
+        ImGui.Text("Clear Type");
+        if (ImGui.BeginCombo("Clear Type", target.ClearType.ToString()))
+        {
+            foreach (CameraClearType type in Enum.GetValues<CameraClearType>())
+            {
+                if (ImGui.Selectable(type.ToString(), target.ClearType == type))
+                    target.ClearType = type;
+            }
+            ImGui.EndCombo();
+        }
+
+        ImGui.Text("Clear Flags");
+        int clearFlags = (int)target.ClearFlags;
+        if (ImGui.CheckboxFlags("Color", ref clearFlags, (int)CameraClearFlags.Color))
+            target.ClearFlags = (CameraClearFlags)clearFlags;
+        if (ImGui.CheckboxFlags("Depth", ref clearFlags, (int)CameraClearFlags.Depth))
+            target.ClearFlags = (CameraClearFlags)clearFlags;
+        if (ImGui.CheckboxFlags("Stencil", ref clearFlags, (int)CameraClearFlags.Stencil))
+            target.ClearFlags = (CameraClearFlags)clearFlags;
+
+        System.Numerics.Vector4 clearColor = new(target.ClearColor.R, target.ClearColor.G, target.ClearColor.B, target.ClearColor.A);
+        if (ImGui.ColorEdit4("Clear Color", ref clearColor))
+            target.ClearColor = new Color(clearColor);
+
+        float fovDegrees = target.FOVDegrees;
+        if (ImGui.DragFloat("FOV Degrees", ref fovDegrees, 1f, 1f, 179f))
+            target.FOVDegrees = fovDegrees;
+
+        float orthographicSize = target.OrthographicSize;
+        if (ImGui.DragFloat("Orthographic Size", ref orthographicSize, 0.1f, 0.1f, 100f))
+            target.OrthographicSize = orthographicSize;
+
+        float nearClipPlane = target.NearClipPlane;
+        if (ImGui.DragFloat("Near Clip Plane", ref nearClipPlane, 0.01f, 0.01f, 100f))
+            target.NearClipPlane = nearClipPlane;
+
+        float farClipPlane = target.FarClipPlane;
+        if (ImGui.DragFloat("Far Clip Plane", ref farClipPlane, 1f, 1f, 10000f))
+            target.FarClipPlane = farClipPlane;
+
+        bool showGizmos = target.ShowGizmos;
+        if (ImGui.Checkbox("Show Gizmos", ref showGizmos))
+            target.ShowGizmos = showGizmos;
+    }
 }
