@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using KorpiEngine.Core;
+using KorpiEngine.Core.API.AssetManagement;
 
 namespace KorpiEngine.Networking;
 
@@ -19,6 +21,15 @@ public sealed class DownloadHandler
     {
         Bytes = bytes;
         Text = System.Text.Encoding.UTF8.GetString(bytes);
+    }
+
+
+    public void SaveToFile(string path)
+    {
+        if (Bytes == null)
+            throw new InvalidOperationException("No bytes to save to a file.");
+        
+        File.WriteAllBytes(path, Bytes);
     }
 }
 
@@ -41,6 +52,30 @@ public sealed class WebRequest : IDisposable
 
 
     public static WebRequest Get(string url) => new(url);
+    
+    
+    
+    public static IEnumerator LoadWebAsset<T>(string url, string? relativeSavePath) where T : Resource
+    {
+        using WebRequest www = WebRequest.Get(url);
+        
+        www.DownloadHandler = new DownloadHandler();
+        yield return www.SendWebRequest();
+
+        if (!string.IsNullOrEmpty(www.Error))
+        {
+            Application.Logger.Error(www.Error);
+            yield break;
+        }
+
+        string savePath = string.IsNullOrEmpty(relativeSavePath) ?
+            Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) :
+            Path.Combine(Application.Directory, relativeSavePath);
+        
+        File.WriteAllText(savePath, www.DownloadHandler.Text);
+
+        yield return AssetDatabase.LoadAssetFile<T>(savePath);
+    }
 
 
     public IEnumerator SendWebRequest()
