@@ -25,7 +25,7 @@ public static class Application
     private static DebugStatsWindow debugStatsWindow = null!;
 #endif
     
-    internal static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
+    public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
