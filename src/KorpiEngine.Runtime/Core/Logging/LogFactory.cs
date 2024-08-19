@@ -1,13 +1,36 @@
 ﻿using System.Reflection;
 using log4net;
 using log4net.Config;
+using log4net.Core;
 using log4net.Repository;
 
 namespace KorpiEngine.Core.Logging;
 
 public static class LogFactory
 {
+    private static readonly Level DefaultLogLevel = Level.Info;
     private static readonly bool IsAvailable = File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "log4net.dll"));
+    
+    
+    public static Level LogLevel
+    {
+        get
+        {
+            if (!IsAvailable)
+                return Level.Off;
+            
+            ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            return logRepository.Threshold;
+        }
+        set
+        {
+            if (!IsAvailable)
+                return;
+            
+            ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            logRepository.Threshold = value;
+        }
+    }
     
     
     public static void Initialize(string relativeConfigFilePath)
@@ -28,6 +51,8 @@ public static class LogFactory
         
         ILoggerRepository? logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
         XmlConfigurator.Configure(logRepository, configFile);
+        
+        logRepository.Threshold = DefaultLogLevel;
     }
 
 
