@@ -12,6 +12,8 @@ namespace KorpiEngine.Core.EntityModel;
 internal sealed class EntityScene
 {
     private bool _isBeingDestroyed;
+    private bool _isIteratingEntities;
+    private readonly Queue<Entity> _entitiesAwaitingRegistration = [];
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<SceneSystemID, SceneSystem> _sceneSystems = [];
@@ -26,6 +28,12 @@ internal sealed class EntityScene
     {
         if (_isBeingDestroyed)
             return;
+        
+        if (_isIteratingEntities)
+        {
+            _entitiesAwaitingRegistration.Enqueue(entity);
+            return;
+        }
 
         if (entity.ComponentCount > 0)
         {
@@ -115,6 +123,9 @@ internal sealed class EntityScene
     
     private void DestroyAllEntities()
     {
+        while (_entitiesAwaitingRegistration.TryDequeue(out Entity? e))
+            e.DestroyImmediate();
+        
         foreach (Entity entity in _entities)
         {
             if (entity.IsRootEntity)
@@ -277,14 +288,20 @@ internal sealed class EntityScene
 
     private void EnsureEntityInitialization()
     {
+        while (_entitiesAwaitingRegistration.Count > 0)
+            RegisterEntity(_entitiesAwaitingRegistration.Dequeue());
+        
+        _isIteratingEntities = true;
         foreach (Entity e in _entities)
             if (e.EnabledInHierarchy)
                 e.EnsureComponentInitialization();
+        _isIteratingEntities = false;
     }
 
 
     private void UpdateEntities(EntityUpdateStage stage)
     {
+        _isIteratingEntities = true;
         foreach (Entity entity in _entities)
         {
             if (entity.IsDestroyed)
@@ -299,6 +316,7 @@ internal sealed class EntityScene
             
             entity.Update(stage);
         }
+        _isIteratingEntities = false;
     }
 
 
