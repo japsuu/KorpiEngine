@@ -276,70 +276,44 @@ public class ModelImporter : AssetImporter
 
     private static void LoadAssimpDiffuse(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
-        if (sourceMat.HasTextureDiffuse)
-        {
-            if (TryFindTextureFromPath(sourceMat.TextureDiffuse.FilePath, parentDir, out FileInfo? file))
-                LoadTextureIntoMesh("_MainTex", file, targetMat);
-            else
-                targetMat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
-        }
-        else
-        {
-            targetMat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
-        }
+        if (!sourceMat.HasTextureDiffuse)
+            return;
+        
+        if (TryFindTextureFromPath(sourceMat.TextureDiffuse.FilePath, parentDir, out FileInfo? file))
+            LoadTextureIntoMesh(Material.MAIN_TEX, file, targetMat);
     }
 
 
     private static void LoadAssimpNormal(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
-        if (sourceMat.HasTextureNormal)
-        {
-            if (TryFindTextureFromPath(sourceMat.TextureNormal.FilePath, parentDir, out FileInfo? file))
-                LoadTextureIntoMesh("_NormalTex", file, targetMat);
-            else
-                targetMat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
-        }
-        else
-        {
-            targetMat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
-        }
+        if (!sourceMat.HasTextureNormal)
+            return;
+        
+        if (TryFindTextureFromPath(sourceMat.TextureNormal.FilePath, parentDir, out FileInfo? file))
+            LoadTextureIntoMesh(Material.NORMAL_TEX, file, targetMat);
     }
 
 
     private static void LoadAssimpSurface(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
-        if (sourceMat.GetMaterialTexture(TextureType.Unknown, 0, out TextureSlot surface))
-        {
-            if (TryFindTextureFromPath(surface.FilePath, parentDir, out FileInfo? file))
-                LoadTextureIntoMesh("_SurfaceTex", file, targetMat);
-            else
-                targetMat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
-        }
-        else
-        {
-            targetMat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
-        }
+        if (!sourceMat.GetMaterialTexture(TextureType.Unknown, 0, out TextureSlot surface))
+            return;
+        
+        if (TryFindTextureFromPath(surface.FilePath, parentDir, out FileInfo? file))
+            LoadTextureIntoMesh(Material.SURFACE_TEX, file, targetMat);
     }
 
 
     private static void LoadAssimpEmissive(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
-        if (sourceMat.HasTextureEmissive)
-        {
-            if (TryFindTextureFromPath(sourceMat.TextureEmissive.FilePath, parentDir, out FileInfo? file))
-            {
-                targetMat.SetFloat("_EmissionIntensity", 1f);
-                LoadTextureIntoMesh("_EmissionTex", file, targetMat);
-            }
-            else
-            {
-                targetMat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
-            }
-        }
-        else
-        {
-            targetMat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
-        }
+        if (!sourceMat.HasTextureEmissive)
+            return;
+
+        if (!TryFindTextureFromPath(sourceMat.TextureEmissive.FilePath, parentDir, out FileInfo? file))
+            return;
+        
+        targetMat.SetFloat("_EmissionIntensity", 1f);
+        LoadTextureIntoMesh(Material.EMISSION_TEX, file, targetMat);
     }
     
     

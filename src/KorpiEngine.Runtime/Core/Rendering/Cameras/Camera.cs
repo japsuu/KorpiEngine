@@ -89,7 +89,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnAwake()
     {
-        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material");
+        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
 
 
@@ -305,7 +305,9 @@ public sealed class Camera : EntityComponent
 
     protected override void OnDestroy()
     {
-        _debugMaterial.Destroy();
+        throw new NotImplementedException("this should be called");
+        //_debugMaterial.DestroyImmediate();
+        //_debugMaterial.Destroy();
     }
 
 
