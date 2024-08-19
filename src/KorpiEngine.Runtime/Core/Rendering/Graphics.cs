@@ -38,9 +38,10 @@ public static class Graphics
     {
         Device = new T();
         Window = korpiWindow;
+        Device.Initialize();
+        
         defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material", false);
         Material.LoadDefaults();
-        Device.Initialize();
     }
 
 
