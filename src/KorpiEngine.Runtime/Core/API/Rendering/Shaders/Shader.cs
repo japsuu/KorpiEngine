@@ -97,7 +97,7 @@ public sealed class Shader : Resource
     }
 
 
-    public static ResourceRef<Shader> Find(string path) => new(AssetDatabase.LoadAsset<Shader>(path));
+    public static ResourceRef<Shader> Find(string path) => new(AssetDatabase.LoadAssetFile<Shader>(path));
 
 
     public bool HasVariable(string name)

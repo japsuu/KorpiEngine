@@ -22,7 +22,7 @@ public static partial class AssetDatabase
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAsset<T>(string relativeAssetPath) where T : Resource
+    public static T LoadAssetFile<T>(string relativeAssetPath) where T : Resource
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
@@ -31,7 +31,7 @@ public static partial class AssetDatabase
             return LoadAsset<T>(guid);
 
         // The path hasn't been accessed before, so we need to import the asset
-        if (Import(fileInfo).Instance is not T asset)
+        if (ImportFile(fileInfo).Instance is not T asset)
             throw new AssetLoadException<T>(relativeAssetPath, $"The asset is not of expected type {typeof(T).Name}");
         
         return asset;
@@ -80,7 +80,7 @@ public static partial class AssetDatabase
     /// Reimports an asset from the specified file.
     /// </summary>
     /// <param name="assetFile">The asset file to reimport.</param>
-    private static Asset Import(FileInfo assetFile)
+    private static Asset ImportFile(FileInfo assetFile)
     {
         string relativePath = ToRelativePath(assetFile);
         
