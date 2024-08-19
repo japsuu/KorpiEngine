@@ -132,6 +132,7 @@ public abstract class EntityComponent
     internal void RenderObjectDepth() => ExecuteSafe(OnRenderDepth);
     internal void DrawGizmos() => ExecuteSafe(OnDrawGizmos);
     internal void DrawDepthGizmos() => ExecuteSafe(OnDrawDepthGizmos);
+    internal void DrawGUI() => ExecuteSafe(OnDrawGUI);
 
 
     internal void Destroy()
@@ -278,6 +279,7 @@ public abstract class EntityComponent
     /// Called even when the component is disabled.
     /// </summary>
     protected virtual void OnDrawDepthGizmos() { }
+    protected virtual void OnDrawGUI() { }
     protected virtual void OnDestroy() { }
 
 

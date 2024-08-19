@@ -2,6 +2,7 @@
 using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.UI;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -163,6 +164,8 @@ internal sealed class EntityScene
             return;
         
         _renderer.Render();
+        
+        InvokeDrawGUI();
     }
 
 
@@ -252,6 +255,23 @@ internal sealed class EntityScene
                 return t;
         
         return default;
+    }
+
+
+    private void InvokeDrawGUI()
+    {
+        GUI.AllowDraw = true;
+        foreach (EntityComponent comp in Components)
+        {
+            if (!comp.EnabledInHierarchy)
+                continue;
+            
+            comp.DrawGUI();
+                
+            if (GUI.IsDrawing)
+                GUI.End();
+        }
+        GUI.AllowDraw = false;
     }
 
 

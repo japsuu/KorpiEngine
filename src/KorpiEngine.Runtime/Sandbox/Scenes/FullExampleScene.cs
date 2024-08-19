@@ -108,8 +108,8 @@ internal class DemoFreeCam : EntityComponent
     private const float MAX_PITCH = 89.0f;
     private const float MIN_PITCH = -89.0f;
 
-    private const double SLOW_FLY_SPEED = 1.5f;
-    private const double FAST_FLY_SPEED = 3.0f;
+    private float _slowFlySpeed = 1.5f;
+    private float _fastFlySpeed = 3.0f;
 
     private double _pitch;
     private double _yaw;
@@ -136,6 +136,22 @@ internal class DemoFreeCam : EntityComponent
     }
 
 
+    protected override void OnDrawGUI()
+    {
+        GUI.Begin("Free Camera Controls");
+
+        GUI.Text("WASD - Move");
+        GUI.Text("QE - Up/Down");
+        GUI.Text("Right Mouse - Look");
+        GUI.Text("Shift - Fast Mode");
+        
+        GUI.FloatSlider("Slow Speed", ref _slowFlySpeed, 0.1f, 10f);
+        GUI.FloatSlider("Fast Speed", ref _fastFlySpeed, 1f, 50f);
+
+        GUI.End();
+    }
+
+
     private void UpdateCursorLock()
     {
         if (Input.GetMouseDown(MouseButton.Right))
@@ -147,7 +163,7 @@ internal class DemoFreeCam : EntityComponent
 
     private void UpdatePosition()
     {
-        double flySpeed = Input.GetKey(KeyCode.LeftShift) ? FAST_FLY_SPEED : SLOW_FLY_SPEED;
+        float flySpeed = Input.GetKey(KeyCode.LeftShift) ? _fastFlySpeed : _slowFlySpeed;
 
         if (Input.GetKey(KeyCode.W)) // Forward
             Transform.Position += Transform.Forward * flySpeed * Time.DeltaTime;
