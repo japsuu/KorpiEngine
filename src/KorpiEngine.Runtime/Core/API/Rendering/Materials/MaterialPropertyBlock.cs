@@ -124,13 +124,6 @@ public class MaterialPropertyBlock
 
     private static void Apply(MaterialPropertyBlock propertyBlock, GraphicsProgram shader, string materialName)
     {
-        // Check if a normal tex exists, if no, use the default one
-        if (!propertyBlock.HasTexture(Material.NORMAL_TEX))
-        {
-            Application.Logger.Warn($"Material '{materialName}' does not have a normal texture, using default");
-            propertyBlock.SetTexture(Material.NORMAL_TEX, Material.DefaultNormalTex);
-        }
-        
         foreach (KeyValuePair<string, float> item in propertyBlock._floats)
             Graphics.Device.SetUniformF(shader, item.Key, item.Value);
 
