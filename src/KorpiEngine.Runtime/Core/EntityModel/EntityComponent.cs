@@ -139,9 +139,7 @@ public abstract class EntityComponent
         Destroying?.Invoke();
         Enabled = false;
         
-        // OnDestroy is only called for components that have previously been active
-        if (HasStarted)
-            ExecuteSafe(OnDestroy);
+        ExecuteSafe(OnDestroy);
         
         Cleanup();
     }
@@ -291,7 +289,7 @@ public abstract class EntityComponent
         }
         catch (Exception e)
         {
-            Application.Logger.Error($"Error: {e.Message} \n StackTrace: {e.StackTrace}", e);
+            Application.Logger.Error("Caught exception:\n", e);
         }
     }
 

@@ -350,17 +350,17 @@ public sealed class Entity : Resource
         if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
             return;
 
-        foreach (EntityComponent c in components)
+        foreach (EntityComponent component in components)
         {
-            c.Destroy();
+            component.Destroy();
 
-            _components.Remove(c);
+            _components.Remove(component);
         }
 
         _componentCache.Remove(typeof(T));
 
-        foreach (EntityComponent c in components)
-            UnregisterComponentWithSystems(c);
+        foreach (EntityComponent component in components)
+            UnregisterComponentWithSystems(component);
     }
 
 

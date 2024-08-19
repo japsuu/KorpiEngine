@@ -87,12 +87,6 @@ public sealed class Camera : EntityComponent
         : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), width / height, NearClipPlane, FarClipPlane).ToDouble();
 
 
-    protected override void OnAwake()
-    {
-        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
-    }
-
-
     internal void Render(int width = -1, int height = -1)
     {
         // Determine render target size
@@ -176,7 +170,6 @@ public sealed class Camera : EntityComponent
     
     internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
     internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
-    
     private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
 
 
@@ -250,6 +243,7 @@ public sealed class Camera : EntityComponent
         }
     }
 
+    
     private void EarlyEndRender()
     {
         Graphics.UseJitter = false;
@@ -269,6 +263,12 @@ public sealed class Camera : EntityComponent
         }
         
         RenderingCamera = null!;
+    }
+
+
+    protected override void OnEnable()
+    {
+        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
 
 
@@ -300,14 +300,8 @@ public sealed class Camera : EntityComponent
             renderTexture.Destroy();
         
         _cachedRenderTextures.Clear();
-    }
-
-
-    protected override void OnDestroy()
-    {
-        throw new NotImplementedException("this should be called");
-        //_debugMaterial.DestroyImmediate();
-        //_debugMaterial.Destroy();
+        
+        _debugMaterial.DestroyImmediate();
     }
 
 
