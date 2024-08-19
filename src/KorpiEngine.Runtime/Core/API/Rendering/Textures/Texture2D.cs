@@ -45,15 +45,7 @@ public sealed class Texture2D : Texture, ISerializable
     }
 
 
-    public static ResourceRef<Texture2D> Load(string path)
-    {
-        Texture2D? asset = AssetDatabase.LoadAsset<Texture2D>(path);
-        
-        if (asset == null)
-            throw new AssetLoadException<Texture2D>(path);
-        
-        return new ResourceRef<Texture2D>(asset);
-    }
+    public static ResourceRef<Texture2D> Find(string path) => new(AssetDatabase.LoadAsset<Texture2D>(path));
 
 
     /// <summary>
@@ -218,7 +210,7 @@ public sealed class Texture2D : Texture, ISerializable
     private static void ValidateTextureSize(int width, int height)
     {
         if (width <= 0 || width > SystemInfo.MaxTextureSize)
-            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}]");
+            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}({SystemInfo.MaxTextureSize})]");
 
         if (height <= 0 || height > SystemInfo.MaxTextureSize)
             throw new ArgumentOutOfRangeException(

@@ -7,10 +7,10 @@ public class Asset
 {
     public readonly Guid AssetID;
     public readonly FileInfo AssetPath;
-    public readonly Resource? Instance;
+    public readonly Resource Instance;
 
 
-    public Asset(Guid assetID, FileInfo assetPath, Resource? instance)
+    public Asset(Guid assetID, FileInfo assetPath, Resource instance)
     {
         AssetID = assetID;
         AssetPath = assetPath;
@@ -20,6 +20,6 @@ public class Asset
     
     public void Destroy()
     {
-        Instance?.DestroyImmediate();
+        Instance.DestroyImmediate();
     }
 }

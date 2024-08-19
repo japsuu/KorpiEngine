@@ -27,10 +27,10 @@ public sealed class Material : Resource
     
     internal static void LoadDefaults()
     {
-        DefaultAlbedoTex = Texture2D.Load("Defaults/default_albedo.png");
-        DefaultNormalTex = Texture2D.Load("Defaults/default_normal.png");
-        DefaultSurfaceTex = Texture2D.Load("Defaults/default_surface.png");
-        DefaultEmissionTex = Texture2D.Load("Defaults/default_emission.png");
+        DefaultAlbedoTex = Texture2D.Find("Defaults/default_albedo.png");
+        DefaultNormalTex = Texture2D.Find("Defaults/default_normal.png");
+        DefaultSurfaceTex = Texture2D.Find("Defaults/default_surface.png");
+        DefaultEmissionTex = Texture2D.Find("Defaults/default_emission.png");
     }
     
     

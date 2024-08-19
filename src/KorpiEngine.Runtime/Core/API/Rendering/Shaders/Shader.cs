@@ -97,12 +97,9 @@ public sealed class Shader : Resource
     }
 
 
-    public static ResourceRef<Shader> Find(string path)
-    {
-        return AssetDatabase.LoadAsset<Shader>(path) ?? throw new InvalidOperationException($"Failed to load shader: {path}");
-    }
-    
-    
+    public static ResourceRef<Shader> Find(string path) => new(AssetDatabase.LoadAsset<Shader>(path));
+
+
     public bool HasVariable(string name)
     {
         foreach (Property p in _properties)
