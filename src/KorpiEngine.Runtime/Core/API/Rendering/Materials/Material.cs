@@ -15,6 +15,25 @@ namespace KorpiEngine.Core.API.Rendering.Materials;
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 public sealed class Material : Resource
 {
+    public const string MAIN_TEX = "_MainTex";
+    public const string NORMAL_TEX = "_NormalTex";
+    public const string SURFACE_TEX = "_SurfaceTex";
+    public const string EMISSION_TEX = "_EmissionTex";
+    public static ResourceRef<Texture2D> DefaultAlbedoTex { get; private set; }
+    public static ResourceRef<Texture2D> DefaultNormalTex { get; private set; }
+    public static ResourceRef<Texture2D> DefaultSurfaceTex { get; private set; }
+    public static ResourceRef<Texture2D> DefaultEmissionTex { get; private set; }
+    
+    
+    internal static void LoadDefaults()
+    {
+        DefaultAlbedoTex = Texture2D.Find("Defaults/default_albedo.png");
+        DefaultNormalTex = Texture2D.Find("Defaults/default_normal.png");
+        DefaultSurfaceTex = Texture2D.Find("Defaults/default_surface.png");
+        DefaultEmissionTex = Texture2D.Find("Defaults/default_emission.png");
+    }
+    
+    
     public readonly ResourceRef<Shader> Shader;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
@@ -29,13 +48,29 @@ public sealed class Material : Resource
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(ResourceRef<Shader> shader, string name) : base(name)
+    public Material(ResourceRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
         _propertyBlock = new MaterialPropertyBlock();
+        
+        if (setDefaultTextures)
+            SetDefaultTextures();
     }
+    
+    
+    public void SetDefaultTextures()
+    {
+        SetAlbedoDefault();
+        SetNormalDefault();
+        SetSurfaceDefault();
+        SetEmissionDefault();
+    }
+    public void SetAlbedoDefault() => SetTexture(MAIN_TEX, DefaultAlbedoTex);
+    public void SetNormalDefault() => SetTexture(NORMAL_TEX, DefaultNormalTex);
+    public void SetSurfaceDefault() => SetTexture(SURFACE_TEX, DefaultSurfaceTex);
+    public void SetEmissionDefault() => SetTexture(EMISSION_TEX, DefaultEmissionTex);
     
     
     internal void ApplyPropertyBlock(GraphicsProgram shader)

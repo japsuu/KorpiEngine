@@ -12,22 +12,13 @@ namespace KorpiEngine.Core.EntityModel;
 /// Container for components and systems.
 /// </summary>
 #warning TODO: Split Entity.cs to partial classes
-public sealed class Entity
+public sealed class Entity : Resource
 {
     /// <summary>
-    /// Unique identifier for this entity.
-    /// </summary>
-    public readonly int InstanceID;
-    
-    /// <summary>
     /// The scene this entity is in.
+    /// If null, the entity has not been spawned in a scene.
     /// </summary>
-    public readonly Scene Scene;
-
-    /// <summary>
-    /// The name of this entity.
-    /// </summary>
-    public string Name;
+    public Scene? Scene { get; private set; }
 
     /// <summary>
     /// The transform of this entity.
@@ -40,6 +31,11 @@ public sealed class Entity
             return _transform;
         }
     }
+    
+    /// <summary>
+    /// True if the entity is spawned in a scene, false otherwise.
+    /// </summary>
+    public bool IsSpawned => Scene != null;
 
     /// <summary>
     /// True if the entity is enabled explicitly, false otherwise.
@@ -83,67 +79,90 @@ public sealed class Entity
     /// <summary>
     /// True if this entity has children, false otherwise.
     /// </summary>
-    public bool HasChildren => ChildList.Count > 0;
+    public bool HasChildren => _childList.Count > 0;
 
     /// <summary>
     /// The entities parented to this entity.
     /// </summary>
-    public IReadOnlyList<Entity> Children => ChildList;
+    public IReadOnlyList<Entity> Children => _childList;
 
-    internal bool IsDestroyed { get; private set; }
     internal int ComponentCount => _components.Count;
     internal int SystemCount => _systems.Count;
-    internal List<Entity> ChildList { get; } = [];
+    internal IReadOnlyCollection<EntityComponent> Components => _components;
 
     private bool _enabled = true;
-    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
+    private EntityScene? _entityScene;
+    private readonly List<Entity> _childList = [];
     private readonly Transform _transform = new();
-    private readonly EntityScene _entityScene;
     private readonly List<EntityComponent> _components = [];
     private readonly MultiValueDictionary<Type, EntityComponent> _componentCache = new();
     private readonly Dictionary<ulong, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _systemBuckets = new();
+    
+    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
 
 
     #region Creation and destruction
 
-    public Entity(string? name = null) : this(SceneManager.CurrentScene, name)
+    public Entity(string? name = null) : this(null, name)
     {
+        Application.Logger.Warn($"Creating an entity '{Name}' without a scene reference. This entity needs to be manually spawned in a scene.");
     }
 
 
     /// <summary>
     /// Creates a new entity with the given name.
     /// </summary>
-    internal Entity(Scene scene, string? name)
+    internal Entity(Scene? scene, string? name) : base(name)
     {
-        InstanceID = EntityID.Generate();
         Name = name ?? $"Entity {InstanceID}";
-        Scene = scene;
-        _entityScene = scene.EntityScene;
-
-        _entityScene.RegisterEntity(this);
+        SetScene(scene);
     }
-
-
-    ~Entity()
+    
+    
+    public void Spawn(Scene scene)
     {
-        if (IsDestroyed)
-            return;
+        if (IsSpawned)
+            throw new InvalidOperationException($"Entity {InstanceID} is already spawned in a scene.");
 
-        Application.Logger.Warn($"Entity {InstanceID} ({Name}) was not destroyed before being garbage collected. This is a memory leak.");
-        Destroy();
+        SetScene(scene);
+    }
+    
+    
+    /// <summary>
+    /// Changes the scene of this entity and all of its children.
+    /// </summary>
+    /// <param name="scene">The new scene to move the entity to. Null to remove the entity from the current scene.</param>
+    internal void SetScene(Scene? scene)
+    {
+        if (Scene == scene)
+            return;
+        
+        SetParent(null);
+        
+        PropagateSceneChange(scene);
+    }
+    
+    
+    private void PropagateSceneChange(Scene? scene)
+    {
+        Scene? oldScene = Scene;
+        Scene = scene;
+        _entityScene = scene?.EntityScene;
+
+        oldScene?.EntityScene.UnregisterEntity(this);
+        scene?.EntityScene.RegisterEntity(this);
+
+        foreach (Entity child in _childList)
+            child.PropagateSceneChange(scene);
     }
 
 
-    /// <summary>
-    /// Destroys the entity and all of its components and systems.
-    /// </summary>
-    public void Destroy()
+    protected override void OnDispose()
     {
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
-        while (ChildList.Count > 0)
-            ChildList[0].Destroy();
+        while (_childList.Count > 0)
+            _childList[0].DestroyImmediate();
 
         RemoveAllSystems();
 
@@ -153,10 +172,8 @@ public sealed class Entity
         _components.Clear();
         _componentCache.Clear();
 
-        _entityScene.UnregisterEntity(this);
-        Parent?.ChildList.Remove(this);
-
-        IsDestroyed = true;
+        _entityScene?.UnregisterEntity(this);
+        Parent?._childList.Remove(this);
     }
 
     #endregion
@@ -211,10 +228,10 @@ public sealed class Entity
 
         if (newParent != Parent)
         {
-            Parent?.ChildList.Remove(this);
+            Parent?._childList.Remove(this);
 
             if (newParent != null)
-                newParent.ChildList.Add(this);
+                newParent._childList.Add(this);
 
             Parent = newParent;
         }
@@ -253,7 +270,7 @@ public sealed class Entity
                 component.HierarchyStateChanged();
         }
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.HierarchyStateChanged();
     }
 
@@ -323,43 +340,6 @@ public sealed class Entity
         return comp;
     }
 
-
-    /*public void AddComponent(EntityComponent comp)
-    {
-        Type type = comp.GetType();
-        RequireComponentAttribute? requireComponentAttribute = type.GetCustomAttribute<RequireComponentAttribute>();
-        if (requireComponentAttribute != null)
-        {
-            foreach (Type requiredComponentType in requireComponentAttribute.Types)
-            {
-                if (!typeof(EntityComponent).IsAssignableFrom(requiredComponentType))
-                    continue;
-
-                // If there is already a component on the object
-                if (GetComponent(requiredComponentType) != null)
-                    continue;
-
-                // Recursive call to attempt to add the new component
-                AddComponent(requiredComponentType);
-            }
-        }
-
-        bool disallowMultiple = type.GetCustomAttribute<DisallowMultipleComponentAttribute>() != null;
-        bool hasComponent = GetComponent(type) != null;
-
-        if (disallowMultiple && hasComponent)
-            throw new InvalidOperationException(
-                $"Can't add the same component multiple times: the component of type {type.Name} does not allow multiple instances");
-
-        comp.Bind(this);
-
-        _components.Add(comp);
-        _componentCache.Add(comp.GetType(), comp);
-
-        if (EnabledInHierarchy)
-            comp.InternalAwake();
-    }*/
-
     #endregion
 
 
@@ -370,17 +350,17 @@ public sealed class Entity
         if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
             return;
 
-        foreach (EntityComponent c in components)
+        foreach (EntityComponent component in components)
         {
-            c.Destroy();
+            component.Destroy();
 
-            _components.Remove(c);
+            _components.Remove(component);
         }
 
         _componentCache.Remove(typeof(T));
 
-        foreach (EntityComponent c in components)
-            UnregisterComponentWithSystems(c);
+        foreach (EntityComponent component in components)
+            UnregisterComponentWithSystems(component);
     }
 
 
@@ -530,7 +510,7 @@ public sealed class Entity
         }
 
         // Now check all children
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             if (EnabledInHierarchy || includeInactive)
             {
                 component = child.GetComponent(componentType) ?? child.GetComponentInChildren(componentType);
@@ -550,7 +530,7 @@ public sealed class Entity
                 yield return component;
 
         // Now check all children
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             if (EnabledInHierarchy || includeInactive)
                 foreach (T component in child.GetComponentsInChildren<T>())
                     yield return component;
@@ -639,7 +619,7 @@ public sealed class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
 
-        _entityScene.RegisterComponent(component);
+        _entityScene?.RegisterComponent(component);
     }
 
 
@@ -648,7 +628,7 @@ public sealed class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
 
-        _entityScene.UnregisterComponent(component);
+        _entityScene?.UnregisterComponent(component);
     }
 
     #endregion
@@ -689,7 +669,7 @@ public sealed class Entity
         if (!HasChildren)
             return;
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.UpdateSystemsRecursive(stage);
     }
 
@@ -705,7 +685,7 @@ public sealed class Entity
         if (!HasChildren)
             return;
 
-        foreach (Entity child in ChildList)
+        foreach (Entity child in _childList)
             child.UpdateComponentsRecursive(stage);
     }
 

@@ -8,7 +8,12 @@ public class Transform
     public Vector3 Left => Rotation * Vector3.Left;
     public Vector3 Up => Rotation * Vector3.Up;
     public Vector3 Down => Rotation * Vector3.Down;
-    public Vector3 Forward => Rotation * Vector3.Forward;
+    public Vector3 Forward
+    {
+        get => Rotation * Vector3.Forward;
+        set => Rotation = Quaternion.LookRotation(value, Vector3.Up);
+    }
+
     public Vector3 Backward => Rotation * Vector3.Backward;
     public bool IsRootTransform => Parent == null;
     public Transform Root => Parent == null ? this : Parent.Root;
@@ -353,6 +358,76 @@ public class Transform
 
 
     public Quaternion InverseTransformRotation(Quaternion worldRotation) => Quaternion.Inverse(Rotation) * worldRotation;
+
+    #endregion
+
+
+    #region Hierarchy
+
+    public Transform? Find(string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+
+        string[] names = path.Split('/');
+        Transform currentTransform = this;
+
+        foreach (string name in names)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+
+            Transform? childTransform = FindImmediateChild(currentTransform, name);
+            if (childTransform == null)
+                return null;
+
+            currentTransform = childTransform;
+        }
+
+        return currentTransform;
+    }
+
+
+    public Transform? DeepFind(string? name)
+    {
+        if (name == null)
+            return null;
+        
+        if (name == Entity.Name)
+            return this;
+        
+        foreach (Entity child in Entity.Children)
+        {
+            Transform? t = child.Transform.DeepFind(name);
+            if (t != null)
+                return t;
+        }
+
+        return null;
+    }
+
+
+    public static string GetPath(Transform target, Transform root)
+    {
+        string path = target.Entity.Name;
+        while (target.Parent != null)
+        {
+            target = target.Parent;
+            path = $"{target.Entity.Name}/{path}";
+            if (target == root)
+                break;
+        }
+
+        return path;
+    }
+
+
+    private static Transform? FindImmediateChild(Transform parent, string name)
+    {
+        foreach (Entity child in parent.Entity.Children)
+            if (child.Name == name)
+                return child.Transform;
+        
+        return null;
+    }
 
     #endregion
 
