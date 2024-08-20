@@ -1,11 +1,16 @@
-﻿using KorpiEngine.Core;
+﻿using System.Collections;
+using KorpiEngine.Core;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
+using KorpiEngine.Core.UI;
+using KorpiEngine.Core.UI.DearImGui;
+using KorpiEngine.Networking;
 using Random = KorpiEngine.Core.API.Random;
 
 namespace Sandbox.Scenes;
@@ -18,6 +23,11 @@ internal class FullExampleScene : Scene
 {
     protected override void OnLoad()
     {
+        // Create an entity to load the Sponza model
+        Entity sponzaLoader = CreateEntity("Sponza Loader");
+        sponzaLoader.AddComponent<SponzaLoader>();
+        
+        
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
@@ -69,6 +79,44 @@ internal class FullExampleScene : Scene
         
         component.Transform.Position = new Vector3(0, 5, -5);
         return component;
+    }
+}
+
+internal class SponzaLoader : EntityComponent
+{
+    private const bool LOAD_FROM_WEB = true;
+    private const string SPONZA_DISK_PATH = "Defaults/sponza.obj";
+    private const string SPONZA_WEB_URL = "https://raw.githubusercontent.com/jimmiebergmann/Sponza/master/sponza.obj";
+    
+    
+    protected override void OnStart()
+    {
+        if (LOAD_FROM_WEB)
+            StartCoroutine(nameof(LoadSponzaWeb));
+        else
+            LoadSponzaDisk();
+    }
+    
+    
+    private IEnumerator LoadSponzaWeb()
+    {
+        // Create a web request to load the Sponza model, and save it to disk next to the executable.
+        using WebAssetLoadOperation<Entity> operation = WebRequest.LoadWebAsset<Entity>(SPONZA_WEB_URL, "sponza.obj");
+        yield return operation.SendWebRequest();
+        
+        Entity asset = operation.Result!;
+        asset.Spawn(Entity.Scene!);
+        asset.Transform.Position = new Vector3(0, -8, 0);
+        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
+    }
+    
+    
+    private void LoadSponzaDisk()
+    {
+        Entity asset = AssetDatabase.LoadAssetFile<Entity>(SPONZA_DISK_PATH);
+        asset.Spawn(Entity.Scene!);
+        asset.Transform.Position = new Vector3(0, 4, 0);
+        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
 }
 
