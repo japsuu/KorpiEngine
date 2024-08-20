@@ -38,8 +38,10 @@ public static class Graphics
     {
         Device = new T();
         Window = korpiWindow;
-        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material");
         Device.Initialize();
+        
+        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material", false);
+        Material.LoadDefaults();
     }
 
 
@@ -162,6 +164,9 @@ public static class Graphics
         material.SetKeyword("HAS_NORMALS", mesh.HasVertexNormals);
         material.SetKeyword("HAS_COLORS", mesh.HasVertexColors);
         material.SetKeyword("HAS_TANGENTS", mesh.HasVertexTangents);
+
+        material.SetKeyword("HAS_BONEWEIGHTS", mesh.HasBoneWeights);
+        material.SetKeyword("HAS_BONEINDICES", mesh.HasBoneIndices);
 
         // All material uniforms have been assigned; it's time to buffer them
         material.ApplyPropertyBlock(Device.CurrentProgram);

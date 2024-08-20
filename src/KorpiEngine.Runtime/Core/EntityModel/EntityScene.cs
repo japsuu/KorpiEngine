@@ -2,6 +2,7 @@
 using KorpiEngine.Core.EntityModel.IDs;
 using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Core.UI;
 
 namespace KorpiEngine.Core.EntityModel;
 
@@ -11,6 +12,8 @@ namespace KorpiEngine.Core.EntityModel;
 internal sealed class EntityScene
 {
     private bool _isBeingDestroyed;
+    private bool _isIteratingEntities;
+    private readonly Queue<Entity> _entitiesAwaitingRegistration = [];
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
     private readonly Dictionary<SceneSystemID, SceneSystem> _sceneSystems = [];
@@ -19,18 +22,24 @@ internal sealed class EntityScene
     internal IReadOnlyList<EntityComponent> Components => _components;
 
 
-    #region Entity/Component/System registration
+    #region Entity/Component/System registration/deregistration
 
     internal void RegisterEntity(Entity entity)
     {
         if (_isBeingDestroyed)
             return;
         
+        if (_isIteratingEntities)
+        {
+            _entitiesAwaitingRegistration.Enqueue(entity);
+            return;
+        }
+
         if (entity.ComponentCount > 0)
-            throw new InvalidOperationException($"Entity {entity} has components before being registered. This is not allowed.");
-        
-        if (entity.SystemCount > 0)
-            throw new InvalidOperationException($"Entity {entity} has systems before being registered. This is not allowed.");
+        {
+            foreach (EntityComponent component in entity.Components)
+                RegisterComponent(component);
+        }
         
         _entities.Add(entity);
     }
@@ -101,6 +110,31 @@ internal sealed class EntityScene
         
         system.OnUnregister();
     }
+    
+    
+    private void DestroyAllSceneSystems()
+    {
+        foreach (SceneSystem system in _sceneSystems.Values)
+            system.OnUnregister();
+        
+        _sceneSystems.Clear();
+    }
+    
+    
+    private void DestroyAllEntities()
+    {
+        while (_entitiesAwaitingRegistration.TryDequeue(out Entity? e))
+            e.DestroyImmediate();
+        
+        foreach (Entity entity in _entities)
+        {
+            if (entity.IsRootEntity)
+                entity.DestroyImmediate();
+        }
+        
+        _entities.Clear();
+        _components.Clear();
+    }
 
     #endregion
 
@@ -141,6 +175,11 @@ internal sealed class EntityScene
             return;
         
         _renderer.Render();
+        
+        InvokeDrawGUI();
+        
+        UpdateEntities(EntityUpdateStage.PostRender);
+        UpdateSceneSystems(EntityUpdateStage.PostRender);
     }
 
 
@@ -148,13 +187,9 @@ internal sealed class EntityScene
     {
         _isBeingDestroyed = true;
         
-        // Destroy all scene systems.
-        foreach (SceneSystem system in _sceneSystems.Values)
-            system.OnUnregister();
+        DestroyAllSceneSystems();
         
-        // Destroy all entities (includes their systems and components).
-        foreach (Entity entity in _entities)
-            entity.Destroy();
+        DestroyAllEntities();
     }
 
     #endregion
@@ -237,16 +272,39 @@ internal sealed class EntityScene
     }
 
 
+    private void InvokeDrawGUI()
+    {
+        GUI.AllowDraw = true;
+        foreach (EntityComponent comp in Components)
+        {
+            if (!comp.EnabledInHierarchy)
+                continue;
+            
+            comp.DrawGUI();
+                
+            if (GUI.IsDrawing)
+                GUI.End();
+        }
+        GUI.AllowDraw = false;
+    }
+
+
     private void EnsureEntityInitialization()
     {
+        while (_entitiesAwaitingRegistration.Count > 0)
+            RegisterEntity(_entitiesAwaitingRegistration.Dequeue());
+        
+        _isIteratingEntities = true;
         foreach (Entity e in _entities)
             if (e.EnabledInHierarchy)
                 e.EnsureComponentInitialization();
+        _isIteratingEntities = false;
     }
 
 
     private void UpdateEntities(EntityUpdateStage stage)
     {
+        _isIteratingEntities = true;
         foreach (Entity entity in _entities)
         {
             if (entity.IsDestroyed)
@@ -261,6 +319,7 @@ internal sealed class EntityScene
             
             entity.Update(stage);
         }
+        _isIteratingEntities = false;
     }
 
 

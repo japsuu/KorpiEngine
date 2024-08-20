@@ -33,7 +33,8 @@ public sealed class Shader : Resource
             INT3,
             INT4,
             TEXTURE_2D,
-            MATRIX_4X4
+            MATRIX_4X4,
+            MATRIX_4X4_ARRAY
         }
     }
 
@@ -96,12 +97,9 @@ public sealed class Shader : Resource
     }
 
 
-    public static ResourceRef<Shader> Find(string path)
-    {
-        return AssetDatabase.LoadAsset<Shader>(path) ?? throw new InvalidOperationException($"Failed to load shader: {path}");
-    }
-    
-    
+    public static ResourceRef<Shader> Find(string path) => new(AssetDatabase.LoadAssetFile<Shader>(path));
+
+
     public bool HasVariable(string name)
     {
         foreach (Property p in _properties)

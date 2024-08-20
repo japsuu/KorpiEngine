@@ -63,10 +63,6 @@ public abstract class Scene : IDisposable
         
         mat.SetFloat("_EmissionIntensity", 0f);
         mat.SetColor("_EmissiveColor", Color.Black);
-        mat.SetTexture("_MainTex", Texture2D.Load("Defaults/default_albedo.png"));
-        mat.SetTexture("_NormalTex", Texture2D.Load("Defaults/default_normal.png"));
-        mat.SetTexture("_SurfaceTex", Texture2D.Load("Defaults/default_surface.png"));
-        mat.SetTexture("_EmissionTex", Texture2D.Load("Defaults/default_emission.png"));
         
         return e;
     }

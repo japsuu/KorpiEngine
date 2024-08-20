@@ -111,7 +111,7 @@ public static class Gizmos
 
     public static void Render(bool enableDepthTest)
     {
-        gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.kshader"), "Gizmos Material");
+        gizmosMat ??= new Material(Shader.Find("Defaults/Gizmos.kshader"), "Gizmos Material", false);
         lineBatch ??= new PrimitiveBatch(Topology.Lines);
 
         if (!lineBatch.IsUploaded)

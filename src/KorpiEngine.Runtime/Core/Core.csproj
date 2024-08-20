@@ -26,6 +26,7 @@
 
     <ItemGroup>
       <PackageReference Include="Arch.System" Version="1.0.5" />
+      <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
       <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
       <PackageReference Include="log4net" Version="2.0.15" />
       <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0" />

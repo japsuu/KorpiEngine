@@ -1,11 +1,16 @@
-﻿using KorpiEngine.Core;
+﻿using System.Collections;
+using KorpiEngine.Core;
 using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
+using KorpiEngine.Core.UI;
+using KorpiEngine.Core.UI.DearImGui;
+using KorpiEngine.Networking;
 using Random = KorpiEngine.Core.API.Random;
 
 namespace Sandbox.Scenes;
@@ -18,13 +23,18 @@ internal class FullExampleScene : Scene
 {
     protected override void OnLoad()
     {
+        // Create an entity to load the Sponza model
+        Entity sponzaLoader = CreateEntity("Sponza Loader");
+        sponzaLoader.AddComponent<SponzaLoader>();
+        
+        
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
         for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name, and add a custom component to make it oscillate
-            Entity root = new($"Sphere {i}");
+            Entity root = CreateEntity($"Sphere {i}");
             if (i % 2 == 0)
                 root.AddComponent<DemoOscillate>();
 
@@ -40,7 +50,7 @@ internal class FullExampleScene : Scene
         for (int i = 0; i < 25; i++)
         {
             // Create a new entity with a name
-            Entity root = new($"Cube {i}");
+            Entity root = CreateEntity($"Cube {i}");
 
             // Create a cube primitive and add it as a child of the root entity
             Entity model = CreatePrimitive(PrimitiveType.Cube, "Cube model");
@@ -69,6 +79,44 @@ internal class FullExampleScene : Scene
         
         component.Transform.Position = new Vector3(0, 5, -5);
         return component;
+    }
+}
+
+internal class SponzaLoader : EntityComponent
+{
+    private const bool LOAD_FROM_WEB = true;
+    private const string SPONZA_DISK_PATH = "Defaults/sponza.obj";
+    private const string SPONZA_WEB_URL = "https://raw.githubusercontent.com/jimmiebergmann/Sponza/master/sponza.obj";
+    
+    
+    protected override void OnStart()
+    {
+        if (LOAD_FROM_WEB)
+            StartCoroutine(nameof(LoadSponzaWeb));
+        else
+            LoadSponzaDisk();
+    }
+    
+    
+    private IEnumerator LoadSponzaWeb()
+    {
+        // Create a web request to load the Sponza model, and save it to disk next to the executable.
+        using WebAssetLoadOperation<Entity> operation = WebRequest.LoadWebAsset<Entity>(SPONZA_WEB_URL, "sponza.obj");
+        yield return operation.SendWebRequest();
+        
+        Entity asset = operation.Result!;
+        asset.Spawn(Entity.Scene!);
+        asset.Transform.Position = new Vector3(0, -8, 0);
+        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
+    }
+    
+    
+    private void LoadSponzaDisk()
+    {
+        Entity asset = AssetDatabase.LoadAssetFile<Entity>(SPONZA_DISK_PATH);
+        asset.Spawn(Entity.Scene!);
+        asset.Transform.Position = new Vector3(0, 4, 0);
+        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
 }
 
@@ -108,8 +156,8 @@ internal class DemoFreeCam : EntityComponent
     private const float MAX_PITCH = 89.0f;
     private const float MIN_PITCH = -89.0f;
 
-    private const double SLOW_FLY_SPEED = 1.5f;
-    private const double FAST_FLY_SPEED = 3.0f;
+    private float _slowFlySpeed = 1.5f;
+    private float _fastFlySpeed = 3.0f;
 
     private double _pitch;
     private double _yaw;
@@ -136,6 +184,22 @@ internal class DemoFreeCam : EntityComponent
     }
 
 
+    protected override void OnDrawGUI()
+    {
+        GUI.Begin("Free Camera Controls");
+
+        GUI.Text("WASD - Move");
+        GUI.Text("QE - Up/Down");
+        GUI.Text("Right Mouse - Look");
+        GUI.Text("Shift - Fast Mode");
+        
+        GUI.FloatSlider("Slow Speed", ref _slowFlySpeed, 0.1f, 10f);
+        GUI.FloatSlider("Fast Speed", ref _fastFlySpeed, 1f, 50f);
+
+        GUI.End();
+    }
+
+
     private void UpdateCursorLock()
     {
         if (Input.GetMouseDown(MouseButton.Right))
@@ -147,7 +211,7 @@ internal class DemoFreeCam : EntityComponent
 
     private void UpdatePosition()
     {
-        double flySpeed = Input.GetKey(KeyCode.LeftShift) ? FAST_FLY_SPEED : SLOW_FLY_SPEED;
+        float flySpeed = Input.GetKey(KeyCode.LeftShift) ? _fastFlySpeed : _slowFlySpeed;
 
         if (Input.GetKey(KeyCode.W)) // Forward
             Transform.Position += Transform.Forward * flySpeed * Time.DeltaTime;

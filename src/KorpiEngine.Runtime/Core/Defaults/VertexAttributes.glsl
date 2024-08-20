@@ -20,16 +20,16 @@ layout (location = 3) in vec3 vertexNormal;
 vec3 vertexNormal = vec3(0.0, 1.0, 0.0);
 #endif
 
-#ifdef HAS_COLORS
-layout (location = 4) in vec4 vertexColor;
-#else
-vec4 vertexColor = vec4(1.0, 1.0, 1.0, 1.0);
-#endif
-
 #ifdef HAS_TANGENTS
-layout (location = 5) in vec3 vertexTangent;
+layout (location = 4) in vec3 vertexTangent;
 #else
 vec3 vertexTangent = vec3(1.0, 0.0, 0.0);
+#endif
+
+#ifdef HAS_COLORS
+layout (location = 5) in vec4 vertexColor;
+#else
+vec4 vertexColor = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 
 #ifdef SKINNED

@@ -362,6 +362,76 @@ public class Transform
     #endregion
 
 
+    #region Hierarchy
+
+    public Transform? Find(string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+
+        string[] names = path.Split('/');
+        Transform currentTransform = this;
+
+        foreach (string name in names)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+
+            Transform? childTransform = FindImmediateChild(currentTransform, name);
+            if (childTransform == null)
+                return null;
+
+            currentTransform = childTransform;
+        }
+
+        return currentTransform;
+    }
+
+
+    public Transform? DeepFind(string? name)
+    {
+        if (name == null)
+            return null;
+        
+        if (name == Entity.Name)
+            return this;
+        
+        foreach (Entity child in Entity.Children)
+        {
+            Transform? t = child.Transform.DeepFind(name);
+            if (t != null)
+                return t;
+        }
+
+        return null;
+    }
+
+
+    public static string GetPath(Transform target, Transform root)
+    {
+        string path = target.Entity.Name;
+        while (target.Parent != null)
+        {
+            target = target.Parent;
+            path = $"{target.Entity.Name}/{path}";
+            if (target == root)
+                break;
+        }
+
+        return path;
+    }
+
+
+    private static Transform? FindImmediateChild(Transform parent, string name)
+    {
+        foreach (Entity child in parent.Entity.Children)
+            if (child.Name == name)
+                return child.Transform;
+        
+        return null;
+    }
+
+    #endregion
+
+
     private static double MakeSafe(double v) => double.IsNaN(v) ? 0 : v;
     private static Vector3 MakeSafe(Vector3 v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z));
     private static Quaternion MakeSafe(Quaternion v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z), MakeSafe(v.W));

@@ -9,7 +9,7 @@ namespace KorpiEngine.Core.SceneManagement;
 public static class SceneManager
 {
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(SceneManager));
-    private static readonly List<Scene> LoadedScenes = new();
+    private static readonly List<Scene> LoadedScenes = [];
     private static Scene? currentScene;
 
     /// <summary>
@@ -58,6 +58,8 @@ public static class SceneManager
         // Unload the old scenes.
         foreach (Scene loadedScene in LoadedScenes)
             loadedScene.Dispose();
+        
+        LoadedScenes.Clear();
 
         // Set the new scene as the current scene.
         currentScene = scene;
