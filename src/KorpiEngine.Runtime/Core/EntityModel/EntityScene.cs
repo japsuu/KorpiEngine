@@ -177,6 +177,9 @@ internal sealed class EntityScene
         _renderer.Render();
         
         InvokeDrawGUI();
+        
+        UpdateEntities(EntityUpdateStage.PostRender);
+        UpdateSceneSystems(EntityUpdateStage.PostRender);
     }
 
 

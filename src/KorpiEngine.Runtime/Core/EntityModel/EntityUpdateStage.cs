@@ -11,6 +11,7 @@ public enum EntityUpdateStage
     PreFixedUpdate,
     FixedUpdate,
     PostFixedUpdate,
+    PostRender,
     /*PreRender,
     Render,
     PostRender,

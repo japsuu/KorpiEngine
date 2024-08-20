@@ -48,8 +48,7 @@ public abstract class EntityComponent
 
     private bool _enabled = true;
     private bool _enabledInHierarchy = true;
-    private readonly Dictionary<string, Coroutine> _coroutines = new();
-    private readonly Dictionary<string, Coroutine> _endOfFrameCoroutines = new();
+    private readonly List<Coroutine> _coroutines = [];
 
 
     #region Creation and destruction
@@ -67,7 +66,6 @@ public abstract class EntityComponent
     {
         Entity = null!;
         _coroutines.Clear();
-        _endOfFrameCoroutines.Clear();
     }
 
     #endregion
@@ -101,7 +99,7 @@ public abstract class EntityComponent
         switch (stage)
         {
             case EntityUpdateStage.PreUpdate:
-                UpdateCoroutines();
+                UpdateCoroutines(CoroutineUpdateStage.Update);
                 ExecuteSafe(OnPreUpdate);
                 break;
             case EntityUpdateStage.Update:
@@ -109,7 +107,6 @@ public abstract class EntityComponent
                 break;
             case EntityUpdateStage.PostUpdate:
                 ExecuteSafe(OnPostUpdate);
-                UpdateEndOfFrameCoroutines();
                 break;
             case EntityUpdateStage.PreFixedUpdate:
                 ExecuteSafe(OnPreFixedUpdate);
@@ -119,6 +116,9 @@ public abstract class EntityComponent
                 break;
             case EntityUpdateStage.PostFixedUpdate:
                 ExecuteSafe(OnPostFixedUpdate);
+                break;
+            case EntityUpdateStage.PostRender:
+                UpdateCoroutines(CoroutineUpdateStage.EndOfFrame);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(stage), stage, null);
@@ -175,40 +175,31 @@ public abstract class EntityComponent
     #region Coroutines
 
 
-    private void UpdateCoroutines()
+    private void UpdateCoroutines(CoroutineUpdateStage stage)
     {
-        Dictionary<string, Coroutine> tempList = new(_coroutines);
-        _coroutines.Clear();
-        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
+        for (int i = 0; i < _coroutines.Count; i++)
         {
-            coroutine.Value.Run();
-            if (coroutine.Value.IsDone)
-            {
-                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
-                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
-                else
-                    _coroutines.Add(coroutine.Key, coroutine.Value);
-            }
+            Coroutine coroutine = _coroutines[i];
+            
+            coroutine.Run(stage);
+            
+            // Check if the coroutine is finished.
+            if (!coroutine.IsDone)
+                continue;
+            
+            _coroutines.RemoveAt(i);
+            i--;
         }
     }
-
-
-    private void UpdateEndOfFrameCoroutines()
+    
+    
+    public Coroutine StartCoroutine(IEnumerator routine)
     {
-        Dictionary<string, Coroutine> tempList = new(_endOfFrameCoroutines);
-        _endOfFrameCoroutines.Clear();
-        foreach (KeyValuePair<string, Coroutine> coroutine in tempList)
-        {
-            coroutine.Value.Run();
-            if (coroutine.Value.IsDone)
-            {
-                if (coroutine.Value.Enumerator.Current is WaitForEndOfFrame)
-                    _endOfFrameCoroutines.Add(coroutine.Key, coroutine.Value);
-                else
-                    _coroutines.Add(coroutine.Key, coroutine.Value);
-            }
-        }
+        Coroutine coroutine = new(routine);
+        _coroutines.Add(coroutine);
+        return coroutine;
     }
+    
 
     public Coroutine StartCoroutine(string methodName)
     {
@@ -223,29 +214,19 @@ public abstract class EntityComponent
         if (invoke is not IEnumerator enumerator)
             throw new InvalidOperationException($"Coroutine '{methodName}' couldn't be started, the method doesn't return an IEnumerator!");
 
-        Coroutine coroutine = new(enumerator);
-
-        if (coroutine.Enumerator.Current is WaitForEndOfFrame)
-            _endOfFrameCoroutines.Add(methodName, coroutine);
-        else
-            _coroutines.Add(methodName, coroutine);
-
-        return coroutine;
+        return StartCoroutine(enumerator);
     }
 
 
     public void StopAllCoroutines()
     {
         _coroutines.Clear();
-        _endOfFrameCoroutines.Clear();
     }
 
 
-    public void StopCoroutine(string methodName)
+    public void StopCoroutine(Coroutine coroutine)
     {
-        methodName = methodName.Trim();
-        _coroutines.Remove(methodName);
-        _endOfFrameCoroutines.Remove(methodName);
+        _coroutines.Remove(coroutine);
     }
 
     #endregion
