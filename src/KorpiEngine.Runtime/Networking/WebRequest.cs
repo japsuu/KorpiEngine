@@ -33,6 +33,51 @@ public sealed class DownloadHandler
     }
 }
 
+public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
+{
+    private readonly string? _relativeSavePath;
+    private readonly WebRequest _request;
+
+    public bool IsDone => _request.IsDone;
+    public T? Result { get; private set; }
+
+
+    public WebAssetLoadOperation(string url, string? relativeSavePath)
+    {
+        _relativeSavePath = relativeSavePath;
+        
+        _request = WebRequest.Get(url);
+        _request.DownloadHandler = new DownloadHandler();
+    }
+    
+    
+    public IEnumerator SendWebRequest()
+    {
+        Console.WriteLine("sponzaaaaaaa!");
+        yield return _request.SendWebRequest();
+
+        if (!string.IsNullOrEmpty(_request.Error))
+        {
+            Application.Logger.Error(_request.Error);
+            yield break;
+        }
+
+        string savePath = string.IsNullOrEmpty(_relativeSavePath) ?
+            Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) :
+            Path.Combine(Application.Directory, _relativeSavePath);
+        
+        File.WriteAllText(savePath, _request.DownloadHandler!.Text);
+
+        Result = AssetDatabase.LoadAssetFile<T>(savePath);
+    }
+
+
+    public void Dispose()
+    {
+        _request.Dispose();
+    }
+}
+
 public sealed class WebRequest : IDisposable
 {
     private static readonly HttpClient HttpClient = new();
@@ -55,26 +100,9 @@ public sealed class WebRequest : IDisposable
     
     
     
-    public static IEnumerator LoadWebAsset<T>(string url, string? relativeSavePath) where T : Resource
+    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string? relativeSavePath = null) where T : Resource
     {
-        using WebRequest www = WebRequest.Get(url);
-        
-        www.DownloadHandler = new DownloadHandler();
-        yield return www.SendWebRequest();
-
-        if (!string.IsNullOrEmpty(www.Error))
-        {
-            Application.Logger.Error(www.Error);
-            yield break;
-        }
-
-        string savePath = string.IsNullOrEmpty(relativeSavePath) ?
-            Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) :
-            Path.Combine(Application.Directory, relativeSavePath);
-        
-        File.WriteAllText(savePath, www.DownloadHandler.Text);
-
-        yield return AssetDatabase.LoadAssetFile<T>(savePath);
+        return new WebAssetLoadOperation<T>(url, relativeSavePath);
     }
 
 
