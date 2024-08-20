@@ -35,14 +35,14 @@ public sealed class DownloadHandler
 
 public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
 {
-    private readonly string? _relativeSavePath;
+    private readonly string _relativeSavePath;
     private readonly WebRequest _request;
 
     public bool IsDone => _request.IsDone;
     public T? Result { get; private set; }
 
 
-    public WebAssetLoadOperation(string url, string? relativeSavePath)
+    public WebAssetLoadOperation(string url, string relativeSavePath)
     {
         _relativeSavePath = relativeSavePath;
         
@@ -53,7 +53,6 @@ public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
     
     public IEnumerator SendWebRequest()
     {
-        Console.WriteLine("sponzaaaaaaa!");
         yield return _request.SendWebRequest();
 
         if (!string.IsNullOrEmpty(_request.Error))
@@ -62,9 +61,7 @@ public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
             yield break;
         }
 
-        string savePath = string.IsNullOrEmpty(_relativeSavePath) ?
-            Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) :
-            Path.Combine(Application.Directory, _relativeSavePath);
+        string savePath = Path.Combine(Application.Directory, _relativeSavePath);
         
         File.WriteAllText(savePath, _request.DownloadHandler!.Text);
 
@@ -100,7 +97,7 @@ public sealed class WebRequest : IDisposable
     
     
     
-    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string? relativeSavePath = null) where T : Resource
+    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string relativeSavePath) where T : Resource
     {
         return new WebAssetLoadOperation<T>(url, relativeSavePath);
     }
