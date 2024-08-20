@@ -195,7 +195,7 @@ public class ModelImporter : AssetImporter
 
     private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, double scaleFactor, int i = 0)
     {
-        Entity entity = new(name ?? assimpNode.Name);
+        Entity entity = new(null, name ?? assimpNode.Name);
         hierarchy.Add((entity, assimpNode));
         entity.Name = name ?? assimpNode.Name;
 
