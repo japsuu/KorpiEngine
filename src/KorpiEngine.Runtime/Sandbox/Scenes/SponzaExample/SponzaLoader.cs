@@ -2,7 +2,6 @@
 using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Internal.AssetManagement.Importers;
-using KorpiEngine.Core.UI.DearImGui;
 using KorpiEngine.Networking;
 
 namespace Sandbox.Scenes.SponzaExample;
