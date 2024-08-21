@@ -5,21 +5,21 @@ namespace KorpiEngine.Core.UI;
 #if DEBUG
 public static class EditorGUI
 {
-    private static DebugStatsWindow debugStatsWindow = null!;
-    private static EntityEditor entityEditorWindow = null!;
+    public static DebugStatsWindow DebugStatsWindow { get; private set; } = null!;
+    public static EntityEditor EntityEditorWindow { get; private set; } = null!;
     
     
     public static void Initialize()
     {
-        debugStatsWindow = new DebugStatsWindow();
-        entityEditorWindow = new EntityEditor();
+        DebugStatsWindow = new DebugStatsWindow();
+        EntityEditorWindow = new EntityEditor();
     }
     
     
     public static void Deinitialize()
     {
-        debugStatsWindow.Destroy();
-        entityEditorWindow.Destroy();
+        DebugStatsWindow.Destroy();
+        EntityEditorWindow.Destroy();
     }
 }
 #endif
