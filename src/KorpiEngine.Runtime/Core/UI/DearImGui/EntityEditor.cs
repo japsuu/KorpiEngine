@@ -31,12 +31,11 @@ public class EntityEditor() : ImGuiWindow(true)
             return;
         
         Entity? e = Resource.FindObjectByID<Entity>(instanceID);
-        if (e != null)
-            SetTarget(e);
+        SetTarget(e);
     }
 
 
-    public void SetTarget(Entity entity)
+    public void SetTarget(Entity? entity)
     {
         _target = new ResourceRef<Entity>(entity);
     }
@@ -59,6 +58,15 @@ public class EntityEditor() : ImGuiWindow(true)
 
     private static void DrawEntityHierarchy(Entity entity)
     {
+        // Inline destroy button
+        if (ImGui.Button("Destroy"))
+        {
+            entity.Destroy();
+            return;
+        }
+        ImGui.SameLine();
+        
+        // Transform hierarchy
         if (entity.HasChildren)
         {
             if (!ImGui.TreeNode(entity.Name))
