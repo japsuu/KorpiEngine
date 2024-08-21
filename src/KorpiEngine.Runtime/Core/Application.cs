@@ -30,7 +30,7 @@ public static class Application
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
     public static string DefaultsDirectory => Path.Combine(Directory, EngineConstants.DEFAULTS_FOLDER_NAME);
-    public static string PackagesDirectory => Path.Combine(Directory, EngineConstants.PACKAGES_FOLDER_NAME);
+    public static string WebAssetsDirectory => Path.Combine(Directory, EngineConstants.WEB_ASSETS_FOLDER_NAME);
 
 
     private static void InitializeLog4Net()
