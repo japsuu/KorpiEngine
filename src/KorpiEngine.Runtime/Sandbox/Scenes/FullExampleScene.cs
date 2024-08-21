@@ -86,44 +86,85 @@ internal class FullExampleScene : Scene
 
 internal class SponzaLoader : EntityComponent
 {
-    private const bool LOAD_FROM_WEB = true;
-    private const string SPONZA_DISK_PATH = "Defaults/sponza.obj";
-    private const string SPONZA_WEB_URL = "https://raw.githubusercontent.com/jimmiebergmann/Sponza/master/sponza.obj";
+    private const string SPONZA_WEB_URL = "https://github.com/jimmiebergmann/Sponza/raw/master";
+    private static readonly string[] SPONZA_ASSETS =
+    {
+        "sponza.obj",
+        "sponza.mtl",
+        "textures/background.tga",
+        "textures/background_ddn.tga",
+        "textures/chain_texture.tga",
+        "textures/chain_texture_ddn.tga",
+        "textures/lion.tga",
+        "textures/lion2_ddn.tga",
+        "textures/lion_ddn.tga",
+        "textures/spnza_bricks_a_ddn.tga",
+        "textures/spnza_bricks_a_diff.tga",
+        "textures/sponza_arch_ddn.tga",
+        "textures/sponza_arch_diff.tga",
+        "textures/sponza_ceiling_a_ddn.tga",
+        "textures/sponza_ceiling_a_diff.tga",
+        "textures/sponza_column_a_ddn.tga",
+        "textures/sponza_column_a_diff.tga",
+        "textures/sponza_column_b_ddn.tga",
+        "textures/sponza_column_b_diff.tga",
+        "textures/sponza_column_c_ddn.tga",
+        "textures/sponza_column_c_diff.tga",
+        "textures/sponza_curtain_blue_diff.tga",
+        "textures/sponza_curtain_ddn.tga",
+        "textures/sponza_curtain_diff.tga",
+        "textures/sponza_curtain_green_diff.tga",
+        "textures/sponza_details_ddn.tga",
+        "textures/sponza_details_diff.tga",
+        "textures/sponza_fabric_blue_diff.tga",
+        "textures/sponza_fabric_ddn.tga",
+        "textures/sponza_fabric_diff.tga",
+        "textures/sponza_fabric_green_diff.tga",
+        "textures/sponza_flagpole_ddn.tga",
+        "textures/sponza_flagpole_diff.tga",
+        "textures/sponza_floor_a_ddn.tga",
+        "textures/sponza_floor_a_diff.tga",
+        "textures/sponza_roof_ddn.tga",
+        "textures/sponza_roof_diff.tga",
+        "textures/sponza_thorn_ddn.tga",
+        "textures/sponza_thorn_diff.tga",
+        "textures/vase_ddn.tga",
+        "textures/vase_dif.tga",
+        "textures/vase_hanging.tga",
+        "textures/vase_hanging_ddn.tga",
+        "textures/vase_plant.tga",
+        "textures/vase_round.tga",
+        "textures/vase_round_ddn.tga"
+    };
     
     
     protected override void OnStart()
     {
-        if (LOAD_FROM_WEB)
-            StartCoroutine(nameof(LoadSponzaWeb));
-        else
-            LoadSponzaDisk();
+        StartCoroutine(nameof(LoadSponzaWeb));
     }
     
     
     private IEnumerator LoadSponzaWeb()
     {
-        // Create a custom importer to scale the model down
-        ModelImporter importer = (ModelImporter)AssetDatabase.GetImporter(".obj");
-        importer.UnitScale = 0.1f;
-
-        // Create a web request to load the Sponza model, and save it to disk next to the executable.
-        using WebAssetLoadOperation<Entity> operation = WebRequest.LoadWebAsset<Entity>(SPONZA_WEB_URL, "sponza.obj", importer);
-        yield return operation.SendWebRequest();
-        Entity asset = operation.Result!;
+        // Create a web request to load the Sponza model and all its assets,
+        // and save them to disk next to the executable in "WebAssets/sponza" subfolder.
+        WebAssetLoadOperation operation = new("sponza", SPONZA_WEB_URL, false, SPONZA_ASSETS);
         
-        asset.Spawn(Entity.Scene!);
-        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
+        yield return operation.SendWebRequest();
+        
+        // Load the Sponza model from disk
+        LoadSponzaDisk(operation.SavePaths[0]);
     }
     
     
-    private void LoadSponzaDisk()
+    private void LoadSponzaDisk(string path)
     {
         // Create a custom importer to scale the model down
         ModelImporter importer = (ModelImporter)AssetDatabase.GetImporter(".obj");
         importer.UnitScale = 0.1f;
         
         // Load the Sponza model from disk
-        Entity asset = AssetDatabase.LoadAssetFile<Entity>(SPONZA_DISK_PATH, importer);
+        Entity asset = AssetDatabase.LoadAssetFile<Entity>(path, importer);
         
         asset.Spawn(Entity.Scene!);
         ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
