@@ -87,7 +87,7 @@ internal class FullExampleScene : Scene
 internal class SponzaLoader : EntityComponent
 {
     private const string SPONZA_WEB_URL = "https://github.com/jimmiebergmann/Sponza/raw/master";
-    private static readonly string[] SPONZA_ASSETS =
+    private static readonly string[] SponzaAssets =
     [
         "sponza.obj",
         "sponza.mtl",
@@ -148,7 +148,7 @@ internal class SponzaLoader : EntityComponent
     {
         // Create a web request to load the Sponza model and all its assets,
         // and save them to disk next to the executable in "WebAssets/sponza" subfolder.
-        WebAssetLoadOperation operation = new("sponza", SPONZA_WEB_URL, false, SPONZA_ASSETS);
+        WebAssetLoadOperation operation = new("sponza", SPONZA_WEB_URL, false, SponzaAssets);
         
         yield return operation.SendWebRequest();
         
