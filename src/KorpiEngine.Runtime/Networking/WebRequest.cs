@@ -102,7 +102,7 @@ public sealed class WebAssetLoadOperation
             // Ensure the directory exists.
             Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
         
-            File.WriteAllText(destinationFile, request.DownloadHandler!.Text);
+            request.DownloadHandler.SaveToFile(destinationFile);
             
             Application.Logger.Info($"Downloaded asset to '{destinationFile}'.");
         }
