@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using KorpiEngine.Core.Rendering;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KorpiEngine.Core.API.InputManagement;
 
@@ -7,7 +8,7 @@ public static class Input
     internal static KeyboardState KeyboardState = null!;
     internal static MouseState MouseState = null!;
     
-    public static Vector2 MousePosition => new(MouseState.X, MouseState.Y);
+    public static Vector2 MousePosition => new(MouseState.X, Graphics.ViewportResolution.Y - MouseState.Y);
     public static Vector2 MouseDelta => new(MouseState.Delta.X, MouseState.Delta.Y);
     public static Vector2 ScrollDelta => new(MouseState.Scroll.X, MouseState.Scroll.Y);
     public static float MouseX => MouseState.X;
