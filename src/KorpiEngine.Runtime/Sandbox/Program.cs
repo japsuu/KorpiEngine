@@ -2,6 +2,8 @@
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.Windowing;
 using Sandbox.Scenes;
+using Sandbox.Scenes.FullExample;
+using Sandbox.Scenes.SponzaExample;
 
 namespace Sandbox;
 
@@ -11,6 +13,6 @@ internal static class Program
     {
         Application.Run(
             new WindowingSettings(new Vector2i(1920, 1080), "KorpiEngine Sandbox"),
-            new FullExampleScene());
+            new SponzaExampleScene());
     }
 }

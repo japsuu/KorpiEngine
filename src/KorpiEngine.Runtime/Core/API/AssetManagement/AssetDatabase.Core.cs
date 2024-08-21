@@ -21,8 +21,11 @@ public static partial class AssetDatabase
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
+    /// <param name="customImporter">An optional custom importer to use for importing the asset.
+    /// If the asset has previously been imported with a different importer,
+    /// the EXISTING asset instance will be returned.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAssetFile<T>(string relativeAssetPath) where T : Resource
+    public static T LoadAssetFile<T>(string relativeAssetPath, AssetImporter? customImporter = null) where T : Resource
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
@@ -31,7 +34,7 @@ public static partial class AssetDatabase
             return LoadAsset<T>(guid);
 
         // The path hasn't been accessed before, so we need to import the asset
-        if (ImportFile(fileInfo).Instance is not T asset)
+        if (ImportFile(fileInfo, customImporter).Instance is not T asset)
             throw new AssetLoadException<T>(relativeAssetPath, $"The asset is not of expected type {typeof(T).Name}");
         
         return asset;
@@ -76,35 +79,19 @@ public static partial class AssetDatabase
     #endregion
 
 
-    /// <summary>
-    /// Reimports an asset from the specified file.
-    /// </summary>
-    /// <param name="assetFile">The asset file to reimport.</param>
-    private static Asset ImportFile(FileInfo assetFile)
+    private static Asset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
     {
-        string relativePath = ToRelativePath(assetFile);
-        
-        Application.Logger.Info($"Attempting to Import {relativePath}...");
         ArgumentNullException.ThrowIfNull(assetFile);
-
+        
+        string relativePath = ToRelativePath(assetFile);
+        Application.Logger.Info($"Attempting to Import {relativePath}...");
+        
         // Make sure the path exists
         if (!File.Exists(assetFile.FullName))
             throw new AssetImportException(relativePath, "File does not exist.");
         
-        // Make sure the file extension of the asset file is supported
-        if (!AssetImporterAttribute.SupportsExtension(assetFile.Extension))
-        {
-            string supportedExtensions = AssetImporterAttribute.GetSupportedExtensions();
-            throw new AssetImportException(relativePath, $"Unsupported file extension. Supported extensions are: '{supportedExtensions}'.");
-        }
-
-        // Get the importer for the asset
-        Type? importerType = AssetImporterAttribute.GetImporter(assetFile.Extension);
-        if (importerType is null)
-            throw new AssetImportException(relativePath, $"No importer found for asset with extension {assetFile.Extension}");
-        
-        AssetImporter? importer = (AssetImporter?)Activator.CreateInstance(importerType);
-        Resource? instance = importer?.Import(assetFile);
+        importer ??= GetImporter(assetFile.Extension);
+        Resource? instance = importer.Import(assetFile);
             
         if (instance == null)
             throw new AssetImportException(relativePath, "The importer failed.");
@@ -119,6 +106,38 @@ public static partial class AssetDatabase
             
         Application.Logger.Info($"Successfully imported {relativePath}");
         return asset;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fileExtension">The file extension to get an importer for, including the leading dot.</param>
+    /// <returns></returns>
+    /// <exception cref="AssetImportException"></exception>
+    public static AssetImporter GetImporter(string fileExtension)
+    {
+        // Ensure the file extension is valid
+        if (string.IsNullOrEmpty(fileExtension) || fileExtension[0] != '.')
+            throw new ArgumentException("File extension must not be null or empty, and must start with a dot.", nameof(fileExtension));
+        
+        // Make sure the file extension of the asset file is supported
+        if (!AssetImporterAttribute.SupportsExtension(fileExtension))
+        {
+            string supportedExtensions = AssetImporterAttribute.GetSupportedExtensions();
+            throw new InvalidOperationException($"Unsupported file extension. Supported extensions are: '{supportedExtensions}'.");
+        }
+
+        // Get the importer for the asset
+        Type? importerType = AssetImporterAttribute.GetImporter(fileExtension);
+        if (importerType is null)
+            throw new InvalidOperationException($"No importer found for asset with extension {fileExtension}");
+        
+        AssetImporter? importer = (AssetImporter?)Activator.CreateInstance(importerType);
+        if (importer is null)
+            throw new InvalidOperationException($"Could not create importer for asset with extension {fileExtension}");
+        
+        return importer;
     }
 
 

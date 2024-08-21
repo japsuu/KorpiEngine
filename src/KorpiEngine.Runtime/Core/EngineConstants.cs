@@ -10,7 +10,7 @@ public static class EngineConstants
     public const string DEFAULT_SHADER_DEFINE = $"KORPI_ENGINE_{ENGINE_VERSION}";
     public const string ASSET_FOLDER_NAME = "Assets";
     public const string DEFAULTS_FOLDER_NAME = "Defaults";
-    public const string PACKAGES_FOLDER_NAME = "Packages";
+    public const string WEB_ASSETS_FOLDER_NAME = "WebAssets";
 
     #region UPDATE LOOP
 
@@ -34,20 +34,6 @@ public static class EngineConstants
     /// An upper limit on the amount of time the engine will report as having passed by the <see cref="Time.DeltaTimeDouble"/>.
     /// </summary>
     public const float MAX_DELTA_TIME = 0.5f;
-
-    #endregion
-
-    #region RENDERING
-
-    /// <summary>
-    /// The maximum amount of textures that can be loaded simultaneously.
-    /// </summary>
-    public const int MAX_SUPPORTED_TEXTURES = 1024;
-    
-    /// <summary>
-    /// The level of anisotropic filtering to use for textures.
-    /// </summary>
-    public const int ANISOTROPIC_FILTERING_LEVEL = 16;
 
     #endregion
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using KorpiEngine.Core;
 using KorpiEngine.Core.API.AssetManagement;
+using KorpiEngine.Core.Internal.AssetManagement;
 
 namespace KorpiEngine.Networking;
 
@@ -33,45 +34,80 @@ public sealed class DownloadHandler
     }
 }
 
-public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
+public sealed class WebAssetLoadOperation
 {
+    private readonly bool _force;
+    private readonly string _baseUrl;
     private readonly string _relativeSavePath;
-    private readonly WebRequest _request;
+    private readonly string[] _savePaths;
+    private readonly string[] _assets;
+    
+    public bool IsDone { get; private set; }
+    public IReadOnlyList<string> SavePaths => _savePaths;
 
-    public bool IsDone => _request.IsDone;
-    public T? Result { get; private set; }
 
-
-    public WebAssetLoadOperation(string url, string relativeSavePath)
+    /// <param name="saveDirectory">The subfolder inside "WebAssets" in which to save the downloaded assets.</param>
+    /// <param name="baseUrl">The base URL to download assets from.</param>
+    /// <param name="force">If true, the operation will download the assets even if they already exist.</param>
+    /// <param name="assets">The names of the assets to download, relative to the base URL.</param>
+    /// <returns>A new WebAssetLoadOperation instance.</returns>
+    public WebAssetLoadOperation(string saveDirectory, string baseUrl, bool force = false, params string[] assets)
     {
-        _relativeSavePath = relativeSavePath;
+        _force = force;
+        _baseUrl = baseUrl;
+        _relativeSavePath = Path.Combine(Application.WebAssetsDirectory, saveDirectory);
+        _savePaths = new string[assets.Length];
+        _assets = assets;
         
-        _request = WebRequest.Get(url);
-        _request.DownloadHandler = new DownloadHandler();
+        for (int i = 0; i < assets.Length; i++)
+        {
+            _savePaths[i] = Path.Combine(_relativeSavePath, assets[i]);
+        }
     }
     
     
+    /// <summary>
+    /// Sends a web request to download the assets.
+    /// </summary>
+    /// <returns>An IEnumerator that can be yielded in a coroutine.</returns>
     public IEnumerator SendWebRequest()
     {
-        yield return _request.SendWebRequest();
-
-        if (!string.IsNullOrEmpty(_request.Error))
+        foreach (string asset in _assets)
         {
-            Application.Logger.Error(_request.Error);
-            yield break;
+            string url = Path.Combine(_baseUrl, asset);
+            using WebRequest request = WebRequest.Get(url);
+            request.DownloadHandler = new DownloadHandler();
+
+            // Check if the asset already exists.
+            string destinationFile = Path.Combine(_relativeSavePath, asset);
+            if (!_force)
+            {
+                bool fileExists = File.Exists(destinationFile);
+                if (fileExists)
+                {
+                    Application.Logger.Info($"Asset '{url}' already exists. Skipping download.");
+                    continue;
+                }
+            }
+        
+            Application.Logger.Info($"Downloading asset '{url}'...");
+            yield return request.SendWebRequest();
+
+            if (!string.IsNullOrEmpty(request.Error))
+            {
+                Application.Logger.Error($"Failed to download asset '{url}': {request.Error}");
+                continue;
+            }
+            
+            // Ensure the directory exists.
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
+        
+            request.DownloadHandler.SaveToFile(destinationFile);
+            
+            Application.Logger.Info($"Downloaded asset to '{destinationFile}'.");
         }
 
-        string savePath = Path.Combine(Application.Directory, _relativeSavePath);
-        
-        File.WriteAllText(savePath, _request.DownloadHandler!.Text);
-
-        Result = AssetDatabase.LoadAssetFile<T>(savePath);
-    }
-
-
-    public void Dispose()
-    {
-        _request.Dispose();
+        IsDone = true;
     }
 }
 
@@ -94,13 +130,6 @@ public sealed class WebRequest : IDisposable
 
 
     public static WebRequest Get(string url) => new(url);
-    
-    
-    
-    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string relativeSavePath) where T : Resource
-    {
-        return new WebAssetLoadOperation<T>(url, relativeSavePath);
-    }
 
 
     public IEnumerator SendWebRequest()
