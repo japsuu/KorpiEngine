@@ -11,6 +11,9 @@ public static class GUI
     internal static bool AllowDraw { get; set; }
     internal static bool IsDrawing { get; private set; }
     
+    public static bool WantCaptureKeyboard { get; internal set; }
+    public static bool WantCaptureMouse { get; internal set; }
+    
     private static bool CanDraw => AllowDraw && IsDrawing;
     
     

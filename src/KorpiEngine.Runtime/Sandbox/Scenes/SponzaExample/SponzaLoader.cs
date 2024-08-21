@@ -2,7 +2,6 @@
 using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.Internal.AssetManagement.Importers;
-using KorpiEngine.Core.UI.DearImGui;
 using KorpiEngine.Networking;
 
 namespace Sandbox.Scenes.SponzaExample;
@@ -95,6 +94,5 @@ internal class SponzaLoader : EntityComponent
         
         // Spawn the Sponza model in the scene
         asset.Spawn(Entity.Scene!);
-        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
 }

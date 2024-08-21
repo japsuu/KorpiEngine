@@ -106,7 +106,9 @@ Pass 0
 
 			
 #ifdef OBJECTID
-			color = vec4(texture(_GObjectID, TexCoords).r, 0.0, 0.0, 1.0);
+            float objectID = texture(_GObjectID, TexCoords).r;
+            float hue = fract(objectID * 0.618033988749895); // Golden ratio conjugate for better distribution
+            color = vec4(0.5 + 0.5 * cos(6.28318 * (hue + vec3(0.0, 0.333, 0.667))), 1.0);
 #endif
 
 			

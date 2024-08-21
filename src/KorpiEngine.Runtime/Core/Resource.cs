@@ -94,7 +94,7 @@ public abstract class Resource : IDisposable
     public override string ToString() => Name;
 
 
-    /*public static T? FindObjectOfType<T>() where T : Resource
+    public static T? FindObjectOfType<T>() where T : Resource
     {
         foreach (WeakReference<Resource> obj in AllResources.Values)
             if (obj.TryGetTarget(out Resource? target) && target is T t)
@@ -105,7 +105,7 @@ public abstract class Resource : IDisposable
 
     public static T?[] FindObjectsOfType<T>() where T : Resource
     {
-        List<T> objects = new();
+        List<T> objects = [];
         foreach (WeakReference<Resource> obj in AllResources.Values)
             if (obj.TryGetTarget(out Resource? target) && target is T t)
                 objects.Add(t);
@@ -125,7 +125,7 @@ public abstract class Resource : IDisposable
     }
 
 
-    public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
+    /*public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
     {
         if (obj.IsDestroyed)
             throw new Exception(obj.Name + " has been destroyed.");

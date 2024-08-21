@@ -271,6 +271,9 @@ void main()
     private void UpdateImGuiInput(Vector2 mousePos)
     {
         ImGuiIOPtr io = ImGuiNET.ImGui.GetIO();
+        
+        GUI.WantCaptureKeyboard = io.WantCaptureKeyboard;
+        GUI.WantCaptureMouse = io.WantCaptureMouse;
 
         MouseState mouseState = Input.MouseState;
         KeyboardState keyboardState = Input.KeyboardState;

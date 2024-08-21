@@ -69,7 +69,7 @@ public class GBuffer
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Device.BindFramebuffer(FrameBuffer);
-        float result = Graphics.Device.ReadPixels<float>(5, x, y, TextureImageFormat.R_16_F);
+        float result = Graphics.Device.ReadPixels<float>(5, x, y, TextureImageFormat.R_32_F);
         return (int)result;
     }
 

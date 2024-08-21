@@ -5,6 +5,7 @@ using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
+using KorpiEngine.Core.UI;
 using KorpiEngine.Core.UI.DearImGui;
 using KorpiEngine.Core.Windowing;
 using OpenTK.Windowing.Common;
@@ -21,9 +22,6 @@ public static class Application
     private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
-#if DEBUG
-    private static DebugStatsWindow debugStatsWindow = null!;
-#endif
     
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
@@ -84,7 +82,7 @@ public static class Application
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
         
 #if DEBUG
-        debugStatsWindow = new DebugStatsWindow();
+        EditorGUI.Initialize();
 #endif
     }
 
@@ -174,7 +172,7 @@ public static class Application
     private static void OnUnload()
     {
 #if DEBUG
-        debugStatsWindow.Destroy();
+        EditorGUI.Deinitialize();
 #endif
         
         OnApplicationUnloadAttribute.Invoke();

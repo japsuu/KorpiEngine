@@ -24,7 +24,16 @@ public sealed class Camera : EntityComponent
 {
     private const int RENDER_TEXTURE_MAX_UNUSED_FRAMES = 10;
     
+    /// <summary>
+    /// The camera that is currently rendering.
+    /// </summary>
     internal static Camera RenderingCamera { get; private set; } = null!;
+    
+    /// <summary>
+    /// The camera that last rendered a frame.
+    /// May change during rendering.
+    /// </summary>
+    internal static Camera? LastRenderedCamera { get; private set; }
     
     public event Action<int, int>? Resized;
 
@@ -110,6 +119,7 @@ public sealed class Camera : EntityComponent
         
         // Use the current view and projection matrices
         RenderingCamera = this;
+        LastRenderedCamera = this;
         
         Graphics.ViewMatrix = ViewMatrix;
         Graphics.OldViewMatrix = _oldView ?? Graphics.ViewMatrix;

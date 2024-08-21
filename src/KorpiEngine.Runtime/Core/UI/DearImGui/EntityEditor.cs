@@ -1,31 +1,72 @@
 ﻿using ImGuiNET;
+using KorpiEngine.Core.API;
+using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
+using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Cameras;
 
 namespace KorpiEngine.Core.UI.DearImGui;
 
-public class EntityEditor : ImGuiWindow
+public class EntityEditor() : ImGuiWindow(true)
 {
-    private readonly Entity _target;
+    private ResourceRef<Entity> _target;
 
-    public override string Title => $"Entity Editor - {_target.Name}";
+    public override string Title => "Entity Editor";
 
-
-    public EntityEditor(Entity target) : base(false)
+    protected override void PreUpdate()
     {
-        _target = target;
+        if (!Input.GetMouseDown(MouseButton.Left) || GUI.WantCaptureMouse)
+            return;
+
+        Vector2 mousePos = Input.MousePosition;
+        Vector2 mouseUV = new Vector2(mousePos.X / Graphics.ViewportResolution.X, mousePos.Y / Graphics.ViewportResolution.Y);
+        GBuffer? gBuffer = Camera.LastRenderedCamera?.GBuffer;
+        
+        if (gBuffer == null)
+            return;
+        
+        int instanceID = gBuffer.GetObjectIDAt(mouseUV);
+        if (instanceID == 0)
+            return;
+        
+        Entity? e = Resource.FindObjectByID<Entity>(instanceID);
+        SetTarget(e);
+    }
+
+
+    public void SetTarget(Entity? entity)
+    {
+        _target = new ResourceRef<Entity>(entity);
     }
 
 
     protected override void DrawContent()
     {
+        if (!_target.IsAvailable)
+        {
+            ImGui.Text("No entity selected.");
+            return;
+        }
+        
         ImGui.Text($"Entity: {_target.Name}");
         ImGui.Separator();
-        DrawEntityHierarchy(_target);
+        
+        DrawEntityHierarchy(_target.Res!);
     }
 
 
     private static void DrawEntityHierarchy(Entity entity)
     {
+        // Inline destroy button
+        if (ImGui.Button("Destroy"))
+        {
+            entity.Destroy();
+            return;
+        }
+        ImGui.SameLine();
+        
+        // Transform hierarchy
         if (entity.HasChildren)
         {
             if (!ImGui.TreeNode(entity.Name))

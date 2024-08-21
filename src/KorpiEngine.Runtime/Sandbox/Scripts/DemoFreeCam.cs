@@ -61,7 +61,7 @@ internal class DemoFreeCam : EntityComponent
 
     private void UpdateCursorLock()
     {
-        if (Input.GetMouseDown(MouseButton.Right))
+        if (Input.GetMouseDown(MouseButton.Right) && !GUI.WantCaptureMouse)
             StartLooking();
         else if (Input.GetMouseUp(MouseButton.Right))
             StopLooking();
