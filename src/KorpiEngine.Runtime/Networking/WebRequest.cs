@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using KorpiEngine.Core;
 using KorpiEngine.Core.API.AssetManagement;
+using KorpiEngine.Core.Internal.AssetManagement;
 
 namespace KorpiEngine.Networking;
 
@@ -36,16 +37,18 @@ public sealed class DownloadHandler
 public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
 {
     private readonly string _relativeSavePath;
+    private readonly AssetImporter? _customImporter;
     private readonly WebRequest _request;
 
     public bool IsDone => _request.IsDone;
     public T? Result { get; private set; }
 
 
-    public WebAssetLoadOperation(string url, string relativeSavePath)
+    public WebAssetLoadOperation(string url, string relativeSavePath, AssetImporter? customImporter = null)
     {
         _relativeSavePath = relativeSavePath;
-        
+        _customImporter = customImporter;
+
         _request = WebRequest.Get(url);
         _request.DownloadHandler = new DownloadHandler();
     }
@@ -65,7 +68,7 @@ public sealed class WebAssetLoadOperation<T> : IDisposable where T : Resource
         
         File.WriteAllText(savePath, _request.DownloadHandler!.Text);
 
-        Result = AssetDatabase.LoadAssetFile<T>(savePath);
+        Result = AssetDatabase.LoadAssetFile<T>(savePath, _customImporter);
     }
 
 
@@ -97,9 +100,9 @@ public sealed class WebRequest : IDisposable
     
     
     
-    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string relativeSavePath) where T : Resource
+    public static WebAssetLoadOperation<T> LoadWebAsset<T>(string url, string relativeSavePath, AssetImporter? customImporter = null) where T : Resource
     {
-        return new WebAssetLoadOperation<T>(url, relativeSavePath);
+        return new WebAssetLoadOperation<T>(url, relativeSavePath, customImporter);
     }
 
 
