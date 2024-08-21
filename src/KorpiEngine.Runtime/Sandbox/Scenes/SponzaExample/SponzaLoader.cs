@@ -95,6 +95,5 @@ internal class SponzaLoader : EntityComponent
         
         // Spawn the Sponza model in the scene
         asset.Spawn(Entity.Scene!);
-        ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
 }
