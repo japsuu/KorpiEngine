@@ -5,7 +5,7 @@ using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
 
-namespace Sandbox.Scenes;
+namespace Sandbox.Scenes.PrimitiveExample;
 
 /// <summary>
 /// This scene is a simplified example of basic primitive shape rendering.
