@@ -177,7 +177,8 @@ public abstract class EntityComponent
 
     private void UpdateCoroutines(CoroutineUpdateStage stage)
     {
-        for (int i = 0; i < _coroutines.Count; i++)
+        int i = 0;
+        while (i < _coroutines.Count)
         {
             Coroutine coroutine = _coroutines[i];
             
@@ -185,10 +186,12 @@ public abstract class EntityComponent
             
             // Check if the coroutine is finished.
             if (!coroutine.IsDone)
+            {
+                i++;
                 continue;
+            }
             
             _coroutines.RemoveAt(i);
-            i--;
         }
     }
     

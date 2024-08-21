@@ -69,8 +69,8 @@ public sealed class Camera : EntityComponent
     public float FOVDegrees { get; set; } = 60;
     public float OrthographicSize { get; set; } = 0.5f;
     
-    public float NearClipPlane { get; set; } = 0.01f;
-    public float FarClipPlane { get; set; } = 1000f;
+    public float NearClipPlane { get; set; } = 0.5f;
+    public float FarClipPlane { get; set; } = 5000f;
 
     public bool ShowGizmos { get; set; } = true;
 
@@ -158,6 +158,9 @@ public sealed class Camera : EntityComponent
             _debugMaterial.SetTexture("_GObjectID", GBuffer!.ObjectIDs);
             _debugMaterial.SetTexture("_GDepth", GBuffer!.Depth!);
             _debugMaterial.SetTexture("_GUnlit", GBuffer!.Unlit);
+            
+            _debugMaterial.SetFloat("_CameraNearClip", NearClipPlane);
+            _debugMaterial.SetFloat("_CameraFarClip", FarClipPlane);
             
             Graphics.Blit(TargetTexture.Res ?? null, _debugMaterial, 0, doClear);
         }
@@ -285,11 +288,7 @@ public sealed class Camera : EntityComponent
         if (!Input.GetKeyDown(KeyCode.F1))
             return;
 
-        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), false);
-        DebugDrawType = DebugDrawType.Next();
-        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), true);
-        
-        Console.WriteLine($"Debug Draw Type: {DebugDrawType.AsShaderKeyword()}");
+        SetDebugDrawType(DebugDrawType.Next());
     }
 
 
@@ -440,6 +439,16 @@ public sealed class Camera : EntityComponent
     }
 
     #endregion
+
+
+    internal void SetDebugDrawType(CameraDebugDrawType newType)
+    {
+        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), false);
+        DebugDrawType = newType;
+        _debugMaterial.SetKeyword(DebugDrawType.AsShaderKeyword(), true);
+        
+        Console.WriteLine($"Camera Debug Draw Type: {DebugDrawType.AsShaderKeyword()}");
+    }
 }
 
 internal class CameraEditor(Camera target) : EntityComponentEditor(target)
@@ -456,7 +465,18 @@ internal class CameraEditor(Camera target) : EntityComponentEditor(target)
         if (ImGui.DragFloat("Render Resolution", ref renderResolution, 0.1f, 0.1f, 10f))
             target.RenderResolution = renderResolution;
 
-        ImGui.Text("Projection Type");
+        DrawProjectionSettings();
+
+        DrawClearSettings();
+
+        DrawDebugSettings();
+    }
+
+
+    private void DrawProjectionSettings()
+    {
+        ImGui.Spacing();
+        ImGui.Text("Projection Settings");
         if (ImGui.BeginCombo("Projection Type", target.ProjectionType.ToString()))
         {
             foreach (CameraProjectionType type in Enum.GetValues<CameraProjectionType>())
@@ -467,7 +487,28 @@ internal class CameraEditor(Camera target) : EntityComponentEditor(target)
             ImGui.EndCombo();
         }
 
-        ImGui.Text("Clear Type");
+        float fovDegrees = target.FOVDegrees;
+        if (ImGui.DragFloat("FOV Degrees", ref fovDegrees, 1f, 1f, 179f))
+            target.FOVDegrees = fovDegrees;
+
+        float orthographicSize = target.OrthographicSize;
+        if (ImGui.DragFloat("Orthographic Size", ref orthographicSize, 0.1f, 0.1f, 100f))
+            target.OrthographicSize = orthographicSize;
+
+        float nearClipPlane = target.NearClipPlane;
+        if (ImGui.DragFloat("Near Clip Plane", ref nearClipPlane, 0.01f, 0.01f, 100f))
+            target.NearClipPlane = nearClipPlane;
+
+        float farClipPlane = target.FarClipPlane;
+        if (ImGui.DragFloat("Far Clip Plane", ref farClipPlane, 1f, 1f, 10000f))
+            target.FarClipPlane = farClipPlane;
+    }
+
+
+    private void DrawClearSettings()
+    {
+        ImGui.Spacing();
+        ImGui.Text("Clear Settings");
         if (ImGui.BeginCombo("Clear Type", target.ClearType.ToString()))
         {
             foreach (CameraClearType type in Enum.GetValues<CameraClearType>())
@@ -490,23 +531,24 @@ internal class CameraEditor(Camera target) : EntityComponentEditor(target)
         System.Numerics.Vector4 clearColor = new(target.ClearColor.R, target.ClearColor.G, target.ClearColor.B, target.ClearColor.A);
         if (ImGui.ColorEdit4("Clear Color", ref clearColor))
             target.ClearColor = new Color(clearColor);
+    }
 
-        float fovDegrees = target.FOVDegrees;
-        if (ImGui.DragFloat("FOV Degrees", ref fovDegrees, 1f, 1f, 179f))
-            target.FOVDegrees = fovDegrees;
 
-        float orthographicSize = target.OrthographicSize;
-        if (ImGui.DragFloat("Orthographic Size", ref orthographicSize, 0.1f, 0.1f, 100f))
-            target.OrthographicSize = orthographicSize;
-
-        float nearClipPlane = target.NearClipPlane;
-        if (ImGui.DragFloat("Near Clip Plane", ref nearClipPlane, 0.01f, 0.01f, 100f))
-            target.NearClipPlane = nearClipPlane;
-
-        float farClipPlane = target.FarClipPlane;
-        if (ImGui.DragFloat("Far Clip Plane", ref farClipPlane, 1f, 1f, 10000f))
-            target.FarClipPlane = farClipPlane;
-
+    private void DrawDebugSettings()
+    {
+        ImGui.Spacing();
+        ImGui.Text("Debug Settings");
+        
+        if (ImGui.BeginCombo("Debug Draw Type", target.DebugDrawType.ToString()))
+        {
+            foreach (CameraDebugDrawType type in Enum.GetValues<CameraDebugDrawType>())
+            {
+                if (ImGui.Selectable(type.ToString(), target.DebugDrawType == type))
+                    target.SetDebugDrawType(type);
+            }
+            ImGui.EndCombo();
+        }
+        
         bool showGizmos = target.ShowGizmos;
         if (ImGui.Checkbox("Show Gizmos", ref showGizmos))
             target.ShowGizmos = showGizmos;

@@ -20,8 +20,8 @@ Properties
 	_PreviousJitter("previous jitter", FLOAT2)
 	_Frame("frame", INT)
 	_Resolution("resolution", FLOAT2)
-	_BindPoses("bind poses", MATRIX_4X4_ARRAY)			// Array of bind poses
-	_BoneTransforms("bone transforms", MATRIX_4X4_ARRAY)	// Array of bone transforms
+	_BindPoses("bind poses", MATRIX_4X4_ARRAY)
+	_BoneTransforms("bone transforms", MATRIX_4X4_ARRAY)
 }
 
 Pass 0
