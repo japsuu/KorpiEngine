@@ -336,7 +336,7 @@ public class ModelImporter : AssetImporter
                 return true;
         }
 
-        // If we get here we have failed to find the texture.
+        // If we get here, we have failed to find the texture.
         return false;
     }
 
@@ -350,8 +350,13 @@ public class ModelImporter : AssetImporter
         }
         else
         {
-#warning TODO: Handle importing external textures
-            Application.Logger.Error($"Failed to load texture for model at path '{file.FullName}'");
+            // Import external textures
+            string relativePath = AssetDatabase.ToRelativePath(file);
+            
+            if (!file.Exists)
+                Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
+            
+            mat.SetTexture(name, AssetDatabase.LoadAssetFile<Texture2D>(relativePath));
         }
     }
 
