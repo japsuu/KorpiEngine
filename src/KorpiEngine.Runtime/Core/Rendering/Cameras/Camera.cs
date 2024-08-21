@@ -159,6 +159,9 @@ public sealed class Camera : EntityComponent
             _debugMaterial.SetTexture("_GDepth", GBuffer!.Depth!);
             _debugMaterial.SetTexture("_GUnlit", GBuffer!.Unlit);
             
+            _debugMaterial.SetFloat("_CameraNearClip", NearClipPlane);
+            _debugMaterial.SetFloat("_CameraFarClip", FarClipPlane);
+            
             Graphics.Blit(TargetTexture.Res ?? null, _debugMaterial, 0, doClear);
         }
         

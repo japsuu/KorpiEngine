@@ -10,6 +10,8 @@ Properties
 	_GObjectID("g objectID", TEXTURE_2D)
 	_GDepth("g depth", TEXTURE_2D)
 	_GUnlit("g unlit", TEXTURE_2D)
+	_CameraNearClip("camera near plane", FLOAT)
+	_CameraFarClip("camera far plane", FLOAT)
 }
 
 Pass 0
@@ -50,6 +52,9 @@ Pass 0
 		uniform sampler2D _GObjectID;
 		uniform sampler2D _GDepth;
 		uniform sampler2D _GUnlit;
+		
+		uniform float _CameraNearClip;
+		uniform float _CameraFarClip;
 		
 		layout(location = 0) out vec4 OutputColor;
 		
@@ -107,8 +112,8 @@ Pass 0
 			
 #ifdef DEPTH
 			float depth = texture(_GDepth, TexCoords).r;
-			float near = 0.1; 	//TODO: Pull from Camera
-			float far = 100.0;	//TODO: Pull from Camera
+			float near = _CameraNearClip;
+			float far = _CameraFarClip;
 			float ndc = depth * 2.0 - 1.0;
 			float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));
 			float visual = linearDepth / far;
