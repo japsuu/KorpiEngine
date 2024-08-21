@@ -5,6 +5,8 @@ using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
+using KorpiEngine.Core.Internal.AssetManagement;
+using KorpiEngine.Core.Internal.AssetManagement.Importers;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.SceneManagement;
@@ -77,7 +79,7 @@ internal class FullExampleScene : Scene
         Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(0, 5, -5);
+        component.Transform.Position = new Vector3(0, 1, 0);
         return component;
     }
 }
@@ -100,22 +102,30 @@ internal class SponzaLoader : EntityComponent
     
     private IEnumerator LoadSponzaWeb()
     {
+        // Create a custom importer to scale the model down
+        ModelImporter importer = (ModelImporter)AssetDatabase.GetImporter(".obj");
+        importer.UnitScale = 0.1f;
+
         // Create a web request to load the Sponza model, and save it to disk next to the executable.
-        using WebAssetLoadOperation<Entity> operation = WebRequest.LoadWebAsset<Entity>(SPONZA_WEB_URL, "sponza.obj");
+        using WebAssetLoadOperation<Entity> operation = WebRequest.LoadWebAsset<Entity>(SPONZA_WEB_URL, "sponza.obj", importer);
         yield return operation.SendWebRequest();
-        
         Entity asset = operation.Result!;
+        
         asset.Spawn(Entity.Scene!);
-        asset.Transform.Position = new Vector3(0, -8, 0);
         ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
     
     
     private void LoadSponzaDisk()
     {
-        Entity asset = AssetDatabase.LoadAssetFile<Entity>(SPONZA_DISK_PATH);
+        // Create a custom importer to scale the model down
+        ModelImporter importer = (ModelImporter)AssetDatabase.GetImporter(".obj");
+        importer.UnitScale = 0.1f;
+        
+        // Load the Sponza model from disk
+        Entity asset = AssetDatabase.LoadAssetFile<Entity>(SPONZA_DISK_PATH, importer);
+        
         asset.Spawn(Entity.Scene!);
-        asset.Transform.Position = new Vector3(0, 4, 0);
         ImGuiWindowManager.RegisterWindow(new EntityEditor(asset));
     }
 }
