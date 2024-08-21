@@ -16,7 +16,7 @@ public class EntityEditor() : ImGuiWindow(true)
 
     protected override void PreUpdate()
     {
-        if (!Input.GetMouseDown(MouseButton.Left))
+        if (!Input.GetMouseDown(MouseButton.Left) || GUI.WantCaptureMouse)
             return;
 
         Vector2 mousePos = Input.MousePosition;
