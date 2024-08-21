@@ -343,12 +343,8 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     {
         GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + attachment));
         GLTexture.GetTextureFormatEnums(format, out PixelInternalFormat _, out PixelType pixelType, out PixelFormat pixelFormat);
-
         T result = default;
-        GCHandle handle = GCHandle.Alloc(result, GCHandleType.Pinned);
-        GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, handle.AddrOfPinnedObject());
-        handle.Free();
-
+        GL.ReadPixels(x, y, 1, 1, pixelFormat, pixelType, ref result);
         return result;
     }
 
