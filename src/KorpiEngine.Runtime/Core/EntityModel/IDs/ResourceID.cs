@@ -4,7 +4,11 @@ namespace KorpiEngine.Core.EntityModel.IDs;
 
 public static class ResourceID
 {
-    private static int nextID;
+    /// <summary>
+    /// The next ID to be assigned to a resource.
+    /// Starts at 1, because the ObjectID buffer (in G-Buffer) uses 0 as a "null" value.
+    /// </summary>
+    private static int nextID = 1;
     
     
     public static int Generate()
