@@ -69,8 +69,8 @@ public sealed class Camera : EntityComponent
     public float FOVDegrees { get; set; } = 60;
     public float OrthographicSize { get; set; } = 0.5f;
     
-    public float NearClipPlane { get; set; } = 0.01f;
-    public float FarClipPlane { get; set; } = 1000f;
+    public float NearClipPlane { get; set; } = 0.5f;
+    public float FarClipPlane { get; set; } = 5000f;
 
     public bool ShowGizmos { get; set; } = true;
 
