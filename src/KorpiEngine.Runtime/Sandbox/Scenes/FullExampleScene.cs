@@ -88,7 +88,7 @@ internal class SponzaLoader : EntityComponent
 {
     private const string SPONZA_WEB_URL = "https://github.com/jimmiebergmann/Sponza/raw/master";
     private static readonly string[] SPONZA_ASSETS =
-    {
+    [
         "sponza.obj",
         "sponza.mtl",
         "textures/background.tga",
@@ -135,7 +135,7 @@ internal class SponzaLoader : EntityComponent
         "textures/vase_plant.tga",
         "textures/vase_round.tga",
         "textures/vase_round_ddn.tga"
-    };
+    ];
     
     
     protected override void OnStart()
