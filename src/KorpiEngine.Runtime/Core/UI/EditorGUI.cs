@@ -1,8 +1,8 @@
-﻿using KorpiEngine.Core.UI.DearImGui;
+﻿#if TOOLS
+using KorpiEngine.Core.UI.DearImGui;
 
 namespace KorpiEngine.Core.UI;
 
-#if DEBUG
 public static class EditorGUI
 {
     public static DebugStatsWindow DebugStatsWindow { get; private set; } = null!;

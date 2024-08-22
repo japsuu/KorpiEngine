@@ -22,6 +22,21 @@
         <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
         <IncludeSource>false</IncludeSource>
         <LangVersion>12</LangVersion>
+        <Configurations>Debug;Release;Production</Configurations>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+      <Optimize>true</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

@@ -15,7 +15,7 @@ namespace KorpiEngine.Core.Rendering.OpenGL;
 /// </summary>
 internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 {
-#if DEBUG
+#if TOOLS
     private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
 #endif
 
@@ -47,7 +47,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
     protected override void InitializeInternal()
     {
-#if DEBUG
+#if TOOLS
         GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
         GL.Enable(EnableCap.DebugOutput);
         GL.Enable(EnableCap.DebugOutputSynchronous);
@@ -528,7 +528,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(location, 0);
-#if DEBUG
+#if TOOLS
         TextureSwaps++;
 #endif
     }
@@ -641,7 +641,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
     #region Debugging
 
-#if DEBUG
+#if TOOLS
     private static void OnDebugMessage(
         DebugSource source, // Source of the debugging message.
         DebugType type, // Type of the debugging message.

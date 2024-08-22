@@ -80,7 +80,7 @@ public static class Graphics
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Device.SetState(new RasterizerState(), true);
-#if DEBUG
+#if TOOLS
         Device.ResetStatistics();
 #endif
     }

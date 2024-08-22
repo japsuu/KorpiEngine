@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿#if TOOLS
+using ImGuiNET;
 using KorpiEngine.Core.EntityModel;
 
 namespace KorpiEngine.Core.UI.DearImGui;
@@ -38,3 +39,4 @@ public abstract class EntityComponentEditor : ImGuiWindow
         _target.Destroying -= Destroy;
     }
 }
+#endif

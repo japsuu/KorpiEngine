@@ -34,7 +34,7 @@ internal abstract class GraphicsResource : IDisposable
     {
         Logger.WarnFormat("GraphicsResource leaked: {0}", this);
         Dispose(false);
-#if DEBUG
+#if TOOLS
         throw new Exceptions.OpenGLException($"GraphicsResource leaked: {this}");
 #endif
     }
