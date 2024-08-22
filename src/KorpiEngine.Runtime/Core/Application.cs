@@ -81,7 +81,7 @@ public static class Application
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
         
-#if DEBUG
+#if TOOLS
         EditorGUI.Initialize();
 #endif
     }
@@ -171,7 +171,7 @@ public static class Application
 
     private static void OnUnload()
     {
-#if DEBUG
+#if TOOLS
         EditorGUI.Deinitialize();
 #endif
         

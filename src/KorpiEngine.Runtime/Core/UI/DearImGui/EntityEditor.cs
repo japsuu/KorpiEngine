@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿#if TOOLS
+using ImGuiNET;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.EntityModel;
@@ -83,3 +84,4 @@ public class EntityEditor() : ImGuiWindow(true)
         }
     }
 }
+#endif

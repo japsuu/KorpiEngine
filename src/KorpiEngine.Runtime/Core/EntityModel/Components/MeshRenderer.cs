@@ -36,7 +36,7 @@ public class MeshRenderer : EntityComponent
         {
             invalidMaterial ??= new Material(Shader.Find("Defaults/Invalid.kshader"), "invalid material", false);
             material = invalidMaterial;
-#if DEBUG
+#if TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif
         }

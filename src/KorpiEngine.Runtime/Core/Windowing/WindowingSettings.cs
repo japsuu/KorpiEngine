@@ -30,7 +30,7 @@ public struct WindowingSettings
             Profile = ContextProfile.Core,
             APIVersion = new Version(4, 2),
             AspectRatio = (16, 9),
-#if DEBUG
+#if TOOLS
             Flags = ContextFlags.Debug
 #endif
         };

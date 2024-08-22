@@ -69,7 +69,7 @@ internal sealed class GLTexture : GraphicsTexture
 
         GL.BindTexture(Target, Handle);
         currentlyBound = Handle;
-#if DEBUG
+#if TOOLS
         Graphics.Device.TextureSwaps++;
 #endif
     }

@@ -1,4 +1,4 @@
-﻿#if DEBUG
+﻿#if TOOLS
 using System.Globalization;
 using ImGuiNET;
 using KorpiEngine.Core.Rendering;

@@ -12,7 +12,7 @@ internal abstract class GraphicsDevice
 
     public abstract GraphicsProgram? CurrentProgram { get; }
 
-#if DEBUG
+#if TOOLS
     public ulong RenderedTriangles { get; private set; }
     public ulong RenderedVertices { get; private set; }
     public ulong DrawCalls { get; private set; }
@@ -54,7 +54,7 @@ internal abstract class GraphicsDevice
     public void SetState(RasterizerState state, bool force = false)
     {
         SetStateInternal(state, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateWrites++;
 #endif
     }
@@ -63,7 +63,7 @@ internal abstract class GraphicsDevice
     public void SetEnableDepthTest(bool enable, bool force = false)
     {
         SetEnableDepthTestInternal(enable, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -72,7 +72,7 @@ internal abstract class GraphicsDevice
     public void SetEnableDepthWrite(bool enable, bool force = false)
     {
         SetEnableDepthWriteInternal(enable, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -81,7 +81,7 @@ internal abstract class GraphicsDevice
     public void SetEnableBlending(bool enable, bool force = false)
     {
         SetEnableBlendingInternal(enable, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -90,7 +90,7 @@ internal abstract class GraphicsDevice
     public void SetEnableCulling(bool enable, bool force = false)
     {
         SetEnableCullingInternal(enable, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -99,7 +99,7 @@ internal abstract class GraphicsDevice
     public void SetEnableScissorTest(bool enable, bool force = false)
     {
         SetEnableScissorTestInternal(enable, force);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -108,7 +108,7 @@ internal abstract class GraphicsDevice
     public void SetScissorRect(int index, int left, int bottom, int width, int height)
     {
         SetScissorRectInternal(index, left, bottom, width, height);
-#if DEBUG
+#if TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -116,7 +116,7 @@ internal abstract class GraphicsDevice
     
     public RasterizerState GetState()
     {
-#if DEBUG
+#if TOOLS
         RasterizerStateReads++;
 #endif
         return GetStateInternal();
@@ -132,7 +132,7 @@ internal abstract class GraphicsDevice
     public void Clear(float r, float g, float b, float a, ClearFlags flags)
     {
         ClearInternal(r, g, b, a, flags);
-#if DEBUG
+#if TOOLS
         Clears++;
 #endif
     }
@@ -303,7 +303,7 @@ internal abstract class GraphicsDevice
     public void SetUniformF(GraphicsProgram program, string name, float value)
     {
         SetUniformFInternal(program, name, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -312,7 +312,7 @@ internal abstract class GraphicsDevice
     public void SetUniformF(GraphicsProgram program, int location, float value)
     {
         SetUniformFInternal(program, location, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -321,7 +321,7 @@ internal abstract class GraphicsDevice
     public void SetUniformI(GraphicsProgram program, string name, int value)
     {
         SetUniformIInternal(program, name, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -330,7 +330,7 @@ internal abstract class GraphicsDevice
     public void SetUniformI(GraphicsProgram program, int location, int value)
     {
         SetUniformIInternal(program, location, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -339,7 +339,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV2(GraphicsProgram program, string name, Vector2 value)
     {
         SetUniformV2Internal(program, name, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -348,7 +348,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV2(GraphicsProgram program, int location, Vector2 value)
     {
         SetUniformV2Internal(program, location, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -357,7 +357,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV3(GraphicsProgram program, string name, Vector3 value)
     {
         SetUniformV3Internal(program, name, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -366,7 +366,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV3(GraphicsProgram program, int location, Vector3 value)
     {
         SetUniformV3Internal(program, location, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -375,7 +375,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV4(GraphicsProgram program, string name, Vector4 value)
     {
         SetUniformV4Internal(program, name, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -384,7 +384,7 @@ internal abstract class GraphicsDevice
     public void SetUniformV4(GraphicsProgram program, int location, Vector4 value)
     {
         SetUniformV4Internal(program, location, value);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -393,7 +393,7 @@ internal abstract class GraphicsDevice
     public void SetUniformMatrix(GraphicsProgram program, string name, int length, bool transpose, in float m11)
     {
         SetUniformMatrixInternal(program, name, length, transpose, in m11);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -402,7 +402,7 @@ internal abstract class GraphicsDevice
     public void SetUniformMatrix(GraphicsProgram program, int location, int length, bool transpose, in float m11)
     {
         SetUniformMatrixInternal(program, location, length, transpose, in m11);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -411,7 +411,7 @@ internal abstract class GraphicsDevice
     public void SetUniformTexture(GraphicsProgram program, string name, int slot, GraphicsTexture texture)
     {
         SetUniformTextureInternal(program, name, slot, texture);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -420,7 +420,7 @@ internal abstract class GraphicsDevice
     public void SetUniformTexture(GraphicsProgram program, int location, int slot, GraphicsTexture texture)
     {
         SetUniformTextureInternal(program, location, slot, texture);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -431,7 +431,7 @@ internal abstract class GraphicsDevice
     public void ClearUniformTexture(GraphicsProgram program, string name, int slot)
     {
         ClearUniformTextureInternal(program, name, slot);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -440,7 +440,7 @@ internal abstract class GraphicsDevice
     public void ClearUniformTexture(GraphicsProgram program, int location, int slot)
     {
         ClearUniformTextureInternal(program, location, slot);
-#if DEBUG
+#if TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -579,7 +579,7 @@ internal abstract class GraphicsDevice
     {
         DrawArraysInternal(topology, indexOffset, count);
 
-#if DEBUG
+#if TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -598,7 +598,7 @@ internal abstract class GraphicsDevice
     {
         DrawElementsInternal(topology, indexOffset, count, isIndex32Bit);
 
-#if DEBUG
+#if TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -618,7 +618,7 @@ internal abstract class GraphicsDevice
     {
         DrawElementsInternal(topology, indexOffset, count, isIndex32Bit, vertexOffset);
 
-#if DEBUG
+#if TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -653,7 +653,7 @@ internal abstract class GraphicsDevice
     #endregion
 
 
-#if DEBUG
+#if TOOLS
     internal void ResetStatistics()
     {
         RenderedTriangles = 0;
