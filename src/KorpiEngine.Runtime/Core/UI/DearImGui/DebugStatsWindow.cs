@@ -1,5 +1,4 @@
-﻿#if TOOLS
-using System.Globalization;
+﻿using System.Globalization;
 using ImGuiNET;
 using KorpiEngine.Core.Rendering;
 
@@ -10,7 +9,9 @@ public class DebugStatsWindow : ImGuiWindow
     public override string Title => "Debug Statistics";
     protected override ImGuiWindowFlags Flags => ImGuiWindowFlags.AlwaysAutoResize;
 
+#if TOOLS
     private readonly NumberFormatInfo _largeNumberFormat;
+#endif
 
     private bool _shouldCalcMinMaxFps;
     private float _minFps = float.MaxValue;
@@ -19,17 +20,21 @@ public class DebugStatsWindow : ImGuiWindow
     
     public DebugStatsWindow() : base(true)
     {
+#if TOOLS
         _largeNumberFormat = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
         _largeNumberFormat.NumberGroupSeparator = " ";
+#endif
     }
     
 
     protected sealed override void DrawContent()
     {
+#if TOOLS
         string renderedTris = Graphics.Device.RenderedTriangles.ToString("#,0", _largeNumberFormat);
         string renderedVerts = Graphics.Device.RenderedVertices.ToString("#,0", _largeNumberFormat);
         string drawCalls = Graphics.Device.DrawCalls.ToString("#,0", _largeNumberFormat);
         string textureSwaps = Graphics.Device.TextureSwaps.ToString("#,0", _largeNumberFormat);
+#endif
         
         float averageFps = Time.FrameRate;
         double frameTime = Time.DeltaTimeDouble * 1000f;
@@ -51,10 +56,11 @@ public class DebugStatsWindow : ImGuiWindow
             ImGui.Text($"Min: {_minFps:F1} fps");
             ImGui.Text($"Max: {_maxFps:F1} fps");
         }
+#if TOOLS
         ImGui.Text($"Draw Calls = {drawCalls}");
         ImGui.Text($"Triangles = {renderedTris}");
         ImGui.Text($"Vertices = {renderedVerts}");
         ImGui.Text($"Texture Swaps = {textureSwaps}");
+#endif
     }
 }
-#endif

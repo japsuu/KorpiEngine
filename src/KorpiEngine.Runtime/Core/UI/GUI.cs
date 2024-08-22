@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using KorpiEngine.Core.UI.DearImGui;
 
 namespace KorpiEngine.Core.UI;
 
@@ -13,8 +14,21 @@ public static class GUI
     
     public static bool WantCaptureKeyboard { get; internal set; }
     public static bool WantCaptureMouse { get; internal set; }
+    public static DebugStatsWindow DebugStatsWindow { get; private set; } = null!;
     
     private static bool CanDraw => AllowDraw && IsDrawing;
+    
+    
+    public static void Initialize()
+    {
+        DebugStatsWindow = new DebugStatsWindow();
+    }
+    
+    
+    public static void Deinitialize()
+    {
+        DebugStatsWindow.Destroy();
+    }
     
     
     public static void Begin(string title, ImGuiWindowFlags flags = ImGuiWindowFlags.AlwaysAutoResize)

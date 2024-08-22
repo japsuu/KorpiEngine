@@ -81,6 +81,7 @@ public static class Application
         
         SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
         
+        GUI.Initialize();
 #if TOOLS
         EditorGUI.Initialize();
 #endif
@@ -174,6 +175,7 @@ public static class Application
 #if TOOLS
         EditorGUI.Deinitialize();
 #endif
+        GUI.Deinitialize();
         
         OnApplicationUnloadAttribute.Invoke();
         SceneManager.UnloadAllScenes();
