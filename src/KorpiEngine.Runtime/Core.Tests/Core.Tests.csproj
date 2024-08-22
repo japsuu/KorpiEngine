@@ -7,6 +7,23 @@
     <TargetFramework>net8.0</TargetFramework>
     
     <LangVersion>12</LangVersion>
+    
+    <Configurations>Debug;Release;Production</Configurations>
+    
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE;TOOLS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>TRACE;TOOLS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
