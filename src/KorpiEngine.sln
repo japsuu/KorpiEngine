@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "KorpiEngine.Runtime\Core\Core.csproj", "{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "KorpiEngine.Runtime\Networking\Networking.csproj", "{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "Networking\Networking.csproj", "{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "KorpiEngine.Runtime\Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
