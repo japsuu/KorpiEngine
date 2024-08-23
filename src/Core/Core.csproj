@@ -2,44 +2,48 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>12</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
         <AssemblyName>KorpiEngine.Core</AssemblyName>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>12</LangVersion>
         <Configurations>Debug;Release;Production</Configurations>
         <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
-      <Optimize>true</Optimize>
-    </PropertyGroup>
-
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-      <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <Optimize>false</Optimize>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DefineConstants>TRACE;TOOLS</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <Optimize>true</Optimize>
+        <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+        <DefineConstants>TRACE;TOOLS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+        <Optimize>true</Optimize>
+        <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-      <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
-      <PackageReference Include="log4net" Version="2.0.15" />
-      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0" />
-      <PackageReference Include="OpenTK" Version="4.8.2" />
+        <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
+        <PackageReference Include="ImGui.NET" Version="1.91.0.1"/>
+        <PackageReference Include="log4net" Version="2.0.15"/>
+        <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0"/>
+        <PackageReference Include="OpenTK" Version="4.8.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="Assets\**">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Defaults\**">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+        <Content Include="Assets\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Defaults\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
