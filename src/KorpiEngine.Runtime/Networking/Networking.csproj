@@ -14,16 +14,16 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
       <Optimize>true</Optimize>
-      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE</DefineConstants>
+      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;LITENETLIB_UNSAFE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS</DefineConstants>
+      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS;LITENETLIB_UNSAFE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS</DefineConstants>
+      <DefineConstants>NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS;LITENETLIB_UNSAFE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
