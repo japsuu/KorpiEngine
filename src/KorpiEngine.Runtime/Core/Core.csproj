@@ -6,20 +6,6 @@
         <Nullable>enable</Nullable>
         <RootNamespace>KorpiEngine.Core</RootNamespace>
         <AssemblyName>KorpiEngine.Core</AssemblyName>
-
-        <!-- Package information -->
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Title>KorpiEngine.Core</Title>
-        <Authors>Japsu</Authors>
-        <Description>KorpiEngine core module</Description>
-        <PackageLicenseUrl>https://github.com/japsuu/Korpi/blob/master/LICENCE.md</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/japsuu/Korpi</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>KorpiEngine</PackageTags>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
-        <PackageOutputPath>$(SolutionDir)packages</PackageOutputPath>
-        <IncludeSource>false</IncludeSource>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>12</LangVersion>
         <Configurations>Debug;Release;Production</Configurations>
