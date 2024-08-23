@@ -22,8 +22,6 @@ If no root ``SpatialEntityComponent`` is set and the user tries to add a ``Spati
 
 ### Entity Life-Cycle
 
-![Diagram](./media/entity_life_cycle.png)
-
 Entities can be in one of the following states:
 - `Unloaded`: All contained components are unloaded.
 - `Loaded`: All initial components have been loaded. It's possible that there still are dynamically added components that are not yet loaded.
@@ -69,8 +67,6 @@ Components are attached to entities. They can be thought of as black boxes that 
   - CAN specify if the component is a singleton (for special cases, like a transform). This just means that the engine will throw an exception if the user tries to add more than one instance of the component to the entity.
 
 ### Entity Component Life-Cycle
-
-![Diagram](./media/entity_component_life_cycle.png)
 
 Since entity components can reference resources, those resources need to be loaded and initialized before the component can use them.
 
