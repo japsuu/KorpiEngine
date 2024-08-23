@@ -1,0 +1,62 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "favicon.ico",
+          "**/*.png",
+          "**/*.jpg",
+          "**/*.mp4"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "KorpiEngine",
+      "_appTitle": "KorpiEngine",
+      "_enableSearch": true,
+      "pdf": true
+    },
+    "sitemap":{
+      "baseUrl": "https://japsuu.github.io/KorpiEngine",
+      "priority": 0.1,
+      "changefreq": "monthly",
+      "fileOptions":{
+        "**/api/**.yml": {
+          "priority": 0.3
+        },
+        "**/getting-started.md": {
+          "baseUrl": "https://dotnet.github.io/KorpiEngine/manual",
+          "priority": 0.8
+        }
+      }
+    }
+  }
+}

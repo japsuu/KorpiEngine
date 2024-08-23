@@ -1,14 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "KorpiEngine.Runtime\Core\Core.csproj", "{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{2622FBA2-FE2F-477B-9983-AC48F7DA52CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "KorpiEngine.Runtime\Networking\Networking.csproj", "{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "Networking\Networking.csproj", "{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All", "KorpiEngine.Runtime\All\All.csproj", "{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "KorpiEngine.Runtime\Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "KorpiEngine.Runtime\Core.Tests\Core.Tests.csproj", "{D41975F3-25BE-436F-A7A1-91A7122DA069}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,23 +25,11 @@ Global
 		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Production|Any CPU.ActiveCfg = Production|Any CPU
 		{627EFAA6-33B9-4B73-BB9F-66A53FDAA0AA}.Production|Any CPU.Build.0 = Production|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Production|Any CPU.ActiveCfg = Production|Any CPU
-		{FEBB00D4-8E83-41AD-B0CE-4679D7450B38}.Production|Any CPU.Build.0 = Production|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Production|Any CPU.ActiveCfg = Production|Any CPU
 		{53F9FA20-77F4-4FAA-8A6E-A08000DBFD33}.Production|Any CPU.Build.0 = Production|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Production|Any CPU.ActiveCfg = Production|Any CPU
-		{D41975F3-25BE-436F-A7A1-91A7122DA069}.Production|Any CPU.Build.0 = Production|Any CPU
 	EndGlobalSection
 EndGlobal

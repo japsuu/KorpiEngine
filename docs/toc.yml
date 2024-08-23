@@ -1,0 +1,13 @@
+- name: Manual
+  href: manual/
+  homepage: manual/index.md
+- name: Scripting API
+  href: api/
+  homepage: api/index.md
+- name: For Developers
+  href: developers/
+  homepage: developers/index.md
+- name: GitHub
+  href: https://github.com/japsuu/KorpiEngine
+- name: Discord
+  href: https://discord.gg/AhSX58wmWG
