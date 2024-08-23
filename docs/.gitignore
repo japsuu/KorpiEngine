@@ -4,5 +4,6 @@
 /**/bin/
 /**/obj/
 _site
-api
+api/*
+!api/index.md
 log.txt
