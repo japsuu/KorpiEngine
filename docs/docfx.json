@@ -11,7 +11,7 @@
       ],
       "dest": "api",
 	  "memberLayout": "separatePages",
-	  "namespaceLayout": "nested",
+	  "namespaceLayout": "nested"
     }
   ],
   "build": {
