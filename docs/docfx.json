@@ -9,7 +9,9 @@
           ]
         }
       ],
-      "dest": "api"
+      "dest": "api",
+	  "memberLayout": "separatePages",
+	  "namespaceLayout": "nested",
     }
   ],
   "build": {
@@ -41,8 +43,10 @@
     "globalMetadata": {
       "_appName": "KorpiEngine",
       "_appTitle": "KorpiEngine",
+      "_appLogoPath": "logo.png",
+      "_appFaviconPath": "favicon.ico",
       "_enableSearch": true,
-      "pdf": true
+      "pdf": false
     },
     "sitemap":{
       "baseUrl": "https://japsuu.github.io/KorpiEngine",
