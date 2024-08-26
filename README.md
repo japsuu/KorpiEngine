@@ -1,4 +1,4 @@
-# <p align="center">Korpi Engine</p>
+<img src="docs/media/banner.png" width="100%" alt="Korpi Engine banner">
 
 <div align="center">
 
@@ -9,6 +9,9 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=japsuu_KorpiEngine&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=japsuu_KorpiEngine)
+
+
+[![.github/workflows/documentation.yml](https://github.com/japsuu/KorpiEngine/actions/workflows/documentation.yml/badge.svg?branch=main)](https://github.com/japsuu/KorpiEngine/actions/workflows/documentation.yml)
 
 </div>
 
