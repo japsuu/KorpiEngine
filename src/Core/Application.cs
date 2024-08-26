@@ -26,8 +26,8 @@ public static class Application
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-    public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
-    public static string DefaultsDirectory => Path.Combine(Directory, EngineConstants.DEFAULTS_FOLDER_NAME);
+    public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);
+    public static string DefaultsDirectory => Path.Combine(AssetsDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
     public static string WebAssetsDirectory => Path.Combine(Directory, EngineConstants.WEB_ASSETS_FOLDER_NAME);
 
 
@@ -37,7 +37,7 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(AssetDirectory, "log4net.config"));
+        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
     }
 
 

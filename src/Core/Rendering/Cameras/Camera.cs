@@ -283,7 +283,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnEnable()
     {
-        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
+        _debugMaterial = new Material(Shader.Find("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
     
     

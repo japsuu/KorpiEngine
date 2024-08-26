@@ -56,7 +56,7 @@ public abstract class Scene : IDisposable
     {
         Entity e = CreateEntity(name);
         MeshRenderer c = e.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Defaults/Standard.kshader"), "standard material");
+        Material mat = new Material(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;

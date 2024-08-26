@@ -136,7 +136,7 @@ public sealed class Shader : Resource
                 }
                 catch (Exception e)
                 {
-                    const string fallbackShader = "Defaults/Invalid.kshader";
+                    const string fallbackShader = "Assets/Defaults/Invalid.kshader";
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
                     ResourceRef<Shader> fallback = Find(fallbackShader);
@@ -160,7 +160,7 @@ public sealed class Shader : Resource
             }
             else
             {
-                ResourceRef<Shader> depth = Find("Defaults/Depth.kshader");
+                ResourceRef<Shader> depth = Find("Assets/Defaults/Depth.kshader");
                 List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
             }
