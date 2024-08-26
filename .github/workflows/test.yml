@@ -1,0 +1,34 @@
+name: 'Test Source'
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  DOTNET_VERSION: '8.0.400'
+
+jobs:
+  test:
+
+    name: test-${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dependencies
+        run: dotnet restore ./src/KorpiEngine.sln
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal ./src/KorpiEngine.sln
