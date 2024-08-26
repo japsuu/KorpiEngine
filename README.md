@@ -119,6 +119,8 @@ Contributions are welcome!
 - **If you are new to contributing** to open-source projects, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
 - **If you are a seasoned contributor**, you can jump straight to the [developer section](https://japsuu.github.io/KorpiEngine/developers/index.html) of the documentation.
 
+---
+
 # <p align="center">Acknowledgments</p>
 
 Portions of code or ideas are derived from the following sources:
