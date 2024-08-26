@@ -1,9 +1,5 @@
 ﻿# Modules
 
-## All
-
-Contains all the modules of the engine. Primarily used for NuGet package generation.
-
 ## Core
 
 Contains the core functionality of the engine. This includes the main engine loop, scene management, and basic rendering.
