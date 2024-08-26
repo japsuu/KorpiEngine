@@ -12,6 +12,7 @@
 
 
 [![.github/workflows/documentation.yml](https://github.com/japsuu/KorpiEngine/actions/workflows/documentation.yml/badge.svg?branch=main)](https://github.com/japsuu/KorpiEngine/actions/workflows/documentation.yml)
+[![.github/workflows/build.yml](https://github.com/japsuu/KorpiEngine/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/japsuu/KorpiEngine/actions/workflows/build.yml)
 
 </div>
 
