@@ -1,2 +1,6 @@
+- name: Code Contribution Guide
+  href: code-contribution-guide.md
+- name: Documentation Contribution Guide
+  href: docs-contribution-guide.md
 - name: Style Guide
   href: STYLE_GUIDE.md

@@ -15,6 +15,7 @@ All types of contributions are valued. See below for different ways to help!
 - [I Have a Question](#i-have-a-question)
 - [I Want To Contribute](#i-want-to-contribute)
   - [Code Contribution](#code-contribution)
+  - [Improving Documentation](#improving-documentation)
   - [Reporting Bugs](#reporting-bugs)
   - [Suggesting Enhancements](#suggesting-enhancements)
 - [Join The Project Team](#join-the-project-team)
@@ -44,7 +45,11 @@ If you then still feel the need to ask a question and need clarification, open a
 
 ### Code Contribution
 
-Read the developer code contribution guide [here](https://japsuu.github.io/KorpiEngine/developers/code-contribution-guide.html).
+[Developer code contribution guide](https://japsuu.github.io/KorpiEngine/developers/code-contribution-guide.html).
+
+### Improving Documentation
+
+[Developer documentation contribution guide](https://japsuu.github.io/KorpiEngine/developers/docs-contribution-guide.html).
 
 ### Reporting Bugs
 
