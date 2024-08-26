@@ -136,19 +136,19 @@ public static class Mathd
 
 
     [MethodImpl(IN)]
-    public static double Min(params double[] values) => values.Min();
-
-
-    [MethodImpl(IN)]
-    public static double Max(params double[] values) => values.Max();
-
-
-    [MethodImpl(IN)]
     public static int Min(params int[] values) => values.Min();
 
 
     [MethodImpl(IN)]
+    public static double Min(params double[] values) => values.Min();
+
+
+    [MethodImpl(IN)]
     public static int Max(params int[] values) => values.Max();
+
+
+    [MethodImpl(IN)]
+    public static double Max(params double[] values) => values.Max();
 
 
     [MethodImpl(IN)]
@@ -243,14 +243,18 @@ public static class Mathd
     public static Vector2 ClampMagnitude(Vector2 v, double min, double max)
     {
         double mag = v.Magnitude;
-        return mag < min ? v / mag * min : mag > max ? v / mag * max : v;
+        if (mag < min)
+            return v / mag * min;
+        return mag > max ? v / mag * max : v;
     }
 
 
     public static Vector3 ClampMagnitude(Vector3 v, double min, double max)
     {
         double mag = v.Magnitude;
-        return mag < min ? v / mag * min : mag > max ? v / mag * max : v;
+        if (mag < min)
+            return v / mag * min;
+        return mag > max ? v / mag * max : v;
     }
 
 
@@ -424,12 +428,6 @@ public static class Mathd
     }
 
 
-    /// <summary>
-    /// Checks if a 3D Point exists inside a 3D Triangle
-    /// </summary>
-    public static bool IsPointInTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c) => Internal_IsPointInTriangle(point, a, b, c, 0);
-
-
     private static bool Internal_IsPointInTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c, int shifted)
     {
         double det = Vector3.Dot(a, Vector3.Cross(b, c));
@@ -455,15 +453,18 @@ public static class Mathd
         ];
 
         // Point is in the plane if all lambdas sum to 1.
-        if (!(Abs(lambda[0] + lambda[1] + lambda[2] - 1) < SMALL))
+        if (Abs(lambda[0] + lambda[1] + lambda[2] - 1) >= SMALL)
             return false;
 
-        // Point is inside the triangle if all lambdas are positive.
-        if (lambda[0] < 0 || lambda[1] < 0 || lambda[2] < 0)
-            return false;
-
-        return true;
+        // The Point is inside the triangle if all lambdas are positive.
+        return lambda[0] >= 0 && lambda[1] >= 0 && lambda[2] >= 0;
     }
+
+
+    /// <summary>
+    /// Checks if a 3D Point exists inside a 3D Triangle
+    /// </summary>
+    public static bool IsPointInTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c) => Internal_IsPointInTriangle(point, a, b, c, 0);
 
 
     /// <summary>
@@ -542,11 +543,7 @@ public static class Mathd
 
 
     [MethodImpl(IN)]
-    public static Vector3 ToDeg(this Vector3 v) => new(v.X * RAD_2_DEG, v.Y * RAD_2_DEG, v.Z * RAD_2_DEG);
-
-
-    [MethodImpl(IN)]
-    public static Vector3 ToRad(this Vector3 v) => new(v.X * DEG_2_RAD, v.Y * DEG_2_RAD, v.Z * DEG_2_RAD);
+    public static float ToDeg(this float v) => (float)(v * RAD_2_DEG);
 
 
     [MethodImpl(IN)]
@@ -554,15 +551,19 @@ public static class Mathd
 
 
     [MethodImpl(IN)]
-    public static double ToRad(this double v) => v * DEG_2_RAD;
-
-
-    [MethodImpl(IN)]
-    public static float ToDeg(this float v) => (float)(v * RAD_2_DEG);
+    public static Vector3 ToDeg(this Vector3 v) => new(v.X * RAD_2_DEG, v.Y * RAD_2_DEG, v.Z * RAD_2_DEG);
 
 
     [MethodImpl(IN)]
     public static float ToRad(this float v) => (float)(v * DEG_2_RAD);
+
+
+    [MethodImpl(IN)]
+    public static double ToRad(this double v) => v * DEG_2_RAD;
+
+
+    [MethodImpl(IN)]
+    public static Vector3 ToRad(this Vector3 v) => new(v.X * DEG_2_RAD, v.Y * DEG_2_RAD, v.Z * DEG_2_RAD);
 
 
     [MethodImpl(IN)]

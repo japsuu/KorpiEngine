@@ -25,10 +25,10 @@ public abstract class Texture : Resource
     /// <summary>Gets whether this <see cref="Texture"/> is mipmapped.</summary>
     public bool IsMipmapped { get; private set; }
 
-    /// <summary>False if this <see cref="Texture"/> can be mipmapped (depends on texture type).</summary>
+    /// <summary>False if this <see cref="Texture"/> can be mipmapped (depends on a texture type).</summary>
     private readonly bool _isNotMipmappable;
 
-    /// <summary>Gets whether this <see cref="Texture"/> can be mipmapped (depends on texture type).</summary>
+    /// <summary>Gets whether this <see cref="Texture"/> can be mipmapped (depends on a texture type).</summary>
     public bool IsMipmappable => !_isNotMipmappable;
 
 
@@ -37,7 +37,7 @@ public abstract class Texture : Resource
     /// </summary>
     /// <param name="type">The type of texture (or texture target) the texture will be.</param>
     /// <param name="imageFormat">The type of image format this texture will store.</param>
-    internal Texture(TextureType type, TextureImageFormat imageFormat) : base("New Texture")
+    private protected Texture(TextureType type, TextureImageFormat imageFormat) : base("New Texture")
     {
         if (!Enum.IsDefined(typeof(TextureType), type))
             throw new FormatException("Invalid texture target");

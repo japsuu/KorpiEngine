@@ -1,6 +1,7 @@
 ﻿using KorpiEngine.Core.API.AssetManagement;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
+using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Shaders;
@@ -15,11 +16,12 @@ public sealed class Shader : Resource
     /// Represents a property of a shader, used to set values in the shader.
     /// Basically a uniform.
     /// </summary>
-    public class Property
+    public class Property(string name, string displayName, Property.PropertyType type)
     {
-        public string Name = "";
-        public string DisplayName = "";
-        public PropertyType Type;
+        public readonly string Name = name;
+        public readonly string DisplayName = displayName;
+        public readonly PropertyType Type = type;
+        
 
         public enum PropertyType
         {
@@ -41,47 +43,26 @@ public sealed class Shader : Resource
     /// <summary>
     /// Represents a single shader pass, which is a combination of shaders that make up a shader program, and a rasterizer state.
     /// </summary>
-    public class ShaderPass
+    public class ShaderPass(RasterizerState state, params ShaderSourceDescriptor[] shadersSources)
     {
-        public readonly RasterizerState State;
-        public readonly ShaderSourceDescriptor[] ShadersSources;
-
-
-        public ShaderPass(RasterizerState state, params ShaderSourceDescriptor[] shadersSources)
-        {
-            State = state;
-            ShadersSources = shadersSources;
-        }
+        public readonly RasterizerState State = state;
+        public readonly ShaderSourceDescriptor[] ShadersSources = shadersSources;
     }
 
-    internal readonly struct CompiledShader
+    internal readonly struct CompiledShader(CompiledShader.Pass[] passes, CompiledShader.Pass shadowPass)
     {
-        public struct Pass
+        public struct Pass(RasterizerState state, GraphicsProgram program)
         {
-            public readonly RasterizerState State;
-            public readonly GraphicsProgram Program;
-
-
-            public Pass(RasterizerState state, GraphicsProgram program)
-            {
-                State = state;
-                Program = program;
-            }
+            public readonly RasterizerState State = state;
+            public readonly GraphicsProgram Program = program;
         }
 
-        public readonly Pass[] Passes;
-        public readonly Pass ShadowPass;
-
-
-        public CompiledShader(Pass[] passes, Pass shadowPass)
-        {
-            Passes = passes;
-            ShadowPass = shadowPass;
-        }
+        public readonly Pass[] Passes = passes;
+        public readonly Pass ShadowPass = shadowPass;
     }
 
-    internal static int GlobalKeywordsVersion;
-    internal static string GlobalKeywordsString = string.Empty;
+    internal static int GlobalKeywordsVersion { get; private set; }
+    internal static string GlobalKeywordsString { get; private set; } = string.Empty;
     private static readonly SortedSet<string> GlobalKeywords = [];
     private readonly List<Property> _properties;
     private readonly List<ShaderPass> _passes;
@@ -213,7 +194,7 @@ public sealed class Shader : Resource
     private void PrepareShaderSource(ref string source, IEnumerable<string> defines)
     {
         if (string.IsNullOrWhiteSpace(source))
-            throw new Exception($"Failed to compile shader pass of {Name}. Shader source is null or empty.");
+            throw new ArgumentNullException($"Failed to compile shader pass of {Name}. Shader source is null or empty.");
 
         // Default Defines
         source = source.Insert(0, $"#define {EngineConstants.DEFAULT_SHADER_DEFINE}\n");

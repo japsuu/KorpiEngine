@@ -35,7 +35,7 @@ using System.Text;
 
 namespace KorpiEngine.Core.API;
 
-public class BoundingFrustum : IEquatable<BoundingFrustum>
+public sealed class BoundingFrustum : IEquatable<BoundingFrustum>
 {
     #region Private Fields
 
@@ -75,8 +75,8 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
         set
         {
             _matrix = value;
-            CreatePlanes(); // FIXME: The odds are the planes will be used a lot more often than the matrix
-            CreateCorners(); // is updated, so this should help performance. I hope ;)
+            CreatePlanes();
+            CreateCorners();
         }
     }
 
@@ -97,7 +97,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     #region Public Methods
 
-    public static bool operator ==(BoundingFrustum a, BoundingFrustum b)
+    public static bool operator ==(BoundingFrustum? a, BoundingFrustum? b)
     {
         if (Equals(a, null))
             return Equals(b, null);
@@ -109,7 +109,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     }
 
 
-    public static bool operator !=(BoundingFrustum a, BoundingFrustum b) => !(a == b);
+    public static bool operator !=(BoundingFrustum? a, BoundingFrustum? b) => !(a == b);
 
 
     public ContainmentType Contains(Bounds box)
@@ -173,13 +173,13 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     public void Contains(ref Vector3 point, out ContainmentType result)
     {
         for (int i = 0; i < PLANE_COUNT; ++i)
-
-            // TODO: we might want to inline this for performance reasons
-            if (_planes[i].GetSide(point))
-            {
-                result = ContainmentType.Disjoint;
-                return;
-            }
+        {
+            if (!_planes[i].GetSide(point))
+                continue;
+            
+            result = ContainmentType.Disjoint;
+            return;
+        }
 
         result = ContainmentType.Contains;
     }
@@ -190,8 +190,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public override bool Equals(object? obj)
     {
-        BoundingFrustum f = obj as BoundingFrustum;
-        return Equals(f, null) ? false : this == f;
+        return obj is BoundingFrustum f && this == f;
     }
 
 
@@ -200,12 +199,11 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
 
     public void GetCorners(Vector3[] corners)
     {
-        if (corners == null)
-            throw new ArgumentNullException("corners");
+        ArgumentNullException.ThrowIfNull(corners);
         if (corners.Length < CORNER_COUNT)
-            throw new ArgumentOutOfRangeException("corners");
+            throw new ArgumentOutOfRangeException(nameof(corners));
 
-        this._corners.CopyTo(corners, 0);
+        _corners.CopyTo(corners, 0);
     }
 
 
@@ -243,19 +241,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
             if (plane.Intersects(ref _corners[i]) != result)
                 result = PlaneIntersectionType.Intersecting;
     }
-
-
-    /*
-    public Nullable<float> Intersects(Ray ray)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Intersects(ref Ray ray, out Nullable<float> result)
-    {
-        throw new NotImplementedException();
-    }
-    */
+    
 
     internal string DebugDisplayString =>
         string.Concat(
@@ -330,34 +316,21 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
         //P =   -------------------------------------------------------------------------
         //                             N1 . ( N2 * N3 )
         //
-        // Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross product
+        // Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross-product
 
-        Vector3 v1,
-            v2,
-            v3;
-        Vector3 cross;
-
-        cross = Vector3.Cross(b.Normal, c.Normal);
+        Vector3 cross = Vector3.Cross(b.Normal, c.Normal);
 
         double f = Vector3.Dot(a.Normal, cross);
         f *= -1.0f;
 
         cross = Vector3.Cross(b.Normal, c.Normal);
-        v1 = cross * a.Distance;
-
-        //v1 = (a.D * (Vector3.Cross(b.Normal, c.Normal)));
-
-
+        Vector3 v1 = cross * a.Distance;
+        
         cross = Vector3.Cross(c.Normal, a.Normal);
-        v2 = cross * b.Distance;
-
-        //v2 = (b.D * (Vector3.Cross(c.Normal, a.Normal)));
-
-
+        Vector3 v2 = cross * b.Distance;
+        
         cross = Vector3.Cross(a.Normal, b.Normal);
-        v3 = cross * c.Distance;
-
-        //v3 = (c.D * (Vector3.Cross(a.Normal, b.Normal)));
+        Vector3 v3 = cross * c.Distance;
 
         result.X = (v1.X + v2.X + v3.X) / f;
         result.Y = (v1.Y + v2.Y + v3.Y) / f;
@@ -365,7 +338,7 @@ public class BoundingFrustum : IEquatable<BoundingFrustum>
     }
 
 
-    private void NormalizePlane(ref Plane p)
+    private static void NormalizePlane(ref Plane p)
     {
         double factor = 1 / p.Normal.Magnitude;
         p.Normal.X *= factor;

@@ -63,27 +63,41 @@ public class Animation : EntityComponent
         Vector3 scale = Vector3.One;
 
         if (blendNormalizer > 0)
-        {
-            // Process Blend states
-            foreach (AnimationState state in _states.Where(s => s.Enabled && s.Blend == AnimationState.BlendMode.Blend))
-            {
-                double normalizedWeight = state.Weight * blendNormalizer;
-
-                Vector3? pos = state.EvaluatePosition(transform, state.Time);
-                if (pos.HasValue)
-                    position += pos.Value * (float)normalizedWeight;
-
-                Quaternion? rot = state.EvaluateRotation(transform, state.Time);
-                if (rot.HasValue)
-                    rotation = Quaternion.Slerp(rotation, rot.Value, (float)normalizedWeight);
-
-                Vector3? scl = state.EvaluateScale(transform, state.Time);
-                if (scl.HasValue)
-                    scale = Vector3.Lerp(scale, scl.Value, (float)normalizedWeight);
-            }
-        }
+            ProcessBlendStates(blendNormalizer, transform, ref position, ref rotation, ref scale);
 
         // Process Additive states
+        ProcessAdditiveStates(transform, ref position, ref rotation, ref scale);
+
+        transform.LocalPosition = position;
+        transform.LocalRotation = rotation;
+        transform.LocalScale = scale;
+    }
+
+
+    private void ProcessBlendStates(double blendNormalizer, Transform transform, ref Vector3 position, ref Quaternion rotation, ref Vector3 scale)
+    {
+        // Process Blend states
+        foreach (AnimationState state in _states.Where(s => s.Enabled && s.Blend == AnimationState.BlendMode.Blend))
+        {
+            double normalizedWeight = state.Weight * blendNormalizer;
+
+            Vector3? pos = state.EvaluatePosition(transform, state.Time);
+            if (pos.HasValue)
+                position += pos.Value * (float)normalizedWeight;
+
+            Quaternion? rot = state.EvaluateRotation(transform, state.Time);
+            if (rot.HasValue)
+                rotation = Quaternion.Slerp(rotation, rot.Value, (float)normalizedWeight);
+
+            Vector3? scl = state.EvaluateScale(transform, state.Time);
+            if (scl.HasValue)
+                scale = Vector3.Lerp(scale, scl.Value, (float)normalizedWeight);
+        }
+    }
+
+
+    private void ProcessAdditiveStates(Transform transform, ref Vector3 position, ref Quaternion rotation, ref Vector3 scale)
+    {
         foreach (AnimationState state in _states.Where(s => s.Enabled && s.Blend == AnimationState.BlendMode.Additive))
         {
             Vector3? pos = state.EvaluatePosition(transform, state.Time);
@@ -98,10 +112,6 @@ public class Animation : EntityComponent
             if (scl.HasValue)
                 scale = Vector3.Lerp(scale, scale * scl.Value, (float)state.Weight);
         }
-
-        transform.LocalPosition = position;
-        transform.LocalRotation = rotation;
-        transform.LocalScale = scale;
     }
 
 
@@ -216,98 +226,5 @@ public class Animation : EntityComponent
         
         _states.Remove(state);
         _stateDictionary.Remove(stateName);
-    }
-}
-
-public class AnimationState
-{
-    public enum BlendMode
-    {
-        Blend,
-        Additive
-    }
-    
-    public string Name { get; set; }
-    public AnimationClip Clip { get; set; }
-    public bool Enabled { get; set; }
-    public double Speed { get; set; } = 1.0;
-    public double Time { get; set; } = 0;
-    public double Weight { get; set; } = 1.0;
-    public double MoveWeightSpeed { get; set; } = 1.0;
-    public double TargetWeight { get; set; } = 1.0;
-    
-    public double Length => Clip.Duration;
-    public double NormalizedTime => Time / Length;
-
-    public WrapMode Wrap { get; set; } = WrapMode.Loop;
-    public BlendMode Blend { get; set; } = BlendMode.Blend;
-
-    public HashSet<string> MixingTransforms { get; set; } = [];
-
-    
-    public AnimationState(string name, AnimationClip clip)
-    {
-        Name = name;
-        Clip = clip;
-    }
-
-
-    public Vector3? EvaluatePosition(Transform target, double time)
-    {
-        // If MixingTransforms has elements, ensure target is in the list, its like a Whitelist for an animation clip
-        if (MixingTransforms.Count > 0)
-
-            // Ensure Target exists inside MixingTransforms
-            if (!MixingTransforms.Contains(target.Entity.Name))
-                return null;
-
-        AnimationClip.AnimBone? bone = Clip.GetBone(target.Entity.Name);
-        return bone?.EvaluatePositionAt(time);
-    }
-
-
-    public Quaternion? EvaluateRotation(Transform target, double time)
-    {
-        // If MixingTransforms has elements, ensure target clip exists inside the list
-        if (MixingTransforms.Count > 0 && !MixingTransforms.Contains(target.Entity.Name))
-            return null;
-
-        AnimationClip.AnimBone? bone = Clip.GetBone(target.Entity.Name);
-        return bone?.EvaluateRotationAt(time);
-    }
-
-
-    public Vector3? EvaluateScale(Transform target, double time)
-    {
-        // If MixingTransforms has elements, ensure target clip exists inside the list
-        if (MixingTransforms.Count > 0 && !MixingTransforms.Contains(target.Entity.Name))
-            return null;
-
-        AnimationClip.AnimBone? bone = Clip.GetBone(target.Entity.Name);
-        return bone?.EvaluateScaleAt(time);
-    }
-
-
-    public void AddMixingTransform(Transform transform, bool recursive)
-    {
-        MixingTransforms.Add(transform.Entity.Name);
-        
-        if (!recursive)
-            return;
-        
-        foreach (Entity child in transform.Entity.Children)
-            AddMixingTransform(child.Transform, true);
-    }
-
-
-    public void RemoveMixingTransform(Transform transform, bool recursive)
-    {
-        MixingTransforms.Remove(transform.Entity.Name);
-        
-        if (!recursive)
-            return;
-        
-        foreach (Entity child in transform.Entity.Children)
-            RemoveMixingTransform(child.Transform, true);
     }
 }

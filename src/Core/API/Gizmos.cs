@@ -14,7 +14,7 @@ public static class Gizmos
     private static PrimitiveBatch? lineBatch;
     private static Material? gizmosMat;
 
-    internal static bool AllowCreation { get; set; } = false;
+    internal static bool AllowCreation { get; set; }
     public static Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
     public static Color Color { get; set; } = DefaultColor;
 

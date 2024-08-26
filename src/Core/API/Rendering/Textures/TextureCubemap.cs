@@ -13,7 +13,7 @@ public sealed class TextureCubemap : Texture
     /// <summary>
     /// Creates a <see cref="TextureCubemap"/> with the desired parameters but no image data.
     /// </summary>
-    /// <param name="size">The size (width and height) of the cubemap's faces.</param>
+    /// <param name="size">The size (width and height) of the cube map's faces.</param>
     /// <param name="imageFormat">The image format for this <see cref="TextureCubemap"/>.</param>
     public TextureCubemap(int size, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF) : base(TextureType.TextureCubeMap, imageFormat)
     {
@@ -26,15 +26,12 @@ public sealed class TextureCubemap : Texture
         Graphics.Device.SetWrapR(Handle, TextureWrap.ClampToEdge);
         Graphics.Device.SetTextureFilters(Handle, DEFAULT_MIN_FILTER, DEFAULT_MAG_FILTER);
 
-        unsafe
-        {
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, 0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, 0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, 0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, 0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, 0);
-            Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, 0);
-        }
+        Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveX, 0, size, size, 0, 0);
+        Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeX, 0, size, size, 0, 0);
+        Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveY, 0, size, size, 0, 0);
+        Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeY, 0, size, size, 0, 0);
+        Graphics.Device.TexImage2D(Handle, CubemapFace.PositiveZ, 0, size, size, 0, 0);
+        Graphics.Device.TexImage2D(Handle, CubemapFace.NegativeZ, 0, size, size, 0, 0);
     }
 
 
@@ -152,7 +149,7 @@ public sealed class TextureCubemap : Texture
             throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, $"{nameof(rectHeight)}must be greater than 0");
 
         if (rectWidth > Size - rectX || rectHeight > Size - rectY)
-            throw new ArgumentOutOfRangeException("Specified area is outside of the texture's storage");
+            throw new InvalidOperationException("Specified area is outside of the texture's storage");
     }
 
 

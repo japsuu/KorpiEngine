@@ -42,7 +42,6 @@ public sealed class Material : Resource
     private readonly SortedSet<string> _materialKeywords = [];
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
-    private string _materialKeywordsString = "";
     private string _allKeywordsString = "";
 
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
@@ -159,9 +158,8 @@ public sealed class Material : Resource
 #warning TODO: Fix shader complied variant naming
     private Shader.CompiledShader GetCompiledVariant()
     {
-        //return GetVariantExperimental(_materialKeywords.ToArray());
-        if (Shader.IsAvailable == false)
-            throw new Exception("Cannot compile without a valid shader assigned");
+        if (!Shader.IsAvailable)
+            throw new InvalidOperationException("Cannot compile without a valid shader assigned");
         
         int currentHash = Hashing.GetAdditiveHashCode(_materialKeywords);
 
@@ -169,8 +167,8 @@ public sealed class Material : Resource
         bool materialKeywordsChanged = currentHash != _lastHash;
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
-            _materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Res!.InstanceID}-{_materialKeywordsString}-{Shaders.Shader.GlobalKeywordsString}";
+            string materialKeywordsString = string.Join("-", _materialKeywords);
+            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Shaders.Shader.GlobalKeywordsString}";
             _lastGlobalKeywordsVersion = Shaders.Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
@@ -203,32 +201,6 @@ public sealed class Material : Resource
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
     }
-    
-    /*Shader.CompiledShader GetVariantExperimental(string[] allKeywords)
-    {
-        if (Shader.IsAvailable == false) throw new Exception("Cannot compile without a valid shader assigned");
-
-        string keywords = string.Join("-", allKeywords);
-        string key = Shader.Res.InstanceID + "-" + keywords + "-" + Shaders.Shader.GetGlobalKeywords();
-        if (PassVariants.TryGetValue(key, out var s)) return s;
-
-        // Add each global togather making sure to not add duplicates
-        string[] globals = Shaders.Shader.GetGlobalKeywords().ToArray();
-        for (int i = 0; i < globals.Length; i++)
-        {
-            if (string.IsNullOrWhiteSpace(globals[i])) continue;
-            if (allKeywords.Contains(globals[i], StringComparer.OrdinalIgnoreCase)) continue;
-            allKeywords = allKeywords.Append(globals[i]).ToArray();
-        }
-        // Remove empty keywords
-        allKeywords = allKeywords.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-
-        // Compile Each Pass
-        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords);
-
-        PassVariants[key] = compiledPasses;
-        return compiledPasses;
-    }*/
 
     #endregion
 
@@ -247,7 +219,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector2 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector2(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -256,7 +228,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector3 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector3(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
@@ -265,7 +237,7 @@ public sealed class Material : Resource
     public void SetVector(string name, Vector4 value, bool allowFail = false)
     {
         if (HasVariable(name))
-            _propertyBlock.SetVector(name, value);
+            _propertyBlock.SetVector4(name, value);
         else if (!allowFail)
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
