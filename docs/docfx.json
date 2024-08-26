@@ -28,7 +28,7 @@
     "resource": [
       {
         "files": [
-          "favicon.ico",
+          "media/favicon.ico",
           "**/*.png",
           "**/*.jpg",
           "**/*.mp4"
@@ -43,8 +43,8 @@
     "globalMetadata": {
       "_appName": "KorpiEngine",
       "_appTitle": "KorpiEngine",
-      "_appLogoPath": "logo.png",
-      "_appFaviconPath": "favicon.ico",
+      "_appLogoPath": "media/logo_64x64.png",
+      "_appFaviconPath": "media/favicon.ico",
       "_enableSearch": true,
       "pdf": false
     },
