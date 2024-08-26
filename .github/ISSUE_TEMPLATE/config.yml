@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Korpi Discord
+    url: https://discord.gg/AhSX58wmWG
+    about: Please ask and answer questions here.
+  - name: Maintainer contact
+    url: mailto://jasper.honkasalo@proton.me
+    about: Please report security vulnerabilities here.
