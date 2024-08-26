@@ -30,8 +30,10 @@ An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The e
 - [Features & Roadmap](#features--roadmap)
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
+
+---
 
 # <p align="center">About The Project</p>
 
@@ -40,6 +42,8 @@ and other people who prefer working directly with code.
 Korpi Engine offers a smooth transition for developers familiar with Unity, by providing a clean and familiar API,
 while also adhering to the [KISS principle](https://en.m.wikipedia.org/wiki/KISS_principle).
 The engine is designed to be modular and extensible, allowing for easy integration of new features and systems.
+
+---
 
 # <p align="center">Features / Roadmap</p>
 
@@ -77,19 +81,26 @@ A non-exhaustive list of currently implemented engine features. Updated every on
 - Editor layer
   - [ ] Standalone editor
 
+---
+
 # <p align="center">Documentation</p>
 
-There is no official documentation available yet.
-You can follow the progress of this feature in [issue #12](https://github.com/japsuu/KorpiEngine/issues/12).
+The [official documentation](https://japsuu.github.io/KorpiEngine/index.html) is hosted on GitHub Pages and is automatically updated with every commit to the `main` branch.
+
+Quick links:
+- [User Manual](https://japsuu.github.io/KorpiEngine/manual/index.html)
+- [Scripting API Reference](https://japsuu.github.io/KorpiEngine/api/index.html)
+
+---
 
 # <p align="center">Getting Started</p>
 
 1. Download the repository
    - Either download this repository as an archive or clone it:
    - `git clone https://www.github.com/japsuu/KorpiEngine`
-2. Build & run the [basic usage example](src/KorpiEngine.Runtime/Sandbox) (optional).
+2. Build & run the [basic usage example](./src/Sandbox/Sandbox.csproj) (optional).
    - This example is updated every once in a while, and teaches you the basics.
-   - `cd ./KorpiEngine/src/KorpiEngine.Runtime/Sandbox`
+   - `cd ./KorpiEngine/src/Sandbox`
    - `dotnet build ./Sandbox.csproj`
    - The built executable is now located at `./bin/<configuration>/<framework>/Sandbox.exe`
 3. Start developing your own game!
@@ -98,6 +109,15 @@ You can follow the progress of this feature in [issue #12](https://github.com/ja
         - **As a standalone project**: You can create a new project in to the same solution as the engine. This is not recommended, as it may make updating the engine more difficult.
         - **As a NuGet package**: There is no NuGet package available yet :(. You can follow the progress of this feature in [issue #11](https://github.com/japsuu/KorpiEngine/issues/11).
 4. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
+
+---
+
+# <p align="center">Contributing</p>
+
+Contributions are welcome!
+
+- **If you are new to contributing** to open-source projects, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+- **If you are a seasoned contributor**, you can jump straight to the [developer section](https://japsuu.github.io/KorpiEngine/developers/index.html) of the documentation.
 
 # <p align="center">Acknowledgments</p>
 

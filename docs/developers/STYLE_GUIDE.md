@@ -19,7 +19,7 @@ It is important to follow these guidelines to ensure that the code is consistent
 
 ### Indentation
 
-- Use 4 spaces for indentation.
+- Use consistent indentation.
 
 ### Comments
 
@@ -32,7 +32,7 @@ It is important to follow these guidelines to ensure that the code is consistent
 
 ### Magic Numbers
 
-> Magic numbers are numbers that are used directly in code without explanation, and are often unclear in meaning.
+> Magic numbers are numbers that are used directly in code without explanation and are often unclear in meaning.
 - Avoid using magic numbers in code.
 - Instead, use constants to give these numbers a name and make their purpose clear.
 
