@@ -2,7 +2,7 @@
 _layout: landing
 ---
 
-![KorpiEngine Banner](media/banner.png)
+<img src="media/banner.png" width="1280" height="640" alt="KorpiEngine Banner">
 
 # KorpiEngine Documentation
 
