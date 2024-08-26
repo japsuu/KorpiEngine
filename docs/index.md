@@ -2,6 +2,8 @@
 _layout: landing
 ---
 
+![KorpiEngine Banner](media/banner.png)
+
 # KorpiEngine Documentation
 
 Docs and guides to help you work with the engine.

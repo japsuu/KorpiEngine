@@ -1,3 +1,5 @@
+name: 'Build Documentation'
+
 # Trigger the action on push to main
 on:
   push:
