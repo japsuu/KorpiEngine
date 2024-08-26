@@ -30,7 +30,7 @@ An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The e
 - [Features & Roadmap](#features--roadmap)
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 
 ---
@@ -111,6 +111,13 @@ Quick links:
 4. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
 
 ---
+
+# <p align="center">Contributing</p>
+
+Contributions are welcome!
+
+- **If you are new to contributing** to open-source projects, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+- **If you are a seasoned contributor**, you can jump straight to the [developer section](https://japsuu.github.io/KorpiEngine/developers/index.html) of the documentation.
 
 # <p align="center">Acknowledgments</p>
 
