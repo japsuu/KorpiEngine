@@ -1,4 +1,4 @@
-# <p align="center">Korpi Engine</p>
+<img src="docs/media/banner.png" width="100%" alt="Korpi Engine banner">
 
 <div align="center">
 
