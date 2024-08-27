@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using KorpiEngine.Core.Logging;
+using KorpiEngine.Core.Rendering.Exceptions;
 
 namespace KorpiEngine.Core.Rendering;
 
@@ -10,12 +10,10 @@ namespace KorpiEngine.Core.Rendering;
 /// </summary>
 internal abstract class GraphicsResource : IDisposable
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsResource));
-
     /// <summary>
-    /// Gets a values specifying if this resource has already been disposed.
+    /// True if this resource has already been disposed of.
     /// </summary>
-    public bool IsDisposed { get; private set; }
+    protected bool IsDisposed { get; private set; }
 
 
     /// <summary>
@@ -23,20 +21,15 @@ internal abstract class GraphicsResource : IDisposable
     /// </summary>
     protected GraphicsResource()
     {
-        IsDisposed = false;
     }
 
 
     /// <summary>
-    /// Called by the garbage collector and an indicator for a resource leak because the manual dispose prevents this destructor from being called.
+    /// Called by the garbage collector and an indicator for a resource leak because the manual Dispose() prevents this destructor from being called.
     /// </summary>
     ~GraphicsResource()
     {
-        Logger.WarnFormat("GraphicsResource leaked: {0}", this);
         Dispose(false);
-#if TOOLS
-        throw new Exceptions.OpenGLException($"GraphicsResource leaked: {this}");
-#endif
     }
 
 
@@ -45,33 +38,59 @@ internal abstract class GraphicsResource : IDisposable
     /// </summary>
     public void Dispose()
     {
-        // safely handle multiple calls to dispose
-        if (IsDisposed) return;
-        IsDisposed = true;
-
         // Dispose this resource
         Dispose(true);
 
-        // prevent the destructor from being called
+        // Take this object off the finalization queue to prevent the destructor from being called
         GC.SuppressFinalize(this);
-
-        // make sure the garbage collector does not eat our object before it is properly disposed
-        GC.KeepAlive(this);
     }
 
 
     /// <summary>
     /// Releases all OpenGL handles related to this resource.
+    /// Overriding implementations should call this base method to ensure proper disposal,
+    /// and properly handle multiple calls to dispose (see <see cref="IsDisposed"/>).<br/><br/>
+    ///
+    /// Example implementation:
+    /// <code>
+    /// protected override void Dispose(bool manual)
+    /// {
+    ///     if (IsDisposed)
+    ///         return;
+    ///     base.Dispose(manual);
+    ///     
+    ///     if (manual)
+    ///     {
+    ///         // Dispose managed resources
+    ///     }
+    ///     
+    ///     // Dispose unmanaged resources
+    /// }
+    /// </code>
     /// </summary>
-    /// <param name="manual">True if the call is performed explicitly and within the OpenGL thread, false if it is caused by the garbage collector and therefore from another thread and the result of a resource leak.</param>
-    protected abstract void Dispose(bool manual);
+    /// <param name="manual">True, if the call is performed explicitly within the OpenGL thread.
+    /// Managed and unmanaged resources can be disposed).<br/>
+    /// 
+    /// False, if caused by the GC and therefore from another thread and the result of a resource leak.
+    /// Only unmanaged resources can be disposed.</param>
+    protected virtual void Dispose(bool manual)
+    {
+        // Safely handle multiple calls to dispose
+        if (IsDisposed)
+            return;
+        IsDisposed = true;
+#if TOOLS
+        if (!manual)
+            throw new OpenGLException($"GraphicsResource of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+#endif
+    }
 
 
     /// <summary>
     /// Automatically calls <see cref="Dispose()"/> on all <see cref="GraphicsResource"/> objects found on the given object.
     /// </summary>
     /// <param name="obj"></param>
-    public static void DisposeAll(object obj)
+    internal static void DisposeAll(object obj)
     {
         // get all fields, including backing fields for properties
         foreach (FieldInfo field in obj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
