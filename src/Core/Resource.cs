@@ -49,7 +49,7 @@ public abstract class Resource : SafeDisposable
         
 #if TOOLS
         if (!manual)
-            throw new ResourceLeakException($"Resource of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+            throw new ResourceLeakException($"Resource '{ToString()}' of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
 #endif
         
         OnDispose();
