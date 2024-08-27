@@ -4,6 +4,7 @@ using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Platform;
+using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 using OpenTK.Graphics.OpenGL4;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
@@ -654,7 +655,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         if (severity == DebugSeverity.DebugSeverityNotification)
             return;
 
-        // In order to access the string pointed to by pMessage, you can use Marshal
+        // To access the string pointed to by pMessage, you can use Marshal
         // class to copy its contents to a C# string without unsafe code. You can
         // also use the new function Marshal.PtrToStringUTF8 since .NET Core 1.1.
         string message = Marshal.PtrToStringAnsi(pMessage, length);
@@ -662,7 +663,28 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         Logger.OpenGl($"[{severity} source={source} type={type} id={id}] {message}");
 
         if (type == DebugType.DebugTypeError)
-            throw new Exception(message);
+            throw new OpenGLException(message);
+    }
+    
+    
+    public static void Assert(string errorMessage)
+    {
+        Assert(GL.GetError(), ErrorCode.NoError, errorMessage);
+    }
+
+
+    public static void Assert(ErrorCode desiredErrorCode, string errorMessage)
+    {
+        Assert(GL.GetError(), desiredErrorCode, errorMessage);
+    }
+
+
+    public static void Assert(ErrorCode value, ErrorCode desiredValue, string errorMessage)
+    {
+        if (value == desiredValue)
+            return;
+        
+        throw new OpenGLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
     }
 #endif
 
