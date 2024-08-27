@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -90,19 +89,13 @@ public static class Application
 
     private static void OnUpdateFrame(FrameEventArgs args)
     {
-        KorpiProfiler.BeginFrame();
-        KorpiProfiler.Begin("UpdateLoop");
-        
         double deltaTime = args.Time;
         fixedFrameAccumulator += deltaTime;
         
-        using (new ProfileScope("FixedUpdate"))
+        while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
         {
-            while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
-            {
-                InternalFixedUpdate();
-                fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
-            }
+            InternalFixedUpdate();
+            fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
         }
  
         double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
@@ -117,23 +110,13 @@ public static class Application
             Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
         }
         
-        using (new ProfileScope("Update"))
-        {
-            InternalUpdate(deltaTime, fixedAlpha);
-        }
-        
-        KorpiProfiler.End();
+        InternalUpdate(deltaTime, fixedAlpha);
     }
 
 
     private static void OnRenderFrame(FrameEventArgs args)
     {
-        KorpiProfiler.Begin("RenderLoop");
-        
         InternalRender();
-        
-        KorpiProfiler.End();
-        KorpiProfiler.EndFrame();
     }
 
 
