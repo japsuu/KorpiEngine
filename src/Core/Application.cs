@@ -161,10 +161,10 @@ public static class Application
         GUI.Deinitialize();
         
         OnApplicationUnloadAttribute.Invoke();
-        SceneManager.UnloadAllScenes();
+        SceneManager.Shutdown();
         GlobalJobPool.Shutdown();
         
-        ImGuiWindowManager.DisposeWindows();
+        ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
         window.Dispose();
     }

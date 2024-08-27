@@ -23,7 +23,8 @@ public sealed class Material : Resource
     public static ResourceRef<Texture2D> DefaultNormalTex { get; private set; }
     public static ResourceRef<Texture2D> DefaultSurfaceTex { get; private set; }
     public static ResourceRef<Texture2D> DefaultEmissionTex { get; private set; }
-    public static ResourceRef<Material> InvalidMaterial { get; private set; }
+    
+    internal static ResourceRef<Material> InvalidMaterial { get; private set; }
     
     
     internal static void LoadDefaults()

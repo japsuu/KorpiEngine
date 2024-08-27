@@ -187,7 +187,6 @@ internal sealed class EntityScene
         _isBeingDestroyed = true;
         
         DestroyAllSceneSystems();
-        
         DestroyAllEntities();
     }
 

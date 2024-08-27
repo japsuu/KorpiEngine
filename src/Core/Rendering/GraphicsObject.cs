@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Represents a graphics resource handle.<br/>
-/// Must be disposed explicitly, otherwise there will be a memory leak which will be logged as a warning.
+/// Must be disposed explicitly, otherwise there will be a memory leak that will be logged as a warning.
 /// </summary>
 internal abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
 {

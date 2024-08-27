@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Core.Rendering.Primitives;
 
-public enum BufferType
+internal enum BufferType
 {
     VertexBuffer,
     ElementsBuffer,

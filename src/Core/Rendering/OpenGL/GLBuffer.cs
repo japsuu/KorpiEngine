@@ -53,8 +53,10 @@ internal sealed class GLBuffer : GraphicsBuffer
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
+        base.Dispose(manual);
+        
         GL.DeleteBuffer(Handle);
     }
 

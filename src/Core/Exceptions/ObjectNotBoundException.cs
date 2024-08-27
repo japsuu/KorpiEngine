@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Exceptions;
+﻿namespace KorpiEngine.Core.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an object is used which must be bound before usage.

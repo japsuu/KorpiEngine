@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core;
+﻿namespace KorpiEngine.Core.Exceptions;
 
 public class KorpiException : Exception
 {

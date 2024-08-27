@@ -38,7 +38,7 @@ internal sealed class GLTexture : GraphicsTexture
     /// <summary>The format of the pixel data.</summary>
     public readonly PixelFormat PixelFormat;
 
-    private static int? currentlyBound;
+    private static int? CurrentlyBoundHandle { get; set; }
 
 
     public GLTexture(TextureType type, TextureImageFormat format) : base(GL.GenTexture())
@@ -64,11 +64,11 @@ internal sealed class GLTexture : GraphicsTexture
 
     public void Bind(bool force = true)
     {
-        if (!force && currentlyBound == Handle)
+        if (!force && CurrentlyBoundHandle == Handle)
             return;
 
         GL.BindTexture(Target, Handle);
-        currentlyBound = Handle;
+        CurrentlyBoundHandle = Handle;
 #if TOOLS
         Graphics.Device.TextureSwaps++;
 #endif
@@ -148,7 +148,7 @@ internal sealed class GLTexture : GraphicsTexture
 
     /// <summary>
     /// Turns a value from the <see cref="TextureImageFormat"/> enum into the necessary
-    /// enums to create a textures's image/storage.
+    /// enums to create a texture's image/storage.
     /// </summary>
     /// <param name="imageFormat">The requested image format.</param>
     /// <param name="pixelInternalFormat">The pixel's internal format.</param>
@@ -258,11 +258,12 @@ internal sealed class GLTexture : GraphicsTexture
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
+        base.Dispose(manual);
 
-        if (currentlyBound == Handle)
-            currentlyBound = null;
+        if (manual && CurrentlyBoundHandle == Handle)
+            CurrentlyBoundHandle = null;
 
         GL.DeleteTexture(Handle);
     }

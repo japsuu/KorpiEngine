@@ -5,6 +5,7 @@ using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.Exceptions;
 using KorpiEngine.Core.Rendering;
 using Animation = KorpiEngine.Core.API.Animation;
 using Material = KorpiEngine.Core.API.Rendering.Materials.Material;

@@ -1,9 +1,10 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel.IDs;
+﻿using KorpiEngine.Core.EntityModel.IDs;
+using KorpiEngine.Core.Exceptions;
+using KorpiEngine.Core.Internal;
 
 namespace KorpiEngine.Core;
 
-public abstract class Resource : IDisposable
+public abstract class Resource : SafeDisposable
 {
     private static readonly Stack<Resource> DestroyedResources = new();
     private static readonly Dictionary<int, WeakReference<Resource>> AllResources = new();
@@ -18,10 +19,13 @@ public abstract class Resource : IDisposable
     public Guid AssetID { get; internal set; } = Guid.Empty;
     
     /// <summary>
-    /// Whether the underlying object has been destroyed, or is waiting for destruction.
+    /// Whether the underlying object has been destroyed (disposed or waiting for disposal).
     /// </summary>
-    public bool IsDestroyed { get; private set; }
+    public bool IsDestroyed => IsDisposed || IsWaitingDisposal;
+    public bool IsWaitingDisposal { get; private set; }
 
+
+    #region Creation, Destruction, and Disposal
 
     protected Resource(string? name = "New Resource")
     {
@@ -34,47 +38,51 @@ public abstract class Resource : IDisposable
     
     ~Resource()
     {
-        if (IsDestroyed)
+        Dispose(false);
+    }
+
+
+    protected sealed override void Dispose(bool manual)
+    {
+        if (IsDisposed)
             return;
-
-        Application.Logger.Warn($"Resource {InstanceID} ({Name}) was not destroyed before being garbage collected. This is potentially a memory leak.");
-        DestroyImmediate();
-    }
-    
-    
-    /// <summary>
-    /// Force the object to dispose immediately
-    /// You are advised to not use this! Use Destroy() Instead.
-    /// </summary>
-    public void Dispose()
-    {
+        base.Dispose(manual);
+        
+#if TOOLS
+        if (!manual)
+            throw new ResourceLeakException($"Resource of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+#endif
+        
         OnDispose();
-        IsDestroyed = true;
         AllResources.Remove(InstanceID);
-        GC.SuppressFinalize(this);
     }
 
 
-    public void Destroy() => Destroy(this);
-
-    public void DestroyImmediate() => DestroyImmediate(this);
-
-
-    private static void Destroy(Resource obj)
+    /// <summary>
+    /// Queues this resource for disposal.
+    /// The resource will be destroyed at the end of the frame.
+    /// </summary>
+    /// <exception cref="ResourceDestroyedException">Thrown if the resource is already destroyed.</exception>
+    public void Destroy()
     {
-        if (obj.IsDestroyed)
-            throw new ResourceDestroyedException($"{obj.Name} is already destroyed.");
-        obj.IsDestroyed = true;
-        DestroyedResources.Push(obj);
+        if (IsDestroyed)
+            throw new ResourceDestroyedException($"{Name} is already destroyed.");
+        
+        IsWaitingDisposal = true;
+        DestroyedResources.Push(this);
     }
 
 
-    private static void DestroyImmediate(Resource obj)
+    /// <summary>
+    /// Calls <see cref="Dispose"/> on this resource, destroying it immediately.
+    /// </summary>
+    /// <exception cref="ResourceDestroyedException">Thrown if the resource is already destroyed.</exception>
+    public void DestroyImmediate()
     {
-        if (obj.IsDestroyed)
-            throw new ResourceDestroyedException($"{obj.Name} is already destroyed.");
-        obj.IsDestroyed = true;
-        obj.Dispose();
+        if (IsDestroyed)
+            throw new ResourceDestroyedException($"{Name} is already destroyed.");
+        
+        Dispose();
     }
 
 
@@ -89,10 +97,10 @@ public abstract class Resource : IDisposable
         }
     }
 
+    #endregion
 
-    protected virtual void OnDispose() { }
-    public override string ToString() => Name;
 
+    #region Public Static Methods
 
     public static T? FindObjectOfType<T>() where T : Resource
     {
@@ -124,24 +132,9 @@ public abstract class Resource : IDisposable
         return t;
     }
 
+    #endregion
 
-    /*public static EngineObject Instantiate(EngineObject obj, bool keepAssetID = false)
-    {
-        if (obj.IsDestroyed)
-            throw new Exception(obj.Name + " has been destroyed.");
 
-        // Serialize and deserialize to get a new object
-        SerializedProperty serialized = Serializer.Serialize(obj);
-
-        // dont need to assign ID or add it to objects list the constructor will do that automatically
-        EngineObject? newObj = Serializer.Deserialize<EngineObject>(serialized);
-
-        // Some objects might have a readonly name (like components) in that case it should remain the same, so if name is different set it
-        newObj!.Name = obj.Name;
-
-        // Need to make sure to set GUID to empty so the engine knows this isn't the original Asset file
-        if (!keepAssetID)
-            newObj.AssetID = Guid.Empty;
-        return newObj;
-    }*/
+    protected virtual void OnDispose() { }
+    public override string ToString() => Name;
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using KorpiEngine.Core.Exceptions;
 using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering.Exceptions;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
@@ -41,7 +41,10 @@ internal class GLGraphicsShader : GraphicsObject
 
     protected override void Dispose(bool manual)
     {
-        if (!manual) return;
+        if (IsDisposed)
+            return;
+        base.Dispose(manual);
+
         GL.DeleteShader(Handle);
     }
 

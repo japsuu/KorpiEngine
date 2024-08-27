@@ -3,10 +3,8 @@ using KorpiEngine.Core.Logging;
 
 namespace KorpiEngine.Core.UI.DearImGui;
 
-public abstract class ImGuiWindow : IDisposable
+public abstract class ImGuiWindow
 {
-    protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(ImGuiWindow));
-
     protected virtual ImGuiWindowFlags Flags { get; } = ImGuiWindowFlags.None;
     
     public abstract string Title { get; }
@@ -37,11 +35,11 @@ public abstract class ImGuiWindow : IDisposable
         
         PreUpdate();
 
-        ImGuiNET.ImGui.Begin(Title, Flags);
+        ImGui.Begin(Title, Flags);
 
         DrawContent();
         
-        ImGuiNET.ImGui.End();
+        ImGui.End();
     }
     
     
@@ -62,11 +60,4 @@ public abstract class ImGuiWindow : IDisposable
 
     
     protected abstract void DrawContent();
-
-
-    public void Dispose()
-    {
-        Destroy();
-        GC.SuppressFinalize(this);
-    }
 }

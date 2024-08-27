@@ -1,9 +1,9 @@
-﻿namespace KorpiEngine.Core.Rendering.Exceptions;
+﻿namespace KorpiEngine.Core.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when a render state is invalid.
 /// </summary>
-public class RenderStateException : Exception
+public class RenderStateException : KorpiException
 {
     internal RenderStateException(string message) : base(message)
     {

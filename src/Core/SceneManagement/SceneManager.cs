@@ -57,7 +57,7 @@ public static class SceneManager
     {
         // Unload the old scenes.
         foreach (Scene loadedScene in LoadedScenes)
-            loadedScene.Dispose();
+            loadedScene.Destroy();
         
         LoadedScenes.Clear();
 
@@ -100,13 +100,13 @@ public static class SceneManager
     }
     
     
-    internal static void UnloadAllScenes()
+    internal static void Shutdown()
     {
 #warning TODO: Implement DontDestroyOnLoad
         
         // Unload all scenes and destroy all objects in them.
         foreach (Scene loadedScene in LoadedScenes)
-            loadedScene.Dispose();
+            loadedScene.Destroy();
         
         // Handle all objects that were just destroyed.
         Resource.HandleDestroyed();

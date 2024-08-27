@@ -69,9 +69,9 @@ public abstract class RenderPassNode
 
 public class LightingPassNode : RenderPassNode
 {
-    public TextureImageFormat Format = TextureImageFormat.RGB_16_F;
+    public TextureImageFormat Format { get; set; } = TextureImageFormat.RGB_16_F;
 
-    public float Scale = 1.0f;
+    public float Scale { get; set; } = 1.0f;
 
 
     protected override RenderTexture Render(RenderTexture? _)
@@ -92,22 +92,24 @@ public class LightingPassNode : RenderPassNode
 public class LightingCombinePassNode : RenderPassNode
 {
     private Material? _combineShader;
-
-
-    protected override RenderTexture? Render(RenderTexture? lightingTex)
+    
+    
+    /// <param name="source">Lighting Texture</param>
+    /// <returns>A texture with geometry and lighting combined</returns>
+    protected override RenderTexture? Render(RenderTexture? source)
     {
         GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
 
-        if (lightingTex == null)
+        if (source == null)
             return null;
 
         _combineShader ??= new Material(Shader.Find("Assets/Defaults/GBufferCombine.kshader"), "G-buffer combine material", false);
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
-        _combineShader.SetTexture("_GLighting", lightingTex.InternalTextures[0]);
+        _combineShader.SetTexture("_GLighting", source.InternalTextures[0]);
 
         RenderTexture result = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         Graphics.Blit(result, _combineShader, 0, true);
-        ReleaseRenderTexture(lightingTex);
+        ReleaseRenderTexture(source);
 
         return result;
     }
@@ -130,7 +132,7 @@ public class UnlitCombinePassNode : RenderPassNode
 
 public class ProceduralSkyboxNode : RenderPassNode
 {
-    public float FogDensity = 0.08f;
+    public float FogDensity { get; set; } = 0.08f;
     private Material? _mat;
 
 
@@ -148,7 +150,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         _mat.SetFloat("_FogDensity", FogDensity);
 
         // Find DirectionalLight
-        DirectionalLight? light = camera.Entity.Scene.FindObjectOfType<DirectionalLight>();
+        DirectionalLight? light = camera.Entity.Scene!.FindObjectOfType<DirectionalLight>();
         if (light != null)
             _mat.SetVector("_SunPos", -light.Entity.Transform.Forward);
         else // Fallback to a reasonable default
@@ -164,9 +166,9 @@ public class ProceduralSkyboxNode : RenderPassNode
 
 public class ScreenSpaceReflectionNode : RenderPassNode
 {
-    public float Threshold = 0.15f;
-    public int Steps = 16;
-    public int RefineSteps = 4;
+    public float Threshold { get; set; } = 0.15f;
+    public int Steps { get; set; } = 16;
+    public int RefineSteps { get; set; } = 4;
 
     private Material? _mat;
 
@@ -199,11 +201,10 @@ public class ScreenSpaceReflectionNode : RenderPassNode
 
 public class TAANode : RenderPassNode
 {
-    public bool Jitter2X = false;
+    public bool Jitter2X { get; set; } = false;
 
     private Material? _mat;
     private Vector2 _jitter;
-    private Vector2 _previousJitter;
 
     private static readonly Vector2[] Halton16 =
     [
@@ -231,7 +232,7 @@ public class TAANode : RenderPassNode
         // Apply Halton jitter
         long n = Time.TotalFrameCount % 16;
         Vector2 halton = Halton16[n];
-        _previousJitter = _jitter;
+        Vector2 previousJitter = _jitter;
         _jitter = new Vector2(halton.X - 0.5f, halton.Y - 0.5f) * 2.0;
         if (Jitter2X)
             _jitter *= 2.0;
@@ -243,7 +244,7 @@ public class TAANode : RenderPassNode
 
         Graphics.UseJitter = true; // This applies the jitter to the Velocity Buffer/Motion Vectors
         Graphics.Jitter = _jitter / new Vector2(width, height);
-        Graphics.PreviousJitter = _previousJitter / new Vector2(width, height);
+        Graphics.PreviousJitter = previousJitter / new Vector2(width, height);
     }
 
 
@@ -279,9 +280,9 @@ public class TAANode : RenderPassNode
 
 public class DepthOfFieldNode : RenderPassNode
 {
-    public float FocusStrength = 150f;
-    public float Quality = 0.05f;
-    public int BlurRadius = 5;
+    public float FocusStrength { get; set; } = 150f;
+    public float Quality { get; set; } = 0.05f;
+    public int BlurRadius { get; set; } = 5;
 
     private Material? _mat;
 
@@ -312,9 +313,9 @@ public class DepthOfFieldNode : RenderPassNode
 
 public class BloomNode : RenderPassNode
 {
-    public float Radius = 10f;
-    public float Threshold = 0.5f;
-    public int Passes = 10;
+    public float Radius { get; set; } = 10f;
+    public float Threshold { get; set; } = 0.5f;
+    public int Passes { get; set; } = 10;
 
     private Material? _mat;
 
@@ -359,8 +360,8 @@ public class BloomNode : RenderPassNode
 
 public class TonemappingNode : RenderPassNode
 {
-    public float Contrast = 1.05f;
-    public float Saturation = 1.15f;
+    public float Contrast { get; set; } = 1.05f;
+    public float Saturation { get; set; } = 1.15f;
 
     public enum TonemapperType
     {
@@ -372,8 +373,8 @@ public class TonemappingNode : RenderPassNode
         None
     }
 
-    public TonemapperType UsedTonemapperType = TonemapperType.Melon;
-    public bool UseGammaCorrection = true;
+    public TonemapperType UsedTonemapperType { get; set; } = TonemapperType.Melon;
+    public bool UseGammaCorrection { get; set; } = true;
 
     private Material? _acesMat;
     private TonemapperType? _prevTonemapper;
@@ -389,8 +390,8 @@ public class TonemappingNode : RenderPassNode
         _acesMat.SetFloat("_Contrast", Math.Clamp(Contrast, 0, 2));
         _acesMat.SetFloat("_Saturation", Math.Clamp(Saturation, 0, 2));
 
-        // Because we always Reset the tonemappers to disabled then re-enable them
-        // this will trigger a Uniform Location Cache clear every single frame
+        // Because we always Reset the tone mappers to disabled and then re-enable them,
+        // this will trigger a Uniform Location Cache clear every single frame.
         // As the shader could be changing, so we do a previous check to see if we need to do this
         if (_prevTonemapper != UsedTonemapperType)
         {

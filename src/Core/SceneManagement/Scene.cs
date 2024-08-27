@@ -15,28 +15,20 @@ namespace KorpiEngine.Core.SceneManagement;
 /// An in-game scene, that can be loaded and unloaded and receives updates.
 /// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
 /// </summary>
-public abstract class Scene : IDisposable
+public abstract class Scene
 {
-    internal readonly EntityScene EntityScene;
+    internal readonly EntityScene EntityScene = new();
     
     protected Camera SceneCamera { get; private set; } = null!;
 
 
     #region Creation and destruction
 
-    protected Scene()
-    {
-        EntityScene = new EntityScene();
-    }
-    
-    
-    public void Dispose()
+    public void Destroy()
     {
         OnUnload();
         
         EntityScene.Destroy();
-        
-        GC.SuppressFinalize(this);
     }
 
     #endregion

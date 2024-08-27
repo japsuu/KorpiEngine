@@ -1,5 +1,5 @@
-﻿using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Rendering.Exceptions;
+﻿using KorpiEngine.Core.Exceptions;
+using KorpiEngine.Core.Internal.AssetManagement;
 
 namespace KorpiEngine.Core.API.AssetManagement;
 

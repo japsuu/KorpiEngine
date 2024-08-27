@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Exceptions;
+﻿namespace KorpiEngine.Core.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when a program related error occurs.
