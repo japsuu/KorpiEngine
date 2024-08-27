@@ -38,7 +38,7 @@ internal sealed class GLTexture : GraphicsTexture
     /// <summary>The format of the pixel data.</summary>
     public readonly PixelFormat PixelFormat;
 
-    private static int? currentlyBound;
+    private static int? CurrentlyBoundHandle { get; set; }
 
 
     public GLTexture(TextureType type, TextureImageFormat format) : base(GL.GenTexture())
@@ -64,11 +64,11 @@ internal sealed class GLTexture : GraphicsTexture
 
     public void Bind(bool force = true)
     {
-        if (!force && currentlyBound == Handle)
+        if (!force && CurrentlyBoundHandle == Handle)
             return;
 
         GL.BindTexture(Target, Handle);
-        currentlyBound = Handle;
+        CurrentlyBoundHandle = Handle;
 #if TOOLS
         Graphics.Device.TextureSwaps++;
 #endif
@@ -111,35 +111,35 @@ internal sealed class GLTexture : GraphicsTexture
     }
 
 
-    public unsafe void GetTexImage(int level, nint data)
+    public void GetTexImage(int level, nint data)
     {
         Bind(false);
         GL.GetTexImage(Target, level, PixelFormat, PixelType, data);
     }
 
 
-    public unsafe void TexImage2D(TextureTarget type, int mipLevel, int width, int height, int border, nint data)
+    public void TexImage2D(TextureTarget type, int mipLevel, int width, int height, int border, nint data)
     {
         Bind(false);
         GL.TexImage2D(type, mipLevel, InternalFormat, width, height, border, PixelFormat, PixelType, data);
     }
 
 
-    public unsafe void TexImage3D(TextureTarget type, int mipLevel, int width, int height, int depth, int border, nint data)
+    public void TexImage3D(TextureTarget type, int mipLevel, int width, int height, int depth, int border, nint data)
     {
         Bind(false);
         GL.TexImage3D(type, mipLevel, InternalFormat, width, height, depth, border, PixelFormat, PixelType, data);
     }
 
 
-    internal unsafe void TexSubImage2D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int width, int height, nint data)
+    internal void TexSubImage2D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int width, int height, nint data)
     {
         Bind(false);
         GL.TexSubImage2D(type, mipLevel, xOffset, yOffset, width, height, PixelFormat, PixelType, data);
     }
 
 
-    internal unsafe void TexSubImage3D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, nint data)
+    internal void TexSubImage3D(TextureTarget type, int mipLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, nint data)
     {
         Bind(false);
         GL.TexSubImage3D(type, mipLevel, xOffset, yOffset, zOffset, width, height, depth, PixelFormat, PixelType, data);
@@ -148,7 +148,7 @@ internal sealed class GLTexture : GraphicsTexture
 
     /// <summary>
     /// Turns a value from the <see cref="TextureImageFormat"/> enum into the necessary
-    /// enums to create a textures's image/storage.
+    /// enums to create a texture's image/storage.
     /// </summary>
     /// <param name="imageFormat">The requested image format.</param>
     /// <param name="pixelInternalFormat">The pixel's internal format.</param>
@@ -258,11 +258,12 @@ internal sealed class GLTexture : GraphicsTexture
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
+        base.Dispose(manual);
 
-        if (currentlyBound == Handle)
-            currentlyBound = null;
+        if (manual && CurrentlyBoundHandle == Handle)
+            CurrentlyBoundHandle = null;
 
         GL.DeleteTexture(Handle);
     }

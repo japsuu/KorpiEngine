@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using KorpiEngine.Core.API;
+﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
@@ -100,6 +99,9 @@ public sealed class Camera : EntityComponent
 
     internal void Render(int width = -1, int height = -1)
     {
+        if (Entity.Scene == null)
+            throw new InvalidOperationException("Camera must be attached to an Entity in a Scene to render!");
+        
         // Determine render target size
         if (TargetTexture.IsAvailable)
         {
@@ -183,16 +185,16 @@ public sealed class Camera : EntityComponent
     }
     
     
-    internal void RenderLights() => Entity.Scene.EntityScene.InvokeRenderLighting();
-    internal void RenderDepthGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometryDepth();
-    private void RenderGeometry() => Entity.Scene.EntityScene.InvokeRenderGeometry();
+    internal void RenderLights() => Entity.Scene!.EntityScene.InvokeRenderLighting();
+    internal void RenderDepthGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometryDepth();
+    private void RenderGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometry();
 
 
     private void RenderGizmos()
     {
         // if (Graphics.UseJitter)
         //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter
-        Entity.Scene.EntityScene.InvokeDrawDepthGizmos();
+        Entity.Scene!.EntityScene.InvokeDrawDepthGizmos();
         Gizmos.Render(true);
         Gizmos.Clear();
         
@@ -204,7 +206,7 @@ public sealed class Camera : EntityComponent
 
     private void GeometryPass()
     {
-        Entity.Scene.EntityScene.InvokePreRender();
+        Entity.Scene!.EntityScene.InvokePreRender();
         
         GBuffer!.Begin();
         
@@ -269,9 +271,9 @@ public sealed class Camera : EntityComponent
             TargetTexture.Res?.Begin();
             
             ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
-            bool clearColor = ClearFlags.HasFlag(CameraClearFlags.Color);
-            bool clearDepth = ClearFlags.HasFlag(CameraClearFlags.Depth);
-            bool clearStencil = ClearFlags.HasFlag(CameraClearFlags.Stencil);
+            bool clearColor = ClearFlags.HasFlagFast(CameraClearFlags.Color);
+            bool clearDepth = ClearFlags.HasFlagFast(CameraClearFlags.Depth);
+            bool clearStencil = ClearFlags.HasFlagFast(CameraClearFlags.Stencil);
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
             
             TargetTexture.Res?.End();
@@ -283,7 +285,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnEnable()
     {
-        _debugMaterial = new Material(Shader.Find("Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
+        _debugMaterial = new Material(Shader.Find("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
     
     

@@ -13,7 +13,7 @@ internal sealed class GLBuffer : GraphicsBuffer
     internal override int SizeInBytes { get; }
 
 
-    public unsafe GLBuffer(BufferType type, int sizeInBytes, nint data, bool dynamic) : base(GL.GenBuffer())
+    public GLBuffer(BufferType type, int sizeInBytes, nint data, bool dynamic) : base(GL.GenBuffer())
     {
         if (type == BufferType.Count)
             throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -53,8 +53,10 @@ internal sealed class GLBuffer : GraphicsBuffer
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
+        base.Dispose(manual);
+        
         GL.DeleteBuffer(Handle);
     }
 

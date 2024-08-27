@@ -55,11 +55,13 @@ public class AnimationCurve : ISerializable
     /// </summary>
     public AnimationCurve()
     {
-        Keys = [];
+        Keys =
+        [
+            new KeyFrame(0, 0),
+            new KeyFrame(1, 1)
+        ];
 
         // Add Default keys
-        Keys.Add(new KeyFrame(0, 0));
-        Keys.Add(new KeyFrame(1, 1));
         SmoothTangents(CurveTangent.Smooth);
     }
 
@@ -86,80 +88,90 @@ public class AnimationCurve : ISerializable
 
         if (position < first.Position)
         {
-            switch (PreLoop)
-            {
-                case CurveLoopType.Constant:
-                    //constant
-                    return first.Value;
-
-                case CurveLoopType.Linear:
-                    // linear y = a*x +b with a tangeant of last point
-                    return first.Value - first.TangentIn * (first.Position - position);
-
-                case CurveLoopType.Cycle:
-                    //start -> end / start -> end
-                    int cycle = GetNumberOfCycle(position);
-                    double virtualPos = position - cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos);
-
-                case CurveLoopType.CycleOffset:
-                    //make the curve continue (with no step) so must up the curve each cycle of delta(value)
-                    cycle = GetNumberOfCycle(position);
-                    virtualPos = position - cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
-
-                case CurveLoopType.Oscillate:
-                    //go back on curve from end and target start 
-                    // start-> end / end -> start
-                    cycle = GetNumberOfCycle(position);
-                    if (0 == cycle % 2.0) //if pair
-                        virtualPos = position - cycle * (last.Position - first.Position);
-                    else
-                        virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos);
-            }
+            return HandlePreLoop(position, first, last);
         }
-        else if (position > last.Position)
+
+        return position <= last.Position ?
+            GetCurvePosition(position) :
+            HandlePostLoop(position, last, first);
+    }
+
+
+    private double HandlePreLoop(double position, KeyFrame first, KeyFrame last)
+    {
+        switch (PreLoop)
         {
-            int cycle;
-            switch (PostLoop)
-            {
-                case CurveLoopType.Constant:
-                    //constant
-                    return last.Value;
+            case CurveLoopType.Constant:
+                // constant
+                return first.Value;
 
-                case CurveLoopType.Linear:
-                    // linear y = a*x +b with a tangeant of last point
-                    return last.Value + first.TangentOut * (position - last.Position);
+            case CurveLoopType.Linear:
+                // linear y = a*x +b with a tangent of last point
+                return first.Value - first.TangentIn * (first.Position - position);
 
-                case CurveLoopType.Cycle:
-                    //start -> end / start -> end
-                    cycle = GetNumberOfCycle(position);
-                    double virtualPos = position - cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos);
+            case CurveLoopType.Cycle:
+                // start -> end / start -> end
+                int cycle = GetNumberOfCycle(position);
+                double virtualPos = position - cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos);
 
-                case CurveLoopType.CycleOffset:
-                    //make the curve continue (with no step) so must up the curve each cycle of delta(value)
-                    cycle = GetNumberOfCycle(position);
+            case CurveLoopType.CycleOffset:
+                // make the curve continue (with no step) so must up the curve each cycle of delta(value)
+                cycle = GetNumberOfCycle(position);
+                virtualPos = position - cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
+
+            case CurveLoopType.Oscillate:
+                // go back on curve from end and target start 
+                // start → end / end → start
+                cycle = GetNumberOfCycle(position);
+                if (Mathd.ApproximatelyEquals(cycle % 2.0, 0)) //if pair
                     virtualPos = position - cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
-
-                case CurveLoopType.Oscillate:
-                    //go back on curve from end and target start 
-                    // start-> end / end -> start
-                    cycle = GetNumberOfCycle(position);
-
-                    //virtualPos = position - (cycle * (last.Position - first.Position));
-                    if (0 == cycle % 2.0) //if pair
-                        virtualPos = position - cycle * (last.Position - first.Position);
-                    else
-                        virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
-                    return GetCurvePosition(virtualPos);
-            }
+                else
+                    virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos);
+            default:
+                throw new InvalidOperationException("Invalid CurveLoopType.");
         }
+    }
 
-        //in curve
-        return GetCurvePosition(position);
+
+    private double HandlePostLoop(double position, KeyFrame last, KeyFrame first)
+    {
+        switch (PostLoop)
+        {
+            case CurveLoopType.Constant:
+                // constant
+                return last.Value;
+
+            case CurveLoopType.Linear:
+                // linear y = a*x +b with a tangent of last point
+                return last.Value + first.TangentOut * (position - last.Position);
+
+            case CurveLoopType.Cycle:
+                // start -> end / start -> end
+                int cycle = GetNumberOfCycle(position);
+                double virtualPos = position - cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos);
+
+            case CurveLoopType.CycleOffset:
+                // make the curve continue (with no step) so must up the curve each cycle of delta(value)
+                cycle = GetNumberOfCycle(position);
+                virtualPos = position - cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
+
+            case CurveLoopType.Oscillate:
+                // go back on curve from end and target start 
+                // start → end / end → start
+                cycle = GetNumberOfCycle(position);
+                if (Mathd.ApproximatelyEquals(cycle % 2.0, 0)) //if pair
+                    virtualPos = position - cycle * (last.Position - first.Position);
+                else
+                    virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
+                return GetCurvePosition(virtualPos);
+            default:
+                throw new InvalidOperationException("Invalid CurveLoopType.");
+        }
     }
 
 
@@ -278,12 +290,11 @@ public class AnimationCurve : ISerializable
 
     private double GetCurvePosition(double position)
     {
-        //only for position in curve
+        // only for position in curve
         KeyFrame prev = Keys[0];
-        KeyFrame next;
         for (int i = 1; i < Keys.Count; ++i)
         {
-            next = Keys[i];
+            KeyFrame next = Keys[i];
             if (next.Position >= position)
             {
                 if (prev.Continuity == CurveContinuity.Step)
@@ -297,11 +308,11 @@ public class AnimationCurve : ISerializable
                 double ts = t * t;
                 double tss = ts * t;
 
-                //After a lot of search on internet I have found all about spline function
+                // After a lot of search on internet I have found all about spline function
                 // and Bezier (phi'sss ancient) but finally use Hermite curve 
-                //http://en.wikipedia.org/wiki/Cubic_Hermite_spline
-                //P(t) = (2*t^3 - 3t^2 + 1)*P0 + (t^3 - 2t^2 + t)m0 + (-2t^3 + 3t^2)P1 + (t^3-t^2)m1
-                //with P0.value = prev.value , m0 = prev.tangentOut, P1= next.value, m1 = next.TangentIn
+                // http://en.wikipedia.org/wiki/Cubic_Hermite_spline
+                // P(t) = (2*t^3 - 3t^2 + 1)*P0 + (t^3 - 2t^2 + t)m0 + (-2t^3 + 3t^2)P1 + (t^3-t^2)m1
+                // with P0.value = prev.value , m0 = prev.tangentOut, P1= next.value, m1 = next.TangentIn
                 return (2 * tss - 3 * ts + 1.0) * prev.Value + (tss - 2 * ts + t) * prev.TangentOut + (3 * ts - 2 * tss) * next.Value +
                        (tss - ts) * next.TangentIn;
             }
@@ -315,14 +326,14 @@ public class AnimationCurve : ISerializable
 
     public SerializedProperty Serialize(Serializer.SerializationContext ctx)
     {
-        var value = SerializedProperty.NewCompound();
+        SerializedProperty value = SerializedProperty.NewCompound();
         value.Add("PreLoop", new SerializedProperty((int)PreLoop));
         value.Add("PostLoop", new SerializedProperty((int)PostLoop));
 
-        var keyList = SerializedProperty.NewList();
+        SerializedProperty keyList = SerializedProperty.NewList();
         foreach (KeyFrame key in Keys)
         {
-            var keyProp = SerializedProperty.NewCompound();
+            SerializedProperty keyProp = SerializedProperty.NewCompound();
             keyProp.Add("Position", new SerializedProperty(key.Position));
             keyProp.Add("Value", new SerializedProperty(key.Value));
             keyProp.Add("TangentIn", new SerializedProperty(key.TangentIn));
@@ -339,16 +350,16 @@ public class AnimationCurve : ISerializable
 
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
-        PreLoop = (CurveLoopType)value.Get("PreLoop").IntValue;
-        PostLoop = (CurveLoopType)value.Get("PostLoop").IntValue;
+        PreLoop = (CurveLoopType)value.Get("PreLoop")!.IntValue;
+        PostLoop = (CurveLoopType)value.Get("PostLoop")!.IntValue;
 
-        var keyList = value.Get("Keys").List;
-        foreach (var key in keyList)
+        List<SerializedProperty> keyList = value.Get("Keys")!.List;
+        foreach (SerializedProperty key in keyList)
         {
-            var position = key.Get("Position").DoubleValue;
-            KeyFrame curveKey = new KeyFrame(
-                position, key.Get("Value").DoubleValue, key.Get("TangentIn").DoubleValue, key.Get("TangentOut").DoubleValue,
-                (CurveContinuity)key.Get("Continuity").IntValue);
+            double position = key.Get("Position")!.DoubleValue;
+            KeyFrame curveKey = new(
+                position, key.Get("Value")!.DoubleValue, key.Get("TangentIn")!.DoubleValue, key.Get("TangentOut")!.DoubleValue,
+                (CurveContinuity)key.Get("Continuity")!.IntValue);
             Keys.Add(curveKey);
         }
     }
@@ -368,7 +379,7 @@ public enum CurveContinuity
     Step
 }
 
-public class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
+public sealed class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
 {
     #region Properties
 
@@ -412,10 +423,10 @@ public class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
     #endregion
 
 
-    public static bool operator !=(KeyFrame value1, KeyFrame value2) => !(value1 == value2);
+    public static bool operator !=(KeyFrame? value1, KeyFrame? value2) => !(value1 == value2);
 
 
-    public static bool operator ==(KeyFrame value1, KeyFrame value2)
+    public static bool operator ==(KeyFrame? value1, KeyFrame? value2)
     {
         if (Equals(value1, null))
             return Equals(value2, null);
@@ -423,21 +434,21 @@ public class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
         if (Equals(value2, null))
             return Equals(value1, null);
 
-        return value1.Position == value2.Position
-               && value1.Value == value2.Value
-               && value1.TangentIn == value2.TangentIn
-               && value1.TangentOut == value2.TangentOut
+        return Mathd.ApproximatelyEquals(value1.Position, value2.Position)
+               && Mathd.ApproximatelyEquals(value1.Value, value2.Value)
+               && Mathd.ApproximatelyEquals(value1.TangentIn, value2.TangentIn)
+               && Mathd.ApproximatelyEquals(value1.TangentOut, value2.TangentOut)
                && value1.Continuity == value2.Continuity;
     }
 
 
     #region Inherited Methods
 
-    public int CompareTo(KeyFrame other) => Position.CompareTo(other.Position);
+    public int CompareTo(KeyFrame? other) => Position.CompareTo(other?.Position);
 
-    public bool Equals(KeyFrame other) => this == other;
+    public bool Equals(KeyFrame? other) => this == other;
 
-    public override bool Equals(object obj) => obj as KeyFrame != null && Equals((KeyFrame)obj);
+    public override bool Equals(object? obj) => obj is KeyFrame && Equals((KeyFrame)obj);
 
 
     public override int GetHashCode() =>
@@ -466,13 +477,12 @@ public class CurveKeyCollection : ICollection<KeyFrame>
         get => _keys[index];
         set
         {
-            if (value == null)
-                throw new ArgumentNullException();
+            ArgumentNullException.ThrowIfNull(value);
 
             if (index >= _keys.Count)
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException("The index is out of range.");
 
-            if (_keys[index].Position == value.Position)
+            if (Mathd.ApproximatelyEquals(_keys[index].Position, value.Position))
             {
                 _keys[index] = value;
             }
@@ -498,7 +508,7 @@ public class CurveKeyCollection : ICollection<KeyFrame>
     /// <summary> Creates a new instance of <see cref="CurveKeyCollection"/> class. </summary>
     public CurveKeyCollection()
     {
-        _keys = new List<KeyFrame>();
+        _keys = [];
     }
 
     #endregion
@@ -509,11 +519,10 @@ public class CurveKeyCollection : ICollection<KeyFrame>
 
     /// <summary> Adds a key to this collection. </summary>
     /// <exception cref="ArgumentNullException">Throws if <paramref name="item"/> is null.</exception>
-    /// <remarks>The new key would be added respectively to a position of that key and the position of other keys.</remarks>
+    /// <remarks>The new key would be added respectively to the position of that key and the position of other keys.</remarks>
     public void Add(KeyFrame item)
     {
-        if (item == null)
-            throw new ArgumentNullException("item");
+        ArgumentNullException.ThrowIfNull(item);
 
         if (_keys.Count == 0)
         {
@@ -522,11 +531,13 @@ public class CurveKeyCollection : ICollection<KeyFrame>
         }
 
         for (int i = 0; i < _keys.Count; i++)
-            if (item.Position < _keys[i].Position)
-            {
-                _keys.Insert(i, item);
-                return;
-            }
+        {
+            if (item.Position >= _keys[i].Position)
+                continue;
+            
+            _keys.Insert(i, item);
+            return;
+        }
 
         _keys.Add(item);
     }
@@ -551,7 +562,7 @@ public class CurveKeyCollection : ICollection<KeyFrame>
     public IEnumerator<KeyFrame> GetEnumerator() => _keys.GetEnumerator();
 
 
-    /// <summary> Finds element in the collection and returns its index. </summary>
+    /// <summary> Finds an element in the collection and returns its index. </summary>
     /// <returns>Index of the element; or -1 if item is not found.</returns>
     public int IndexOf(KeyFrame item) => _keys.IndexOf(item);
 

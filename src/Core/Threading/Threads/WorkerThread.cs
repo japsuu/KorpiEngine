@@ -69,6 +69,7 @@ public sealed class WorkerThread
         _cts.Cancel();
         _thread.Interrupt();
         _thread.Join();
+        _cts.Dispose();
     }
 
 
@@ -103,65 +104,77 @@ public sealed class WorkerThread
             // Try to invoke the job and reset the cycle counter and thread status.
             if (hasWork)
             {
-                try
-                {
-                    job!.Execute();
-
-                    if (job.CompletionState == JobCompletionState.None)
-                        job.SignalCompletion(JobCompletionState.Completed);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Worker thread encountered an exception while executing a job:", e);
-                    LastException = e;
-
-                    if (job!.CompletionState == JobCompletionState.None)
-                        job.SignalCompletion(JobCompletionState.Aborted);
-                }
-
-                _cycleCounter = 0;
-                Status = ThreadStatus.Spinning;
+                TryExecuteJob(job);
                 continue;
             }
 
             // Increment cycle counter if no work found.
             _cycleCounter++;
 
-            // Branch based on current status.
-            switch (Status)
-            {
-                case ThreadStatus.Spinning:
-                    if (_config.SpinCycles != -1 && _cycleCounter >= _config.SpinCycles)
-                    {
-                        _cycleCounter = 0;
-                        Status = ThreadStatus.Yielding;
-                    }
+            HandleCurrentStatus();
+        }
+    }
 
-                    break;
-                case ThreadStatus.Yielding:
-                    if (_config.YieldCycles != -1 && _cycleCounter >= _config.YieldCycles)
-                    {
-                        _cycleCounter = 0;
-                        Status = ThreadStatus.Napping;
-                    }
 
-                    Thread.Yield();
-                    break;
-                case ThreadStatus.Napping:
-                    if (_config.NapCycles != -1 && _cycleCounter >= _config.NapCycles)
-                    {
-                        _cycleCounter = 0;
-                        Status = ThreadStatus.Sleeping;
-                    }
+    private void TryExecuteJob(IKorpiJob? job)
+    {
+        try
+        {
+            job!.Execute();
 
-                    Thread.Sleep(_config.NapInterval);
-                    break;
-                case ThreadStatus.Sleeping:
-                    Thread.Sleep(_config.SleepInterval);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            if (job.CompletionState == JobCompletionState.None)
+                job.SignalCompletion(JobCompletionState.Completed);
+        }
+        catch (Exception e)
+        {
+            Logger.Error("Worker thread encountered an exception while executing a job:", e);
+            LastException = e;
+
+            if (job!.CompletionState == JobCompletionState.None)
+                job.SignalCompletion(JobCompletionState.Aborted);
+        }
+
+        _cycleCounter = 0;
+        Status = ThreadStatus.Spinning;
+    }
+
+
+    private void HandleCurrentStatus()
+    {
+        // Branch based on current status.
+        switch (Status)
+        {
+            case ThreadStatus.Spinning:
+                if (_config.SpinCycles != -1 && _cycleCounter >= _config.SpinCycles)
+                {
+                    _cycleCounter = 0;
+                    Status = ThreadStatus.Yielding;
+                }
+
+                break;
+            case ThreadStatus.Yielding:
+                if (_config.YieldCycles != -1 && _cycleCounter >= _config.YieldCycles)
+                {
+                    _cycleCounter = 0;
+                    Status = ThreadStatus.Napping;
+                }
+
+                Thread.Yield();
+                break;
+            case ThreadStatus.Napping:
+                if (_config.NapCycles != -1 && _cycleCounter >= _config.NapCycles)
+                {
+                    _cycleCounter = 0;
+                    Status = ThreadStatus.Sleeping;
+                }
+
+                Thread.Sleep(_config.NapInterval);
+                break;
+            case ThreadStatus.Sleeping:
+                Thread.Sleep(_config.SleepInterval);
+                break;
+            default:
+                throw new InvalidOperationException("Worker thread has entered an invalid state.");
         }
     }
 }

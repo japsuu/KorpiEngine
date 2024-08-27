@@ -1,10 +1,18 @@
-﻿namespace KorpiEngine.Core.Platform;
+﻿using System.Runtime.InteropServices;
+
+namespace KorpiEngine.Core.Platform;
 
 /// <summary>
 /// Contains information about the current system.
 /// </summary>
 public static class SystemInfo
 {
+    public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static bool IsLinux() => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    public static bool IsFreeBSD() => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
+    public static bool IsMac() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+
     /// <summary>
     /// Gets the number of processors available to the current process.
     /// </summary>

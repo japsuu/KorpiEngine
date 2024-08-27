@@ -4,7 +4,7 @@ namespace KorpiEngine.Core.API;
 
 public abstract class Gizmo
 {
-    public Matrix4x4 Matrix;
+    public Matrix4x4 Matrix { get; set; }
 
 
     public Vector3 Pos(Vector3 worldPos)
@@ -19,18 +19,18 @@ public abstract class Gizmo
 
 public class LineGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
         batch.Line(Pos(start), Pos(end), color, color);
     }
 }
 
 public class ArrowGizmo(Vector3 start, Vector3 end, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
         double length = (end - start).Magnitude;
         
         // Body
@@ -47,9 +47,9 @@ public class ArrowGizmo(Vector3 start, Vector3 end, Color color, float arrowHead
 
 public class PolygonGizmo(Vector3[] points, Color color, bool closed = false) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
         for (int i = 0; i < points.Length - 1; i++)
             batch.Line(Pos(points[i]), Pos(points[i + 1]), color, color);
         if (closed)
@@ -59,9 +59,9 @@ public class PolygonGizmo(Vector3[] points, Color color, bool closed = false) : 
 
 public class CircleGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         int numSegments = 12;
 
@@ -80,9 +80,9 @@ public class CircleGizmo(Color color) : Gizmo
 
 public class DirectionalLightGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         int numSegments = 6; // Adjust for smoother or more segmented circle
 
@@ -102,24 +102,24 @@ public class DirectionalLightGizmo(Color color) : Gizmo
 
 public class SphereGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         // Use 3 Circle3D gizmo's
-        new CircleGizmo(color).Render(batch, m);
-        m = Matrix4x4.CreateRotationX(MathF.PI / 2f) * m;
-        new CircleGizmo(color).Render(batch, m);
-        m = Matrix4x4.CreateRotationY(MathF.PI / 2f) * m;
-        new CircleGizmo(color).Render(batch, m);
+        new CircleGizmo(color).Render(batch, worldMatrix);
+        worldMatrix = Matrix4x4.CreateRotationX(MathF.PI / 2f) * worldMatrix;
+        new CircleGizmo(color).Render(batch, worldMatrix);
+        worldMatrix = Matrix4x4.CreateRotationY(MathF.PI / 2f) * worldMatrix;
+        new CircleGizmo(color).Render(batch, worldMatrix);
     }
 }
 
 public class CubeGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         // Draw cube lines
         Vector3[] points = new Vector3[8];
@@ -149,9 +149,9 @@ public class CubeGizmo(Color color) : Gizmo
 
 public class CylinderGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         int numSegments = 12; // Adjust for smoother or more segmented circle
 
@@ -174,9 +174,9 @@ public class CylinderGizmo(Color color) : Gizmo
 
 public class CapsuleGizmo(Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         int numSegments = 12; // Adjust for smoother or more segmented circle
 
@@ -197,12 +197,12 @@ public class CapsuleGizmo(Color color) : Gizmo
         }
 
         // Draw the Top Half Sphere
-        Matrix4x4 topMatrix = Matrix4x4.CreateTranslation(0f, 0.5f, 0f) * m;
+        Matrix4x4 topMatrix = Matrix4x4.CreateTranslation(0f, 0.5f, 0f) * worldMatrix;
         Matrix = topMatrix;
         DrawHalfSphere(batch, color, true);
 
         // Draw the Bottom Half Sphere
-        Matrix4x4 bottomMatrix = Matrix4x4.CreateTranslation(0f, -0.5f, 0f) * m;
+        Matrix4x4 bottomMatrix = Matrix4x4.CreateTranslation(0f, -0.5f, 0f) * worldMatrix;
         Matrix = bottomMatrix;
         DrawHalfSphere(batch, color, false);
     }
@@ -217,8 +217,8 @@ public class CapsuleGizmo(Color color) : Gizmo
 
         for (int i = 0; i < numSegments / 4; i++)
         {
-            float angle1 = angleStart + (float)i / (numSegments / 4) * (angleEnd - angleStart);
-            float angle2 = angleStart + (float)(i + 1) / (numSegments / 4) * (angleEnd - angleStart);
+            float angle1 = angleStart + i / (numSegments / 4f) * (angleEnd - angleStart);
+            float angle2 = angleStart + (i + 1) / (numSegments / 4f) * (angleEnd - angleStart);
 
             for (int j = 0; j < numSegments; j++)
             {
@@ -260,9 +260,9 @@ public class CapsuleGizmo(Color color) : Gizmo
 
 public class SpotlightGizmo(float distance, float angle, Color color) : Gizmo
 {
-    public override void Render(PrimitiveBatch batch, Matrix4x4 m)
+    public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
-        Matrix = m;
+        Matrix = worldMatrix;
 
         // Calculate the cone vertices
         Vector3 coneBaseLeft = Vector3.Transform(Vector3.Forward * distance, Matrix4x4.CreateRotationY(-(angle / 2)));
@@ -279,8 +279,8 @@ public class SpotlightGizmo(float distance, float angle, Color color) : Gizmo
         batch.Line(Pos(Vector3.Zero), Pos(coneBaseBottom), color, color);
 
         // Use 3 Circle3D gizmo's
-        m = Matrix4x4.CreateTranslation(Vector3.Forward * coneBaseDistance) * m;
-        m = Matrix4x4.CreateScale(coneBaseRadius) * m;
-        new CircleGizmo(color).Render(batch, m);
+        worldMatrix = Matrix4x4.CreateTranslation(Vector3.Forward * coneBaseDistance) * worldMatrix;
+        worldMatrix = Matrix4x4.CreateScale(coneBaseRadius) * worldMatrix;
+        new CircleGizmo(color).Render(batch, worldMatrix);
     }
 }

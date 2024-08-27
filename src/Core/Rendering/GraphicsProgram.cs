@@ -3,9 +3,4 @@
 /// <summary>
 /// Represents a shaderProgram object.
 /// </summary>
-internal abstract class GraphicsProgram : GraphicsObject
-{
-    protected GraphicsProgram(int handle) : base(handle)
-    {
-    }
-}
+internal abstract class GraphicsProgram(int handle) : GraphicsObject(handle);

@@ -4,8 +4,8 @@ using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.API.Rendering.Textures;
+using KorpiEngine.Core.Exceptions;
 using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 using KorpiEngine.Core.Windowing;
 
@@ -40,7 +40,7 @@ public static class Graphics
         Window = korpiWindow;
         Device.Initialize();
         
-        defaultBlitMaterial = new Material(Shader.Find("Defaults/Basic.kshader"), "basic material", false);
+        defaultBlitMaterial = new Material(Shader.Find("Assets/Defaults/Basic.kshader"), "basic material", false);
         Material.LoadDefaults();
     }
 

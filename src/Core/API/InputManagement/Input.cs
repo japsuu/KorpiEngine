@@ -5,8 +5,8 @@ namespace KorpiEngine.Core.API.InputManagement;
 
 public static class Input
 {
-    internal static KeyboardState KeyboardState = null!;
-    internal static MouseState MouseState = null!;
+    internal static KeyboardState KeyboardState { get; private set; } = null!;
+    internal static MouseState MouseState { get; private set; } = null!;
     
     public static Vector2 MousePosition => new(MouseState.X, Graphics.ViewportResolution.Y - MouseState.Y);
     public static Vector2 MouseDelta => new(MouseState.Delta.X, MouseState.Delta.Y);

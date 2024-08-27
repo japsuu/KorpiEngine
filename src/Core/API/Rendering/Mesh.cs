@@ -3,6 +3,7 @@ using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Internal.Utils;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Primitives;
+using InvalidOperationException = System.InvalidOperationException;
 
 namespace KorpiEngine.Core.API.Rendering;
 
@@ -204,7 +205,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                     throw new InvalidOperationException($"Line Strip mesh doesn't have the right amount of indices. Has: {IndexCount}. Should have at least 2");
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException($"Unknown topology: {Topology}");
         }
 
         MeshVertexLayout vertexLayout = GetVertexLayout();
@@ -431,7 +432,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 return indices32.Length;
             }
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException("Invalid index format.");
         }
     }
     public int[]? GetIndices()
@@ -465,7 +466,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 return indices;
             }
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException("Invalid index format.");
         }
     }
     public void SetIndices(int[] indices)
@@ -503,7 +504,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 break;
             }
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException("Invalid index format.");
         }
 
         IndexCount = indices.Length;
@@ -840,24 +841,34 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// <returns></returns>
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
-        System.Numerics.Vector3[] CreateTangents(System.Numerics.Vector3[] vertices)
-        {
-            System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
-            
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                System.Numerics.Vector3 v = vertices[i];
-                if (v.X == 0 && v.Z == 0)
-                    tangents[i] = new System.Numerics.Vector3(1, 0, 0);
-                else
-                    tangents[i] = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(v.Z, 0, -v.X));
-            }
+        System.Numerics.Vector3[] vertices = CreateSphereVertices(radius, rings, slices);
 
-            return tangents;
-        }
+        System.Numerics.Vector3[] normals = CreateSphereNormals(vertices);
+
+        System.Numerics.Vector2[] uvs = CreateSphereUVs(rings, slices, vertices);
+
+        int[] triangles = CreateSphereTriangles(rings, slices, vertices);
         
-        #region Vertices
+        System.Numerics.Vector3[] tangents = CreateSphereTangents(vertices);
+
+        Mesh mesh = new();
+        if (vertices.Length > 65535)
+            mesh.IndexFormat = IndexFormat.UInt32;
         
+        mesh.Name = "UV Sphere";
+        mesh.SetVertexPositions(vertices);
+        mesh.SetVertexNormals(normals);
+        mesh.SetVertexUVs(uvs, 0);
+        mesh.SetVertexTangents(tangents);
+        mesh.SetIndices(triangles);
+        mesh.RecalculateBounds();
+        
+        return mesh;
+    }
+
+
+    private static System.Numerics.Vector3[] CreateSphereVertices(float radius, int rings, int slices)
+    {
         System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * (rings + 1)];
         const float pi = MathF.PI;
         const float _2pi = pi * 2f;
@@ -877,33 +888,36 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 vertices[lon + lat * (slices + 1)] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
             }
         }
-        
-        #endregion
 
-        
-        #region Normals
-        
+        return vertices;
+    }
+
+
+    private static System.Numerics.Vector3[] CreateSphereNormals(System.Numerics.Vector3[] vertices)
+    {
         System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
             normals[n] = System.Numerics.Vector3.Normalize(vertices[n]);
-        
-        #endregion
+        return normals;
+    }
 
-        
-        #region UVs
-        
+
+    private static System.Numerics.Vector2[] CreateSphereUVs(int rings, int slices, System.Numerics.Vector3[] vertices)
+    {
         System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
         uvs[0] = Vector2.Up;
         uvs[^1] = Vector2.Zero;
         for (int lat = 0; lat <= rings; lat++)
+        {
             for (int lon = 0; lon <= slices; lon++)
                 uvs[lon + lat * (slices + 1)] = new Vector2((float)lon / slices, 1f - (float)lat / rings);
-        
-        #endregion
+        }
+        return uvs;
+    }
 
-        
-        #region Triangles
-        
+
+    private static int[] CreateSphereTriangles(int rings, int slices, System.Numerics.Vector3[] vertices)
+    {
         int nbFaces = vertices.Length;
         int nbTriangles = nbFaces * 2;
         int nbIndexes = nbTriangles * 3;
@@ -927,124 +941,30 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                 triangles[i++] = next;
             }
         }
-        
-        #endregion
 
-        
-        System.Numerics.Vector3[] tangents = CreateTangents(vertices);
-
-        Mesh mesh = new();
-        if (vertices.Length > 65535)
-            mesh.IndexFormat = IndexFormat.UInt32;
-        
-        mesh.Name = "UV Sphere";
-        mesh.SetVertexPositions(vertices);
-        mesh.SetVertexNormals(normals);
-        mesh.SetVertexUVs(uvs, 0);
-        mesh.SetVertexTangents(tangents);
-        mesh.SetIndices(triangles);
-        mesh.RecalculateBounds();
-        
-        return mesh;
+        return triangles;
     }
 
-    
-#warning Mesh.CreateTorus is not working properly
+    private static System.Numerics.Vector3[] CreateSphereTangents(System.Numerics.Vector3[] vertices)
+    {
+        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
+            
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            System.Numerics.Vector3 v = vertices[i];
+            if (Mathd.ApproximatelyEquals(v.X, 0) && Mathd.ApproximatelyEquals(v.Z, 0))
+                tangents[i] = new System.Numerics.Vector3(1, 0, 0);
+            else
+                tangents[i] = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(v.Z, 0, -v.X));
+        }
+
+        return tangents;
+    }
+
+
     public static Mesh CreateTorus(float radiusOuter, float radiusInner, int radialSegments, int sideSegments)
     {
-        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(radialSegments + 1) * (sideSegments + 1)];
-
-        #region Vertices
-
-        const float _2pi = MathF.PI * 2f;
-        for (int seg = 0; seg <= radialSegments; seg++)
-        {
-            int currSeg = seg == radialSegments ? 0 : seg;
-
-            float t1 = (float)currSeg / radialSegments * _2pi;
-            Vector3 r1 = new(MathF.Cos(t1) * radiusOuter, 0f, MathF.Sin(t1) * radiusOuter);
-
-            for (int side = 0; side <= sideSegments; side++)
-            {
-                int currSide = side == sideSegments ? 0 : side;
-
-                float t2 = (float)currSide / sideSegments * _2pi;
-                Vector3 r2 = Quaternion.AngleAxis(-t1 * Mathd.RAD_2_DEG, Vector3.Up) * new Vector3(MathF.Sin(t2) * radiusInner, MathF.Cos(t2) * radiusInner, 0);
-
-                vertices[side + seg * (sideSegments + 1)] = r1 + r2;
-            }
-        }
-
-        #endregion
-
-        
-        /*#region Normals
-
-        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
-        for (int seg = 0; seg <= radialSegments; seg++)
-        {
-            int currSeg = seg == radialSegments ? 0 : seg;
-
-            float t1 = (float)currSeg / radialSegments * _2pi;
-            Vector3 r1 = new(MathF.Cos(t1) * radiusOuter, 0f, MathF.Sin(t1) * radiusOuter);
-
-            for (int side = 0; side <= sideSegments; side++)
-                normals[side + seg * (sideSegments + 1)] = ((Vector3)vertices[side + seg * (sideSegments + 1)] - r1).Normalized;
-        }
-
-        #endregion*/
-
-
-        #region UVs
-
-        System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
-        for (int seg = 0; seg <= radialSegments; seg++)
-        for (int side = 0; side <= sideSegments; side++)
-            uvs[side + seg * (sideSegments + 1)] = new System.Numerics.Vector2((float)seg / radialSegments, (float)side / sideSegments);
-
-        #endregion
-
-
-        #region Triangles
-
-        int nbFaces = vertices.Length;
-        int nbTriangles = nbFaces * 2;
-        int nbIndexes = nbTriangles * 3;
-        int[] triangles = new int[nbIndexes];
-
-        int maxTriangles = triangles.Length - 6;
-        int triangle = 0;
-        
-        for (int seg = 0; seg <= radialSegments; seg++)
-        for (int side = 0; side <= sideSegments - 1; side++)
-        {
-            int current = side + seg * (sideSegments + 1);
-            int next = side + (seg < radialSegments ? (seg + 1) * (sideSegments + 1) : 0);
-
-            if (triangle >= maxTriangles)
-                continue;
-            
-            triangles[triangle++] = current;
-            triangles[triangle++] = next;
-            triangles[triangle++] = next + 1;
-
-            triangles[triangle++] = current;
-            triangles[triangle++] = next + 1;
-            triangles[triangle++] = current + 1;
-        }
-
-        #endregion
-
-        Mesh mesh = new();
-        mesh.SetVertexPositions(vertices);
-        mesh.SetVertexUVs(uvs, 0);
-        mesh.SetIndices(triangles);
-
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-
-        return mesh;
+        throw new NotImplementedException();
     }
 
 

@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using KorpiEngine.Core;
-using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.Internal.AssetManagement;
 
 namespace KorpiEngine.Networking;
 

@@ -9,17 +9,17 @@ public class AmbientLight : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Color SkyColor = Color.White;
-    public Color GroundColor = Color.White;
-    public float SkyIntensity = 0.4f;
-    public float GroundIntensity = 0.05f;
+    public Color SkyColor { get; set; } = Color.White;
+    public Color GroundColor { get; set; } = Color.White;
+    public float SkyIntensity { get; set; } = 0.4f;
+    public float GroundIntensity { get; set; } = 0.05f;
 
     private Material? _lightMat;
     
     
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Defaults/AmbientLight.kshader"), "ambient light material", false);
+        _lightMat ??= new Material(Shader.Find("Assets/Defaults/AmbientLight.kshader"), "ambient light material", false);
 
         _lightMat.SetColor("_SkyColor", SkyColor);
         _lightMat.SetColor("_GroundColor", GroundColor);

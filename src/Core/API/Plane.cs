@@ -31,6 +31,7 @@ SOFTWARE.
 #endregion License
 
 
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace KorpiEngine.Core.API;
@@ -71,10 +72,6 @@ public struct Plane : IEquatable<Plane>
     public Plane(Vector3 a, Vector3 b, Vector3 c)
     {
         Set3Points(a, b, c);
-
-        //normal = Vector3.Cross(a - c, a - b);
-        //normal = Vector3.Normalize(normal);
-        //distance = Vector3.Dot(normal, a);
     }
 
 
@@ -130,12 +127,11 @@ public struct Plane : IEquatable<Plane>
 
     public void Normalize()
     {
-        double factor;
         Vector3 normal = Normal;
         Normal = Vector3.Normalize(Normal);
-        factor = Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z) /
-                 Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
-        Distance = Distance * factor;
+        double factor = Math.Sqrt(Normal.X * Normal.X + Normal.Y * Normal.Y + Normal.Z * Normal.Z) /
+                        Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
+        Distance *= factor;
     }
 
 
@@ -168,9 +164,9 @@ public struct Plane : IEquatable<Plane>
 
     public static bool operator ==(Plane plane1, Plane plane2) => plane1.Equals(plane2);
 
-    public override bool Equals(object? other) => other is Plane plane ? Equals(plane) : false;
+    public override bool Equals(object? obj) => obj is Plane plane && Equals(plane);
 
-    public bool Equals(Plane other) => Normal == other.Normal && Distance == other.Distance;
+    public bool Equals(Plane other) => Normal == other.Normal && Mathd.ApproximatelyEquals(Distance, other.Distance);
 
     public override int GetHashCode() => Normal.GetHashCode() ^ Distance.GetHashCode();
 
@@ -216,7 +212,7 @@ public struct Plane : IEquatable<Plane>
     }
 
 
-    internal string DebugDisplayString => string.Concat(Normal.ToString(), "  ", Distance.ToString());
+    internal string DebugDisplayString => string.Concat(Normal.ToString(), "  ", Distance.ToString(CultureInfo.InvariantCulture));
 
     public override string ToString() => "{Normal:" + Normal + " Distance:" + Distance + "}";
 

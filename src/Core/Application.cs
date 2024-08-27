@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.Debugging.Profiling;
 using KorpiEngine.Core.Logging;
 using KorpiEngine.Core.SceneManagement;
 using KorpiEngine.Core.Threading.Pooling;
@@ -26,8 +25,8 @@ public static class Application
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-    public static string AssetDirectory => Path.Combine(Directory, EngineConstants.ASSET_FOLDER_NAME);
-    public static string DefaultsDirectory => Path.Combine(Directory, EngineConstants.DEFAULTS_FOLDER_NAME);
+    public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);
+    public static string DefaultsDirectory => Path.Combine(AssetsDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
     public static string WebAssetsDirectory => Path.Combine(Directory, EngineConstants.WEB_ASSETS_FOLDER_NAME);
 
 
@@ -37,7 +36,7 @@ public static class Application
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         
         // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(AssetDirectory, "log4net.config"));
+        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
     }
 
 
@@ -90,19 +89,13 @@ public static class Application
 
     private static void OnUpdateFrame(FrameEventArgs args)
     {
-        KorpiProfiler.BeginFrame();
-        KorpiProfiler.Begin("UpdateLoop");
-        
         double deltaTime = args.Time;
         fixedFrameAccumulator += deltaTime;
         
-        using (new ProfileScope("FixedUpdate"))
+        while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
         {
-            while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
-            {
-                InternalFixedUpdate();
-                fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
-            }
+            InternalFixedUpdate();
+            fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
         }
  
         double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
@@ -117,23 +110,13 @@ public static class Application
             Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
         }
         
-        using (new ProfileScope("Update"))
-        {
-            InternalUpdate(deltaTime, fixedAlpha);
-        }
-        
-        KorpiProfiler.End();
+        InternalUpdate(deltaTime, fixedAlpha);
     }
 
 
     private static void OnRenderFrame(FrameEventArgs args)
     {
-        KorpiProfiler.Begin("RenderLoop");
-        
         InternalRender();
-        
-        KorpiProfiler.End();
-        KorpiProfiler.EndFrame();
     }
 
 
@@ -178,10 +161,10 @@ public static class Application
         GUI.Deinitialize();
         
         OnApplicationUnloadAttribute.Invoke();
-        SceneManager.UnloadAllScenes();
+        SceneManager.Shutdown();
         GlobalJobPool.Shutdown();
         
-        ImGuiWindowManager.DisposeWindows();
+        ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
         window.Dispose();
     }

@@ -3,29 +3,20 @@ using log4net.Core;
 
 namespace KorpiEngine.Core.Logging;
 
-public class DefaultLogger : IKorpiLogger
+public class DefaultLogger(ILog logger) : IKorpiLogger
 {
     protected virtual Type ThisDeclaringType => typeof(DefaultLogger);
-    private ILogger Logger => _log.Logger;
+    private ILogger Logger => logger.Logger;
 
-    private readonly ILog _log;
+    public bool IsFatalEnabled => logger.IsFatalEnabled;
 
+    public bool IsWarnEnabled => logger.IsWarnEnabled;
 
-    public DefaultLogger(ILog logger)
-    {
-        _log = logger;
-    }
+    public bool IsInfoEnabled => logger.IsInfoEnabled;
 
+    public bool IsDebugEnabled => logger.IsDebugEnabled;
 
-    public bool IsFatalEnabled => _log.IsFatalEnabled;
-
-    public bool IsWarnEnabled => _log.IsWarnEnabled;
-
-    public bool IsInfoEnabled => _log.IsInfoEnabled;
-
-    public bool IsDebugEnabled => _log.IsDebugEnabled;
-
-    public bool IsErrorEnabled => _log.IsErrorEnabled;
+    public bool IsErrorEnabled => logger.IsErrorEnabled;
 
 
     private void Log(Level level, object message, Exception? exception = null)

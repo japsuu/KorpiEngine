@@ -11,8 +11,7 @@ public static class ImGuiWindowManager
 
     public static void RegisterWindow(ImGuiWindow window)
     {
-        if (window == null)
-            throw new ArgumentNullException(nameof(window));
+        ArgumentNullException.ThrowIfNull(window);
 
         RegisteredWindows.Add(window, window.GetType().Name);
     }
@@ -29,16 +28,16 @@ public static class ImGuiWindowManager
 
     internal static void Update()
     {
-        ImGuiNET.ImGui.Begin("Windows", ImGuiWindowFlags.AlwaysAutoResize);
-        ImGuiNET.ImGui.Checkbox("Draw Windows", ref shouldRenderWindows);
-        ImGuiNET.ImGui.Separator();
+        ImGui.Begin("Windows", ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.Checkbox("Draw Windows", ref shouldRenderWindows);
+        ImGui.Separator();
         foreach (KeyValuePair<ImGuiWindow, string> kvp in RegisteredWindows)
         {
             bool windowVisible = kvp.Key.IsVisible;
-            if (ImGuiNET.ImGui.Checkbox($"{kvp.Value} -> {kvp.Key.Title}", ref windowVisible))
+            if (ImGui.Checkbox($"{kvp.Value} -> {kvp.Key.Title}", ref windowVisible))
                 kvp.Key.ToggleVisibility();
         }
-        ImGuiNET.ImGui.End();
+        ImGui.End();
         
         if (!shouldRenderWindows)
             return;
@@ -48,9 +47,9 @@ public static class ImGuiWindowManager
     }
 
 
-    internal static void DisposeWindows()
+    internal static void Shutdown()
     {
         foreach (ImGuiWindow window in RegisteredWindows.Keys)
-            window.Dispose();
+            window.Destroy();
     }
 }

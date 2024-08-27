@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using System.Xml.Xsl;
 using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Shaders;
+using KorpiEngine.Core.Exceptions;
 using KorpiEngine.Core.Internal.Rendering;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering.Primitives;
@@ -30,7 +30,6 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     private DepthMode _depthMode = DepthMode.LessOrEqual;
     
     private bool _scissorTest = false;
-    private int _scissorLeft, _scissorBottom, _scissorWidth, _scissorHeight, _scissorIndex;
 
     private bool _doBlend = true;
     private BlendType _blendSrc = BlendType.SrcAlpha;
@@ -185,12 +184,6 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     protected override void SetScissorRectInternal(int index, int left, int bottom, int width, int height)
     {
         GL.ScissorIndexed(index, left, bottom, width, height);
-        
-        _scissorLeft = left;
-        _scissorBottom = bottom;
-        _scissorWidth = width;
-        _scissorHeight = height;
-        _scissorIndex = index;
     }
 
 
@@ -393,10 +386,30 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
+    protected override void SetUniformFInternal(GraphicsProgram program, int location, float value)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.Uniform1(location, value);
+    }
+
+
     protected override void SetUniformIInternal(GraphicsProgram program, string name, int value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformI(program, loc, value);
+    }
+
+
+    protected override void SetUniformIInternal(GraphicsProgram program, int location, int value)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.Uniform1(location, value);
     }
 
 
@@ -407,10 +420,30 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
+    protected override void SetUniformV2Internal(GraphicsProgram program, int location, Vector2 value)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.Uniform2(location, new OpenTK.Mathematics.Vector2((float)value.X, (float)value.Y));
+    }
+
+
     protected override void SetUniformV3Internal(GraphicsProgram program, string name, Vector3 value)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformV3(program, loc, value);
+    }
+
+
+    protected override void SetUniformV3Internal(GraphicsProgram program, int location, Vector3 value)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.Uniform3(location, new OpenTK.Mathematics.Vector3((float)value.X, (float)value.Y, (float)value.Z));
     }
 
 
@@ -421,10 +454,33 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
+    protected override void SetUniformV4Internal(GraphicsProgram program, int location, Vector4 value)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        GL.Uniform4(location, new OpenTK.Mathematics.Vector4((float)value.X, (float)value.Y, (float)value.Z, (float)value.W));
+    }
+
+
     protected override void SetUniformMatrixInternal(GraphicsProgram program, string name, int length, bool transpose, in float m11)
     {
         int loc = GetUniformLocation(program, name);
         SetUniformMatrix(program, loc, length, transpose, m11);
+    }
+
+
+    protected override void SetUniformMatrixInternal(GraphicsProgram program, int location, int length, bool transpose, in float m11)
+    {
+        if (location == -1)
+            return;
+
+        BindProgram(program);
+        fixed (float* ptr = &m11)
+        {
+            GL.UniformMatrix4(location, length, transpose, ptr);
+        }
     }
 
 
@@ -435,72 +491,9 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     }
 
 
-    protected override void SetUniformFInternal(GraphicsProgram program, int loc, float value)
+    protected override void SetUniformTextureInternal(GraphicsProgram program, int location, int slot, GraphicsTexture texture)
     {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        GL.Uniform1(loc, value);
-    }
-
-
-    protected override void SetUniformIInternal(GraphicsProgram program, int loc, int value)
-    {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        GL.Uniform1(loc, value);
-    }
-
-
-    protected override void SetUniformV2Internal(GraphicsProgram program, int loc, Vector2 value)
-    {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        GL.Uniform2(loc, new OpenTK.Mathematics.Vector2((float)value.X, (float)value.Y));
-    }
-
-
-    protected override void SetUniformV3Internal(GraphicsProgram program, int loc, Vector3 value)
-    {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        GL.Uniform3(loc, new OpenTK.Mathematics.Vector3((float)value.X, (float)value.Y, (float)value.Z));
-    }
-
-
-    protected override void SetUniformV4Internal(GraphicsProgram program, int loc, Vector4 value)
-    {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        GL.Uniform4(loc, new OpenTK.Mathematics.Vector4((float)value.X, (float)value.Y, (float)value.Z, (float)value.W));
-    }
-
-
-    protected override void SetUniformMatrixInternal(GraphicsProgram program, int loc, int length, bool transpose, in float m11)
-    {
-        if (loc == -1)
-            return;
-
-        BindProgram(program);
-        fixed (float* ptr = &m11)
-        {
-            GL.UniformMatrix4(loc, length, transpose, ptr);
-        }
-    }
-
-
-    protected override void SetUniformTextureInternal(GraphicsProgram program, int loc, int slot, GraphicsTexture texture)
-    {
-        if (loc == -1)
+        if (location == -1)
             return;
 
         GLTexture glTexture = (texture as GLTexture)!;
@@ -508,7 +501,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         BindProgram(program);
         GL.ActiveTexture((TextureUnit)((uint)TextureUnit.Texture0 + slot));
         glTexture.Bind();
-        GL.Uniform1(loc, slot);
+        GL.Uniform1(location, slot);
     }
 
 
@@ -654,7 +647,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         if (severity == DebugSeverity.DebugSeverityNotification)
             return;
 
-        // In order to access the string pointed to by pMessage, you can use Marshal
+        // To access the string pointed to by pMessage, you can use Marshal
         // class to copy its contents to a C# string without unsafe code. You can
         // also use the new function Marshal.PtrToStringUTF8 since .NET Core 1.1.
         string message = Marshal.PtrToStringAnsi(pMessage, length);
@@ -662,7 +655,28 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         Logger.OpenGl($"[{severity} source={source} type={type} id={id}] {message}");
 
         if (type == DebugType.DebugTypeError)
-            throw new Exception(message);
+            throw new OpenGLException(message);
+    }
+    
+    
+    public static void Assert(string errorMessage)
+    {
+        Assert(GL.GetError(), ErrorCode.NoError, errorMessage);
+    }
+
+
+    public static void Assert(ErrorCode desiredErrorCode, string errorMessage)
+    {
+        Assert(GL.GetError(), desiredErrorCode, errorMessage);
+    }
+
+
+    public static void Assert(ErrorCode value, ErrorCode desiredValue, string errorMessage)
+    {
+        if (value == desiredValue)
+            return;
+        
+        throw new OpenGLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
     }
 #endif
 

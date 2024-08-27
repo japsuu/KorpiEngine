@@ -127,7 +127,7 @@ public sealed class Texture2DArray : Texture
     /// <param name="width">The new width for the <see cref="Texture2DArray"/>.</param>
     /// <param name="height">The new height for the <see cref="Texture2DArray"/>.</param>
     /// <param name="depth">The new depth for the <see cref="Texture2DArray"/>.</param>
-    public unsafe void RecreateImage(int width, int height, int depth)
+    public void RecreateImage(int width, int height, int depth)
     {
         if (width <= 0 || width > SystemInfo.MaxTextureSize)
             throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}]");
@@ -169,6 +169,6 @@ public sealed class Texture2DArray : Texture
             throw new ArgumentOutOfRangeException(nameof(rectDepth), rectDepth, $"{nameof(rectDepth)} must be greater than 0");
 
         if (rectWidth > Width - rectX || rectHeight > Height - rectY || rectDepth > Depth - rectZ)
-            throw new ArgumentOutOfRangeException("", "Specified area is outside of the texture's storage");
+            throw new InvalidOperationException("Specified area is outside of the texture's storage");
     }
 }

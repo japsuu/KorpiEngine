@@ -9,13 +9,13 @@ namespace KorpiEngine.Core.EntityModel.Components;
 [RequireComponent(typeof(MeshRenderer))]
 public class MeshDebugGizmoDrawer : EntityComponent
 {
-    public bool DrawNormals = false;
-    public bool DrawTangents = false;
-    public bool DrawBounds = false;
-    public bool IgnoreDepth = false;
+    public bool DrawNormals { get; set; }
+    public bool DrawTangents { get; set; }
+    public bool DrawBounds { get; set; }
+    public bool IgnoreDepth { get; set; }
     
-    public float NormalLength = 0.1f;
-    public float TangentLength = 0.1f;
+    public float NormalLength { get; set; } = 0.1f;
+    public float TangentLength { get; set; } = 0.1f;
     
     private MeshRenderer? _renderer;
 

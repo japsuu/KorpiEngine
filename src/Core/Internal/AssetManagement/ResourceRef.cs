@@ -15,7 +15,7 @@ namespace KorpiEngine.Core.Internal.AssetManagement;
 /// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
 /// temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct ResourceRef<T> : ISerializable where T : Resource
+public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T : Resource
 {
     private T? _instance;
     private Guid _assetID = Guid.Empty;
@@ -197,14 +197,6 @@ public struct ResourceRef<T> : ISerializable where T : Resource
     }
 
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is ResourceRef<T> @ref)
-            return this == @ref;
-        return base.Equals(obj);
-    }
-
-
     public override int GetHashCode()
     {
         if (_assetID != Guid.Empty)
@@ -212,6 +204,14 @@ public struct ResourceRef<T> : ISerializable where T : Resource
         if (_instance != null)
             return _instance.GetHashCode();
         return 0;
+    }
+
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ResourceRef<T> @ref)
+            return this == @ref;
+        return base.Equals(obj);
     }
 
 

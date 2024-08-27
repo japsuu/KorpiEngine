@@ -1,10 +1,9 @@
-﻿namespace KorpiEngine.Core.Rendering.Exceptions;
+﻿namespace KorpiEngine.Core.Exceptions;
 
 /// <summary>
-/// The exception that is thrown when an OpenGL related error occurs.
+/// The exception that is thrown when an OpenGL-related error occurs.
 /// </summary>
-[Serializable]
-public class OpenGLException : Exception
+public class OpenGLException : KorpiException
 {
     internal OpenGLException(string message) : base(message)
     {

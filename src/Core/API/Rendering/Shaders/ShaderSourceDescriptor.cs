@@ -13,7 +13,7 @@ public class ShaderSourceDescriptor
     /// <summary>
     /// Specifies the source code for this shader.
     /// </summary>
-    public string Source { get; }  //NOTE: This could be a TextAsset?
+    public string Source { get; }
 
 
     /// <summary>

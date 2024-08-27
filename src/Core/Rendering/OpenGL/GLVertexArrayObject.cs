@@ -35,9 +35,10 @@ internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
     
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
-        
+        base.Dispose(manual);
+
         GL.DeleteVertexArray(Handle);
     }
 }

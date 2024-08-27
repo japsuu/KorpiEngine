@@ -61,7 +61,7 @@ public static class LogFactory
         if (IsAvailable)
             return CreateLogger(type);
 
-        throw new Exception("Log4Net is not available!");
+        throw new InvalidOperationException("Log4Net is not available!");
     }
 
 
@@ -71,6 +71,6 @@ public static class LogFactory
         if (logger != null)
             return new DefaultLogger(logger);
         
-        throw new Exception($"Failed to create logger for type {type}!");
+        throw new InvalidOperationException($"Failed to create logger for type {type}!");
     }
 }

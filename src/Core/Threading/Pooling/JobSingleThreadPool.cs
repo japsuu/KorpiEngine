@@ -75,5 +75,6 @@ public sealed class JobSingleThreadPool : IJobPool
     {
         _cts.Cancel();
         _thread.Join();
+        _cts.Dispose();
     }
 }

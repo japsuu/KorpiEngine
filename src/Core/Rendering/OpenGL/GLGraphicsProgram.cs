@@ -1,5 +1,5 @@
-﻿using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering.Exceptions;
+﻿using KorpiEngine.Core.Exceptions;
+using KorpiEngine.Core.Logging;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
@@ -21,10 +21,11 @@ internal class GLGraphicsProgram : GraphicsProgram
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
-        
-        if (CurrentProgram != null && CurrentProgram.Handle == Handle)
+        base.Dispose(manual);
+
+        if (manual && CurrentProgram != null && CurrentProgram.Handle == Handle)
             CurrentProgram = null;
         
         GL.DeleteProgram(Handle);
