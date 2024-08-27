@@ -1,11 +1,10 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.UI.DearImGui;
+﻿using KorpiEngine.EntityModel;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.UI.DearImGui;
 
-namespace KorpiEngine.Core.Rendering.Lighting;
+namespace KorpiEngine.Rendering.Lighting;
 
 public sealed class DirectionalLight : EntityComponent
 {

@@ -1,4 +1,4 @@
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// The format of the mesh index buffer data.

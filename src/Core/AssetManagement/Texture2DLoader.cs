@@ -1,9 +1,9 @@
 ﻿using ImageMagick;
-using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Textures;
 
-namespace KorpiEngine.Core.Internal.AssetManagement;
+namespace KorpiEngine.AssetManagement;
 
 public static class Texture2DLoader
 {

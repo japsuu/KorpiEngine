@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.API;
+﻿namespace KorpiEngine;
 
 public static class AssemblyManager
 {

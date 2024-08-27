@@ -1,21 +1,15 @@
 ﻿using Assimp;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Rendering;
-using Animation = KorpiEngine.Core.API.Animation;
-using Material = KorpiEngine.Core.API.Rendering.Materials.Material;
-using Matrix4x4 = System.Numerics.Matrix4x4;
-using Mesh = KorpiEngine.Core.API.Rendering.Mesh;
-using Texture2D = KorpiEngine.Core.API.Rendering.Textures.Texture2D;
-using Vector2 = System.Numerics.Vector2;
-using Vector4 = System.Numerics.Vector4;
+using KorpiEngine.EntityModel;
+using KorpiEngine.EntityModel.Components;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Exceptions;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Shaders;
+using Material = KorpiEngine.Rendering.Materials.Material;
+using Mesh = KorpiEngine.Rendering.Mesh;
+using Texture2D = KorpiEngine.Rendering.Textures.Texture2D;
 
-namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
+namespace KorpiEngine.AssetManagement.Importers;
 
 [AssetImporter(".obj", ".blend", ".dae", ".fbx", ".gltf", ".ply", ".pmx", ".stl")]
 public class ModelImporter : AssetImporter
@@ -214,7 +208,7 @@ public class ModelImporter : AssetImporter
         t.Decompose(out Vector3D aSca, out Assimp.Quaternion aRot, out Vector3D aPos);
 
         entity.Transform.LocalPosition = new Vector3(aPos.X, aPos.Y + i, aPos.Z) * scaleFactor;
-        entity.Transform.LocalRotation = new API.Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
+        entity.Transform.LocalRotation = new Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
         entity.Transform.LocalScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
 
         return entity;
@@ -577,9 +571,9 @@ public class ModelImporter : AssetImporter
 
     private static void LoadAssimpMeshTexCoords(int vertexCount, Assimp.Mesh assimpMesh, int channelIndex, Mesh engineMesh)
     {
-        Vector2[] texCoords = new Vector2[vertexCount];
+        System.Numerics.Vector2[] texCoords = new System.Numerics.Vector2[vertexCount];
         for (int i = 0; i < texCoords.Length; i++)
-            texCoords[i] = new Vector2(assimpMesh.TextureCoordinateChannels[channelIndex][i].X, assimpMesh.TextureCoordinateChannels[channelIndex][i].Y);
+            texCoords[i] = new System.Numerics.Vector2(assimpMesh.TextureCoordinateChannels[channelIndex][i].X, assimpMesh.TextureCoordinateChannels[channelIndex][i].Y);
         engineMesh.SetVertexUVs(texCoords, channelIndex);
     }
 
@@ -603,9 +597,9 @@ public class ModelImporter : AssetImporter
     
     private static void LoadAssimpMeshBones(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int vertexCount, System.Numerics.Vector3[] vertices)
     {
-        engineMesh.BindPoses = new Matrix4x4[assimpMesh.Bones.Count];
-        Vector4[] boneIndices = new Vector4[vertexCount];
-        Vector4[] boneWeights = new Vector4[vertexCount];
+        engineMesh.BindPoses = new System.Numerics.Matrix4x4[assimpMesh.Bones.Count];
+        System.Numerics.Vector4[] boneIndices = new System.Numerics.Vector4[vertexCount];
+        System.Numerics.Vector4[] boneWeights = new System.Numerics.Vector4[vertexCount];
         
         // Initialize bone weights, indices and bind poses
         for (int i = 0; i < assimpMesh.Bones.Count; i++)
@@ -614,7 +608,7 @@ public class ModelImporter : AssetImporter
         // Normalize bone weights
         for (int i = 0; i < vertices.Length; i++)
         {
-            Vector4 w = boneWeights[i];
+            System.Numerics.Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
             if (Mathd.ApproximatelyEquals(totalWeight, 0))
@@ -633,12 +627,12 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadAssimpMeshBone(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int i, Vector4[] boneIndices, Vector4[] boneWeights)
+    private static void LoadAssimpMeshBone(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int i, System.Numerics.Vector4[] boneIndices, System.Numerics.Vector4[] boneWeights)
     {
         Bone? bone = assimpMesh.Bones[i];
 
         Assimp.Matrix4x4 offsetMatrix = bone.OffsetMatrix;
-        Matrix4x4 bindPose = new(
+        System.Numerics.Matrix4x4 bindPose = new(
             offsetMatrix.A1, offsetMatrix.B1, offsetMatrix.C1, offsetMatrix.D1,
             offsetMatrix.A2, offsetMatrix.B2, offsetMatrix.C2, offsetMatrix.D2,
             offsetMatrix.A3, offsetMatrix.B3, offsetMatrix.C3, offsetMatrix.D3,
@@ -659,8 +653,8 @@ public class ModelImporter : AssetImporter
         for (int j = 0; j < bone.VertexWeightCount; j++)
         {
             VertexWeight weight = bone.VertexWeights[j];
-            Vector4 b = boneIndices[weight.VertexID];
-            Vector4 w = boneWeights[weight.VertexID];
+            System.Numerics.Vector4 b = boneIndices[weight.VertexID];
+            System.Numerics.Vector4 w = boneWeights[weight.VertexID];
             if (Mathd.ApproximatelyEquals(b.X, 0) || weight.Weight > w.X)
             {
                 b.X = boneIndex;

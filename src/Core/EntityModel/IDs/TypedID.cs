@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.EntityModel.IDs;
+﻿namespace KorpiEngine.EntityModel.IDs;
 
 internal static class TypedID
 {

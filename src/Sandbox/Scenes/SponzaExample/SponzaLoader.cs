@@ -1,7 +1,8 @@
 ﻿using System.Collections;
-using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.EntityModel;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.AssetManagement.Importers;
 using KorpiEngine.Core.Internal.AssetManagement.Importers;
+using KorpiEngine.EntityModel;
 using KorpiEngine.Networking;
 
 namespace Sandbox.Scenes.SponzaExample;

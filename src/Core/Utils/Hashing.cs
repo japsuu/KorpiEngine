@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Internal.Utils;
+﻿namespace KorpiEngine.Utils;
 
 internal static class Hashing
 {

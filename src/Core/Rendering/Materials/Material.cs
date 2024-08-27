@@ -1,10 +1,9 @@
-﻿using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Internal.Utils;
-using KorpiEngine.Core.Rendering;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.Rendering.Textures;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.API.Rendering.Materials;
+namespace KorpiEngine.Rendering.Materials;
 
 /// <summary>
 /// A material used for rendering.

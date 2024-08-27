@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.API;
-
-namespace KorpiEngine.Core.Rendering.Cameras;
+﻿namespace KorpiEngine.Rendering.Cameras;
 
 public struct FrustumPlane
 {

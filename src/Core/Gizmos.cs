@@ -1,11 +1,10 @@
-﻿using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.Internal.Rendering;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Shaders;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public static class Gizmos
 {

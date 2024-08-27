@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Rendering.Primitives;
 
-namespace KorpiEngine.Core.API.Rendering.Textures;
+namespace KorpiEngine.Rendering.Textures;
 
 public abstract class Texture : Resource
 {

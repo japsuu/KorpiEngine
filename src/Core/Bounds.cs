@@ -28,7 +28,7 @@ SOFTWARE.
 */
 #endregion License
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public enum ContainmentType
 {

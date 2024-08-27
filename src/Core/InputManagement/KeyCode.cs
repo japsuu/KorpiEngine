@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.API.InputManagement;
+﻿namespace KorpiEngine.InputManagement;
 
 public enum KeyCode
 {

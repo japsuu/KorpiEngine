@@ -1,13 +1,11 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Internal.Serialization;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Serialization;
 
-namespace KorpiEngine.Core.EntityModel.Components;
+namespace KorpiEngine.EntityModel.Components;
 
 public class SkinnedMeshRenderer : EntityComponent, ISerializable
 {

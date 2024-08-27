@@ -33,7 +33,7 @@ SOFTWARE.
 
 using System.Text;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public sealed class BoundingFrustum : IEquatable<BoundingFrustum>
 {

@@ -1,9 +1,8 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.Rendering.Lighting;
+using KorpiEngine.Rendering.Lighting;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 internal class DirectionalLightEditor(DirectionalLight target) : EntityComponentEditor(target)
 {

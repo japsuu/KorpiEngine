@@ -1,6 +1,5 @@
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.EntityModel;
+using KorpiEngine.EntityModel.SpatialHierarchy;
 
 namespace KorpiEngine.Core.Tests;
 

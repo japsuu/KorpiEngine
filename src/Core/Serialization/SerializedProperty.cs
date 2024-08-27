@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace KorpiEngine.Core.Internal.Serialization;
+namespace KorpiEngine.Serialization;
 
 public enum PropertyType
 {

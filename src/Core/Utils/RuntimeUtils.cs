@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Text;
-using KorpiEngine.Core.Internal.Serialization;
+using KorpiEngine.Serialization;
 
-namespace KorpiEngine.Core.Internal.Utils;
+namespace KorpiEngine.Utils;
 
 internal static class RuntimeUtils
 {

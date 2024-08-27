@@ -28,7 +28,7 @@ SOFTWARE.
 
 #endregion
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 /// <summary> A Utility class with a bunch of Random types/values - Based on System.Random.Shared </summary>
 public static class Random

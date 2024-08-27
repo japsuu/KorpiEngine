@@ -4,7 +4,7 @@
 
 using System.Globalization;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 /// <summary>
 /// A structure encapsulating a four-dimensional vector (x,y,z,w), 

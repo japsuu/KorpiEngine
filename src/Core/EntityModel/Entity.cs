@@ -1,12 +1,11 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Utils;
-using System.Reflection;
-using KorpiEngine.Core.Rendering.Cameras;
+﻿using System.Reflection;
+using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.SceneManagement;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.EntityModel;
+namespace KorpiEngine.EntityModel;
 
 /// <summary>
 /// Container for components and systems.

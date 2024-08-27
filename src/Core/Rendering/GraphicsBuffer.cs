@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering;
+﻿namespace KorpiEngine.Rendering;
 
 internal abstract class GraphicsBuffer(int handle) : GraphicsObject(handle)
 {

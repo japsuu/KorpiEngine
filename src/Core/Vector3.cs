@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 /// <summary>
 /// A structure encapsulating three double precision floating point values and provides hardware accelerated methods.

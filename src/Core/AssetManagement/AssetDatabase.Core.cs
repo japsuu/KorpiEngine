@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Internal.AssetManagement;
+﻿using KorpiEngine.Exceptions;
 
-namespace KorpiEngine.Core.API.AssetManagement;
+namespace KorpiEngine.AssetManagement;
 
 public static partial class AssetDatabase
 {

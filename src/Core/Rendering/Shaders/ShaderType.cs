@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.API.Rendering.Shaders;
+﻿namespace KorpiEngine.Rendering.Shaders;
 
 public enum ShaderType
 {

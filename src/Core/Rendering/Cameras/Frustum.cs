@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Cameras;
+﻿namespace KorpiEngine.Rendering.Cameras;
 
 public struct Frustum(FrustumPlane[] planes)
 {

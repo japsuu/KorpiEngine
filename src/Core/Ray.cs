@@ -31,7 +31,7 @@ SOFTWARE.
 #endregion License
 
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public struct Ray : IEquatable<Ray>
 {

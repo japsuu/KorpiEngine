@@ -1,9 +1,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Shaders;
 
-namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
+namespace KorpiEngine.AssetManagement.Importers;
 
 [AssetImporter(".kshader")]
 internal partial class ShaderImporter : AssetImporter

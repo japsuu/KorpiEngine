@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core.Internal.Rendering;
+﻿using KorpiEngine.Rendering;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public abstract class Gizmo
 {

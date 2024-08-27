@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Logging;
+using KorpiEngine.Exceptions;
+using KorpiEngine.Logging;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 /// <summary>
 /// Represents an OpenGL shader object.

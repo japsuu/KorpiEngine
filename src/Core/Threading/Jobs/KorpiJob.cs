@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core.Threading.Pooling;
+﻿using KorpiEngine.Threading.Pooling;
 
-namespace KorpiEngine.Core.Threading.Jobs;
+namespace KorpiEngine.Threading.Jobs;
 
 /// <summary>
 /// A job for the <see cref="JobThreadPool"/> with a generic result type.

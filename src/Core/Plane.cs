@@ -34,7 +34,7 @@ SOFTWARE.
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public enum PlaneIntersectionType
 {

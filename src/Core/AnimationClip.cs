@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core.Internal.Serialization;
+﻿using KorpiEngine.Serialization;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public enum WrapMode
 {

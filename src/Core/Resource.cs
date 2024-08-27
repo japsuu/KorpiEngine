@@ -1,8 +1,7 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Internal;
+﻿using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.Exceptions;
 
-namespace KorpiEngine.Core;
+namespace KorpiEngine;
 
 public abstract class Resource : SafeDisposable
 {

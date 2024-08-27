@@ -2,7 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace KorpiEngine.Core.API.InputManagement;
+namespace KorpiEngine.InputManagement;
 
 public static class Cursor
 {

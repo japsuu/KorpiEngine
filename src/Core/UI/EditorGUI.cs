@@ -1,7 +1,7 @@
 ﻿#if TOOLS
-using KorpiEngine.Core.UI.DearImGui;
+using KorpiEngine.UI.DearImGui;
 
-namespace KorpiEngine.Core.UI;
+namespace KorpiEngine.UI;
 
 public static class EditorGUI
 {

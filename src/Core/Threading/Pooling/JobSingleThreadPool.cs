@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Threading.Jobs;
+using KorpiEngine.Logging;
+using KorpiEngine.Threading.Jobs;
 
-namespace KorpiEngine.Core.Threading.Pooling;
+namespace KorpiEngine.Threading.Pooling;
 
 public sealed class JobSingleThreadPool : IJobPool
 {

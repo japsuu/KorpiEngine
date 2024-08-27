@@ -1,8 +1,8 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.Rendering.Cameras;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 internal class CameraEditor(Camera target) : EntityComponentEditor(target)
 {

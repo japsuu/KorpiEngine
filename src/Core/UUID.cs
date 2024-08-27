@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core;
+﻿namespace KorpiEngine;
 
 /// <summary>
 /// A universally unique 128-bit identifier.

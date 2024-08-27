@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace KorpiEngine.Core.Internal.Utils;
+namespace KorpiEngine.Utils;
 
 internal static class MemoryUtils
 {

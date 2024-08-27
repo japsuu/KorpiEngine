@@ -1,9 +1,9 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
-using KorpiEngine.Core.SceneManagement;
+﻿using KorpiEngine;
+using KorpiEngine.Core;
+using KorpiEngine.EntityModel;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Lighting;
+using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.SponzaExample;
 

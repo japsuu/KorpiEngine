@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Internal.Serialization.Formats
+﻿namespace KorpiEngine.Serialization.Formats
 {
     /// <summary>
     /// This class is responsible for converting CompoundTags to and from binary data.

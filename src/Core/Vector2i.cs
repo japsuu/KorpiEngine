@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public struct Vector2i : IEquatable<Vector2i>, IFormattable
 {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace KorpiEngine.Core.EntityModel.IDs;
+namespace KorpiEngine.EntityModel.IDs;
 
 public static class EntitySystemID
 {

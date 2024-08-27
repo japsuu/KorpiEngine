@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Threading.Jobs;
+﻿namespace KorpiEngine.Threading.Jobs;
 
 /// <summary>
 /// Represents a job that can be executed by a <see cref="ThreadPool"/>.

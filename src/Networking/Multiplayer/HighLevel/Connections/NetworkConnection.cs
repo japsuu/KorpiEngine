@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Core.Logging;
+﻿using KorpiEngine.Logging;
 
 namespace KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
 

@@ -1,11 +1,9 @@
-﻿using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Internal.Serialization;
-using KorpiEngine.Core.Platform;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Platform;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Serialization;
 
-namespace KorpiEngine.Core.API.Rendering.Textures;
+namespace KorpiEngine.Rendering.Textures;
 
 /// <summary>
 /// A <see cref="Texture"/> whose image has two dimensions and support for multisampling.

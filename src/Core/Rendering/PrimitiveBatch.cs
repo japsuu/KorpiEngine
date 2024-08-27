@@ -1,8 +1,6 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Rendering.Primitives;
 
-namespace KorpiEngine.Core.Internal.Rendering;
+namespace KorpiEngine.Rendering;
 
 public class PrimitiveBatch
 {

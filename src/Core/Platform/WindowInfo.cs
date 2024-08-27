@@ -1,6 +1,6 @@
 ﻿using OpenTK.Windowing.Desktop;
 
-namespace KorpiEngine.Core.Platform;
+namespace KorpiEngine.Platform;
 
 public static class WindowInfo
 {

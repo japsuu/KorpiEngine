@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.EntityModel;
+﻿namespace KorpiEngine.EntityModel;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class RequireComponentAttribute(params Type[] types) : Attribute

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core;
+﻿namespace KorpiEngine;
 
 public readonly struct Color
 {

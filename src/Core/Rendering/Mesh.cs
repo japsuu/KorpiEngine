@@ -1,11 +1,9 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Core.Internal.Rendering;
-using KorpiEngine.Core.Internal.Utils;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Utils;
 using InvalidOperationException = System.InvalidOperationException;
 
-namespace KorpiEngine.Core.API.Rendering;
+namespace KorpiEngine.Rendering;
 
 #warning Remove System.Numerics.VectorX and replace with KorpiEngine variants
 

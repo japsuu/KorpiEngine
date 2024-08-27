@@ -1,8 +1,8 @@
-﻿using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Platform;
+﻿using KorpiEngine.Exceptions;
+using KorpiEngine.Platform;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 internal sealed class GLFrameBuffer : GraphicsFrameBuffer
 {

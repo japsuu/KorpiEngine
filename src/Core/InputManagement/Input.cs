@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Core.Rendering;
+﻿using KorpiEngine.Rendering;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace KorpiEngine.Core.API.InputManagement;
+namespace KorpiEngine.InputManagement;
 
 public static class Input
 {

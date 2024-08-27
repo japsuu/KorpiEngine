@@ -1,7 +1,6 @@
 ﻿using ImGuiNET;
-using KorpiEngine.Core.Logging;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 public abstract class ImGuiWindow
 {

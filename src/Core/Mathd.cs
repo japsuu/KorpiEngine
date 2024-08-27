@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 public static class Mathd
 {

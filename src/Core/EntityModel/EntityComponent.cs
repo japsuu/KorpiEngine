@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Reflection;
-using KorpiEngine.Core.EntityModel.Coroutines;
-using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.EntityModel.Coroutines;
+using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Rendering.Cameras;
 
-namespace KorpiEngine.Core.EntityModel;
+namespace KorpiEngine.EntityModel;
 
 public abstract class EntityComponent
 {

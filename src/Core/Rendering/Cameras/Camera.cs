@@ -1,15 +1,14 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Platform;
-using KorpiEngine.Core.Rendering.Pipeline;
-using KorpiEngine.Core.Rendering.Primitives;
-using KorpiEngine.Core.UI.DearImGui;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.EntityModel;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Platform;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Pipeline;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.UI.DearImGui;
 
-namespace KorpiEngine.Core.Rendering.Cameras;
+namespace KorpiEngine.Rendering.Cameras;
 
 /// <summary>
 /// Camera component that can be attached to an entity to render the scene from its perspective.

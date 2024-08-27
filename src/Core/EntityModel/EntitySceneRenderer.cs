@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core.Rendering.Cameras;
+﻿using KorpiEngine.Rendering.Cameras;
 
-namespace KorpiEngine.Core.EntityModel;
+namespace KorpiEngine.EntityModel;
 
 internal sealed class EntitySceneRenderer
 {

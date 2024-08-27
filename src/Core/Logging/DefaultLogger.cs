@@ -1,7 +1,7 @@
 ﻿using log4net;
 using log4net.Core;
 
-namespace KorpiEngine.Core.Logging;
+namespace KorpiEngine.Logging;
 
 public class DefaultLogger(ILog logger) : IKorpiLogger
 {

@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.Rendering;
-
-namespace KorpiEngine.Core.Internal.Rendering;
+﻿namespace KorpiEngine.Rendering;
 
 internal class MeshVertexLayout
 {

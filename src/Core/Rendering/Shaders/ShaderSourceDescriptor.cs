@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.API.Rendering.Shaders;
+﻿namespace KorpiEngine.Rendering.Shaders;
 
 /// <summary>
 /// Describes a shader source file.

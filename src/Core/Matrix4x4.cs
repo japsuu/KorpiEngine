@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace KorpiEngine.Core.API;
+namespace KorpiEngine;
 
 /// <summary>
 /// A structure encapsulating a 4x4 matrix.

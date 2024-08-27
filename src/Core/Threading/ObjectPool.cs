@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace KorpiEngine.Core.Threading;
+namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Thread-safe object pool.

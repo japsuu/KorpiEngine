@@ -1,15 +1,13 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
-using Entity = KorpiEngine.Core.EntityModel.Entity;
+﻿using KorpiEngine.EntityModel;
+using KorpiEngine.EntityModel.Components;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Lighting;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Shaders;
+using Entity = KorpiEngine.EntityModel.Entity;
 
-namespace KorpiEngine.Core.SceneManagement;
+namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.

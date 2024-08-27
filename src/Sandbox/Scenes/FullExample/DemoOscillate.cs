@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using Random = KorpiEngine.Core.API.Random;
+﻿using KorpiEngine;
+using KorpiEngine.Core;
+using KorpiEngine.EntityModel;
+using Random = KorpiEngine.Random;
 
 namespace Sandbox.Scenes.FullExample;
 

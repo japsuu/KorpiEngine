@@ -1,8 +1,7 @@
-﻿using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Rendering;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Rendering.Textures;
 
-namespace KorpiEngine.Core.API.Rendering.Materials;
+namespace KorpiEngine.Rendering.Materials;
 
 public class MaterialPropertyBlock
 {

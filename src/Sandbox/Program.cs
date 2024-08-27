@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.Windowing;
+﻿using KorpiEngine;
+using KorpiEngine.Core;
+using KorpiEngine.Windowing;
 using Sandbox.Scenes.SponzaExample;
 
 namespace Sandbox;

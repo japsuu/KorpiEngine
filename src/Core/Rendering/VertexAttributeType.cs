@@ -1,4 +1,4 @@
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// The data-type of a vertex attribute.

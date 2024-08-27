@@ -1,9 +1,9 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.SceneManagement;
+﻿using KorpiEngine;
+using KorpiEngine.EntityModel;
+using KorpiEngine.EntityModel.Components;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.PrimitiveExample;
 

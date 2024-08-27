@@ -1,7 +1,4 @@
-using KorpiEngine.Core.API;
-using Vector3 = System.Numerics.Vector3;
-
-namespace KorpiEngine.Core.EntityModel.Components;
+namespace KorpiEngine.EntityModel.Components;
 
 /// <summary>
 /// Can draw gizmos to debug a mesh.
@@ -65,8 +62,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
 
     private void DrawNormalsGizmos()
     {
-        Vector3[]? vertices = GetMeshVertexPositions();
-        Vector3[]? normals = GetMeshNormals();
+        System.Numerics.Vector3[]? vertices = GetMeshVertexPositions();
+        System.Numerics.Vector3[]? normals = GetMeshNormals();
         
         DrawLines(vertices, normals, NormalLength);
     }
@@ -74,8 +71,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
     
     private void DrawTangentsGizmos()
     {
-        Vector3[]? vertices = GetMeshVertexPositions();
-        Vector3[]? tangents = GetMeshTangents();
+        System.Numerics.Vector3[]? vertices = GetMeshVertexPositions();
+        System.Numerics.Vector3[]? tangents = GetMeshTangents();
         
         DrawLines(vertices, tangents, TangentLength);
     }
@@ -90,7 +87,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
 
 
-    private Vector3[]? GetMeshVertexPositions()
+    private System.Numerics.Vector3[]? GetMeshVertexPositions()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -99,7 +96,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
     
     
-    private Vector3[]? GetMeshNormals()
+    private System.Numerics.Vector3[]? GetMeshNormals()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -108,7 +105,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
     
     
-    private Vector3[]? GetMeshTangents()
+    private System.Numerics.Vector3[]? GetMeshTangents()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -117,7 +114,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
 
 
-    private void DrawLines(Vector3[]? positions, Vector3[]? directions, float length)
+    private void DrawLines(System.Numerics.Vector3[]? positions, System.Numerics.Vector3[]? directions, float length)
     {
         if (positions == null || directions == null)
             return;
@@ -126,8 +123,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
 
         for (int i = 0; i < positions.Length; i++)
         {
-            Vector3 position = positions[i];
-            Vector3 direction = directions[i];
+            System.Numerics.Vector3 position = positions[i];
+            System.Numerics.Vector3 direction = directions[i];
 
             float dirLength = direction.Length();
             if (dirLength < 0.001f || dirLength > 1f)
@@ -137,8 +134,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
             }
             
             // Transform the position and direction vectors by the local-to-world matrix
-            position = KorpiEngine.Core.API.Vector3.Transform(position, localToWorldMatrix);
-            direction = KorpiEngine.Core.API.Vector3.TransformNormal(direction, localToWorldMatrix);
+            position = Vector3.Transform(position, localToWorldMatrix);
+            direction = Vector3.TransformNormal(direction, localToWorldMatrix);
             
             // Decide the line color based on the normal, ensure there are no black lines
             float r = Math.Abs(direction.X);
