@@ -12,11 +12,11 @@ public enum WrapMode
 
 public sealed class AnimationClip : Resource, ISerializable
 {
-    public double Duration;
-    public double TicksPerSecond;
-    public double DurationInTicks;
+    public double Duration { get; set; }
+    public double TicksPerSecond { get; set; }
+    public double DurationInTicks { get; set; }
 
-    public WrapMode Wrap;
+    public WrapMode Wrap { get; set; }
 
     public List<AnimBone> Bones { get; private set; } = [];
 
@@ -84,30 +84,30 @@ public sealed class AnimationClip : Resource, ISerializable
 
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
-        Name = value.Get("Name").StringValue;
-        Duration = value.Get("Duration").DoubleValue;
-        TicksPerSecond = value.Get("TicksPerSecond").DoubleValue;
-        DurationInTicks = value.Get("DurationInTicks").DoubleValue;
-        Wrap = (WrapMode)value.Get("Wrap").IntValue;
+        Name = value.Get("Name")!.StringValue;
+        Duration = value.Get("Duration")!.DoubleValue;
+        TicksPerSecond = value.Get("TicksPerSecond")!.DoubleValue;
+        DurationInTicks = value.Get("DurationInTicks")!.DoubleValue;
+        Wrap = (WrapMode)value.Get("Wrap")!.IntValue;
 
         SerializedProperty? boneList = value.Get("Bones");
-        foreach (SerializedProperty boneProp in boneList.List)
+        foreach (SerializedProperty boneProp in boneList!.List)
         {
             AnimBone bone = new();
-            bone.BoneName = boneProp.Get("BoneName").StringValue;
+            bone.BoneName = boneProp.Get("BoneName")!.StringValue;
 
-            bone.PosX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosX"), ctx);
-            bone.PosY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosY"), ctx);
-            bone.PosZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosZ"), ctx);
+            bone.PosX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosX")!, ctx)!;
+            bone.PosY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosY")!, ctx)!;
+            bone.PosZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("PosZ")!, ctx)!;
 
-            bone.RotX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotX"), ctx);
-            bone.RotY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotY"), ctx);
-            bone.RotZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotZ"), ctx);
-            bone.RotW = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotW"), ctx);
+            bone.RotX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotX")!, ctx)!;
+            bone.RotY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotY")!, ctx)!;
+            bone.RotZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotZ")!, ctx)!;
+            bone.RotW = Serializer.Deserialize<AnimationCurve>(boneProp.Get("RotW")!, ctx)!;
 
-            bone.ScaleX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleX"), ctx);
-            bone.ScaleY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleY"), ctx);
-            bone.ScaleZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleZ"), ctx);
+            bone.ScaleX = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleX")!, ctx)!;
+            bone.ScaleY = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleY")!, ctx)!;
+            bone.ScaleZ = Serializer.Deserialize<AnimationCurve>(boneProp.Get("ScaleZ")!, ctx)!;
 
             Bones.Add(bone);
         }
@@ -156,20 +156,21 @@ public sealed class AnimationClip : Resource, ISerializable
 
     public class AnimBone
     {
-        public string BoneName;
+        public string BoneName { get; set; }
 
-        public AnimationCurve PosX,
-            PosY,
-            PosZ;
-
-        public AnimationCurve RotX,
-            RotY,
-            RotZ,
-            RotW;
-
-        public AnimationCurve ScaleX,
-            ScaleY,
-            ScaleZ;
+        public AnimationCurve PosX { get; set; }
+        public AnimationCurve PosY { get; set; }
+        public AnimationCurve PosZ { get; set; }
+        
+        public AnimationCurve RotX { get; set; }
+        public AnimationCurve RotY { get; set; }
+        public AnimationCurve RotZ { get; set; }
+        public AnimationCurve RotW { get; set; }
+        
+        public AnimationCurve ScaleX { get; set; }
+        public AnimationCurve ScaleY { get; set; }
+        public AnimationCurve ScaleZ { get; set; }
+        
 
         public Vector3 EvaluatePositionAt(double time) => new(PosX.Evaluate(time), PosY.Evaluate(time), PosZ.Evaluate(time));
 

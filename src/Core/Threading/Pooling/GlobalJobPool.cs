@@ -36,7 +36,6 @@ public static class GlobalJobPool
     
     public static ulong ItemsInMainThreadQueue { get; private set; }
     public static ulong ItemsInMainThreadThrottledQueue { get; private set; }
-    public static ulong MainThreadThrottledQueueItemsPerTick => MAX_THROTTLED_UPDATES_PER_TICK;
 
 
     internal static void Initialize()

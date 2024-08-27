@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Core.Internal.Utils;
 
-public static class MemoryUtils
+internal static class MemoryUtils
 {
     public static T[] ReadStructArray<T>(byte[] sourceData) where T : unmanaged
     {

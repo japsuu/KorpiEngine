@@ -2,12 +2,7 @@
 
 namespace KorpiEngine.Core.Rendering;
 
-internal abstract class GraphicsTexture : GraphicsObject
+internal abstract class GraphicsTexture(int handle) : GraphicsObject(handle)
 {
     public abstract TextureType Type { get; protected set; }
-    
-    
-    protected GraphicsTexture(int handle) : base(handle)
-    {
-    }
 }

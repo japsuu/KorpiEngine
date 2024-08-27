@@ -3,6 +3,7 @@
 [Flags]
 public enum CameraClearFlags
 {
+    None = 0,
     Color = 1,
     Depth = 2,
     Stencil = 4

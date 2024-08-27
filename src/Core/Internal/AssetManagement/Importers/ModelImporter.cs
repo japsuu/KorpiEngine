@@ -5,6 +5,7 @@ using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Core.Exceptions;
 using KorpiEngine.Core.Rendering;
 using Animation = KorpiEngine.Core.API.Animation;
 using Material = KorpiEngine.Core.API.Rendering.Materials.Material;
@@ -226,7 +227,7 @@ public class ModelImporter : AssetImporter
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
-            Material targetMat = new(Shader.Find("Defaults/Standard.kshader"), "standard shader");
+            Material targetMat = new(Shader.Find("Assets/Defaults/Standard.kshader"), "standard shader");
             targetMat.Name = sourceMat.HasName ? sourceMat.Name : "Standard Material";
 
             // Diffuse color (main color)

@@ -151,8 +151,8 @@ public abstract class EntitySystem<T1, T2> : IEntitySystem
     protected virtual void Deinitialize() { }
 
     protected abstract void RegisterComponent(T1 c1);
-    protected abstract void UnregisterComponent(T1 c1);
     protected abstract void RegisterComponent(T2 c1);
+    protected abstract void UnregisterComponent(T1 c1);
     protected abstract void UnregisterComponent(T2 c1);
     
     public abstract void Update(EntityUpdateStage stage);
@@ -244,10 +244,10 @@ public abstract class EntitySystem<T1, T2, T3> : IEntitySystem
     protected virtual void Deinitialize() { }
 
     protected abstract void RegisterComponent(T1 c);
-    protected abstract void UnregisterComponent(T1 c);
     protected abstract void RegisterComponent(T2 c);
-    protected abstract void UnregisterComponent(T2 c);
     protected abstract void RegisterComponent(T3 c);
+    protected abstract void UnregisterComponent(T1 c);
+    protected abstract void UnregisterComponent(T2 c);
     protected abstract void UnregisterComponent(T3 c);
     
     public abstract void Update(EntityUpdateStage stage);
@@ -352,12 +352,12 @@ public abstract class EntitySystem<T1, T2, T3, T4> : IEntitySystem
     protected virtual void Deinitialize() { }
 
     protected abstract void RegisterComponent(T1 c);
-    protected abstract void UnregisterComponent(T1 c);
     protected abstract void RegisterComponent(T2 c);
-    protected abstract void UnregisterComponent(T2 c);
     protected abstract void RegisterComponent(T3 c);
-    protected abstract void UnregisterComponent(T3 c);
     protected abstract void RegisterComponent(T4 c);
+    protected abstract void UnregisterComponent(T1 c);
+    protected abstract void UnregisterComponent(T2 c);
+    protected abstract void UnregisterComponent(T3 c);
     protected abstract void UnregisterComponent(T4 c);
     
     public abstract void Update(EntityUpdateStage stage);

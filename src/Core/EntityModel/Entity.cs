@@ -425,18 +425,18 @@ public sealed class Entity : Resource
 
     public IEnumerable<T> GetComponents<T>() where T : EntityComponent
     {
-        if (!_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
+        if (_componentCache.TryGetValue(typeof(T), out IReadOnlyCollection<EntityComponent> components))
+        {
+            foreach (EntityComponent comp in components)
+                if (comp.GetType().IsAssignableTo(typeof(T)))
+                    yield return (T)comp;
+        }
+        else
         {
             foreach (KeyValuePair<Type, IReadOnlyCollection<EntityComponent>> kvp in _componentCache.ToArray())
                 if (kvp.Key.GetTypeInfo().IsAssignableTo(typeof(T)))
                     foreach (EntityComponent comp in kvp.Value.ToArray())
                         yield return (T)comp;
-        }
-        else
-        {
-            foreach (EntityComponent comp in components)
-                if (comp.GetType().IsAssignableTo(typeof(T)))
-                    yield return (T)comp;
         }
     }
 
@@ -549,7 +549,7 @@ public sealed class Entity : Resource
             if (requireComponentAttribute == null)
                 continue;
 
-            if (requireComponentAttribute.Types.All(type => type != componentType))
+            if (Array.TrueForAll(requireComponentAttribute.Types, type => type != componentType))
                 continue;
 
             dependentType = component.GetType();
@@ -573,9 +573,8 @@ public sealed class Entity : Resource
         T system = new();
         ulong id = EntitySystemID.Generate<T>();
 
-        if (system.IsSingleton)
-            if (_systems.ContainsKey(id))
-                throw new InvalidOperationException($"Entity {InstanceID} already has a singleton system of type {typeof(T).Name}.");
+        if (system.IsSingleton && _systems.ContainsKey(id))
+            throw new InvalidOperationException($"Entity {InstanceID} already has a singleton system of type {typeof(T).Name}.");
 
         if (system.UpdateStages.Length <= 0)
             throw new InvalidOperationException($"System of type {typeof(T).Name} does not specify when it should be updated.");

@@ -1,24 +1,12 @@
 ﻿namespace KorpiEngine.Core.Rendering.Cameras;
 
-public struct Frustum
+public struct Frustum(FrustumPlane[] planes)
 {
-    public FrustumPlane Top;
-    public FrustumPlane Bottom;
-    public FrustumPlane Right;
-    public FrustumPlane Left;
-    public FrustumPlane Far;
-    public FrustumPlane Near;
-    public readonly FrustumPlane[] Planes;
-    
-    
-    public Frustum(FrustumPlane[] planes)
-    {
-        Planes = planes;
-        Top = Planes[0];
-        Bottom = Planes[1];
-        Right = Planes[2];
-        Left = Planes[3];
-        Far = Planes[4];
-        Near = Planes[5];
-    }
+    public readonly FrustumPlane Top = planes[0];
+    public readonly FrustumPlane Bottom = planes[1];
+    public readonly FrustumPlane Right = planes[2];
+    public readonly FrustumPlane Left = planes[3];
+    public readonly FrustumPlane Far = planes[4];
+    public readonly FrustumPlane Near = planes[5];
+    public readonly FrustumPlane[] Planes = planes;
 }

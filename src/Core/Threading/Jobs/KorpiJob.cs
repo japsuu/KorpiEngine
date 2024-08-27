@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Threading.Pooling;
+﻿using KorpiEngine.Core.Threading.Pooling;
 
 namespace KorpiEngine.Core.Threading.Jobs;
 
@@ -8,8 +7,6 @@ namespace KorpiEngine.Core.Threading.Jobs;
 /// </summary>
 public abstract class KorpiJob<T> : IKorpiJob, IAwaitable<T>
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(KorpiJob));
-
     private Action? _continuation;
     private T _result;
 
@@ -59,13 +56,13 @@ public abstract class KorpiJob<T> : IKorpiJob, IAwaitable<T>
     {
         if (completionState == JobCompletionState.None)
         {
-            Logger.Error("Signal completion called with a state of 'None'!");
+            Application.Logger.Error("Signal completion called with a state of 'None'!");
             return;
         }
 
         if (CompletionState != JobCompletionState.None)
         {
-            Logger.Error("Signal completion called multiple times in job!");
+            Application.Logger.Error("Signal completion called multiple times in job!");
             return;
         }
 

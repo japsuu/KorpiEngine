@@ -4,19 +4,11 @@ namespace KorpiEngine.Core.Platform;
 
 public static class WindowInfo
 {
-    public readonly struct WindowResizeEventArgs
+    public readonly struct WindowResizeEventArgs(int width, int height, float aspectRatio)
     {
-        public readonly int Width;
-        public readonly int Height;
-        public readonly float AspectRatio;
-
-
-        public WindowResizeEventArgs(int width, int height, float aspectRatio)
-        {
-            Width = width;
-            Height = height;
-            AspectRatio = aspectRatio;
-        }
+        public readonly int Width = width;
+        public readonly int Height = height;
+        public readonly float AspectRatio = aspectRatio;
     }
     
     /// <summary>

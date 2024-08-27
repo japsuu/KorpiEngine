@@ -44,19 +44,19 @@ public class MaterialPropertyBlock
     
     public bool HasColor(string name) => _colors.ContainsKey(name);
 
-    public void SetVector(string name, Vector2 value) => _vectors2[name] = value;
+    public void SetVector2(string name, Vector2 value) => _vectors2[name] = value;
 
     public Vector2 GetVector2(string name) => _vectors2.TryGetValue(name, out Vector2 value) ? value : Vector2.Zero;
     
     public bool HasVector2(string name) => _vectors2.ContainsKey(name);
 
-    public void SetVector(string name, Vector3 value) => _vectors3[name] = value;
+    public void SetVector3(string name, Vector3 value) => _vectors3[name] = value;
 
     public Vector3 GetVector3(string name) => _vectors3.TryGetValue(name, out Vector3 value) ? value : Vector3.Zero;
     
     public bool HasVector3(string name) => _vectors3.ContainsKey(name);
 
-    public void SetVector(string name, Vector4 value) => _vectors4[name] = value;
+    public void SetVector4(string name, Vector4 value) => _vectors4[name] = value;
 
     public Vector4 GetVector4(string name) => _vectors4.TryGetValue(name, out Vector4 value) ? value : Vector4.Zero;
     

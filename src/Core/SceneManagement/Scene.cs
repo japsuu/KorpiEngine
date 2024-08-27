@@ -2,7 +2,6 @@
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.API.Rendering.Textures;
 using KorpiEngine.Core.EntityModel;
 using KorpiEngine.Core.EntityModel.Components;
 using KorpiEngine.Core.Rendering;
@@ -16,28 +15,20 @@ namespace KorpiEngine.Core.SceneManagement;
 /// An in-game scene, that can be loaded and unloaded and receives updates.
 /// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
 /// </summary>
-public abstract class Scene : IDisposable
+public abstract class Scene
 {
-    internal readonly EntityScene EntityScene;
+    internal readonly EntityScene EntityScene = new();
     
     protected Camera SceneCamera { get; private set; } = null!;
 
 
     #region Creation and destruction
 
-    protected Scene()
-    {
-        EntityScene = new EntityScene();
-    }
-    
-    
-    public void Dispose()
+    public void Destroy()
     {
         OnUnload();
         
         EntityScene.Destroy();
-        
-        GC.SuppressFinalize(this);
     }
 
     #endregion
@@ -56,7 +47,7 @@ public abstract class Scene : IDisposable
     {
         Entity e = CreateEntity(name);
         MeshRenderer c = e.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Defaults/Standard.kshader"), "standard material");
+        Material mat = new Material(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;

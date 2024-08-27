@@ -6,11 +6,14 @@ using KorpiEngine.Core.Rendering.Primitives;
 namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
 
 [AssetImporter(".kshader")]
-internal class ShaderImporter : AssetImporter
+internal partial class ShaderImporter : AssetImporter
 {
-    private static readonly Regex PreprocessorIncludeRegex = new(@"^\s*#include\s*[""<](.+?)["">]\s*$", RegexOptions.Multiline);
+    private static readonly Regex PreprocessorIncludeRegex = GenerateRegex();
     private static readonly List<string> ImportErrors = [];
     private static FileInfo? currentAssetPath;
+
+    [GeneratedRegex("""^\s*#include\s*["<](.+?)[">]\s*$""", RegexOptions.Multiline)]
+    private static partial Regex GenerateRegex();
     
     
     public override Resource? Import(FileInfo assetPath)
@@ -96,12 +99,7 @@ internal class ShaderImporter : AssetImporter
         MatchCollection propertyMatches = Regex.Matches(propertiesBlock, @"(\w+)\s*\(\""([^\""]+)\"".*?,\s*(\w+)");
         foreach (Match match in propertyMatches)
         {
-            Shader.Property property = new()
-            {
-                Name = match.Groups[1].Value,
-                DisplayName = match.Groups[2].Value,
-                Type = ParsePropertyType(match.Groups[3].Value)
-            };
+            Shader.Property property = new(match.Groups[1].Value, match.Groups[2].Value, ParsePropertyType(match.Groups[3].Value));
             propertiesList.Add(property);
             Application.Logger.Debug($"Discovered property: {property.Name} ({property.DisplayName}) of type {property.Type}");
         }

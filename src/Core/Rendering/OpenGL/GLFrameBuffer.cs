@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Core.Platform;
+﻿using KorpiEngine.Core.Exceptions;
+using KorpiEngine.Core.Platform;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Core.Rendering.OpenGL;
@@ -30,11 +31,11 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
     {
         int texCount = attachments.Count;
         if (texCount < 1 || texCount > SystemInfo.MaxFramebufferColorAttachments)
-            throw new Exception("[FrameBuffer] Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
+            throw new ArgumentOutOfRangeException(nameof(attachments), "[FrameBuffer] Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
 
         // Generate FBO
         if (Handle <= 0)
-            throw new Exception("[FrameBuffer] Failed to generate new FrameBuffer.");
+            throw new OpenGLException("[FrameBuffer] Failed to generate new FrameBuffer.");
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
 
@@ -49,7 +50,7 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
         GL.DrawBuffers(texCount, Buffers);
 
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-            throw new Exception("RenderTexture: [ID {fboId}] RenderTexture object creation failed.");
+            throw new OpenGLException("RenderTexture: [ID {fboId}] RenderTexture object creation failed.");
 
         // Unbind FBO.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -58,8 +59,9 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
 
     protected override void Dispose(bool manual)
     {
-        if (!manual)
+        if (IsDisposed)
             return;
+        base.Dispose(manual);
 
         GL.DeleteFramebuffer(Handle);
     }

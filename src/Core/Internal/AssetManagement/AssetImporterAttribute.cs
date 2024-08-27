@@ -32,26 +32,34 @@ public class AssetImporterAttribute : Attribute
         Application.Logger.Info("Generating Asset Importer Lookup Table");
         ImportersByExtension.Clear();
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-        foreach (Type type in assembly.GetTypes())
         {
-            AssetImporterAttribute? attribute = type.GetCustomAttribute<AssetImporterAttribute>();
-            if (attribute == null)
-                continue;
-
-            foreach (string extensionRaw in attribute.SupportedFileExtensions)
+            foreach (Type type in assembly.GetTypes())
             {
-                string extension = extensionRaw.ToLower();
+                AssetImporterAttribute? attribute = type.GetCustomAttribute<AssetImporterAttribute>();
+                if (attribute == null)
+                    continue;
 
-                // Make sure the Extension is formatted correctly.
-                if (extension[0] != '.')
-                    extension = '.' + extension;
-                if (extension.Count(x => x == '.') > 1)
-                    throw new Exception($"Extension {extension} is formatted incorrectly on importer: {type.Name}");
-
-                if (ImportersByExtension.TryGetValue(extension, out Type? oldType))
-                    Application.Logger.Warn($"Importer extension '{extension}' already in use by: {oldType.Name}, being overwritten by: {type.Name}");
-                ImportersByExtension[extension] = type;
+                RegisterImporterType(attribute, type);
             }
+        }
+    }
+
+
+    private static void RegisterImporterType(AssetImporterAttribute attribute, Type type)
+    {
+        foreach (string extensionRaw in attribute.SupportedFileExtensions)
+        {
+            string extension = extensionRaw.ToLower();
+
+            // Make sure the Extension is formatted correctly.
+            if (extension[0] != '.')
+                extension = '.' + extension;
+            if (extension.Count(x => x == '.') > 1)
+                throw new InvalidOperationException($"Extension {extension} is formatted incorrectly on importer: {type.Name}");
+
+            if (ImportersByExtension.TryGetValue(extension, out Type? oldType))
+                Application.Logger.Warn($"Importer extension '{extension}' already in use by: {oldType.Name}, being overwritten by: {type.Name}");
+            ImportersByExtension[extension] = type;
         }
     }
 

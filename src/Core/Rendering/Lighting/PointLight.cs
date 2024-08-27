@@ -11,9 +11,9 @@ public class PointLight : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Color Color = Color.White;
-    public float Radius = 4.0f;
-    public float Intensity = 1.0f;
+    public Color Color { get; set; } = Color.White;
+    public float Radius { get; set; } = 4.0f;
+    public float Intensity { get; set; } = 1.0f;
 
     private Material? _lightMat;
     private Mesh? _mesh;
@@ -26,7 +26,7 @@ public class PointLight : EntityComponent
         Matrix4x4 mat = Matrix4x4.CreateScale(Radius) * Entity.GlobalCameraRelativeTransform;
         if (_lightMat == null)
         {
-            _lightMat = new Material(Shader.Find("Defaults/PointLight.kshader"), "point light material", false);
+            _lightMat = new Material(Shader.Find("Assets/Defaults/PointLight.kshader"), "point light material", false);
         }
         else
         {

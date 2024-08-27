@@ -1,6 +1,6 @@
-﻿namespace KorpiEngine.Core.Internal.AssetManagement;
+﻿namespace KorpiEngine.Core.Exceptions;
 
-public class AssetImportException<T> : Exception
+public class AssetImportException<T> : KorpiException
 {
     public AssetImportException(string message) : base($"Failed to import asset of type {typeof(T).Name}: {message}")
     {
@@ -12,7 +12,7 @@ public class AssetImportException<T> : Exception
     }
 }
 
-public class AssetImportException : Exception
+public class AssetImportException : KorpiException
 {
     public AssetImportException(string path, string message) : base($"Failed to import asset at '{path}': {message}")
     {

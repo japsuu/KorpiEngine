@@ -3,7 +3,6 @@ using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Internal.Serialization;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Textures;
@@ -56,7 +55,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
     /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
     /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
-    public unsafe void SetDataPtr(nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
+    public void SetDataPtr(nint ptr, int rectX, int rectY, int rectWidth, int rectHeight)
     {
         ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
@@ -173,7 +172,7 @@ public sealed class Texture2D : Texture, ISerializable
                 return size;
             
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException("Invalid image format");
         }
     }
 
@@ -196,7 +195,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// </summary>
     /// <param name="width">The new width for the <see cref="Texture2D"/>.</param>
     /// <param name="height">The new height for the <see cref="Texture2D"/>.</param>
-    public unsafe void RecreateImage(int width, int height)
+    public void RecreateImage(int width, int height)
     {
         ValidateTextureSize(width, height);
 
@@ -233,7 +232,7 @@ public sealed class Texture2D : Texture, ISerializable
             throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, $"{nameof(rectHeight)}must be greater than 0");
 
         if (rectWidth > Width - rectX || rectHeight > Height - rectY)
-            throw new ArgumentOutOfRangeException("", "Specified area is outside of the texture's storage");
+            throw new InvalidOperationException("Specified area is outside of the texture's storage");
     }
 
 

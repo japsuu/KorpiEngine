@@ -33,10 +33,7 @@ public sealed class ObjectPool<T> : IDisposable where T : class
 
     public void Return(T item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(item));
-        }
+        ArgumentNullException.ThrowIfNull(item);
 
         _objects.Add(item);
         _semaphore.Release();
