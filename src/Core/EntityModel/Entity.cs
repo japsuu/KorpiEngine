@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using KorpiEngine.EntityModel.IDs;
 using KorpiEngine.EntityModel.SpatialHierarchy;
 using KorpiEngine.Rendering.Cameras;
@@ -157,8 +158,9 @@ public sealed class Entity : Resource
     }
 
 
-    protected override void OnDispose()
+    protected override void OnDispose(bool manual)
     {
+        Debug.Assert(manual, "Entity was not manually disposed of!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
             _childList[0].DestroyImmediate();

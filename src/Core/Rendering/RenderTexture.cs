@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using KorpiEngine.Exceptions;
 using KorpiEngine.Platform;
 using KorpiEngine.Rendering.Primitives;
 using KorpiEngine.Rendering.Textures;
@@ -90,8 +91,14 @@ public sealed class RenderTexture : Resource
     }
 
 
-    protected override void OnDispose()
+    protected override void OnDispose(bool manual)
     {
+        
+#if TOOLS
+        if (!manual)
+            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+#endif
+
         foreach (Texture2D texture in InternalTextures)
             texture.Dispose();
         

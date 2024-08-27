@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Rendering.Primitives;
+﻿using KorpiEngine.Exceptions;
+using KorpiEngine.Rendering.Primitives;
 
 namespace KorpiEngine.Rendering.Textures;
 
@@ -85,8 +86,13 @@ public abstract class Texture : Resource
     }
 
 
-    protected override void OnDispose()
+    protected override void OnDispose(bool manual)
     {
+#if TOOLS
+        if (!manual)
+            throw new ResourceLeakException($"Texture '{Name}' of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+#endif
+        
         Handle.Dispose();
     }
 

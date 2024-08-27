@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Exceptions;
 using KorpiEngine.Rendering.Primitives;
 using KorpiEngine.Utils;
 using InvalidOperationException = System.InvalidOperationException;
@@ -145,8 +146,13 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     private byte[]? _boneIndices;
 
 
-    protected override void OnDispose()
+    protected override void OnDispose(bool manual)
     {
+#if TOOLS
+        if (!manual)
+            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+#endif
+
         DeleteGPUBuffers();
     }
 
