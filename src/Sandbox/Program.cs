@@ -1,5 +1,4 @@
 ﻿using KorpiEngine;
-using KorpiEngine.Core;
 using KorpiEngine.Windowing;
 using Sandbox.Scenes.SponzaExample;
 

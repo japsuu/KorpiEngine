@@ -1,5 +1,4 @@
 ﻿using KorpiEngine;
-using KorpiEngine.Core;
 using KorpiEngine.EntityModel;
 using KorpiEngine.InputManagement;
 using KorpiEngine.UI;
