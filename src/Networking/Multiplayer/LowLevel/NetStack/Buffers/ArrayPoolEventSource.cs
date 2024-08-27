@@ -24,7 +24,7 @@
 	using UnityEngine;
 #endif
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Buffers;
+namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Buffers;
 
 internal sealed class ArrayPoolEventSource
 {

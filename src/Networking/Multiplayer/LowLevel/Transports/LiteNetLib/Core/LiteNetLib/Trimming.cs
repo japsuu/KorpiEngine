@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using static System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
 {
     internal static class Trimming
     {

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Utility;
+﻿namespace KorpiEngine.Utility;
 
 /// <summary>
 /// Retrieves and stores byte arrays using a pooling system.

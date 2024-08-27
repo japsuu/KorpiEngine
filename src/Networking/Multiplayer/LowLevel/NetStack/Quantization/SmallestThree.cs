@@ -20,14 +20,7 @@
  *  SOFTWARE.
  */
 
-#if !(ENABLE_MONO || ENABLE_IL2CPP)
-using System.Numerics;
-
-#else
-	using UnityEngine;
-#endif
-
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Quantization;
 
 public struct QuantizedQuaternion
 {
@@ -52,7 +45,7 @@ public static class SmallestThree
     private const float smallestThreePack = 1.0f / smallestThreeUnpack;
 
 
-    public static QuantizedQuaternion Quantize(Quaternion quaternion, int bitsPerElement = 12)
+    public static QuantizedQuaternion Quantize(System.Numerics.Quaternion quaternion, int bitsPerElement = 12)
     {
         float halfRange = 1 << (bitsPerElement - 1);
         float packer = smallestThreePack * halfRange;
@@ -201,7 +194,7 @@ public static class SmallestThree
     }
 
 
-    public static Quaternion Dequantize(QuantizedQuaternion data, int bitsPerElement = 12)
+    public static System.Numerics.Quaternion Dequantize(QuantizedQuaternion data, int bitsPerElement = 12)
     {
         int halfRange = 1 << (bitsPerElement - 1);
         float unpacker = smallestThreeUnpack * (1.0f / halfRange);
@@ -223,16 +216,16 @@ public static class SmallestThree
         switch (m)
         {
             case 0:
-                return new Quaternion(d, a, b, c);
+                return new System.Numerics.Quaternion(d, a, b, c);
 
             case 1:
-                return new Quaternion(a, d, b, c);
+                return new System.Numerics.Quaternion(a, d, b, c);
 
             case 2:
-                return new Quaternion(a, b, d, c);
+                return new System.Numerics.Quaternion(a, b, d, c);
 
             default:
-                return new Quaternion(a, b, c, d);
+                return new System.Numerics.Quaternion(a, b, c, d);
         }
     }
 }

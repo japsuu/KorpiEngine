@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Multiplayer.HighLevel.EventArgs;
+﻿namespace KorpiEngine.Multiplayer.HighLevel.EventArgs;
 
 public readonly struct ClientListArgs
 {

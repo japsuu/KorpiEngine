@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
 {
     internal static class NativeSocket
     {

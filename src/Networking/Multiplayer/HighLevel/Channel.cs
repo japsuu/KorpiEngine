@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Multiplayer.HighLevel;
+﻿namespace KorpiEngine.Multiplayer.HighLevel;
 
 /// <summary>
 /// Channel over which data is sent or received.

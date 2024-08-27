@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
+﻿using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+namespace KorpiEngine.Multiplayer.HighLevel.Messages;
 
 /// <summary>
 /// Represents an message (packet) that can be sent over the network.<br/>

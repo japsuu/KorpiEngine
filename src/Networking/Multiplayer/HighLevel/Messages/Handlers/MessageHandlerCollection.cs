@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages.Handlers;
+namespace KorpiEngine.Multiplayer.HighLevel.Messages.Handlers;
 
 internal abstract class MessageHandlerCollection
 {
