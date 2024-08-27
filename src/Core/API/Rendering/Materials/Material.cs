@@ -23,6 +23,7 @@ public sealed class Material : Resource
     public static ResourceRef<Texture2D> DefaultNormalTex { get; private set; }
     public static ResourceRef<Texture2D> DefaultSurfaceTex { get; private set; }
     public static ResourceRef<Texture2D> DefaultEmissionTex { get; private set; }
+    public static ResourceRef<Material> InvalidMaterial { get; private set; }
     
     
     internal static void LoadDefaults()
@@ -31,6 +32,8 @@ public sealed class Material : Resource
         DefaultNormalTex = Texture2D.Find("Assets/Defaults/default_normal.png");
         DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
         DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
+
+        InvalidMaterial = new Material(Shaders.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
     }
     
     

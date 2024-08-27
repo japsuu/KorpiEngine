@@ -5,14 +5,8 @@ using KorpiEngine.Core.Internal.Serialization;
 
 namespace KorpiEngine.Core.Internal.Utils;
 
-public static class RuntimeUtils
+internal static class RuntimeUtils
 {
-    public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    public static bool IsLinux() => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    public static bool IsFreeBSD() => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
-    public static bool IsMac() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-
-
     public static Type? FindType(string qualifiedTypeName)
     {
         Type? t = Type.GetType(qualifiedTypeName);
@@ -37,7 +31,7 @@ public static class RuntimeUtils
     {
         FieldInfo[] fields = GetAllFields(target.GetType()).ToArray();
 
-        // Only allow Publics or ones with SerializeField
+        // Only allow public or ones with SerializeField
         fields = fields.Where(
             field => (field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null) &&
                      field.GetCustomAttribute<SerializeIgnoreAttribute>() == null).ToArray();
@@ -53,8 +47,8 @@ public static class RuntimeUtils
         if (t == null)
             return [];
 
-        BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
-                             BindingFlags.Instance | BindingFlags.DeclaredOnly;
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                                   BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
         return t.GetFields(flags).Concat(GetAllFields(t.BaseType));
     }
@@ -82,7 +76,7 @@ public static class RuntimeUtils
     public static string Prettify(string label)
     {
         if (label.StartsWith('_'))
-            label = label.Substring(1);
+            label = label[1..];
 
         // Use a StringBuilder to avoid modifying the original string in the loop
         StringBuilder result = new(label.Length * 2);
@@ -90,15 +84,15 @@ public static class RuntimeUtils
 
         // Add space before each Capital letter (except the first)
         for (int i = 1; i < label.Length; i++)
+        {
             if (char.IsUpper(label[i]))
             {
                 result.Append(' '); // Add space
-                result.Append(label[i]); // Append the current uppercase character
             }
-            else
-            {
-                result.Append(label[i]); // Append the current character
-            }
+
+            // Append the current character
+            result.Append(label[i]); // Append the current uppercase character
+        }
 
         return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(result.ToString());
     }
@@ -108,8 +102,10 @@ public static class RuntimeUtils
     {
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
         foreach (Assembly assembly in assemblies)
-        foreach (Type type in assembly.GetTypes())
-            if (type.GetCustomAttributes(typeof(T), true).Length > 0)
-                yield return type;
+        {
+            foreach (Type type in assembly.GetTypes())
+                if (type.GetCustomAttributes(typeof(T), true).Length > 0)
+                    yield return type;
+        }
     }
 }

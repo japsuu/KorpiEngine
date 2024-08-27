@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering;
 using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Rendering;
 using KorpiEngine.Core.Rendering.Cameras;
@@ -17,7 +16,6 @@ public class MeshRenderer : EntityComponent
     public Color MainColor { get; set; } = Color.White;
     
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();
-    private static Material? invalidMaterial;
 
     
     protected override void OnRenderObject()
@@ -34,8 +32,7 @@ public class MeshRenderer : EntityComponent
         Material? material = Material.Res;
         if (material == null)
         {
-            invalidMaterial ??= new Material(Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
-            material = invalidMaterial;
+            material = API.Rendering.Materials.Material.InvalidMaterial.Res!;
 #if TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif

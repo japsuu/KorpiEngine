@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using KorpiEngine.Core.API;
+﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.API.Rendering.Materials;
 using KorpiEngine.Core.API.Rendering.Shaders;
 using KorpiEngine.Core.EntityModel;

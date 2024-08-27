@@ -6,11 +6,14 @@ using KorpiEngine.Core.Rendering.Primitives;
 namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
 
 [AssetImporter(".kshader")]
-internal class ShaderImporter : AssetImporter
+internal partial class ShaderImporter : AssetImporter
 {
-    private static readonly Regex PreprocessorIncludeRegex = new(@"^\s*#include\s*[""<](.+?)["">]\s*$", RegexOptions.Multiline);
+    private static readonly Regex PreprocessorIncludeRegex = GenerateRegex();
     private static readonly List<string> ImportErrors = [];
     private static FileInfo? currentAssetPath;
+
+    [GeneratedRegex("""^\s*#include\s*["<](.+?)[">]\s*$""", RegexOptions.Multiline)]
+    private static partial Regex GenerateRegex();
     
     
     public override Resource? Import(FileInfo assetPath)

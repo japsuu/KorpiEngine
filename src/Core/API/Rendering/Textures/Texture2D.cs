@@ -3,7 +3,6 @@ using KorpiEngine.Core.Internal.AssetManagement;
 using KorpiEngine.Core.Internal.Serialization;
 using KorpiEngine.Core.Platform;
 using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Exceptions;
 using KorpiEngine.Core.Rendering.Primitives;
 
 namespace KorpiEngine.Core.API.Rendering.Textures;

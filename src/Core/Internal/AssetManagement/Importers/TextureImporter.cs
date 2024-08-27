@@ -6,10 +6,10 @@ namespace KorpiEngine.Core.Internal.AssetManagement.Importers;
 [AssetImporter(".png", ".bmp", ".jpg", ".jpeg", ".qoi", ".psd", ".tga", ".dds", ".hdr", ".ktx", ".pkm", ".pvr")]
 internal class TextureImporter : AssetImporter
 {
-    public bool GenerateMipmaps = true;
-    public TextureWrap TextureWrap = TextureWrap.Repeat;
-    public TextureMin TextureMinFilter = TextureMin.LinearMipmapLinear;
-    public TextureMag TextureMagFilter = TextureMag.Linear;
+    public bool GenerateMipmaps { get; set; } = true;
+    public TextureWrap TextureWrap { get; set; } = TextureWrap.Repeat;
+    public TextureMin TextureMinFilter { get; set; } = TextureMin.LinearMipmapLinear;
+    public TextureMag TextureMagFilter { get; set; } = TextureMag.Linear;
 
     public override Resource Import(FileInfo assetPath)
     {

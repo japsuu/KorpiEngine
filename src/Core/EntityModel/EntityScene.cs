@@ -1,6 +1,5 @@
 ﻿using KorpiEngine.Core.API;
 using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.EntityModel.Systems;
 using KorpiEngine.Core.Rendering.Cameras;
 using KorpiEngine.Core.UI;
 
@@ -214,27 +213,24 @@ internal sealed class EntityScene
     internal void InvokeRenderLighting()
     {
         foreach (EntityComponent comp in Components)
-            if (comp.EnabledInHierarchy)
-                if (comp.RenderOrder == ComponentRenderOrder.LightingPass)
-                    comp.RenderObject();
+            if (comp is { EnabledInHierarchy: true, RenderOrder: ComponentRenderOrder.LightingPass })
+                comp.RenderObject();
     }
     
     
     internal void InvokeRenderGeometry()
     {
         foreach (EntityComponent comp in Components)
-            if (comp.EnabledInHierarchy)
-                if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
-                    comp.RenderObject();
+            if (comp is { EnabledInHierarchy: true, RenderOrder: ComponentRenderOrder.GeometryPass })
+                comp.RenderObject();
     }
     
     
     internal void InvokeRenderGeometryDepth()
     {
         foreach (EntityComponent comp in Components)
-            if (comp.EnabledInHierarchy)
-                if (comp.RenderOrder == ComponentRenderOrder.GeometryPass)
-                    comp.RenderObjectDepth();
+            if (comp is { EnabledInHierarchy: true, RenderOrder: ComponentRenderOrder.GeometryPass })
+                comp.RenderObjectDepth();
     }
     
     
