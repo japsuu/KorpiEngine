@@ -5,6 +5,8 @@
         <LangVersion>12</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>KorpiEngine.Math</AssemblyName>
+        <RootNamespace>KorpiEngine</RootNamespace>
     </PropertyGroup>
 
 </Project>
