@@ -109,9 +109,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedForward = Vector3.Forward;
-        
-        Assert.That(component.Forward, Is.EqualTo(expectedForward));
+        Vector3 expected = Vector3.RForward;
+        Vector3 actual = component.Forward;
+
+        Assert.That(actual, Is.EqualTo(expected));
     }
     
 
@@ -121,12 +122,13 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Y-axis, when viewed from above
+        // Rotate 90 degrees CCW around the Y-axis, when viewed from above
         component.EulerAngles = new Vector3(0, 90, 0);
 
-        Vector3 expectedForward = Vector3.Right;
-        
-        Assert.That(component.Forward, Is.EqualTo(expectedForward).Using(new Vector3Comparer()));
+        Vector3 expected = Vector3.RLeft;
+        Vector3 actual = component.Forward;
+
+        Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
     }
 
 
@@ -137,9 +139,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedUp = Vector3.Up;
+        Vector3 expected = Vector3.RUp;
+        Vector3 actual = component.Up;
 
-        Assert.That(component.Up, Is.EqualTo(expectedUp));
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
 
@@ -149,12 +152,13 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Z-axis, when viewed from front
-        component.EulerAngles = new Vector3(0, 0, 90);
+        // Rotate 90 degrees CCW around the X-axis, when viewed from the front
+        component.EulerAngles = new Vector3(90, 0, 0);
 
-        Vector3 expectedUp = Vector3.Left;
+        Vector3 expected = Vector3.RBackward;
+        Vector3 actual = component.Up;
 
-        Assert.That(component.Up, Is.EqualTo(expectedUp).Using(new Vector3Comparer()));
+        Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
     }
 
 
@@ -165,9 +169,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedRight = Vector3.Right;
+        Vector3 expected = Vector3.RRight;
+        Vector3 actual = component.Right;
 
-        Assert.That(component.Right, Is.EqualTo(expectedRight));
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
 
@@ -177,10 +182,10 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Z-axis, when viewed from front
+        // Rotate 90 degrees CCW around the Z-axis, when viewed from the front
         component.EulerAngles = new Vector3(0, 0, 90);
 
-        Vector3 expectedRight = Vector3.Up;
+        Vector3 expectedRight = Vector3.RUp;
 
         Assert.That(component.Right, Is.EqualTo(expectedRight).Using(new Vector3Comparer()));
     }
