@@ -4,3 +4,5 @@
   href: getting-started.md
 - name: Scripting
   href: scripting.md
+- name: Coordinate Systems
+  href: coordinate-systems.md
