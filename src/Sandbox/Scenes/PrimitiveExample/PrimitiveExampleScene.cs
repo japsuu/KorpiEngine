@@ -57,7 +57,7 @@ internal class PrimitiveExampleScene : Scene
         Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         
-        component.Transform.Position = new Vector3(0, 5, -5);
+        component.Transform.Position = new Vector3(0, 5, 5);
         return component;
     }
 }
