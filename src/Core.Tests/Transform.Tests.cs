@@ -109,7 +109,7 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expected = Vector3.RForward;
+        Vector3 expected = Vector3.Forward;
         Vector3 actual = component.Forward;
 
         Assert.That(actual, Is.EqualTo(expected));
@@ -125,7 +125,7 @@ public class TransformTest
         // Rotate 90 degrees CCW around the Y-axis, when viewed from above
         component.EulerAngles = new Vector3(0, 90, 0);
 
-        Vector3 expected = Vector3.RLeft;
+        Vector3 expected = Vector3.Left;
         Vector3 actual = component.Forward;
 
         Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
@@ -139,7 +139,7 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expected = Vector3.RUp;
+        Vector3 expected = Vector3.Up;
         Vector3 actual = component.Up;
 
         Assert.That(actual, Is.EqualTo(expected));
@@ -155,7 +155,7 @@ public class TransformTest
         // Rotate 90 degrees CCW around the X-axis, when viewed from the front
         component.EulerAngles = new Vector3(90, 0, 0);
 
-        Vector3 expected = Vector3.RBackward;
+        Vector3 expected = Vector3.Backward;
         Vector3 actual = component.Up;
 
         Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
@@ -169,7 +169,7 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expected = Vector3.RRight;
+        Vector3 expected = Vector3.Right;
         Vector3 actual = component.Right;
 
         Assert.That(actual, Is.EqualTo(expected));
@@ -185,7 +185,7 @@ public class TransformTest
         // Rotate 90 degrees CCW around the Z-axis, when viewed from the front
         component.EulerAngles = new Vector3(0, 0, 90);
 
-        Vector3 expectedRight = Vector3.RUp;
+        Vector3 expectedRight = Vector3.Up;
 
         Assert.That(component.Right, Is.EqualTo(expectedRight).Using(new Vector3Comparer()));
     }

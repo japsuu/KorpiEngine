@@ -209,8 +209,8 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public static Vector3 Left => new(-1.0, 0.0, 0.0);
     public static Vector3 Up => new(0.0, 1.0, 0.0);
     public static Vector3 Down => new(0.0, -1.0, 0.0);
-    public static Vector3 Forward => new(0.0, 0.0, 1.0);
-    public static Vector3 Backward => new(0.0, 0.0, -1.0);
+    public static Vector3 Forward => new(0.0, 0.0, -1.0);
+    public static Vector3 Backward => new(0.0, 0.0, 1.0);
 
     public static Vector3 Infinity => new(Mathd.INFINITY, Mathd.INFINITY, Mathd.INFINITY);
 

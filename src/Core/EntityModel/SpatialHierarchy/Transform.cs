@@ -6,13 +6,13 @@ public class Transform
     public Vector3 Left => Rotation * Vector3.Left;
     public Vector3 Up => Rotation * Vector3.Up;
     public Vector3 Down => Rotation * Vector3.Down;
+    public Vector3 Backward => Rotation * Vector3.Backward;
     public Vector3 Forward
     {
         get => Rotation * Vector3.Forward;
         set => Rotation = Quaternion.LookRotation(value, Vector3.Up);
     }
 
-    public Vector3 Backward => Rotation * Vector3.Backward;
     public bool IsRootTransform => Parent == null;
     public Transform Root => Parent == null ? this : Parent.Root;
 
