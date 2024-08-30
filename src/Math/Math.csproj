@@ -10,4 +10,24 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Update="MathOps.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>MathOps.cs</LastGenOutput>
+      </None>
+      <None Update="Structs.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Structs.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="MathOps.cs">
+        <DependentUpon>MathOps.tt</DependentUpon>
+      </Compile>
+      <Compile Update="Structs.cs">
+        <DependentUpon>Structs.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

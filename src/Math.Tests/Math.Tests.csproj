@@ -23,4 +23,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Math\Math.csproj" />
+    </ItemGroup>
+
 </Project>
