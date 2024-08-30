@@ -1,4 +1,5 @@
 // MIT License 
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -16,98 +17,124 @@ namespace KorpiEngine;
 /// <summary>
 /// A structure encapsulating a 4x4 matrix.
 /// </summary>
-[StructLayout(LayoutKind.Sequential), DataContract]
+[StructLayout(LayoutKind.Sequential)]
+[DataContract]
 public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 {
-    public Vector3 Col0 => new Vector3(M11, M21, M31);
-    public Vector3 Col1 => new Vector3(M12, M22, M32);
-    public Vector3 Col2 => new Vector3(M13, M23, M33);
-    public Vector3 Col3 => new Vector3(M14, M24, M34);
+    public Vector3 Col0 => new(M11, M21, M31);
+    public Vector3 Col1 => new(M12, M22, M32);
+    public Vector3 Col2 => new(M13, M23, M33);
+    public Vector3 Col3 => new(M14, M24, M34);
 
-    public Vector3 Row0 => new Vector3(M11, M12, M13);
-    public Vector3 Row1 => new Vector3(M21, M22, M23);
-    public Vector3 Row2 => new Vector3(M31, M32, M33);
-    public Vector3 Row3 => new Vector3(M41, M42, M43);
+    public Vector3 Row0 => new(M11, M12, M13);
+    public Vector3 Row1 => new(M21, M22, M23);
+    public Vector3 Row2 => new(M31, M32, M33);
+    public Vector3 Row3 => new(M41, M42, M43);
 
-    public Vector3 GetRow(int row)
-        => row == 0 ? Row0 : row == 1 ? Row1 : row == 2 ? Row2 : Row3;
+    public Vector3 GetRow(int row) => row == 0 ? Row0 : row == 1 ? Row1 : row == 2 ? Row2 : Row3;
 
-    public Vector3 GetCol(int col)
-        => col == 0 ? Col0 : col == 1 ? Col1 : col == 2 ? Col2 : Col3;
+    public Vector3 GetCol(int col) => col == 0 ? Col0 : col == 1 ? Col1 : col == 2 ? Col2 : Col3;
 
     /// <summary>
     /// Value at row 1, column 1 of the matrix.
     /// </summary>
-    [DataMember] public float M11;
+    [DataMember]
+    public float M11;
+
     /// <summary>
     /// Value at row 1, column 2 of the matrix.
     /// </summary>
-    [DataMember] public float M12;
+    [DataMember]
+    public float M12;
+
     /// <summary>
     /// Value at row 1, column 3 of the matrix.
     /// </summary>
-    [DataMember] public float M13;
+    [DataMember]
+    public float M13;
+
     /// <summary>
     /// Value at row 1, column 4 of the matrix.
     /// </summary>
-    [DataMember] public float M14;
+    [DataMember]
+    public float M14;
 
     /// <summary>
     /// Value at row 2, column 1 of the matrix.
     /// </summary>
-    [DataMember] public float M21;
+    [DataMember]
+    public float M21;
+
     /// <summary>
     /// Value at row 2, column 2 of the matrix.
     /// </summary>
-    [DataMember] public float M22;
+    [DataMember]
+    public float M22;
+
     /// <summary>
     /// Value at row 2, column 3 of the matrix.
     /// </summary>
-    [DataMember] public float M23;
+    [DataMember]
+    public float M23;
+
     /// <summary>
     /// Value at row 2, column 4 of the matrix.
     /// </summary>
-    [DataMember] public float M24;
+    [DataMember]
+    public float M24;
 
     /// <summary>
     /// Value at row 3, column 1 of the matrix.
     /// </summary>
-    [DataMember] public float M31;
+    [DataMember]
+    public float M31;
+
     /// <summary>
     /// Value at row 3, column 2 of the matrix.
     /// </summary>
-    [DataMember] public float M32;
+    [DataMember]
+    public float M32;
+
     /// <summary>
     /// Value at row 3, column 3 of the matrix.
     /// </summary>
-    [DataMember] public float M33;
+    [DataMember]
+    public float M33;
+
     /// <summary>
     /// Value at row 3, column 4 of the matrix.
     /// </summary>
-    [DataMember] public float M34;
+    [DataMember]
+    public float M34;
 
     /// <summary>
     /// Value at row 4, column 1 of the matrix.
     /// </summary>
-    [DataMember] public float M41;
+    [DataMember]
+    public float M41;
+
     /// <summary>
     /// Value at row 4, column 2 of the matrix.
     /// </summary>
-    [DataMember] public float M42;
+    [DataMember]
+    public float M42;
+
     /// <summary>
     /// Value at row 4, column 3 of the matrix.
     /// </summary>
-    [DataMember] public float M43;
+    [DataMember]
+    public float M43;
+
     /// <summary>
     /// Value at row 4, column 4 of the matrix.
     /// </summary>
-    [DataMember] public float M44;
+    [DataMember]
+    public float M44;
 
     /// <summary>
     /// Returns the multiplicative identity matrix.
     /// </summary>
-    public static Matrix4x4 Identity = new Matrix4x4
-    (
+    public static Matrix4x4 Identity = new(
         1f, 0f, 0f, 0f,
         0f, 1f, 0f, 0f,
         0f, 0f, 1f, 0f,
@@ -118,33 +145,57 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// Returns whether the matrix is the identity matrix.
     /// </summary>
     public bool IsIdentity =>
-        M11 == 1f && M22 == 1f && M33 == 1f && M44 == 1f && // Check diagonal element first for early out.
-        M12 == 0f && M13 == 0f && M14 == 0f &&
-        M21 == 0f && M23 == 0f && M24 == 0f &&
-        M31 == 0f && M32 == 0f && M34 == 0f &&
-        M41 == 0f && M42 == 0f && M43 == 0f;
+        M11 == 1f &&
+        M22 == 1f &&
+        M33 == 1f &&
+        M44 == 1f && // Check the diagonal element first for early out.
+        M12 == 0f &&
+        M13 == 0f &&
+        M14 == 0f &&
+        M21 == 0f &&
+        M23 == 0f &&
+        M24 == 0f &&
+        M31 == 0f &&
+        M32 == 0f &&
+        M34 == 0f &&
+        M41 == 0f &&
+        M42 == 0f &&
+        M43 == 0f;
 
     /// <summary>
     /// Gets the translation component of this matrix.
     /// </summary>
-    public Vector3 Translation
-        => new Vector3(M41, M42, M43);
+    public Vector3 Translation => new(M41, M42, M43);
+
 
     /// <summary>
     /// Sets the translation component of this matrix, returning a new Matrix
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 SetTranslation(Vector3 v)
-        => CreateFromRows(Row0, Row1, Row2, v);
+    public Matrix4x4 SetTranslation(Vector3 v) => CreateFromRows(Row0, Row1, Row2, v);
+
 
     /// <summary>
     /// Constructs a Matrix4x4 from the given components.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4(float m11, float m12, float m13, float m14,
-        float m21, float m22, float m23, float m24,
-        float m31, float m32, float m33, float m34,
-        float m41, float m42, float m43, float m44)
+    public Matrix4x4(
+        float m11,
+        float m12,
+        float m13,
+        float m14,
+        float m21,
+        float m22,
+        float m23,
+        float m24,
+        float m31,
+        float m32,
+        float m33,
+        float m34,
+        float m41,
+        float m42,
+        float m43,
+        float m44)
     {
         M11 = m11;
         M12 = m12;
@@ -167,24 +218,30 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         M44 = m44;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromRows(Vector3 row0, Vector3 row1, Vector3 row2)
-        => CreateFromRows(row0.ToVector4(), row1.ToVector4(), row2.ToVector4(), new Vector4(0, 0, 0, 1));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromRows(Vector3 row0, Vector3 row1, Vector3 row2, Vector3 row3)
-        => CreateFromRows(row0.ToVector4(), row1.ToVector4(), row2.ToVector4(), new Vector4(row3.X, row3.Y, row3.Z, 1));
+    public static Matrix4x4 CreateFromRows(Vector3 row0, Vector3 row1, Vector3 row2) =>
+        CreateFromRows(row0.ToVector4(), row1.ToVector4(), row2.ToVector4(), new Vector4(0, 0, 0, 1));
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromRows(Vector4 row0, Vector4 row1, Vector4 row2)
-        => CreateFromRows(row0.ToVector3(), row1.ToVector3(), row2.ToVector3(), Vector3.Zero);
+    public static Matrix4x4 CreateFromRows(Vector3 row0, Vector3 row1, Vector3 row2, Vector3 row3) =>
+        CreateFromRows(row0.ToVector4(), row1.ToVector4(), row2.ToVector4(), new Vector4(row3.X, row3.Y, row3.Z, 1));
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromRows(Vector4 row0, Vector4 row1, Vector4 row2, Vector4 row3)
-        => new Matrix4x4(row0.X, row0.Y, row0.Z, row0.W,
+    public static Matrix4x4 CreateFromRows(Vector4 row0, Vector4 row1, Vector4 row2) =>
+        CreateFromRows(row0.ToVector3(), row1.ToVector3(), row2.ToVector3(), Vector3.Zero);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 CreateFromRows(Vector4 row0, Vector4 row1, Vector4 row2, Vector4 row3) =>
+        new(
+            row0.X, row0.Y, row0.Z, row0.W,
             row1.X, row1.Y, row1.Z, row1.W,
             row2.X, row2.Y, row2.Z, row2.W,
             row3.X, row3.Y, row3.Z, row3.W);
+
 
     /// <summary>
     /// Creates a spherical billboard that rotates around a specified object position.
@@ -194,24 +251,20 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         const float epsilon = 1e-4f;
 
-        var zaxis = new Vector3(
+        Vector3 zaxis = new(
             objectPosition.X - cameraPosition.X,
             objectPosition.Y - cameraPosition.Y,
             objectPosition.Z - cameraPosition.Z);
 
-        var norm = zaxis.LengthSquared();
+        float norm = zaxis.LengthSquared();
 
         if (norm < epsilon)
-        {
             zaxis = -cameraForwardVector;
-        }
         else
-        {
             zaxis = zaxis * (1.0f / norm.Sqrt());
-        }
 
-        var xaxis = cameraUpVector.Cross(zaxis).Normalize();
-        var yaxis = zaxis.Cross(xaxis);
+        Vector3 xaxis = cameraUpVector.Cross(zaxis).Normalize();
+        Vector3 yaxis = zaxis.Cross(xaxis);
 
         Matrix4x4 result;
 
@@ -236,38 +289,40 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a cylindrical billboard that rotates around a specified axis.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateConstrainedBillboard(Vector3 objectPosition, Vector3 cameraPosition, Vector3 rotateAxis, Vector3 cameraForwardVector, Vector3 objectForwardVector)
+    public static Matrix4x4 CreateConstrainedBillboard(
+        Vector3 objectPosition,
+        Vector3 cameraPosition,
+        Vector3 rotateAxis,
+        Vector3 cameraForwardVector,
+        Vector3 objectForwardVector)
     {
         const float epsilon = 1e-4f;
-        const float minAngle = 1.0f - (0.1f * (Constants.Pi / 180.0f)); // 0.1 degrees
+        const float minAngle = 1.0f - 0.1f * (Constants.PI / 180.0f); // 0.1 degrees
 
         // Treat the case when object and camera positions are too close.
-        var faceDir = new Vector3(
+        Vector3 faceDir = new(
             objectPosition.X - cameraPosition.X,
             objectPosition.Y - cameraPosition.Y,
             objectPosition.Z - cameraPosition.Z);
 
-        var norm = faceDir.LengthSquared();
+        float norm = faceDir.LengthSquared();
 
         if (norm < epsilon)
-        {
             faceDir = -cameraForwardVector;
-        }
         else
-        {
             faceDir = faceDir * 1.0f / norm.Sqrt();
-        }
 
-        var yaxis = rotateAxis;
+        Vector3 yaxis = rotateAxis;
         Vector3 xaxis;
         Vector3 zaxis;
 
         // Treat the case when angle between faceDir and rotateAxis is too close to 0.
-        var dot = Vector3.Dot(rotateAxis, faceDir);
+        float dot = Vector3.Dot(rotateAxis, faceDir);
 
         if (dot.Abs() > minAngle)
         {
@@ -277,9 +332,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
             dot = Vector3.Dot(rotateAxis, zaxis);
 
             if (dot.Abs() > minAngle)
-            {
-                zaxis = (rotateAxis.Z.Abs() > minAngle) ? new Vector3(1, 0, 0) : new Vector3(0, 0, -1);
-            }
+                zaxis = rotateAxis.Z.Abs() > minAngle ? new Vector3(1, 0, 0) : new Vector3(0, 0, -1);
 
             xaxis = rotateAxis.Cross(zaxis).Normalize();
             zaxis = xaxis.Cross(rotateAxis).Normalize();
@@ -313,6 +366,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a translation matrix.
     /// </summary>
@@ -344,12 +398,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a translation matrix.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateTranslation(float x, float y, float z)
-        => CreateTranslation(new Vector3(x, y, z));
+    public static Matrix4x4 CreateTranslation(float x, float y, float z) => CreateTranslation(new Vector3(x, y, z));
+
 
     /// <summary>
     /// Creates a scaling matrix.
@@ -383,6 +438,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a scaling matrix with a center point.
     /// </summary>
@@ -396,9 +452,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var tx = centerPoint.X * (1 - xScale);
-        var ty = centerPoint.Y * (1 - yScale);
-        var tz = centerPoint.Z * (1 - zScale);
+        float tx = centerPoint.X * (1 - xScale);
+        float ty = centerPoint.Y * (1 - yScale);
+        float tz = centerPoint.Z * (1 - zScale);
 
         result.M11 = xScale;
         result.M12 = 0.0f;
@@ -420,21 +476,22 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a scaling matrix.
     /// </summary>
     /// <param name="scales">The vector containing the amount to scale by on each axis.</param>
     /// <returns>The scaling matrix.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateScale(Vector3 scales)
-        => CreateScale(scales.X, scales.Y, scales.Z);
+    public static Matrix4x4 CreateScale(Vector3 scales) => CreateScale(scales.X, scales.Y, scales.Z);
+
 
     /// <summary>
     /// Creates a scaling matrix with a center point.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateScale(Vector3 scales, Vector3 centerPoint)
-        => CreateScale(scales.X, scales.Y, scales.Z, centerPoint);
+    public static Matrix4x4 CreateScale(Vector3 scales, Vector3 centerPoint) => CreateScale(scales.X, scales.Y, scales.Z, centerPoint);
+
 
     /// <summary>
     /// Creates a uniform scaling matrix that scales equally on each axis.
@@ -442,8 +499,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// <param name="scale">The uniform scaling factor.</param>
     /// <returns>The scaling matrix.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateScale(float scale)
-        => CreateScale(scale, scale, scale);
+    public static Matrix4x4 CreateScale(float scale) => CreateScale(scale, scale, scale);
+
 
     /// <summary>
     /// Creates a uniform scaling matrix that scales equally on each axis with a center point.
@@ -452,8 +509,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// <param name="centerPoint">The center point.</param>
     /// <returns>The scaling matrix.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateScale(float scale, Vector3 centerPoint)
-        => CreateScale(scale, scale, scale, centerPoint);
+    public static Matrix4x4 CreateScale(float scale, Vector3 centerPoint) => CreateScale(scale, scale, scale, centerPoint);
+
 
     /// <summary>
     /// Creates a matrix for rotating points around the X-axis.
@@ -463,8 +520,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
         // [  1  0  0  0 ]
         // [  0  c  s  0 ]
@@ -490,6 +547,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a matrix for rotating points around the X-axis, from a center point.
     /// </summary>
@@ -501,11 +559,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
-        var y = centerPoint.Y * (1 - c) + centerPoint.Z * s;
-        var z = centerPoint.Z * (1 - c) - centerPoint.Y * s;
+        float y = centerPoint.Y * (1 - c) + centerPoint.Z * s;
+        float z = centerPoint.Z * (1 - c) - centerPoint.Y * s;
 
         // [  1  0  0  0 ]
         // [  0  c  s  0 ]
@@ -531,6 +589,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a matrix for rotating points around the Y-axis.
     /// </summary>
@@ -541,8 +600,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
         // [  c  0 -s  0 ]
         // [  0  1  0  0 ]
@@ -568,6 +627,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a matrix for rotating points around the Y-axis, from a center point.
     /// </summary>
@@ -579,11 +639,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
-        var x = centerPoint.X * (1 - c) - centerPoint.Z * s;
-        var z = centerPoint.Z * (1 - c) + centerPoint.X * s;
+        float x = centerPoint.X * (1 - c) - centerPoint.Z * s;
+        float z = centerPoint.Z * (1 - c) + centerPoint.X * s;
 
         // [  c  0 -s  0 ]
         // [  0  1  0  0 ]
@@ -609,6 +669,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a matrix for rotating points around the Z-axis.
     /// </summary>
@@ -619,8 +680,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
         // [  c  s  0  0 ]
         // [ -s  c  0  0 ]
@@ -646,6 +707,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a matrix for rotating points around the Z-axis, from a center point.
     /// </summary>
@@ -657,11 +719,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var c = radians.Cos();
-        var s = radians.Sin();
+        float c = radians.Cos();
+        float s = radians.Sin();
 
-        var x = centerPoint.X * (1 - c) + centerPoint.Y * s;
-        var y = centerPoint.Y * (1 - c) - centerPoint.X * s;
+        float x = centerPoint.X * (1 - c) + centerPoint.Y * s;
+        float y = centerPoint.Y * (1 - c) - centerPoint.X * s;
 
         // [  c  s  0  0 ]
         // [ -s  c  0  0 ]
@@ -686,6 +748,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return result;
     }
+
 
     /// <summary>
     /// Creates a matrix that rotates around an arbitrary vector.
@@ -721,10 +784,17 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         // M = [ xy-cosa*yx+sina*z    yy+cosa(1-yy)  yz-cosa*yz-sina*x ]
         //     [ zx-cosa*zx-sina*y zy-cosa*zy+sina*x   zz+cosa*(1-zz)  ]
         //
-        float x = axis.X, y = axis.Y, z = axis.Z;
-        float sa = angle.Sin(), ca = angle.Cos();
-        float xx = x * x, yy = y * y, zz = z * z;
-        float xy = x * y, xz = x * z, yz = y * z;
+        float x = axis.X,
+            y = axis.Y,
+            z = axis.Z;
+        float sa = angle.Sin(),
+            ca = angle.Cos();
+        float xx = x * x,
+            yy = y * y,
+            zz = z * z;
+        float xy = x * y,
+            xz = x * z,
+            yz = y * z;
 
         Matrix4x4 result;
 
@@ -748,6 +818,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a perspective projection matrix based on a field of view, aspect ratio, and near and far view plane distances. 
     /// </summary>
@@ -759,7 +830,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 CreatePerspectiveFieldOfView(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
     {
-        if (fieldOfView <= 0.0f || fieldOfView >= Constants.Pi)
+        if (fieldOfView <= 0.0f || fieldOfView >= Constants.PI)
             throw new ArgumentOutOfRangeException(nameof(fieldOfView));
 
         if (nearPlaneDistance <= 0.0f)
@@ -771,8 +842,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         if (nearPlaneDistance >= farPlaneDistance)
             throw new ArgumentOutOfRangeException(nameof(nearPlaneDistance));
 
-        var yScale = 1.0f / (fieldOfView * 0.5f).Tan();
-        var xScale = yScale / aspectRatio;
+        float yScale = 1.0f / (fieldOfView * 0.5f).Tan();
+        float xScale = yScale / aspectRatio;
 
         Matrix4x4 result;
 
@@ -783,7 +854,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         result.M21 = result.M23 = result.M24 = 0.0f;
 
         result.M31 = result.M32 = 0.0f;
-        var negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
+        float negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
         result.M33 = negFarRange;
         result.M34 = -1.0f;
 
@@ -792,6 +863,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return result;
     }
+
 
     /// <summary>
     /// Creates a perspective projection matrix from the given view volume dimensions.
@@ -821,7 +893,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         result.M22 = 2.0f * nearPlaneDistance / height;
         result.M21 = result.M23 = result.M24 = 0.0f;
 
-        var negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
+        float negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
         result.M33 = negFarRange;
         result.M31 = result.M32 = 0.0f;
         result.M34 = -1.0f;
@@ -831,6 +903,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return result;
     }
+
 
     /// <summary>
     /// Creates a customized, perspective projection matrix.
@@ -864,7 +937,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         result.M31 = (left + right) / (right - left);
         result.M32 = (top + bottom) / (top - bottom);
-        var negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
+        float negFarRange = float.IsPositiveInfinity(farPlaneDistance) ? -1.0f : farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
         result.M33 = negFarRange;
         result.M34 = -1.0f;
 
@@ -873,6 +946,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return result;
     }
+
 
     /// <summary>
     /// Creates an orthographic perspective matrix from the given view volume dimensions.
@@ -902,6 +976,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return result;
     }
+
 
     /// <summary>
     /// Builds a customized, orthographic projection matrix.
@@ -935,6 +1010,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a view matrix.
     /// </summary>
@@ -945,9 +1021,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 CreateLookAt(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
     {
-        var zaxis = (cameraPosition - cameraTarget).Normalize();
-        var xaxis = cameraUpVector.Cross(zaxis).Normalize();
-        var yaxis = zaxis.Cross(xaxis);
+        Vector3 zaxis = (cameraPosition - cameraTarget).Normalize();
+        Vector3 xaxis = cameraUpVector.Cross(zaxis).Normalize();
+        Vector3 yaxis = zaxis.Cross(xaxis);
 
         Matrix4x4 result;
 
@@ -971,6 +1047,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a world matrix with the specified parameters.
     /// </summary>
@@ -981,9 +1058,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 CreateWorld(Vector3 position, Vector3 forward, Vector3 up)
     {
-        var zaxis = (-forward).Normalize();
-        var xaxis = up.Cross(zaxis).Normalize();
-        var yaxis = zaxis.Cross(xaxis);
+        Vector3 zaxis = (-forward).Normalize();
+        Vector3 xaxis = up.Cross(zaxis).Normalize();
+        Vector3 yaxis = zaxis.Cross(xaxis);
 
         Matrix4x4 result;
 
@@ -1007,12 +1084,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a rotation matrix from the given Quaternion rotation value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromQuaternion(Quaternion quaternion)
-        => CreateRotation(quaternion);
+    public static Matrix4x4 CreateFromQuaternion(Quaternion quaternion) => CreateRotation(quaternion);
+
 
     /// <summary>
     /// Creates a rotation matrix from the given Quaternion rotation value.
@@ -1022,16 +1100,16 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         Matrix4x4 result;
 
-        var xx = quaternion.X * quaternion.X;
-        var yy = quaternion.Y * quaternion.Y;
-        var zz = quaternion.Z * quaternion.Z;
+        float xx = quaternion.X * quaternion.X;
+        float yy = quaternion.Y * quaternion.Y;
+        float zz = quaternion.Z * quaternion.Z;
 
-        var xy = quaternion.X * quaternion.Y;
-        var wz = quaternion.Z * quaternion.W;
-        var xz = quaternion.Z * quaternion.X;
-        var wy = quaternion.Y * quaternion.W;
-        var yz = quaternion.Y * quaternion.Z;
-        var wx = quaternion.X * quaternion.W;
+        float xy = quaternion.X * quaternion.Y;
+        float wz = quaternion.Z * quaternion.W;
+        float xz = quaternion.Z * quaternion.X;
+        float wy = quaternion.Y * quaternion.W;
+        float yz = quaternion.Y * quaternion.Z;
+        float wx = quaternion.X * quaternion.W;
 
         result.M11 = 1.0f - 2.0f * (yy + zz);
         result.M12 = 2.0f * (xy + wz);
@@ -1053,6 +1131,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a rotation matrix from the specified yaw, pitch, and roll.
     /// </summary>
@@ -1061,8 +1140,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// <param name="roll">Angle of rotation, in radians, around the Z-axis.</param>
     /// <returns>The rotation matrix.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateFromYawPitchRoll(float yaw, float pitch, float roll)
-        => CreateRotation(Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
+    public static Matrix4x4 CreateFromYawPitchRoll(float yaw, float pitch, float roll) => CreateRotation(Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
+
 
     /// <summary>
     /// Creates a Matrix that flattens geometry into a specified Plane as if casting a shadow from a specified light source.
@@ -1073,13 +1152,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 CreateShadow(Vector3 lightDirection, Plane plane)
     {
-        var p = Plane.Normalize(plane);
+        Plane p = Plane.Normalize(plane);
 
-        var dot = p.Normal.X * lightDirection.X + p.Normal.Y * lightDirection.Y + p.Normal.Z * lightDirection.Z;
-        var a = -p.Normal.X;
-        var b = -p.Normal.Y;
-        var c = -p.Normal.Z;
-        var d = -p.D;
+        float dot = p.Normal.X * lightDirection.X + p.Normal.Y * lightDirection.Y + p.Normal.Z * lightDirection.Z;
+        float a = -p.Normal.X;
+        float b = -p.Normal.Y;
+        float c = -p.Normal.Z;
+        float d = -p.D;
 
         Matrix4x4 result;
 
@@ -1106,6 +1185,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Creates a Matrix that reflects the coordinate system about a specified Plane.
     /// </summary>
@@ -1116,13 +1196,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         value = Plane.Normalize(value);
 
-        var a = value.Normal.X;
-        var b = value.Normal.Y;
-        var c = value.Normal.Z;
+        float a = value.Normal.X;
+        float b = value.Normal.Y;
+        float c = value.Normal.Z;
 
-        var fa = -2.0f * a;
-        var fb = -2.0f * b;
-        var fc = -2.0f * c;
+        float fa = -2.0f * a;
+        float fb = -2.0f * b;
+        float fc = -2.0f * c;
 
         Matrix4x4 result;
 
@@ -1149,6 +1229,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Calculates the determinant of the 3x3 rotational component of the matrix.
     /// </summary>
@@ -1169,30 +1250,38 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         // c | d e | = c ( dh - eg )
         //   | g h |
 
-        float a = M11, b = M12, c = M13;
-        float d = M21, e = M22, f = M23;
-        float g = M31, h = M32, i = M33;
+        float a = M11,
+            b = M12,
+            c = M13;
+        float d = M21,
+            e = M22,
+            f = M23;
+        float g = M31,
+            h = M32,
+            i = M33;
 
-        var ei_fh = e * i - f * h;
-        var di_gf = d * i - g * f;
-        var dh_eg = d * h - e * g;
+        float ei_fh = e * i - f * h;
+        float di_gf = d * i - g * f;
+        float dh_eg = d * h - e * g;
 
         return a * ei_fh -
                b * di_gf +
                c * dh_eg;
     }
 
+
     /// <summary>
     /// Returns true if the 3x3 rotation determinant of the matrix is less than 0. This assumes the matrix represents
     /// an affine transform.
     /// </summary>
+
     // From: https://math.stackexchange.com/a/1064759
     // "If your matrix is the augmented matrix representing an affine transformation in 3D, then yes,
     // the proper thing to do to see if it switches orientation is checking the sign of the top 3×3 determinant.
     // This is easy to see: if your transformation is Ax+b, then the +b part is a translation and does not
     // affect orientation, and x->Ax switches orientation iff detA < 0."
-    public bool IsReflection
-        => Get3x3RotationDeterminant() < 0;
+    public bool IsReflection => Get3x3RotationDeterminant() < 0;
+
 
     /// <summary>
     /// Calculates the determinant of the matrix.
@@ -1228,23 +1317,36 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         // add: 6 + 8 + 3 = 17
         // mul: 12 + 16 = 28
 
-        float a = M11, b = M12, c = M13, d = M14;
-        float e = M21, f = M22, g = M23, h = M24;
-        float i = M31, j = M32, k = M33, l = M34;
-        float m = M41, n = M42, o = M43, p = M44;
+        float a = M11,
+            b = M12,
+            c = M13,
+            d = M14;
+        float e = M21,
+            f = M22,
+            g = M23,
+            h = M24;
+        float i = M31,
+            j = M32,
+            k = M33,
+            l = M34;
+        float m = M41,
+            n = M42,
+            o = M43,
+            p = M44;
 
-        var kp_lo = k * p - l * o;
-        var jp_ln = j * p - l * n;
-        var jo_kn = j * o - k * n;
-        var ip_lm = i * p - l * m;
-        var io_km = i * o - k * m;
-        var in_jm = i * n - j * m;
+        float kp_lo = k * p - l * o;
+        float jp_ln = j * p - l * n;
+        float jo_kn = j * o - k * n;
+        float ip_lm = i * p - l * m;
+        float io_km = i * o - k * m;
+        float in_jm = i * n - j * m;
 
         return a * (f * kp_lo - g * jp_ln + h * jo_kn) -
                b * (e * kp_lo - g * ip_lm + h * io_km) +
                c * (e * jp_ln - f * ip_lm + h * in_jm) -
                d * (e * jo_kn - f * io_km + g * in_jm);
     }
+
 
     /// <summary>
     /// Attempts to calculate the inverse of the given matrix. If successful, result will contain the inverted matrix.
@@ -1347,35 +1449,48 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         //
         // Cost of operation
         // 53 adds, 104 muls, and 1 div.
-        float a = matrix.M11, b = matrix.M12, c = matrix.M13, d = matrix.M14;
-        float e = matrix.M21, f = matrix.M22, g = matrix.M23, h = matrix.M24;
-        float i = matrix.M31, j = matrix.M32, k = matrix.M33, l = matrix.M34;
-        float m = matrix.M41, n = matrix.M42, o = matrix.M43, p = matrix.M44;
+        float a = matrix.M11,
+            b = matrix.M12,
+            c = matrix.M13,
+            d = matrix.M14;
+        float e = matrix.M21,
+            f = matrix.M22,
+            g = matrix.M23,
+            h = matrix.M24;
+        float i = matrix.M31,
+            j = matrix.M32,
+            k = matrix.M33,
+            l = matrix.M34;
+        float m = matrix.M41,
+            n = matrix.M42,
+            o = matrix.M43,
+            p = matrix.M44;
 
-        var kp_lo = k * p - l * o;
-        var jp_ln = j * p - l * n;
-        var jo_kn = j * o - k * n;
-        var ip_lm = i * p - l * m;
-        var io_km = i * o - k * m;
-        var in_jm = i * n - j * m;
+        float kp_lo = k * p - l * o;
+        float jp_ln = j * p - l * n;
+        float jo_kn = j * o - k * n;
+        float ip_lm = i * p - l * m;
+        float io_km = i * o - k * m;
+        float in_jm = i * n - j * m;
 
-        var a11 = +(f * kp_lo - g * jp_ln + h * jo_kn);
-        var a12 = -(e * kp_lo - g * ip_lm + h * io_km);
-        var a13 = +(e * jp_ln - f * ip_lm + h * in_jm);
-        var a14 = -(e * jo_kn - f * io_km + g * in_jm);
+        float a11 = +(f * kp_lo - g * jp_ln + h * jo_kn);
+        float a12 = -(e * kp_lo - g * ip_lm + h * io_km);
+        float a13 = +(e * jp_ln - f * ip_lm + h * in_jm);
+        float a14 = -(e * jo_kn - f * io_km + g * in_jm);
 
-        var det = a * a11 + b * a12 + c * a13 + d * a14;
+        float det = a * a11 + b * a12 + c * a13 + d * a14;
 
         if (det.Abs() < float.Epsilon)
         {
-            result = new Matrix4x4(float.NaN, float.NaN, float.NaN, float.NaN,
+            result = new Matrix4x4(
+                float.NaN, float.NaN, float.NaN, float.NaN,
                 float.NaN, float.NaN, float.NaN, float.NaN,
                 float.NaN, float.NaN, float.NaN, float.NaN,
                 float.NaN, float.NaN, float.NaN, float.NaN);
             return false;
         }
 
-        var invDet = 1.0f / det;
+        float invDet = 1.0f / det;
 
         result.M11 = a11 * invDet;
         result.M21 = a12 * invDet;
@@ -1387,24 +1502,24 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         result.M32 = -(a * jp_ln - b * ip_lm + d * in_jm) * invDet;
         result.M42 = +(a * jo_kn - b * io_km + c * in_jm) * invDet;
 
-        var gp_ho = g * p - h * o;
-        var fp_hn = f * p - h * n;
-        var fo_gn = f * o - g * n;
-        var ep_hm = e * p - h * m;
-        var eo_gm = e * o - g * m;
-        var en_fm = e * n - f * m;
+        float gp_ho = g * p - h * o;
+        float fp_hn = f * p - h * n;
+        float fo_gn = f * o - g * n;
+        float ep_hm = e * p - h * m;
+        float eo_gm = e * o - g * m;
+        float en_fm = e * n - f * m;
 
         result.M13 = +(b * gp_ho - c * fp_hn + d * fo_gn) * invDet;
         result.M23 = -(a * gp_ho - c * ep_hm + d * eo_gm) * invDet;
         result.M33 = +(a * fp_hn - b * ep_hm + d * en_fm) * invDet;
         result.M43 = -(a * fo_gn - b * eo_gm + c * en_fm) * invDet;
 
-        var gl_hk = g * l - h * k;
-        var fl_hj = f * l - h * j;
-        var fk_gj = f * k - g * j;
-        var el_hi = e * l - h * i;
-        var ek_gi = e * k - g * i;
-        var ej_fi = e * j - f * i;
+        float gl_hk = g * l - h * k;
+        float fl_hj = f * l - h * j;
+        float fk_gj = f * k - g * j;
+        float el_hi = e * l - h * i;
+        float ek_gi = e * k - g * i;
+        float ej_fi = e * j - f * i;
 
         result.M14 = -(b * gl_hk - c * fl_hj + d * fk_gj) * invDet;
         result.M24 = +(a * gl_hk - c * el_hi + d * ek_gi) * invDet;
@@ -1413,6 +1528,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return true;
     }
+
 
     /// <summary>
     /// Transforms the given matrix by applying the given Quaternion rotation.
@@ -1424,31 +1540,31 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     public static Matrix4x4 Transform(Matrix4x4 value, Quaternion rotation)
     {
         // Compute rotation matrix.
-        var x2 = rotation.X + rotation.X;
-        var y2 = rotation.Y + rotation.Y;
-        var z2 = rotation.Z + rotation.Z;
+        float x2 = rotation.X + rotation.X;
+        float y2 = rotation.Y + rotation.Y;
+        float z2 = rotation.Z + rotation.Z;
 
-        var wx2 = rotation.W * x2;
-        var wy2 = rotation.W * y2;
-        var wz2 = rotation.W * z2;
-        var xx2 = rotation.X * x2;
-        var xy2 = rotation.X * y2;
-        var xz2 = rotation.X * z2;
-        var yy2 = rotation.Y * y2;
-        var yz2 = rotation.Y * z2;
-        var zz2 = rotation.Z * z2;
+        float wx2 = rotation.W * x2;
+        float wy2 = rotation.W * y2;
+        float wz2 = rotation.W * z2;
+        float xx2 = rotation.X * x2;
+        float xy2 = rotation.X * y2;
+        float xz2 = rotation.X * z2;
+        float yy2 = rotation.Y * y2;
+        float yz2 = rotation.Y * z2;
+        float zz2 = rotation.Z * z2;
 
-        var q11 = 1.0f - yy2 - zz2;
-        var q21 = xy2 - wz2;
-        var q31 = xz2 + wy2;
+        float q11 = 1.0f - yy2 - zz2;
+        float q21 = xy2 - wz2;
+        float q31 = xz2 + wy2;
 
-        var q12 = xy2 + wz2;
-        var q22 = 1.0f - xx2 - zz2;
-        var q32 = yz2 - wx2;
+        float q12 = xy2 + wz2;
+        float q22 = 1.0f - xx2 - zz2;
+        float q32 = yz2 - wx2;
 
-        var q13 = xz2 - wy2;
-        var q23 = yz2 + wx2;
-        var q33 = 1.0f - xx2 - yy2;
+        float q13 = xz2 - wy2;
+        float q23 = yz2 + wx2;
+        float q33 = 1.0f - xx2 - yy2;
 
         Matrix4x4 result;
 
@@ -1479,6 +1595,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Transposes the rows and columns of a matrix.
     /// </summary>
@@ -1505,12 +1622,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Transposes the rows and columns of a matrix.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 Transpose()
-        => Transpose(this);
+    public Matrix4x4 Transpose() => Transpose(this);
+
 
     /// <summary>
     /// Linearly interpolates between the corresponding values of two matrices.
@@ -1547,6 +1665,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
+
     /// <summary>
     /// Returns a new matrix with the negated elements of the given matrix.
     /// </summary>
@@ -1555,11 +1674,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Negate(Matrix4x4 value) => -value;
 
+
     /// <summary>
     /// Adds two matrices together.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Add(Matrix4x4 value1, Matrix4x4 value2) => value1 + value2;
+
 
     /// <summary>
     /// Subtracts the second matrix from the first.
@@ -1567,17 +1688,20 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Subtract(Matrix4x4 value1, Matrix4x4 value2) => value1 - value2;
 
+
     /// <summary>
     /// Multiplies a matrix by another matrix.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Multiply(Matrix4x4 value1, Matrix4x4 value2) => value1 * value2;
 
+
     /// <summary>
     /// Multiplies a matrix by a scalar value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Multiply(Matrix4x4 value1, float value2) => value1 * value2;
+
 
     /// <summary>
     /// Returns a new matrix with the negated elements of the given matrix.
@@ -1606,6 +1730,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         return m;
     }
+
 
     /// <summary>
     /// Adds two matrices together.
@@ -1638,6 +1763,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return m;
     }
 
+
     /// <summary>
     /// Subtracts the second matrix from the first.
     /// </summary>
@@ -1669,6 +1795,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return m;
     }
 
+
     /// <summary>
     /// Multiplies a matrix by another matrix.
     /// </summary>
@@ -1678,7 +1805,6 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 operator *(Matrix4x4 value1, Matrix4x4 value2)
     {
-
         Matrix4x4 m;
 
         // First row
@@ -1708,6 +1834,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return m;
     }
 
+
     /// <summary>
     /// Multiplies a matrix by a scalar value.
     /// </summary>
@@ -1735,25 +1862,52 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return m;
     }
 
+
     /// <summary>
     /// Returns a boolean indicating whether the given two matrices are equal.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(Matrix4x4 value1, Matrix4x4 value2)
-        => (value1.M11 == value2.M11 && value1.M22 == value2.M22 && value1.M33 == value2.M33 && value1.M44 == value2.M44 && // Check diagonal element first for early out.
-            value1.M12 == value2.M12 && value1.M13 == value2.M13 && value1.M14 == value2.M14 && value1.M21 == value2.M21 &&
-            value1.M23 == value2.M23 && value1.M24 == value2.M24 && value1.M31 == value2.M31 && value1.M32 == value2.M32 &&
-            value1.M34 == value2.M34 && value1.M41 == value2.M41 && value1.M42 == value2.M42 && value1.M43 == value2.M43);
+    public static bool operator ==(Matrix4x4 value1, Matrix4x4 value2) =>
+        value1.M11 == value2.M11 &&
+        value1.M22 == value2.M22 &&
+        value1.M33 == value2.M33 &&
+        value1.M44 == value2.M44 && // Check diagonal element first for early out.
+        value1.M12 == value2.M12 &&
+        value1.M13 == value2.M13 &&
+        value1.M14 == value2.M14 &&
+        value1.M21 == value2.M21 &&
+        value1.M23 == value2.M23 &&
+        value1.M24 == value2.M24 &&
+        value1.M31 == value2.M31 &&
+        value1.M32 == value2.M32 &&
+        value1.M34 == value2.M34 &&
+        value1.M41 == value2.M41 &&
+        value1.M42 == value2.M42 &&
+        value1.M43 == value2.M43;
+
 
     /// <summary>
     /// Returns a boolean indicating whether the given two matrices are not equal.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(Matrix4x4 value1, Matrix4x4 value2)
-        => (value1.M11 != value2.M11 || value1.M12 != value2.M12 || value1.M13 != value2.M13 || value1.M14 != value2.M14 ||
-            value1.M21 != value2.M21 || value1.M22 != value2.M22 || value1.M23 != value2.M23 || value1.M24 != value2.M24 ||
-            value1.M31 != value2.M31 || value1.M32 != value2.M32 || value1.M33 != value2.M33 || value1.M34 != value2.M34 ||
-            value1.M41 != value2.M41 || value1.M42 != value2.M42 || value1.M43 != value2.M43 || value1.M44 != value2.M44);
+    public static bool operator !=(Matrix4x4 value1, Matrix4x4 value2) =>
+        value1.M11 != value2.M11 ||
+        value1.M12 != value2.M12 ||
+        value1.M13 != value2.M13 ||
+        value1.M14 != value2.M14 ||
+        value1.M21 != value2.M21 ||
+        value1.M22 != value2.M22 ||
+        value1.M23 != value2.M23 ||
+        value1.M24 != value2.M24 ||
+        value1.M31 != value2.M31 ||
+        value1.M32 != value2.M32 ||
+        value1.M33 != value2.M33 ||
+        value1.M34 != value2.M34 ||
+        value1.M41 != value2.M41 ||
+        value1.M42 != value2.M42 ||
+        value1.M43 != value2.M43 ||
+        value1.M44 != value2.M44;
+
 
     /// <summary>
     /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix.
@@ -1763,27 +1917,29 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Matrix4x4 other) => this == other;
 
+
     /// <summary>
     /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix within a given tolerance value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AlmostEquals(Matrix4x4 other, float tolerance = Constants.Tolerance)
-        => M11.AlmostEquals(other.M11, tolerance) &&
-           M12.AlmostEquals(other.M12, tolerance) &&
-           M13.AlmostEquals(other.M13, tolerance) &&
-           M14.AlmostEquals(other.M14, tolerance) &&
-           M21.AlmostEquals(other.M21, tolerance) &&
-           M22.AlmostEquals(other.M22, tolerance) &&
-           M23.AlmostEquals(other.M23, tolerance) &&
-           M24.AlmostEquals(other.M24, tolerance) &&
-           M31.AlmostEquals(other.M31, tolerance) &&
-           M32.AlmostEquals(other.M32, tolerance) &&
-           M33.AlmostEquals(other.M33, tolerance) &&
-           M34.AlmostEquals(other.M34, tolerance) &&
-           M41.AlmostEquals(other.M41, tolerance) &&
-           M42.AlmostEquals(other.M42, tolerance) &&
-           M43.AlmostEquals(other.M43, tolerance) &&
-           M44.AlmostEquals(other.M44, tolerance);
+    public bool AlmostEquals(Matrix4x4 other, float tolerance = Constants.TOLERANCE) =>
+        M11.AlmostEquals(other.M11, tolerance) &&
+        M12.AlmostEquals(other.M12, tolerance) &&
+        M13.AlmostEquals(other.M13, tolerance) &&
+        M14.AlmostEquals(other.M14, tolerance) &&
+        M21.AlmostEquals(other.M21, tolerance) &&
+        M22.AlmostEquals(other.M22, tolerance) &&
+        M23.AlmostEquals(other.M23, tolerance) &&
+        M24.AlmostEquals(other.M24, tolerance) &&
+        M31.AlmostEquals(other.M31, tolerance) &&
+        M32.AlmostEquals(other.M32, tolerance) &&
+        M33.AlmostEquals(other.M33, tolerance) &&
+        M34.AlmostEquals(other.M34, tolerance) &&
+        M41.AlmostEquals(other.M41, tolerance) &&
+        M42.AlmostEquals(other.M42, tolerance) &&
+        M43.AlmostEquals(other.M43, tolerance) &&
+        M44.AlmostEquals(other.M44, tolerance);
+
 
     /// <summary>
     /// Returns a boolean indicating whether the given Object is equal to this matrix instance.
@@ -1791,7 +1947,8 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// <param name="obj">The Object to compare against.</param>
     /// <returns>True if the Object is equal to this matrix; False otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj) => (obj is Matrix4x4 other) && (this == other);
+    public override bool Equals(object obj) => obj is Matrix4x4 other && this == other;
+
 
     /// <summary>
     /// Returns a String representing this matrix instance.
@@ -1800,14 +1957,17 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString()
     {
-        var ci = CultureInfo.CurrentCulture;
+        CultureInfo ci = CultureInfo.CurrentCulture;
 
-        return string.Format(ci, "{{ {{M11:{0} M12:{1} M13:{2} M14:{3}}} {{M21:{4} M22:{5} M23:{6} M24:{7}}} {{M31:{8} M32:{9} M33:{10} M34:{11}}} {{M41:{12} M42:{13} M43:{14} M44:{15}}} }}",
+        return string.Format(
+            ci,
+            "{{ {{M11:{0} M12:{1} M13:{2} M14:{3}}} {{M21:{4} M22:{5} M23:{6} M24:{7}}} {{M31:{8} M32:{9} M33:{10} M34:{11}}} {{M41:{12} M42:{13} M43:{14} M44:{15}}} }}",
             M11.ToString(ci), M12.ToString(ci), M13.ToString(ci), M14.ToString(ci),
             M21.ToString(ci), M22.ToString(ci), M23.ToString(ci), M24.ToString(ci),
             M31.ToString(ci), M32.ToString(ci), M33.ToString(ci), M34.ToString(ci),
             M41.ToString(ci), M42.ToString(ci), M43.ToString(ci), M44.ToString(ci));
     }
+
 
     /// <summary>
     /// Returns the hash code for this instance.
@@ -1818,21 +1978,25 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     {
         unchecked
         {
-            return M11.GetHashCode() + M12.GetHashCode() + M13.GetHashCode() + M14.GetHashCode() +
-                   M21.GetHashCode() + M22.GetHashCode() + M23.GetHashCode() + M24.GetHashCode() +
-                   M31.GetHashCode() + M32.GetHashCode() + M33.GetHashCode() + M34.GetHashCode() +
-                   M41.GetHashCode() + M42.GetHashCode() + M43.GetHashCode() + M44.GetHashCode();
+            return M11.GetHashCode() +
+                   M12.GetHashCode() +
+                   M13.GetHashCode() +
+                   M14.GetHashCode() +
+                   M21.GetHashCode() +
+                   M22.GetHashCode() +
+                   M23.GetHashCode() +
+                   M24.GetHashCode() +
+                   M31.GetHashCode() +
+                   M32.GetHashCode() +
+                   M33.GetHashCode() +
+                   M34.GetHashCode() +
+                   M41.GetHashCode() +
+                   M42.GetHashCode() +
+                   M43.GetHashCode() +
+                   M44.GetHashCode();
         }
     }
 
-    /// <summary>
-    /// Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
-    /// If successful, the out parameters will contained the extracted values.
-    /// https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Matrix4x4.cs
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Decompose(out Vector3 scale, out Quaternion rotation, out Vector3 translation)
-        => Decompose(this, out scale, out rotation, out translation);
 
     /// <summary>
     /// Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
@@ -1840,21 +2004,35 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Matrix4x4.cs
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Decompose(Matrix4x4 matrix, out Vector3 scale, out Quaternion rotation,
+    public bool Decompose(out Vector3 scale, out Quaternion rotation, out Vector3 translation) => Decompose(this, out scale, out rotation, out translation);
+
+
+    /// <summary>
+    /// Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
+    /// If successful, the out parameters will contained the extracted values.
+    /// https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Matrix4x4.cs
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool Decompose(
+        Matrix4x4 matrix,
+        out Vector3 scale,
+        out Quaternion rotation,
         out Vector3 translation)
     {
-        var result = true;
+        bool result = true;
 
-        var pfScales = new float[3];
+        float[] pfScales = new float[3];
         const float EPSILON = 0.0001f;
 
-        var pCanonicalBasis = new[] {
+        Vector3[] pCanonicalBasis = new[]
+        {
             Vector3.UnitX,
             Vector3.UnitY,
-            Vector3.UnitZ,
+            Vector3.UnitZ
         };
 
-        var pVectorBasis = new[] {
+        Vector3[] pVectorBasis = new[]
+        {
             matrix.Row0,
             matrix.Row1,
             matrix.Row2
@@ -1864,24 +2042,32 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         pfScales[1] = pVectorBasis[1].Length();
         pfScales[2] = pVectorBasis[2].Length();
 
-        uint a, b, c;
-        float x = pfScales[0], y = pfScales[1], z = pfScales[2];
+        uint a,
+            b,
+            c;
+        float x = pfScales[0],
+            y = pfScales[1],
+            z = pfScales[2];
         if (x < y)
         {
             if (y < z)
             {
-                a = 2; b = 1; c = 0;
+                a = 2;
+                b = 1;
+                c = 0;
             }
             else
             {
                 a = 1;
                 if (x < z)
                 {
-                    b = 2; c = 0;
+                    b = 2;
+                    c = 0;
                 }
                 else
                 {
-                    b = 0; c = 2;
+                    b = 0;
+                    c = 2;
                 }
             }
         }
@@ -1889,7 +2075,9 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         {
             if (x < z)
             {
-                a = 2; b = 0; c = 1;
+                a = 2;
+                b = 0;
+                c = 1;
             }
             else
             {
@@ -1897,11 +2085,13 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
                 if (y < z)
                 {
-                    b = 2; c = 1;
+                    b = 2;
+                    c = 1;
                 }
                 else
                 {
-                    b = 1; c = 2;
+                    b = 1;
+                    c = 2;
                 }
             }
         }
@@ -1913,61 +2103,48 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
         if (pfScales[b] < EPSILON)
         {
-            var fAbsX = pVectorBasis[a].X.Abs();
-            var fAbsY = pVectorBasis[a].Y.Abs();
-            var fAbsZ = pVectorBasis[a].Z.Abs();
+            float fAbsX = pVectorBasis[a].X.Abs();
+            float fAbsY = pVectorBasis[a].Y.Abs();
+            float fAbsZ = pVectorBasis[a].Z.Abs();
 
-            var cc = 0;
+            int cc = 0;
             if (fAbsX < fAbsY)
             {
                 if (fAbsY < fAbsZ)
-                {
                     cc = 0;
-                }
                 else
                 {
                     if (fAbsX < fAbsZ)
-                    {
                         cc = 0;
-                    }
                     else
-                    {
                         cc = 2;
-                    }
                 }
             }
             else
             {
                 if (fAbsX < fAbsZ)
-                {
                     cc = 1;
-                }
                 else
                 {
                     if (fAbsY < fAbsZ)
-                    {
                         cc = 1;
-                    }
                     else
-                    {
                         cc = 2;
-                    }
                 }
             }
+
             pVectorBasis[b] = pVectorBasis[a].Cross(pCanonicalBasis[cc]);
         }
 
         pVectorBasis[b] = pVectorBasis[b].Normalize();
 
         if (pfScales[c] < EPSILON)
-        {
             pVectorBasis[c] = pVectorBasis[a].Cross(pVectorBasis[b]);
-        }
 
         pVectorBasis[c] = pVectorBasis[c].Normalize();
 
         // Update mat tmp;
-        var det = CreateFromRows(pVectorBasis[0], pVectorBasis[1], pVectorBasis[2])
+        float det = CreateFromRows(pVectorBasis[0], pVectorBasis[1], pVectorBasis[2])
             .GetDeterminant();
 
         // use Kramer's rule to check for handedness of coordinate system
@@ -1991,7 +2168,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         else
         {
             // generate the quaternion from the matrix
-            var matTemp = CreateFromRows(pVectorBasis[0], pVectorBasis[1], pVectorBasis[2]);
+            Matrix4x4 matTemp = CreateFromRows(pVectorBasis[0], pVectorBasis[1], pVectorBasis[2]);
             rotation = Quaternion.CreateFromRotationMatrix(matTemp);
         }
 
@@ -2000,13 +2177,15 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 Transform(Matrix4x4 mat)
-        => this * mat;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateTRS(Vector3 translation, Quaternion rotation, Vector3 scale)
-        => CreateTranslation(translation) * CreateRotation(rotation) * CreateScale(scale);
+    public Matrix4x4 Transform(Matrix4x4 mat) => this * mat;
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 CreateTRS(Vector3 translation, Quaternion rotation, Vector3 scale) =>
+        CreateTranslation(translation) * CreateRotation(rotation) * CreateScale(scale);
+
 
     /// <summary>
     /// Get's the scale factor of each axis.  This implementation extracts the scale exclusively,
@@ -2020,14 +2199,14 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// CrossProduct to determine axis flipping: (X Cross Y) Dot Z < 0 == Flip
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ExtractDirectScale()
-        => new Vector3(
+    public Vector3 ExtractDirectScale() =>
+        new(
             Row0.Length() * (M11 > 0 ? 1 : -1),
             Row1.Length() * (M22 > 0 ? 1 : -1),
             Row2.Length() * (M33 > 0 ? 1 : -1)
         );
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 ScaleTranslation(float amount)
-        => SetTranslation(Translation * amount);
+    public Matrix4x4 ScaleTranslation(float amount) => SetTranslation(Translation * amount);
 }

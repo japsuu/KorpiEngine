@@ -1,6 +1,7 @@
 ﻿<#@ import namespace="System.Linq" #>
 <#+
     // MIT License
+    // Copyright (C) 2024 KorpiEngine Team.
     // Copyright (C) 2019 VIMaec LLC.
     // Copyright (C) 2019 Ara 3D. Inc
     // https://ara3d.com
@@ -38,7 +39,7 @@
 
     private void CreateIntervalStruct(string name, string type)
     {
-        CreateStruct(name, new[] { "Min", "Max" }, new[] { type, type }, false, true);
+        CreateStruct(name, [ "Min", "Max" ], [ type, type ], false, true);
     }
 
     private static string ZeroValue(string type) {

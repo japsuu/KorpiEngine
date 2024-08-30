@@ -1,4 +1,5 @@
 ﻿// MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -21,37 +22,47 @@ public struct Stats<T>
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Stats(int count, T min, T max, T sum)
-        => (Count, Min, Max, Sum) = (count, min, max, sum);
+    {
+        (Count, Min, Max, Sum) = (count, min, max, sum);
+    }
 
-    [DataMember] public readonly int Count;
-    [DataMember] public readonly T Min;
-    [DataMember] public readonly T Max;
-    [DataMember] public readonly T Sum;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj)
-        => obj is Stats<T> && Equals((Stats<T>)obj);
+    [DataMember]
+    public readonly int Count;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Stats<T> other)
-        => other.Count == Count && other.Min.Equals(Min) && other.Max.Equals(Max) && other.Sum.Equals(Sum);
+    [DataMember]
+    public readonly T Min;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode()
-        => Hash.Combine(Count.GetHashCode(), Min.GetHashCode(), Max.GetHashCode(), Sum.GetHashCode());
+    [DataMember]
+    public readonly T Max;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(Stats<T> left, Stats<T> right)
-        => left.Equals(right);
+    [DataMember]
+    public readonly T Sum;
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(Stats<T> left, Stats<T> right)
-        => !(left == right);
+    public override bool Equals(object? obj) => obj is Stats<T> stats && Equals(stats);
 
-    public static readonly Stats<T> Default
-        = new Stats<T>(default, default, default, default);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString()
-        => $"Stats<{typeof(T)}(Count = {Count}, Min = {Min}, Max = {Max}, Sum = {Sum})";
+    public bool Equals(Stats<T> other) => other.Count == Count && other.Min.Equals(Min) && other.Max.Equals(Max) && other.Sum.Equals(Sum);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int GetHashCode() => Hash.Combine(Count.GetHashCode(), Min.GetHashCode(), Max.GetHashCode(), Sum.GetHashCode());
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Stats<T> left, Stats<T> right) => left.Equals(right);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Stats<T> left, Stats<T> right) => !(left == right);
+
+
+    public static readonly Stats<T> Default = new(default, default, default, default);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override string ToString() => $"Stats<{typeof(T)}(Count = {Count}, Min = {Min}, Max = {Max}, Sum = {Sum})";
 }

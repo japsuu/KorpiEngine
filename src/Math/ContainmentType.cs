@@ -1,4 +1,5 @@
 ﻿// MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -9,7 +10,7 @@
 namespace KorpiEngine;
 
 /// <summary>
-/// Defines how the bounding volumes intersects or contain one another.
+/// Defines how the bounding volumes intersect or contain one another.
 /// </summary>
 public enum ContainmentType
 {
@@ -17,10 +18,12 @@ public enum ContainmentType
     /// Indicates that there is no overlap between two bounding volumes.
     /// </summary>
     Disjoint,
+
     /// <summary>
     /// Indicates that one bounding volume completely contains another volume.
     /// </summary>
     Contains,
+
     /// <summary>
     /// Indicates that bounding volumes partially overlap one another.
     /// </summary>

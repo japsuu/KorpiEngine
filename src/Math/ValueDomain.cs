@@ -1,14 +1,16 @@
-﻿
-namespace KorpiEngine;
+﻿namespace KorpiEngine;
 
 public class ValueDomain
 {
     public readonly double Lower;
     public readonly double Upper;
 
-    public ValueDomain(double lower, double upper)
-        => (Lower, Upper) = (lower, upper);
 
-    public double Normalize(double value)
-        => value.Clamp(Lower, Upper) / Upper;
+    public ValueDomain(double lower, double upper)
+    {
+        (Lower, Upper) = (lower, upper);
+    }
+
+
+    public double Normalize(double value) => value.Clamp(Lower, Upper) / Upper;
 }

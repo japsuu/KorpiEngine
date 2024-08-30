@@ -1,4 +1,5 @@
 ﻿// MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -16,11 +17,12 @@ public partial struct Ray : ITransformable3D<Ray>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float? Intersects(AABox box)
     {
-        const float Epsilon = 1e-6f;
+        const float epsilon = 1e-6f;
 
-        float? tMin = null, tMax = null;
+        float? tMin = null,
+            tMax = null;
 
-        if (Math.Abs(Direction.X) < Epsilon)
+        if (Math.Abs(Direction.X) < epsilon)
         {
             if (Position.X < box.Min.X || Position.X > box.Max.X)
                 return null;
@@ -32,25 +34,25 @@ public partial struct Ray : ITransformable3D<Ray>
 
             if (tMin > tMax)
             {
-                var temp = tMin;
+                float? temp = tMin;
                 tMin = tMax;
                 tMax = temp;
             }
         }
 
-        if (Math.Abs(Direction.Y) < Epsilon)
+        if (Math.Abs(Direction.Y) < epsilon)
         {
             if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
                 return null;
         }
         else
         {
-            var tMinY = (box.Min.Y - Position.Y) / Direction.Y;
-            var tMaxY = (box.Max.Y - Position.Y) / Direction.Y;
+            float tMinY = (box.Min.Y - Position.Y) / Direction.Y;
+            float tMaxY = (box.Max.Y - Position.Y) / Direction.Y;
 
             if (tMinY > tMaxY)
             {
-                var temp = tMinY;
+                float temp = tMinY;
                 tMinY = tMaxY;
                 tMaxY = temp;
             }
@@ -58,23 +60,25 @@ public partial struct Ray : ITransformable3D<Ray>
             if ((tMin.HasValue && tMin > tMaxY) || (tMax.HasValue && tMinY > tMax))
                 return null;
 
-            if (!tMin.HasValue || tMinY > tMin) tMin = tMinY;
-            if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
+            if (!tMin.HasValue || tMinY > tMin)
+                tMin = tMinY;
+            if (!tMax.HasValue || tMaxY < tMax)
+                tMax = tMaxY;
         }
 
-        if (Math.Abs(Direction.Z) < Epsilon)
+        if (Math.Abs(Direction.Z) < epsilon)
         {
             if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
                 return null;
         }
         else
         {
-            var tMinZ = (box.Min.Z - Position.Z) / Direction.Z;
-            var tMaxZ = (box.Max.Z - Position.Z) / Direction.Z;
+            float tMinZ = (box.Min.Z - Position.Z) / Direction.Z;
+            float tMaxZ = (box.Max.Z - Position.Z) / Direction.Z;
 
             if (tMinZ > tMaxZ)
             {
-                var temp = tMinZ;
+                float temp = tMinZ;
                 tMinZ = tMaxZ;
                 tMaxZ = temp;
             }
@@ -82,56 +86,61 @@ public partial struct Ray : ITransformable3D<Ray>
             if ((tMin.HasValue && tMin > tMaxZ) || (tMax.HasValue && tMinZ > tMax))
                 return null;
 
-            if (!tMin.HasValue || tMinZ > tMin) tMin = tMinZ;
-            if (!tMax.HasValue || tMaxZ < tMax) tMax = tMaxZ;
+            if (!tMin.HasValue || tMinZ > tMin)
+                tMin = tMinZ;
+            if (!tMax.HasValue || tMaxZ < tMax)
+                tMax = tMaxZ;
         }
 
         // having a positive tMin and a negative tMax means the ray is inside the box
         // we expect the intesection distance to be 0 in that case
-        if (tMin.HasValue && tMin < 0 && tMax > 0) return 0;
+        if (tMin.HasValue && tMin < 0 && tMax > 0)
+            return 0;
 
         // a negative tMin means that the intersection point is behind the ray's origin
         // we discard these as not hitting the AABB
-        if (tMin < 0) return null;
+        if (tMin < 0)
+            return null;
 
         return tMin;
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float? Intersects(Plane plane, float tolerance = Constants.Tolerance)
+    public float? Intersects(Plane plane, float tolerance = Constants.TOLERANCE)
     {
-        var den = Vector3.Dot(Direction, plane.Normal);
+        float den = Vector3.Dot(Direction, plane.Normal);
         if (den.Abs() < tolerance)
             return null;
 
-        var result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
+        float result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
 
         if (result < 0.0f)
         {
             if (result < -tolerance)
-            {
                 return null;
-            }
 
             result = 0.0f;
         }
+
         return result;
     }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float? Intersects(Sphere sphere)
     {
         // Find the vector between where the ray starts the the sphere's centre
-        var difference = sphere.Center - Position;
-        var differenceLengthSquared = difference.LengthSquared();
-        var sphereRadiusSquared = sphere.Radius * sphere.Radius;
+        Vector3 difference = sphere.Center - Position;
+        float differenceLengthSquared = difference.LengthSquared();
+        float sphereRadiusSquared = sphere.Radius * sphere.Radius;
 
         // If the distance between the ray start and the sphere's centre is less than
         // the radius of the sphere, it means we've intersected. N.B. checking the LengthSquared is faster.
         if (differenceLengthSquared < sphereRadiusSquared)
             return 0.0f;
 
-        var distanceAlongRay = Vector3.Dot(Direction, difference);
+        float distanceAlongRay = Vector3.Dot(Direction, difference);
 
         // If the ray is pointing away from the sphere then we don't ever intersect
         if (distanceAlongRay < 0)
@@ -142,38 +151,39 @@ public partial struct Ray : ITransformable3D<Ray>
         // if y = distance between ray position and sphere centre
         // if z = the distance we've travelled along the ray
         // if x^2 + z^2 - y^2 < 0, we do not intersect
-        var dist = sphereRadiusSquared + distanceAlongRay.Sqr() - differenceLengthSquared;
-        return (dist < 0) ? null : distanceAlongRay - (float?)Math.Sqrt(dist);
+        float dist = sphereRadiusSquared + distanceAlongRay.Sqr() - differenceLengthSquared;
+        return dist < 0 ? null : distanceAlongRay - (float?)Math.Sqrt(dist);
     }
 
-    public Ray Transform(Matrix4x4 mat)
-        => new Ray(Position.Transform(mat), Direction.TransformNormal(mat));
+
+    public Ray Transform(Matrix4x4 mat) => new(Position.Transform(mat), Direction.TransformNormal(mat));
+
 
     // Adapted from https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
     // Does not require or benefit from precomputed normals.
-    public float? Intersects(Triangle tri, float tolerance = Constants.Tolerance)
+    public float? Intersects(Triangle tri, float tolerance = Constants.TOLERANCE)
     {
-        var edge1 = tri.B - tri.A;
-        var edge2 = tri.C - tri.A;
+        Vector3 edge1 = tri.B - tri.A;
+        Vector3 edge2 = tri.C - tri.A;
 
-        var h = Direction.Cross(edge2);
-        var a = edge1.Dot(h);
+        Vector3 h = Direction.Cross(edge2);
+        float a = edge1.Dot(h);
         if (a > -tolerance && a < tolerance)
             return null; // This ray is parallel to this triangle.
 
-        var f = 1.0f / a;
-        var s = Position - tri.A;
-        var u = f * s.Dot(h);
+        float f = 1.0f / a;
+        Vector3 s = Position - tri.A;
+        float u = f * s.Dot(h);
         if (u < 0.0 || u > 1.0)
             return null;
 
-        var q = s.Cross(edge1);
-        var v = f * Direction.Dot(q);
+        Vector3 q = s.Cross(edge1);
+        float v = f * Direction.Dot(q);
         if (v < 0.0 || u + v > 1.0)
             return null;
 
         // At this stage we can compute t to find out where the intersection point is on the line.
-        var t = f * edge2.Dot(q);
+        float t = f * edge2.Dot(q);
         if (t > tolerance)
             return t;
 

@@ -1,4 +1,5 @@
 // MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -17,38 +18,37 @@ public static class Hash
     // https://referencesource.microsoft.com/#System.Numerics/System/Numerics/HashCodeHelper.cs
     // https://github.com/dotnet/corefx/blob/master/src/Common/src/CoreLib/System/Numerics/Hashing/HashHelpers.cs
 
+
     public static int Combine(int h1, int h2)
     {
         unchecked
         {
             // RyuJIT optimizes this to use the ROL instruction
             // Related GitHub pull request: dotnet/coreclr#1830
-            var rol5 = ((uint)h1 << 5) | ((uint)h1 >> 27);
+            uint rol5 = ((uint)h1 << 5) | ((uint)h1 >> 27);
             return ((int)rol5 + h1) ^ h2;
         }
     }
 
+
     public static int Combine(IList<int> xs)
     {
-        if (xs.Count == 0) return 0;
-        var r = xs[0];
-        for (var i = 1; i < xs.Count; ++i)
+        if (xs.Count == 0)
+            return 0;
+        int r = xs[0];
+        for (int i = 1; i < xs.Count; ++i)
             r = Combine(r, i);
         return r;
     }
 
-    public static int Combine(params int[] xs)
-        => Combine(xs as IList<int>);
 
-    public static int Combine(int x0, int x1, int x2)
-        => Combine(Combine(x0, x1), x2);
+    public static int Combine(params int[] xs) => Combine(xs as IList<int>);
 
-    public static int Combine(int x0, int x1, int x2, int x3)
-        => Combine(Combine(x0, x1, x2), x3);
+    public static int Combine(int x0, int x1, int x2) => Combine(Combine(x0, x1), x2);
 
-    public static int HashValues(this IEnumerable<int> values)
-        => values.Aggregate(0, (acc, x) => Combine(acc, x));
+    public static int Combine(int x0, int x1, int x2, int x3) => Combine(Combine(x0, x1, x2), x3);
 
-    public static int HashCodes<T>(this IEnumerable<T> values)
-        => values.Select(x => x.GetHashCode()).HashValues();
+    public static int HashValues(this IEnumerable<int> values) => values.Aggregate(0, (acc, x) => Combine(acc, x));
+
+    public static int HashCodes<T>(this IEnumerable<T> values) => values.Select(x => x.GetHashCode()).HashValues();
 }

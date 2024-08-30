@@ -1,4 +1,5 @@
 // MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -18,12 +19,16 @@ public partial struct Plane : ITransformable3D<Plane>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Plane(float x, float y, float z, float d)
         : this(new Vector3(x, y, z), d)
-    { }
+    {
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Plane(Vector4 v)
         : this(v.X, v.Y, v.Z, v.W)
-    { }
+    {
+    }
+
 
     /// <summary>
     /// Creates a Plane that contains the three given points.
@@ -31,12 +36,13 @@ public partial struct Plane : ITransformable3D<Plane>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Plane CreateFromVertices(Vector3 point1, Vector3 point2, Vector3 point3)
     {
-        var a = point2 - point1;
-        var b = point3 - point1;
-        var n = a.Cross(b);
-        var d = -n.Normalize().Dot(point1);
+        Vector3 a = point2 - point1;
+        Vector3 b = point3 - point1;
+        Vector3 n = a.Cross(b);
+        float d = -n.Normalize().Dot(point1);
         return new Plane(n.Normalize(), d);
     }
+
 
     /// <summary>
     /// Creates a Plane with the given normal that contains the point
@@ -44,11 +50,12 @@ public partial struct Plane : ITransformable3D<Plane>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Plane CreateFromNormalAndPoint(Vector3 normal, Vector3 point)
     {
-        var n = normal.Normalize();
-        var d = n.Dot(point);
+        Vector3 n = normal.Normalize();
+        float d = n.Dot(point);
 
         return new Plane(n, d);
     }
+
 
     /// <summary>
     /// Creates a new Plane whose normal vector is the source Plane's normal vector normalized.
@@ -57,33 +64,39 @@ public partial struct Plane : ITransformable3D<Plane>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Plane Normalize(Plane value)
     {
-        const float FLT_EPSILON = 1.192092896e-07f; // smallest such that 1.0+FLT_EPSILON != 1.0
-        var normalLengthSquared = value.Normal.LengthSquared();
-        if ((normalLengthSquared - 1.0f).Abs() < FLT_EPSILON)
+        const float fltEpsilon = 1.192092896e-07f; // smallest such that 1.0+FLT_EPSILON != 1.0
+        float normalLengthSquared = value.Normal.LengthSquared();
+        if ((normalLengthSquared - 1.0f).Abs() < fltEpsilon)
         {
             // It already normalized, so we don't need to farther process.
             return value;
         }
-        var normalLength = normalLengthSquared.Sqrt();
+
+        float normalLength = normalLengthSquared.Sqrt();
         return new Plane(
             value.Normal / normalLength,
             value.D / normalLength);
     }
 
+
     /// <summary>
     /// Transforms a normalized Plane by a Matrix.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Plane Transform(Matrix4x4 matrix)
+    public Plane Transform(Matrix4x4 mat)
     {
-        Matrix4x4.Invert(matrix, out var m);
-        float x = Normal.X, y = Normal.Y, z = Normal.Z, w = D;
+        Matrix4x4.Invert(mat, out Matrix4x4 m);
+        float x = Normal.X,
+            y = Normal.Y,
+            z = Normal.Z,
+            w = D;
         return new Plane(
             x * m.M11 + y * m.M12 + z * m.M13 + w * m.M14,
             x * m.M21 + y * m.M22 + z * m.M23 + w * m.M24,
             x * m.M31 + y * m.M32 + z * m.M33 + w * m.M34,
             x * m.M41 + y * m.M42 + z * m.M43 + w * m.M44);
     }
+
 
     /// <summary>
     ///  Transforms a normalized Plane by a Quaternion rotation.
@@ -92,33 +105,35 @@ public partial struct Plane : ITransformable3D<Plane>
     public Plane Transform(Quaternion rotation)
     {
         // Compute rotation matrix.
-        var x2 = rotation.X + rotation.X;
-        var y2 = rotation.Y + rotation.Y;
-        var z2 = rotation.Z + rotation.Z;
+        float x2 = rotation.X + rotation.X;
+        float y2 = rotation.Y + rotation.Y;
+        float z2 = rotation.Z + rotation.Z;
 
-        var wx2 = rotation.W * x2;
-        var wy2 = rotation.W * y2;
-        var wz2 = rotation.W * z2;
-        var xx2 = rotation.X * x2;
-        var xy2 = rotation.X * y2;
-        var xz2 = rotation.X * z2;
-        var yy2 = rotation.Y * y2;
-        var yz2 = rotation.Y * z2;
-        var zz2 = rotation.Z * z2;
+        float wx2 = rotation.W * x2;
+        float wy2 = rotation.W * y2;
+        float wz2 = rotation.W * z2;
+        float xx2 = rotation.X * x2;
+        float xy2 = rotation.X * y2;
+        float xz2 = rotation.X * z2;
+        float yy2 = rotation.Y * y2;
+        float yz2 = rotation.Y * z2;
+        float zz2 = rotation.Z * z2;
 
-        var m11 = 1.0f - yy2 - zz2;
-        var m21 = xy2 - wz2;
-        var m31 = xz2 + wy2;
+        float m11 = 1.0f - yy2 - zz2;
+        float m21 = xy2 - wz2;
+        float m31 = xz2 + wy2;
 
-        var m12 = xy2 + wz2;
-        var m22 = 1.0f - xx2 - zz2;
-        var m32 = yz2 - wx2;
+        float m12 = xy2 + wz2;
+        float m22 = 1.0f - xx2 - zz2;
+        float m32 = yz2 - wx2;
 
-        var m13 = xz2 - wy2;
-        var m23 = yz2 + wx2;
-        var m33 = 1.0f - xx2 - yy2;
+        float m13 = xz2 - wy2;
+        float m23 = yz2 + wx2;
+        float m33 = 1.0f - xx2 - yy2;
 
-        float x = Normal.X, y = Normal.Y, z = Normal.Z;
+        float x = Normal.X,
+            y = Normal.Y,
+            z = Normal.Z;
 
         return new Plane(
             x * m11 + y * m21 + z * m31,
@@ -127,56 +142,57 @@ public partial struct Plane : ITransformable3D<Plane>
             D);
     }
 
+
     /// <summary>
     /// Projects a point onto the plane
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 ProjectPointOntoPlane(Plane plane, Vector3 point)
     {
-        var dist = point.Dot(plane.Normal) - plane.D;
+        float dist = point.Dot(plane.Normal) - plane.D;
         return point - plane.Normal * dist;
     }
 
-    /// <summary>
-    /// Calculates the dot product of a Plane and Vector4.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Plane plane, Vector4 value)
-        => plane.Dot(value);
 
     /// <summary>
     /// Calculates the dot product of a Plane and Vector4.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float Dot(Vector4 value)
-        => ToVector4().Dot(value);
+    public static float Dot(Plane plane, Vector4 value) => plane.Dot(value);
+
+
+    /// <summary>
+    /// Calculates the dot product of a Plane and Vector4.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float Dot(Vector4 value) => ToVector4().Dot(value);
+
 
     /// <summary>
     /// Returns the dot product of a specified Vector3 and the normal vector of this Plane plus the distance (D) value of the Plane.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float DotCoordinate(Plane plane, Vector3 value)
-        => Vector3.Dot(plane.Normal, value) + plane.D;
+    public static float DotCoordinate(Plane plane, Vector3 value) => Vector3.Dot(plane.Normal, value) + plane.D;
+
 
     /// <summary>
     /// Returns the dot product of a specified Vector3 and the Normal vector of this Plane.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float DotNormal(Plane plane, Vector3 value)
-        => plane.Normal.Dot(value);
+    public static float DotNormal(Plane plane, Vector3 value) => plane.Normal.Dot(value);
+
 
     /// <summary>
     /// Returns a value less than zero if the points is below the plane, above zero if above the plane, or zero if coplanar
     /// </summary>
     /// <param name="point"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float ClassifyPoint(Vector3 point)
-        => point.Dot(Normal) + D;
+    public float ClassifyPoint(Vector3 point) => point.Dot(Normal) + D;
+
 
     /// <summary>
     /// Returns a Vector4 representation of the Plane
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector4 ToVector4()
-        => new Vector4(Normal.X, Normal.Y, Normal.Z, D);
+    public Vector4 ToVector4() => new(Normal.X, Normal.Y, Normal.Z, D);
 }

@@ -1,4 +1,5 @@
 ﻿// MIT License
+// Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
@@ -17,10 +18,12 @@ public enum PlaneIntersectionType
     /// There is no intersection, the bounding volume is in the negative half space of the plane.
     /// </summary>
     Front,
+
     /// <summary>
     /// There is no intersection, the bounding volume is in the positive half space of the plane.
     /// </summary>
     Back,
+
     /// <summary>
     /// The plane is intersected.
     /// </summary>
