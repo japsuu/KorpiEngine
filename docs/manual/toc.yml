@@ -6,3 +6,5 @@
   href: scripting.md
 - name: Coordinate Systems
   href: coordinate-systems.md
+- name: Math
+  href: math.md
