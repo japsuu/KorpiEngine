@@ -10,7 +10,7 @@ public class Transform
     public Vector3 Forward
     {
         get => Rotation * Vector3.Forward;
-        set => Rotation = Quaternion.LookAtDirection(value, Vector3.Up);
+        set => Rotation = Quaternion.CreateLookAtDirection(value, Vector3.Up);
     }
 
     public bool IsRootTransform => Parent == null;
@@ -125,7 +125,7 @@ public class Transform
     /// </summary>
     public Vector3 EulerAngles
     {
-        get => MakeSafe(Rotation.ToEulerAngles().WrapEulers().ToDegrees());
+        get => MakeSafe(Rotation.ToEulerAngles().WrapEulersRadians().ToDegrees());
         set
         {
             Rotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
@@ -135,7 +135,7 @@ public class Transform
 
     public Vector3 LocalEulerAngles
     {
-        get => MakeSafe(_localRotation.ToEulerAngles().ToDegrees());
+        get => MakeSafe(_localRotation.ToEulerAngles().WrapEulersRadians().ToDegrees());
         set
         {
             _localRotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));

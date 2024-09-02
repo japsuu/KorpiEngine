@@ -18,7 +18,7 @@ public class QuaternionTests
         var expected = 70.0f;
         float actual;
 
-        actual = Quaternion.Dot(a, b);
+        actual = MathOps.Dot(a, b);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Dot did not return the expected value: expected {expected} actual {actual}");
     }
 

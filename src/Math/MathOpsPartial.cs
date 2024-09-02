@@ -125,7 +125,7 @@ public static partial class MathOps
     /// </summary>
     /// <param name="angle">The angle to reduce, in radians.</param>
     /// <returns>The new angle, in radians.</returns>
-    public static float WrapAngle(this float angle)
+    public static float WrapAngleRadians(this float angle)
     {
         if (angle > -Constants.PI && angle <= Constants.PI)
             return angle;
@@ -138,11 +138,16 @@ public static partial class MathOps
     }
 
 
-    public static Vector3 WrapEulers(this Vector3 eulers)
+    /// <summary>
+    /// Reduces all components of the given vector to values between π and -π.
+    /// </summary>
+    /// <param name="eulers">The vector to reduce, in radians.</param>
+    /// <returns></returns>
+    public static Vector3 WrapEulersRadians(this Vector3 eulers)
     {
-        float x = eulers.X.WrapAngle();
-        float y = eulers.Y.WrapAngle();
-        float z = eulers.Z.WrapAngle();
+        float x = eulers.X.WrapAngleRadians();
+        float y = eulers.Y.WrapAngleRadians();
+        float z = eulers.Z.WrapAngleRadians();
         return new Vector3(x, y, z);
     }
 
@@ -445,6 +450,29 @@ public static partial class MathOps
             return 0;
         return (v1.Dot(v2) / d).Clamp(-1F, 1F).Acos();
     }
+    
+    
+    /// <returns>The angle in degrees between two Quaternions.</returns>
+    public static float AngleDegrees(this Quaternion q1, Quaternion q2) => AngleRadians(q1, q2).ToDegrees();
+
+
+    /// <returns>The angle in radians between two Quaternions.</returns>
+    public static float AngleRadians(this Quaternion q1, Quaternion q2)
+    {
+        float dot = Dot(q1, q2);
+        return (float)Math.Acos(Math.Min(Math.Abs(dot), 1.0f)) * 2.0f;
+    }
+
+
+    /// <summary>
+    /// Calculates the dot product of two Quaternions.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Dot(this Quaternion quaternion1, Quaternion quaternion2) =>
+        quaternion1.X * quaternion2.X +
+        quaternion1.Y * quaternion2.Y +
+        quaternion1.Z * quaternion2.Z +
+        quaternion1.W * quaternion2.W;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

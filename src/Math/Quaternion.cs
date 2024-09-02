@@ -39,6 +39,8 @@ public partial struct Quaternion
     }
 
 
+#region Instance Methods
+
     /// <summary>
     /// Calculates the length of the Quaternion.
     /// </summary>
@@ -85,6 +87,10 @@ public partial struct Quaternion
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Quaternion Inverse() => Conjugate() * LengthSquared().Inverse();
 
+#endregion
+
+
+#region Creation Methods
 
     /// <summary>
     /// Creates a Quaternion from a normalized vector axis and an angle to rotate about the vector.
@@ -157,18 +163,18 @@ public partial struct Quaternion
 
 
     /// <summary>
-    /// Creates a new look-at Quaternion
+    /// Creates a new Quaternion that rotates from one direction to another.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion LookAt(Vector3 position, Vector3 targetPosition, Vector3 up, Vector3 forward)
+    public static Quaternion CreateLookAt(Vector3 currentPosition, Vector3 targetPosition, Vector3 upDirection, Vector3 forwardDirection)
     {
-        Plane plane = Plane.CreateFromNormalAndPoint(up, position);
+        Plane plane = Plane.CreateFromNormalAndPoint(upDirection, currentPosition);
 
         Vector3 projectedTarget = Plane.ProjectPointOntoPlane(plane, targetPosition);
-        Vector3 projectedDirection = (projectedTarget - position).Normalize();
+        Vector3 projectedDirection = (projectedTarget - currentPosition).Normalize();
 
-        Quaternion q1 = CreateRotationFromAToB(forward, projectedDirection, up);
-        Quaternion q2 = CreateRotationFromAToB(projectedDirection, (targetPosition - position).Normalize(), up);
+        Quaternion q1 = CreateRotationFromAToB(forwardDirection, projectedDirection, upDirection);
+        Quaternion q2 = CreateRotationFromAToB(projectedDirection, (targetPosition - currentPosition).Normalize(), upDirection);
 
         return q2 * q1;
     }
@@ -178,19 +184,13 @@ public partial struct Quaternion
     /// Creates a new look-at Quaternion from a precomputed direction vector.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion LookAtDirection(Vector3 direction, Vector3 up)
+    public static Quaternion CreateLookAtDirection(Vector3 direction, Vector3 up)
     {
         Vector3 forward = Vector3.Forward;
         return CreateRotationFromAToB(forward, direction.Normalize(), up);
     }
-    
-    
-    /// <returns>The angle in degrees between two Quaternions.</returns>
-    public static float Angle(Quaternion q1, Quaternion q2)
-    {
-        float dot = Dot(q1, q2);
-        return (float)Math.Acos(Math.Min(Math.Abs(dot), 1.0f)) * 2.0f * (180.0f / (float)Math.PI);
-    }
+
+#endregion
 
 
     /// <summary>
@@ -308,17 +308,6 @@ public partial struct Quaternion
 
 
     /// <summary>
-    /// Calculates the dot product of two Quaternions.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Quaternion quaternion1, Quaternion quaternion2) =>
-        quaternion1.X * quaternion2.X +
-        quaternion1.Y * quaternion2.Y +
-        quaternion1.Z * quaternion2.Z +
-        quaternion1.W * quaternion2.W;
-
-
-    /// <summary>
     /// Interpolates between two quaternions, using spherical linear interpolation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -369,7 +358,7 @@ public partial struct Quaternion
     /// (1.0f - 1) 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Lerp(Quaternion q1, Quaternion q2, float t) =>
-        (Dot(q1, q2) >= 0.0f
+        (MathOps.Dot(q1, q2) >= 0.0f
             ? q1 * (1.0f - t) + q2 * t
             : q1 * (1.0f - t) - q2 * t).Normalize();
 
