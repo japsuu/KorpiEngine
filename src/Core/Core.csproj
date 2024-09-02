@@ -43,6 +43,10 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Math\Math.csproj" />
+    </ItemGroup>
+
     <!--ItemGroup>
       <ProjectReference Include="..\Math\Math.csproj" />
     </ItemGroup-->
