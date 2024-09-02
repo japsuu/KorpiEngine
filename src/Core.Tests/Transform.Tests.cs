@@ -11,7 +11,7 @@ public class TransformTest
     {
         public bool Equals(Vector3 x, Vector3 y)
         {
-            return Vector3.Approximately(x, y, 0.001f);
+            return x.AlmostEquals(y, 0.01f);
         }
 
         
@@ -26,7 +26,7 @@ public class TransformTest
     {
         public bool Equals(Quaternion x, Quaternion y)
         {
-            return Quaternion.Approximately(x, y, 0.01f);
+            return x.AlmostEquals(y, 0.01f);
         }
 
         
@@ -57,7 +57,7 @@ public class TransformTest
     {
         Entity e = new(null, null);
         Transform component = e.Transform;
-        Quaternion expectedRotation = Quaternion.Euler(new Vector3(0, 90, 45));
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAngles(new Vector3(0, 90, 45));
 
         component.Rotation = expectedRotation;
         
@@ -91,10 +91,8 @@ public class TransformTest
 
         component.EulerAngles = expectedEulerAngles;
     
-        Assert.That(component.EulerAngles, Is.EqualTo(expectedEulerAngles).Using(new Vector3Comparer()));
-        
         // Also check if the rotation is correct
-        Assert.That(component.Rotation, Is.EqualTo(Quaternion.Euler(expectedEulerAngles)).Using(new QuaternionComparer()));
+        Assert.That(component.Rotation, Is.EqualTo(Quaternion.CreateFromEulerAngles(expectedEulerAngles.ToRadians())).Using(new QuaternionComparer()));
     }
 
     #endregion

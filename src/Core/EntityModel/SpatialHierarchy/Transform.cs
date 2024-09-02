@@ -125,7 +125,7 @@ public class Transform
     /// </summary>
     public Vector3 EulerAngles
     {
-        get => MakeSafe(Rotation.ToEulerAngles().ToDegrees());
+        get => MakeSafe(Rotation.ToEulerAngles().WrapEulers().ToDegrees());
         set
         {
             Rotation = MakeSafe(Quaternion.CreateFromEulerAngles(value.ToRadians()));

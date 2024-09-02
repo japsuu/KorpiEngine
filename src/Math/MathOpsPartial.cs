@@ -138,6 +138,15 @@ public static partial class MathOps
     }
 
 
+    public static Vector3 WrapEulers(this Vector3 eulers)
+    {
+        float x = eulers.X.WrapAngle();
+        float y = eulers.Y.WrapAngle();
+        float z = eulers.Z.WrapAngle();
+        return new Vector3(x, y, z);
+    }
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNonZeroAndValid(this float self, float tolerance = Constants.TOLERANCE) =>
         !self.IsInfinity() && !self.IsNaN() && self.Abs() > tolerance;
