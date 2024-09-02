@@ -297,6 +297,13 @@ public static partial class MathOps
 
 
     /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 Transform(this Vector3 value, Matrix4x4 mat) => value.Transform(mat);
+
+
+    /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

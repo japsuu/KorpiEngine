@@ -85,14 +85,21 @@ public partial struct Quaternion
     /// Creates a new Quaternion from the given rotation around X, Y, and Z
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion CreateFromEulerAngles(Vector3 v)
+    public static Quaternion CreateFromEulerAngles(Vector3 v) => CreateFromEulerAngles(v.X, v.Y, v.Z);
+
+
+    /// <summary>
+    /// Creates a new Quaternion from the given rotation around X, Y, and Z
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion CreateFromEulerAngles(float x, float y, float z)
     {
-        double c1 = Math.Cos(v.X / 2);
-        double s1 = Math.Sin(v.X / 2);
-        double c2 = Math.Cos(v.Y / 2);
-        double s2 = Math.Sin(v.Y / 2);
-        double c3 = Math.Cos(v.Z / 2);
-        double s3 = Math.Sin(v.Z / 2);
+        double c1 = Math.Cos(x / 2);
+        double s1 = Math.Sin(x / 2);
+        double c2 = Math.Cos(y / 2);
+        double s2 = Math.Sin(y / 2);
+        double c3 = Math.Cos(z / 2);
+        double s3 = Math.Sin(z / 2);
 
         double qw = c1 * c2 * c3 - s1 * s2 * s3;
         double qx = s1 * c2 * c3 + c1 * s2 * s3;
@@ -138,6 +145,17 @@ public partial struct Quaternion
         Quaternion q2 = CreateRotationFromAToB(projectedDirection, (targetPosition - position).Normalize(), up);
 
         return q2 * q1;
+    }
+    
+    
+    /// <summary>
+    /// Creates a new look-at Quaternion from a precomputed direction vector.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion LookAtDirection(Vector3 direction, Vector3 up)
+    {
+        Vector3 forward = Vector3.Forward;
+        return CreateRotationFromAToB(forward, direction.Normalize(), up);
     }
 
 

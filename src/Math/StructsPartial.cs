@@ -8,14 +8,80 @@ using System.Runtime.CompilerServices;
 
 namespace KorpiEngine;
 
+public partial struct ColorHDR
+{
+    public static readonly ColorHDR White = new(1f, 1f, 1f, 1f);
+    public static readonly ColorHDR Black = new(0f, 0f, 0f, 1f);
+    public static readonly ColorHDR Gray = new(0.5f, 0.5f, 0.5f, 1f);
+    public static readonly ColorHDR Transparent = new(0f, 0f, 0f, 0f);
+
+    public static readonly ColorHDR Red = new(1f, 0f, 0f, 1f);
+    public static readonly ColorHDR Green = new(0f, 1f, 0f, 1f);
+    public static readonly ColorHDR Blue = new(0f, 0f, 1f, 1f);
+
+    public static readonly ColorHDR Yellow = new(1f, 1f, 0f, 1f);
+    public static readonly ColorHDR Cyan = new(0f, 1f, 1f, 1f);
+    public static readonly ColorHDR Magenta = new(1f, 0f, 1f, 1f);
+
+    public static readonly ColorHDR LightRed = new(1f, 0.5f, 0.5f, 1f);
+    public static readonly ColorHDR LightGreen = new(0.5f, 1f, 0.5f, 1f);
+    public static readonly ColorHDR LightBlue = new(0.5f, 0.5f, 1f, 1f);
+}
+
+public partial struct ColorRGB
+{
+    public static readonly ColorRGB White = new(255, 255, 255);
+    public static readonly ColorRGB Black = new(0, 0, 0);
+    public static readonly ColorRGB Gray = new(128, 128, 128);
+
+    public static readonly ColorRGB Red = new(255, 0, 0);
+    public static readonly ColorRGB Green = new(0, 255, 0);
+    public static readonly ColorRGB Blue = new(0, 0, 255);
+
+    public static readonly ColorRGB Yellow = new(255, 255, 0);
+    public static readonly ColorRGB Cyan = new(0, 255, 255);
+    public static readonly ColorRGB Magenta = new(255, 0, 255);
+
+    public static readonly ColorRGB LightRed = new(255, 128, 128);
+    public static readonly ColorRGB LightGreen = new(128, 255, 128);
+    public static readonly ColorRGB LightBlue = new(128, 128, 255);
+
+
+    public void DeconstructFloat(out float r, out float g, out float b)
+    {
+        r = R / 255f;
+        g = G / 255f;
+        b = B / 255f;
+    }
+}
+
 public partial struct ColorRGBA
 {
+    public static readonly ColorRGBA White = new(255, 255, 255, 255);
+    public static readonly ColorRGBA Black = new(0, 0, 0, 255);
+    public static readonly ColorRGBA Gray = new(128, 128, 128, 255);
+    public static readonly ColorRGBA Transparent = new(0, 0, 0, 0);
+
+    public static readonly ColorRGBA Red = new(255, 0, 0, 255);
+    public static readonly ColorRGBA Green = new(0, 255, 0, 255);
+    public static readonly ColorRGBA Blue = new(0, 0, 255, 255);
+
+    public static readonly ColorRGBA Yellow = new(255, 255, 0, 255);
+    public static readonly ColorRGBA Cyan = new(0, 255, 255, 255);
+    public static readonly ColorRGBA Magenta = new(255, 0, 255, 255);
+
     public static readonly ColorRGBA LightRed = new(255, 128, 128, 255);
-    public static readonly ColorRGBA DarkRed = new(255, 0, 0, 255);
     public static readonly ColorRGBA LightGreen = new(128, 255, 128, 255);
-    public static readonly ColorRGBA DarkGreen = new(0, 255, 0, 255);
     public static readonly ColorRGBA LightBlue = new(128, 128, 255, 255);
-    public static readonly ColorRGBA DarkBlue = new(0, 0, 255, 255);
+
+
+    public void DeconstructFloat(out float r, out float g, out float b, out float a)
+    {
+        r = R / 255f;
+        g = G / 255f;
+        b = B / 255f;
+        a = A / 255f;
+    }
 }
 
 public partial struct Vector4 : ITransformable3D<Vector4>
@@ -52,6 +118,13 @@ public partial struct Vector4 : ITransformable3D<Vector4>
 
 public partial struct Vector3 : ITransformable3D<Vector3>
 {
+    public static readonly Vector3 Right = new(1.0f, 0.0f, 0.0f);
+    public static readonly Vector3 Left = new(-1.0f, 0.0f, 0.0f);
+    public static readonly Vector3 Up = new(0.0f, 1.0f, 0.0f);
+    public static readonly Vector3 Down = new(0.0f, -1.0f, 0.0f);
+    public static readonly Vector3 Forward = new(0.0f, 0.0f, -1.0f);
+    public static readonly Vector3 Backward = new(0.0f, 0.0f, 1.0f);
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3(float x, float y)
         : this(x, y, 0)
