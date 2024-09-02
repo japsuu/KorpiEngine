@@ -423,6 +423,13 @@ public partial struct Quaternion
 
 
     /// <summary>
+    /// Transforms a Vector3 by a Quaternion.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 operator *(Quaternion rotation, Vector3 point) => point.Transform(rotation);
+
+
+    /// <summary>
     /// Multiplies a Quaternion by a scalar value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
