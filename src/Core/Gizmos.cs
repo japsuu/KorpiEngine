@@ -8,14 +8,14 @@ namespace KorpiEngine;
 
 public static class Gizmos
 {
-    private static readonly Color DefaultColor = Color.White;
+    private static readonly ColorHDR DefaultColor = ColorHDR.White;
     private static readonly List<(Gizmo, Matrix4x4)> GizmosList = new(100);
     private static PrimitiveBatch? lineBatch;
     private static Material? gizmosMat;
 
     internal static bool AllowCreation { get; set; }
     public static Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
-    public static Color Color { get; set; } = DefaultColor;
+    public static ColorHDR Color { get; set; } = DefaultColor;
 
 
     public static void DrawLine(Vector3 from, Vector3 to)

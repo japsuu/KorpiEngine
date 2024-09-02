@@ -17,7 +17,7 @@ public abstract class Gizmo
     public abstract void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix);
 }
 
-public class LineGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
+public class LineGizmo(Vector3 start, Vector3 end, ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -26,7 +26,7 @@ public class LineGizmo(Vector3 start, Vector3 end, Color color) : Gizmo
     }
 }
 
-public class ArrowGizmo(Vector3 start, Vector3 end, Color color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f) : Gizmo
+public class ArrowGizmo(Vector3 start, Vector3 end, ColorHDR color, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -45,7 +45,7 @@ public class ArrowGizmo(Vector3 start, Vector3 end, Color color, float arrowHead
     }
 }
 
-public class PolygonGizmo(Vector3[] points, Color color, bool closed = false) : Gizmo
+public class PolygonGizmo(Vector3[] points, ColorHDR color, bool closed = false) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -57,7 +57,7 @@ public class PolygonGizmo(Vector3[] points, Color color, bool closed = false) : 
     }
 }
 
-public class CircleGizmo(Color color) : Gizmo
+public class CircleGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -78,7 +78,7 @@ public class CircleGizmo(Color color) : Gizmo
     }
 }
 
-public class DirectionalLightGizmo(Color color) : Gizmo
+public class DirectionalLightGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -100,7 +100,7 @@ public class DirectionalLightGizmo(Color color) : Gizmo
     }
 }
 
-public class SphereGizmo(Color color) : Gizmo
+public class SphereGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -115,7 +115,7 @@ public class SphereGizmo(Color color) : Gizmo
     }
 }
 
-public class CubeGizmo(Color color) : Gizmo
+public class CubeGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -147,7 +147,7 @@ public class CubeGizmo(Color color) : Gizmo
     }
 }
 
-public class CylinderGizmo(Color color) : Gizmo
+public class CylinderGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -172,7 +172,7 @@ public class CylinderGizmo(Color color) : Gizmo
     }
 }
 
-public class CapsuleGizmo(Color color) : Gizmo
+public class CapsuleGizmo(ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
@@ -208,7 +208,7 @@ public class CapsuleGizmo(Color color) : Gizmo
     }
 
 
-    private void DrawHalfSphere(PrimitiveBatch batch, Color lineColor, bool isTop)
+    private void DrawHalfSphere(PrimitiveBatch batch, ColorHDR lineColor, bool isTop)
     {
         int numSegments = 12; // Adjust for smoother or more segmented circle
 
@@ -258,7 +258,7 @@ public class CapsuleGizmo(Color color) : Gizmo
     }
 }
 
-public class SpotlightGizmo(float distance, float angle, Color color) : Gizmo
+public class SpotlightGizmo(float distance, float angle, ColorHDR color) : Gizmo
 {
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
