@@ -70,12 +70,12 @@ public class QuaternionTests
         var expected = Quaternion.CreateFromAxisAngle(axis, MathHelper.ToRadians(20.0f));
         Quaternion actual;
 
-        actual = Quaternion.Lerp(a, b, t);
+        actual = MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Lerp did not return the expected value: expected {expected} actual {actual}");
 
         // Case a and b are same.
         expected = a;
-        actual = Quaternion.Lerp(a, a, t);
+        actual = MathOps.Lerp(a, a, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Lerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -91,7 +91,7 @@ public class QuaternionTests
         var t = 0.0f;
 
         var expected = new Quaternion(a.X, a.Y, a.Z, a.W);
-        var actual = Quaternion.Lerp(a, b, t);
+        var actual = MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Lerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -107,7 +107,7 @@ public class QuaternionTests
         var t = 1.0f;
 
         var expected = new Quaternion(b.X, b.Y, b.Z, b.W);
-        var actual = Quaternion.Lerp(a, b, t);
+        var actual = MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Lerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -122,7 +122,7 @@ public class QuaternionTests
 
         var t = 1.0f;
 
-        var actual = Quaternion.Lerp(a, b, t);
+        var actual = MathOps.Lerp(a, b, t);
         // Note that in quaternion world, Q == -Q. In the case of quaternions dot product is zero, 
         // one of the quaternion will be flipped to compute the shortest distance. When t = 1, we
         // expect the result to be the same as quaternion b but flipped.
@@ -177,7 +177,7 @@ public class QuaternionTests
         var expected = new Quaternion(24.0f, 48.0f, 48.0f, -6.0f);
         Quaternion actual;
 
-        actual = Quaternion.Concatenate(a, b);
+        actual = MathOps.Concatenate(a, b);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Concatenate did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -400,12 +400,12 @@ public class QuaternionTests
         var expected = Quaternion.CreateFromAxisAngle(axis, MathHelper.ToRadians(20.0f));
         Quaternion actual;
 
-        actual = Quaternion.Slerp(a, b, t);
+        actual = MathOps.Slerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Slerp did not return the expected value: expected {expected} actual {actual}");
 
         // Case a and b are same.
         expected = a;
-        actual = Quaternion.Slerp(a, a, t);
+        actual = MathOps.Slerp(a, a, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Slerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -421,7 +421,7 @@ public class QuaternionTests
         var t = 0.0f;
 
         var expected = new Quaternion(a.X, a.Y, a.Z, a.W);
-        var actual = Quaternion.Slerp(a, b, t);
+        var actual = MathOps.Slerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Slerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -437,7 +437,7 @@ public class QuaternionTests
         var t = 1.0f;
 
         var expected = new Quaternion(b.X, b.Y, b.Z, b.W);
-        var actual = Quaternion.Slerp(a, b, t);
+        var actual = MathOps.Slerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Slerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -453,7 +453,7 @@ public class QuaternionTests
         var t = 1.0f;
 
         var expected = a;
-        var actual = Quaternion.Slerp(a, b, t);
+        var actual = MathOps.Slerp(a, b, t);
         // Note that in quaternion world, Q == -Q. In the case of quaternions dot product is zero, 
         // one of the quaternion will be flipped to compute the shortest distance. When t = 1, we
         // expect the result to be the same as quaternion b but flipped.
@@ -472,7 +472,7 @@ public class QuaternionTests
         var t = 0.0f;
 
         var expected = new Quaternion(a.X, a.Y, a.Z, a.W);
-        var actual = Quaternion.Slerp(a, b, t);
+        var actual = MathOps.Slerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), $"Quaternion.Slerp did not return the expected value: expected {expected} actual {actual}");
     }
 
@@ -879,7 +879,7 @@ public class QuaternionTests
         var z = (float)System.Math.PI / 3f;
         var euler = new Vector3(x, y, z);
         var quat = Quaternion.CreateFromEulerAnglesRadians(euler);
-        var euler2 = quat.ToEulerAngles();
+        var euler2 = quat.ToEulerAnglesRadians();
         Assert.AreEqual(euler.X, euler2.X, 0.001f);
         Assert.AreEqual(euler.Y, euler2.Y, 0.001f);
         Assert.AreEqual(euler.Z, euler2.Z, 0.001f);

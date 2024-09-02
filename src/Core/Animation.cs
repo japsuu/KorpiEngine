@@ -87,7 +87,7 @@ public class Animation : EntityComponent
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation = Quaternion.Slerp(rotation, rot.Value, (float)normalizedWeight);
+                rotation = MathOps.Slerp(rotation, rot.Value, (float)normalizedWeight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
@@ -106,7 +106,7 @@ public class Animation : EntityComponent
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation *= Quaternion.Slerp(Quaternion.Identity, rot.Value, (float)state.Weight);
+                rotation *= MathOps.Slerp(Quaternion.Identity, rot.Value, (float)state.Weight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)

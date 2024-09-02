@@ -120,12 +120,12 @@ public class Transform
 
     /// <summary>
     /// <see cref="Rotation"/> of the transform as Euler angles in degrees.
-    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Vector3 EulerAngles
     {
-        get => MakeSafe(Rotation.ToEulerAngles().WrapEulersRadians().ToDegrees());
+        get => MakeSafe(Rotation.ToEulerAnglesDegrees().WrapEulersRadians());
         set
         {
             Rotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
@@ -135,7 +135,7 @@ public class Transform
 
     public Vector3 LocalEulerAngles
     {
-        get => MakeSafe(_localRotation.ToEulerAngles().WrapEulersRadians().ToDegrees());
+        get => MakeSafe(_localRotation.ToEulerAnglesDegrees().WrapEulersRadians());
         set
         {
             _localRotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));

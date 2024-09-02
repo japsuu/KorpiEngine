@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 
 namespace KorpiEngine;
 
-// TODO: many of these functions are static and should be member functions.
 /// <summary>
 /// A structure encapsulating a four-dimensional vector (x,y,z,w), 
 /// which is used to efficiently rotate an object about the (x,y,z) vector by the angle theta, where w = cos(theta/2).
@@ -27,6 +26,12 @@ public partial struct Quaternion
     /// Returns whether the Quaternion is the identity Quaternion.
     /// </summary>
     public bool IsIdentity => this == Identity;
+
+
+    /// <summary>
+    /// Returns the Quaternion as a Vector4.
+    /// </summary>
+    public Vector4 Vector4 => new(X, Y, Z, W);
 
 
     /// <summary>
@@ -86,6 +91,76 @@ public partial struct Quaternion
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Quaternion Inverse() => Conjugate() * LengthSquared().Inverse();
+
+
+#region Conversions
+
+    /// <summary>
+    /// Returns Euler123 angles (rotate around, X, then Y, then Z) as degrees.
+    /// </summary>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToEulerAnglesDegrees() => ToEulerAnglesRadians().ToDegrees();
+
+
+    /// <summary>
+    /// Returns Euler123 angles (rotate around, X, then Y, then Z) as radians.
+    /// </summary>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToEulerAnglesRadians()
+    {
+        /*
+        // https://stackoverflow.com/questions/5782658/extracting-yaw-from-a-quaternion
+        // This should fit for intrinsic tait-bryan rotation of xyz-order.
+        var yaw = (float)Math.Atan2(2.0 * (Y * Z + W * X), W * W - X * X - Y * Y + Z * Z);
+        var pitch = (float)Math.Asin(-2.0 * (X * Z - W * Y));
+        var roll = (float)Math.Atan2(2.0 * (X * Y + W * Z), W * W + X * X - Y * Y - Z * Z);
+        
+        
+        // https://community.monogame.net/t/solved-reverse-createfromyawpitchroll-or-how-to-get-the-vector-that-would-produce-the-matrix-given-only-the-matrix/9054/3
+        var matrix = Matrix4x4.CreateFromQuaternion(this);
+        var yaw = (float)System.Math.Atan2(matrix.M13, matrix.M33);
+        var pitch = (float)System.Math.Asin(-matrix.M23);
+        var roll = (float)System.Math.Atan2(matrix.M21, matrix.M22);
+        
+        
+        // https://stackoverflow.com/questions/11492299/quaternion-to-euler-angles-algorithm-how-to-convert-to-y-up-and-between-ha
+        var yaw = (float)Math.Atan2(2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (sqz + sqw));     // Yaw
+        var pitch = (float)Math.Asin(2f * (q.X * q.Z - q.W * q.Y));                             // Pitch
+        var roll = (float)Math.Atan2(2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (sqy + sqz));      // Roll
+        
+
+        //This is the code from  http://www.mawsoft.com/blog/?p=197
+        var yaw = (float)Math.Atan2(2 * (W * X + Y * Z), 1 - 2 * (Math.Pow(X, 2) + Math.Pow(Y, 2)));
+        var pitch = (float)Math.Asin(2 * (W * Y - Z * X));
+        var roll = (float)Math.Atan2(2 * (W * Z + X * Y), 1 - 2 * (Math.Pow(Y, 2) + Math.Pow(Z, 2)));
+
+        //return new Vector3(pitch, yaw, roll);
+        */
+
+        //https://www.gamedev.net/forums/topic/597324-quaternion-to-euler-angles-and-back-why-is-the-rotation-changing/
+        float x = (float)Math.Atan2(-2 * (Y * Z - W * X), W * W - X * X - Y * Y + Z * Z);
+        float y = (float)Math.Asin(2 * (X * Z + W * Y));
+        float z = (float)Math.Atan2(-2 * (X * Y - W * Z), W * W + X * X - Y * Y - Z * Z);
+        return new Vector3(x, y, z);
+    }
+    
+
+    public HorizontalCoordinate ToSphericalAngle() => ToSphericalAngle(Vector3.Forward);
+
+
+    public HorizontalCoordinate ToSphericalAngle(Vector3 forwardVector)
+    {
+        Vector3 newForward = forwardVector.Transform(this);
+        Vector3 forwardXY = new Vector3(newForward.X, newForward.Y, 0.0f).Normalize();
+        float angle = forwardXY.Y.Acos();
+        float azimuth = forwardXY.X < 0.0f ? angle : -angle;
+        float inclination = -newForward.Z.Acos() + Constants.HALF_PI;
+        return (azimuth, inclination);
+    }
+
+#endregion
 
 #endregion
 
@@ -190,8 +265,6 @@ public partial struct Quaternion
         return CreateRotationFromAToB(forward, direction.Normalize(), up);
     }
 
-#endregion
-
 
     /// <summary>
     /// Creates a new Quaternion rotating vector 'fromA' to 'toB'.<br/>
@@ -204,20 +277,16 @@ public partial struct Quaternion
         float lengthSquared = axis.LengthSquared();
         if (lengthSquared > 0.0f)
             return CreateFromAxisAngle(axis / (float)Math.Sqrt(lengthSquared), (float)Math.Acos(MathOps.Clamp(fromA.Dot(toB), -1, 1)));
-        else
+
+        // The vectors are parallel to each other
+        if ((fromA + toB).AlmostZero())
         {
-            // The vectors are parallel to each other
-            if ((fromA + toB).AlmostZero())
-            {
-                // The vectors are in opposite directions so rotate by half a circle.
-                return CreateFromAxisAngle(up ?? Vector3.UnitZ, (float)Math.PI);
-            }
-            else
-            {
-                // The vectors are in the same direction so no rotation is required.
-                return Identity;
-            }
+            // The vectors are in opposite directions so rotate by half a circle.
+            return CreateFromAxisAngle(up ?? Vector3.UnitY, (float)Math.PI);
         }
+
+        // The vectors are in the same direction, so no rotation is required.
+        return Identity;
     }
 
 
@@ -307,94 +376,12 @@ public partial struct Quaternion
     }
 
 
-    /// <summary>
-    /// Interpolates between two quaternions, using spherical linear interpolation.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion Slerp(Quaternion q1, Quaternion q2, float t)
-    {
-        const float epsilon = 1e-6f;
+    public static Quaternion CreateFromHorizontalCoordinate(HorizontalCoordinate angle) => CreateZRotation((float)angle.Azimuth) * CreateXRotation((float)angle.Inclination);
 
-        float cosOmega = q1.X * q2.X +
-                         q1.Y * q2.Y +
-                         q1.Z * q2.Z +
-                         q1.W * q2.W;
-
-        bool flip = false;
-
-        if (cosOmega < 0.0f)
-        {
-            flip = true;
-            cosOmega = -cosOmega;
-        }
-
-        float s1,
-            s2;
-
-        if (cosOmega > 1.0f - epsilon)
-        {
-            // Too close, do straight linear interpolation.
-            s1 = 1.0f - t;
-            s2 = flip ? -t : t;
-        }
-        else
-        {
-            float omega = cosOmega.Acos();
-            float invSinOmega = 1 / omega.Sin();
-
-            s1 = ((1.0f - t) * omega).Sin() * invSinOmega;
-            s2 = flip
-                ? -(t * omega).Sin() * invSinOmega
-                : (t * omega).Sin() * invSinOmega;
-        }
-
-        return q1 * s1 + q2 * s2;
-    }
+#endregion
 
 
-    /// <summary>
-    ///  Linearly interpolates between two quaternions.
-    /// </summary>
-    /// (1.0f - 1) 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion Lerp(Quaternion q1, Quaternion q2, float t) =>
-        (MathOps.Dot(q1, q2) >= 0.0f
-            ? q1 * (1.0f - t) + q2 * t
-            : q1 * (1.0f - t) - q2 * t).Normalize();
-
-
-    /// <summary>
-    /// Concatenates two Quaternions; the result represents the value1 rotation followed by the value2 rotation.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion Concatenate(Quaternion value1, Quaternion value2)
-    {
-        // Concatenate rotation is actually q2 * q1 instead of q1 * q2.
-        // So that's why value2 goes q1 and value1 goes q2.
-        float q1x = value2.X;
-        float q1y = value2.Y;
-        float q1z = value2.Z;
-        float q1w = value2.W;
-
-        float q2x = value1.X;
-        float q2y = value1.Y;
-        float q2z = value1.Z;
-        float q2w = value1.W;
-
-        // cross(av, bv)
-        float cx = q1y * q2z - q1z * q2y;
-        float cy = q1z * q2x - q1x * q2z;
-        float cz = q1x * q2y - q1y * q2x;
-
-        float dot = q1x * q2x + q1y * q2y + q1z * q2z;
-
-        return new Quaternion(
-            q1x * q2w + q2x * q1w + cx,
-            q1y * q2w + q2y * q1w + cy,
-            q1z * q2w + q2z * q1w + cz,
-            q1w * q2w - dot);
-    }
-
+#region Operators
 
     /// <summary>
     /// Flips the sign of each component of the quaternion.
@@ -464,74 +451,10 @@ public partial struct Quaternion
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion operator /(Quaternion value1, Quaternion value2) => value1 * value2.Inverse();
+    
 
-
-    /// <summary>
-    /// Returns Euler123 angles (rotate around, X, then Y, then Z).
-    /// </summary>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ToEulerAngles()
-    {
-        /*
-        // https://stackoverflow.com/questions/5782658/extracting-yaw-from-a-quaternion
-        // This should fit for intrinsic tait-bryan rotation of xyz-order.
-        var yaw = (float)Math.Atan2(2.0 * (Y * Z + W * X), W * W - X * X - Y * Y + Z * Z);
-        var pitch = (float)Math.Asin(-2.0 * (X * Z - W * Y));
-        var roll = (float)Math.Atan2(2.0 * (X * Y + W * Z), W * W + X * X - Y * Y - Z * Z);
-        */
-
-        /*
-        // https://community.monogame.net/t/solved-reverse-createfromyawpitchroll-or-how-to-get-the-vector-that-would-produce-the-matrix-given-only-the-matrix/9054/3
-        var matrix = Matrix4x4.CreateFromQuaternion(this);
-        var yaw = (float)System.Math.Atan2(matrix.M13, matrix.M33);
-        var pitch = (float)System.Math.Asin(-matrix.M23);
-        var roll = (float)System.Math.Atan2(matrix.M21, matrix.M22);
-        */
-
-        /*
-        // https://stackoverflow.com/questions/11492299/quaternion-to-euler-angles-algorithm-how-to-convert-to-y-up-and-between-ha
-        var yaw = (float)Math.Atan2(2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (sqz + sqw));     // Yaw
-        var pitch = (float)Math.Asin(2f * (q.X * q.Z - q.W * q.Y));                             // Pitch
-        var roll = (float)Math.Atan2(2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (sqy + sqz));      // Roll
-        */
-
-        /*
-        //This is the code from  http://www.mawsoft.com/blog/?p=197
-        var yaw = (float)Math.Atan2(2 * (W * X + Y * Z), 1 - 2 * (Math.Pow(X, 2) + Math.Pow(Y, 2)));
-        var pitch = (float)Math.Asin(2 * (W * Y - Z * X));
-        var roll = (float)Math.Atan2(2 * (W * Z + X * Y), 1 - 2 * (Math.Pow(Y, 2) + Math.Pow(Z, 2)));
-        */
-
-        //return new Vector3(pitch, yaw, roll);
-
-        //https://www.gamedev.net/forums/topic/597324-quaternion-to-euler-angles-and-back-why-is-the-rotation-changing/
-        float x = (float)Math.Atan2(-2 * (Y * Z - W * X), W * W - X * X - Y * Y + Z * Z);
-        float y = (float)Math.Asin(2 * (X * Z + W * Y));
-        float z = (float)Math.Atan2(-2 * (X * Y - W * Z), W * W + X * X - Y * Y - Z * Z);
-        return new Vector3(x, y, z);
-    }
-
-
-    public Vector4 Vector4 => new(X, Y, Z, W);
-
-    public HorizontalCoordinate ToSphericalAngle() => ToSphericalAngle(Vector3.UnitY);
-
-
-    public HorizontalCoordinate ToSphericalAngle(Vector3 forwardVector)
-    {
-        Vector3 newForward = forwardVector.Transform(this);
-        Vector3 forwardXY = new Vector3(newForward.X, newForward.Y, 0.0f).Normalize();
-        float angle = forwardXY.Y.Acos();
-        float azimuth = forwardXY.X < 0.0f ? angle : -angle;
-        float inclination = -newForward.Z.Acos() + Constants.HALF_PI;
-        return (azimuth, inclination);
-    }
-
-
-    public static Quaternion Create(HorizontalCoordinate angle) => CreateZRotation((float)angle.Azimuth) * CreateXRotation((float)angle.Inclination);
-
-    public static implicit operator Quaternion(HorizontalCoordinate angle) => Create(angle);
-
+    public static implicit operator Quaternion(HorizontalCoordinate angle) => CreateFromHorizontalCoordinate(angle);
     public static implicit operator HorizontalCoordinate(Quaternion q) => q.ToSphericalAngle();
+
+#endregion
 }

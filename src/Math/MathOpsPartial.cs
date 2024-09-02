@@ -709,4 +709,93 @@ public static partial class MathOps
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 ToMatrix(this TransformData self) => Matrix4x4.CreateTRS(self.Position, self.Orientation, self.Scale);
+
+
+    /// <summary>
+    ///  Linearly interpolates between two quaternions.
+    /// </summary>
+    /// (1.0f - 1) 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion Lerp(this Quaternion q1, Quaternion q2, float t) =>
+        (MathOps.Dot(q1, q2) >= 0.0f
+            ? q1 * (1.0f - t) + q2 * t
+            : q1 * (1.0f - t) - q2 * t).Normalize();
+
+
+    /// <summary>
+    /// Interpolates between two quaternions, using spherical linear interpolation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion Slerp(this Quaternion q1, Quaternion q2, float t)
+    {
+        const float epsilon = 1e-6f;
+
+        float cosOmega = q1.X * q2.X +
+                         q1.Y * q2.Y +
+                         q1.Z * q2.Z +
+                         q1.W * q2.W;
+
+        bool flip = false;
+
+        if (cosOmega < 0.0f)
+        {
+            flip = true;
+            cosOmega = -cosOmega;
+        }
+
+        float s1,
+            s2;
+
+        if (cosOmega > 1.0f - epsilon)
+        {
+            // Too close, do straight linear interpolation.
+            s1 = 1.0f - t;
+            s2 = flip ? -t : t;
+        }
+        else
+        {
+            float omega = cosOmega.Acos();
+            float invSinOmega = 1 / omega.Sin();
+
+            s1 = ((1.0f - t) * omega).Sin() * invSinOmega;
+            s2 = flip
+                ? -(t * omega).Sin() * invSinOmega
+                : (t * omega).Sin() * invSinOmega;
+        }
+
+        return q1 * s1 + q2 * s2;
+    }
+
+
+    /// <summary>
+    /// Concatenates two Quaternions; the result represents the value1 rotation followed by the value2 rotation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion Concatenate(this Quaternion value1, Quaternion value2)
+    {
+        // Concatenate rotation is actually q2 * q1 instead of q1 * q2.
+        // So that's why value2 goes q1 and value1 goes q2.
+        float q1x = value2.X;
+        float q1y = value2.Y;
+        float q1z = value2.Z;
+        float q1w = value2.W;
+
+        float q2x = value1.X;
+        float q2y = value1.Y;
+        float q2z = value1.Z;
+        float q2w = value1.W;
+
+        // cross(av, bv)
+        float cx = q1y * q2z - q1z * q2y;
+        float cy = q1z * q2x - q1x * q2z;
+        float cz = q1x * q2y - q1y * q2x;
+
+        float dot = q1x * q2x + q1y * q2y + q1z * q2z;
+
+        return new Quaternion(
+            q1x * q2w + q2x * q1w + cx,
+            q1y * q2w + q2y * q1w + cy,
+            q1z * q2w + q2z * q1w + cz,
+            q1w * q2w - dot);
+    }
 }
