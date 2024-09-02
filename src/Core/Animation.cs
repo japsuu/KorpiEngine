@@ -12,7 +12,7 @@ public class Animation : EntityComponent
     public List<ResourceRef<AnimationClip>> Clips { get; set; } = [];
     public ResourceRef<AnimationClip> DefaultClip { get; set; }
     public bool PlayAutomatically { get; set; } = true;
-    public double Speed { get; set; } = 1.0;
+    public float Speed { get; set; } = 1.0f;
 
     private readonly List<AnimationState> _states = [];
     private readonly Dictionary<string, AnimationState> _stateDictionary = new();
@@ -91,7 +91,7 @@ public class Animation : EntityComponent
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = Vector3.Lerp(scale, scl.Value, (float)normalizedWeight);
+                scale = MathOps.Lerp(scale, scl.Value, (float)normalizedWeight);
         }
     }
 
@@ -110,7 +110,7 @@ public class Animation : EntityComponent
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = Vector3.Lerp(scale, scale * scl.Value, (float)state.Weight);
+                scale = MathOps.Lerp(scale, scale * scl.Value, (float)state.Weight);
         }
     }
 
@@ -145,11 +145,11 @@ public class Animation : EntityComponent
         }
 
         // Weight always update even if the state is disabled
-        state.Weight = Mathd.MoveTowards(state.Weight, state.TargetWeight, state.MoveWeightSpeed * Time.DeltaTime);
+        state.Weight = MathOps.MoveTowards(state.Weight, state.TargetWeight, state.MoveWeightSpeed * Time.DeltaTime);
     }
 
 
-    public void Blend(string clipName, double targetWeight, double fadeLength = 0.3f)
+    public void Blend(string clipName, float targetWeight, float fadeLength = 0.3f)
     {
         if (_stateDictionary.TryGetValue(clipName, out AnimationState? state))
         {
@@ -159,12 +159,12 @@ public class Animation : EntityComponent
     }
 
 
-    public void CrossFade(string clipName, double fadeLength = 0.3f)
+    public void CrossFade(string clipName, float fadeLength = 0.3f)
     {
         // Set all target weights to 0, and assign movespeed according to fadeLength
         foreach (AnimationState state in _states)
         {
-            state.TargetWeight = state.Name.Equals(clipName, StringComparison.OrdinalIgnoreCase) ? 1.0 : 0.0;
+            state.TargetWeight = state.Name.Equals(clipName, StringComparison.OrdinalIgnoreCase) ? 1.0f : 0.0f;
             state.MoveWeightSpeed = 1.0f / fadeLength;
         }
     }

@@ -1,4 +1,4 @@
-// MIT License 
+﻿// MIT License 
 // Copyright (C) 2024 KorpiEngine Team.
 // Copyright (C) 2019 VIMaec LLC.
 // Copyright (C) 2019 Ara 3D. Inc

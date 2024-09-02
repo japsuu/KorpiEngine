@@ -50,16 +50,14 @@ public class PrimitiveBatch
     }
 
 
-    public void Line(Vector3 a, Vector3 b, Color colorA, Color colorB)
+    public void Line(Vector3 a, Vector3 b, ColorHDR colorA, ColorHDR colorB)
     {
-        System.Numerics.Vector3 af = a;
-        System.Numerics.Vector3 bf = b;
         _vertices.Add(
             new Vertex
             {
-                X = af.X,
-                Y = af.Y,
-                Z = af.Z,
+                X = a.X,
+                Y = a.Y,
+                Z = a.Z,
                 R = colorA.R,
                 G = colorA.G,
                 B = colorA.B,
@@ -68,9 +66,9 @@ public class PrimitiveBatch
         _vertices.Add(
             new Vertex
             {
-                X = bf.X,
-                Y = bf.Y,
-                Z = bf.Z,
+                X = b.X,
+                Y = b.Y,
+                Z = b.Z,
                 R = colorB.R,
                 G = colorB.G,
                 B = colorB.B,

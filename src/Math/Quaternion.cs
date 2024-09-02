@@ -58,6 +58,18 @@ public partial struct Quaternion
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Quaternion Normalize() => this * Length().Inverse();
+    
+    
+    /// <summary>
+    /// Divides each component of the Quaternion by the length of the Quaternion.
+    /// Returns the identity Quaternion if the length of the Quaternion is zero.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Quaternion NormalizeSafe()
+    {
+        float length = Length();
+        return length > MathOps.EPSILON_FLOAT ? this * length.Inverse() : Identity;
+    }
 
 
     /// <summary>
@@ -156,6 +168,14 @@ public partial struct Quaternion
     {
         Vector3 forward = Vector3.Forward;
         return CreateRotationFromAToB(forward, direction.Normalize(), up);
+    }
+    
+    
+    /// <returns>The angle in degrees between two Quaternions.</returns>
+    public static float Angle(Quaternion q1, Quaternion q2)
+    {
+        float dot = Dot(q1, q2);
+        return (float)Math.Acos(Math.Min(Math.Abs(dot), 1.0f)) * 2.0f * (180.0f / (float)Math.PI);
     }
 
 

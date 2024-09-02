@@ -62,8 +62,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
 
     private void DrawNormalsGizmos()
     {
-        System.Numerics.Vector3[]? vertices = GetMeshVertexPositions();
-        System.Numerics.Vector3[]? normals = GetMeshNormals();
+        Vector3[]? vertices = GetMeshVertexPositions();
+        Vector3[]? normals = GetMeshNormals();
         
         DrawLines(vertices, normals, NormalLength);
     }
@@ -71,8 +71,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
     
     private void DrawTangentsGizmos()
     {
-        System.Numerics.Vector3[]? vertices = GetMeshVertexPositions();
-        System.Numerics.Vector3[]? tangents = GetMeshTangents();
+        Vector3[]? vertices = GetMeshVertexPositions();
+        Vector3[]? tangents = GetMeshTangents();
         
         DrawLines(vertices, tangents, TangentLength);
     }
@@ -83,11 +83,11 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return;
         
-        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Size);
+        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Extent);
     }
 
 
-    private System.Numerics.Vector3[]? GetMeshVertexPositions()
+    private Vector3[]? GetMeshVertexPositions()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -96,7 +96,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
     
     
-    private System.Numerics.Vector3[]? GetMeshNormals()
+    private Vector3[]? GetMeshNormals()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -105,7 +105,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
     
     
-    private System.Numerics.Vector3[]? GetMeshTangents()
+    private Vector3[]? GetMeshTangents()
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
@@ -114,7 +114,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
     }
 
 
-    private void DrawLines(System.Numerics.Vector3[]? positions, System.Numerics.Vector3[]? directions, float length)
+    private void DrawLines(Vector3[]? positions, Vector3[]? directions, float length)
     {
         if (positions == null || directions == null)
             return;
@@ -123,8 +123,8 @@ public class MeshDebugGizmoDrawer : EntityComponent
 
         for (int i = 0; i < positions.Length; i++)
         {
-            System.Numerics.Vector3 position = positions[i];
-            System.Numerics.Vector3 direction = directions[i];
+            Vector3 position = positions[i];
+            Vector3 direction = directions[i];
 
             float dirLength = direction.Length();
             if (dirLength < 0.001f || dirLength > 1f)
@@ -134,14 +134,14 @@ public class MeshDebugGizmoDrawer : EntityComponent
             }
             
             // Transform the position and direction vectors by the local-to-world matrix
-            position = Vector3.Transform(position, localToWorldMatrix);
-            direction = Vector3.TransformNormal(direction, localToWorldMatrix);
+            position = position.Transform(localToWorldMatrix);
+            direction = direction.TransformNormal(localToWorldMatrix);
             
             // Decide the line color based on the normal, ensure there are no black lines
             float r = Math.Abs(direction.X);
             float g = Math.Abs(direction.Y);
             float b = Math.Abs(direction.Z);
-            Gizmos.Color = new Color(r, g, b, 1f);
+            Gizmos.Color = new ColorHDR(r, g, b, 1f);
             
             Gizmos.DrawArrow(position, position + direction * length);
         }

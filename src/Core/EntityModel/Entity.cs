@@ -56,8 +56,7 @@ public sealed class Entity : Resource
         get
         {
             Matrix4x4 t = Transform.LocalToWorldMatrix;
-            t.Translation -= Camera.RenderingCamera.Transform.Position;
-            return t;
+            return t.SetTranslation(t.Translation - Camera.RenderingCamera.Transform.Position);
         }
     }
 
@@ -242,17 +241,17 @@ public sealed class Entity : Resource
             if (Parent != null)
             {
                 Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
-                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Transform.Rotation) * worldRotation);
+                Transform.LocalRotation = (Parent.Transform.Rotation.Inverse() * worldRotation).NormalizeSafe();
             }
             else
             {
                 Transform.LocalPosition = worldPosition;
-                Transform.LocalRotation = Quaternion.NormalizeSafe(worldRotation);
+                Transform.LocalRotation = worldRotation.NormalizeSafe();
             }
 
             Transform.LocalScale = Vector3.One;
-            Matrix4x4 inverseRotationScale = Transform.GetWorldRotationAndScale().Invert() * worldScale;
-            Transform.LocalScale = new Vector3(inverseRotationScale[0, 0], inverseRotationScale[1, 1], inverseRotationScale[2, 2]);
+            Matrix4x4 inverseRotationScale = Transform.GetWorldRotationAndScale().Inverse() * worldScale;
+            Transform.LocalScale = new Vector3(inverseRotationScale.M11, inverseRotationScale.M22, inverseRotationScale.M33);
         }
 
         HierarchyStateChanged();

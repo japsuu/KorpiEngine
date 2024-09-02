@@ -9,7 +9,7 @@ public abstract class Gizmo
 
     public Vector3 Pos(Vector3 worldPos)
     {
-        Vector3 transformedPos = Vector3.Transform(worldPos, Matrix);
+        Vector3 transformedPos = MathOps.Transform(worldPos, Matrix);
         return transformedPos;
     }
 
@@ -31,15 +31,15 @@ public class ArrowGizmo(Vector3 start, Vector3 end, ColorHDR color, float arrowH
     public override void Render(PrimitiveBatch batch, Matrix4x4 worldMatrix)
     {
         Matrix = worldMatrix;
-        double length = (end - start).Magnitude;
+        float length = (float)(end - start).Magnitude();
         
         // Body
         batch.Line(Pos(start), Pos(end), color, color);
         
         // Arrow Head
         Vector3 direction = end - start;
-        Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
-        Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 right = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAngles(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 left = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAngles(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
         batch.Line(Pos(end), Pos(end + right * length * arrowHeadLength), color, color);
         batch.Line(Pos(end), Pos(end + left * length * arrowHeadLength), color, color);
     }
@@ -160,10 +160,10 @@ public class CylinderGizmo(ColorHDR color) : Gizmo
             float angle = (float)i / numSegments * 2f * MathF.PI;
             float angle2 = (float)(i + 1) / numSegments * 2f * MathF.PI;
 
-            Vector3 point1 = new Vector3(MathF.Cos(angle), -1f, MathF.Sin(angle)) * 0.5;
-            Vector3 point2 = new Vector3(MathF.Cos(angle2), -1f, MathF.Sin(angle2)) * 0.5;
-            Vector3 point3 = new Vector3(MathF.Cos(angle), 1f, MathF.Sin(angle)) * 0.5;
-            Vector3 point4 = new Vector3(MathF.Cos(angle2), 1f, MathF.Sin(angle2)) * 0.5;
+            Vector3 point1 = new Vector3(MathF.Cos(angle), -1f, MathF.Sin(angle)) * 0.5f;
+            Vector3 point2 = new Vector3(MathF.Cos(angle2), -1f, MathF.Sin(angle2)) * 0.5f;
+            Vector3 point3 = new Vector3(MathF.Cos(angle), 1f, MathF.Sin(angle)) * 0.5f;
+            Vector3 point4 = new Vector3(MathF.Cos(angle2), 1f, MathF.Sin(angle2)) * 0.5f;
 
             batch.Line(Pos(point1), Pos(point2), color, color);
             batch.Line(Pos(point3), Pos(point4), color, color);
@@ -186,10 +186,10 @@ public class CapsuleGizmo(ColorHDR color) : Gizmo
             float angle = (float)i / numSegments * 2f * MathF.PI;
             float angle2 = (float)(i + 1) / numSegments * 2f * MathF.PI;
 
-            Vector3 point1 = new Vector3(MathF.Cos(angle), -1f, MathF.Sin(angle)) * 0.5;
-            Vector3 point2 = new Vector3(MathF.Cos(angle2), -1f, MathF.Sin(angle2)) * 0.5;
-            Vector3 point3 = new Vector3(MathF.Cos(angle), 1f, MathF.Sin(angle)) * 0.5;
-            Vector3 point4 = new Vector3(MathF.Cos(angle2), 1f, MathF.Sin(angle2)) * 0.5;
+            Vector3 point1 = new Vector3(MathF.Cos(angle), -1f, MathF.Sin(angle)) * 0.5f;
+            Vector3 point2 = new Vector3(MathF.Cos(angle2), -1f, MathF.Sin(angle2)) * 0.5f;
+            Vector3 point3 = new Vector3(MathF.Cos(angle), 1f, MathF.Sin(angle)) * 0.5f;
+            Vector3 point4 = new Vector3(MathF.Cos(angle2), 1f, MathF.Sin(angle2)) * 0.5f;
 
             batch.Line(Pos(point1), Pos(point2), color, color);
             batch.Line(Pos(point3), Pos(point4), color, color);
@@ -265,10 +265,10 @@ public class SpotlightGizmo(float distance, float angle, ColorHDR color) : Gizmo
         Matrix = worldMatrix;
 
         // Calculate the cone vertices
-        Vector3 coneBaseLeft = Vector3.Transform(Vector3.Forward * distance, Matrix4x4.CreateRotationY(-(angle / 2)));
-        Vector3 coneBaseRight = Vector3.Transform(Vector3.Forward * distance, Matrix4x4.CreateRotationY(angle / 2));
-        Vector3 coneBaseTop = Vector3.Transform(Vector3.Forward * distance, Matrix4x4.CreateRotationX(-(angle / 2)));
-        Vector3 coneBaseBottom = Vector3.Transform(Vector3.Forward * distance, Matrix4x4.CreateRotationX(angle / 2));
+        Vector3 coneBaseLeft = (Vector3.Forward * distance).Transform(Matrix4x4.CreateRotationY(-(angle / 2)));
+        Vector3 coneBaseRight = (Vector3.Forward * distance).Transform(Matrix4x4.CreateRotationY(angle / 2));
+        Vector3 coneBaseTop = (Vector3.Forward * distance).Transform(Matrix4x4.CreateRotationX(-(angle / 2)));
+        Vector3 coneBaseBottom = (Vector3.Forward * distance).Transform(Matrix4x4.CreateRotationX(angle / 2));
         float coneBaseRadius = MathF.Tan(angle / 2) * distance;
         float coneBaseDistance = MathF.Sqrt(coneBaseRadius * coneBaseRadius + distance * distance);
 

@@ -17,14 +17,19 @@ public static class WindowInfo
     public static event Action<WindowResizeEventArgs>? ClientResized;
     
     /// <summary>
+    /// Size of the client window.
+    /// </summary>
+    public static Int2 ClientSize { get; private set; }
+    
+    /// <summary>
     /// Width of the client window.
     /// </summary>
-    public static int ClientWidth { get; private set; }
+    public static int ClientWidth => ClientSize.X;
     
     /// <summary>
     /// Height of the client window.
     /// </summary>
-    public static int ClientHeight { get; private set; }
+    public static int ClientHeight => ClientSize.Y;
     
     /// <summary>
     /// Aspect ratio of the client window.
@@ -41,8 +46,7 @@ public static class WindowInfo
 
     private static void UpdateSize(int width, int height)
     {
-        ClientWidth = width;
-        ClientHeight = height;
+        ClientSize = new Int2(width, height);
         ClientAspectRatio = ClientWidth / (float)ClientHeight;
         ClientResized?.Invoke(new WindowResizeEventArgs(ClientWidth, ClientHeight, ClientAspectRatio));
     }

@@ -114,6 +114,26 @@ public partial struct Vector4 : ITransformable3D<Vector4>
 
     public Vector3 XYZ => new(X, Y, Z);
     public Vector2 XY => new(X, Y);
+
+
+    /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The matrix value.</param>
+    /// <param name="right">The source vector.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector4 operator *(Matrix4x4 left, Vector4 right) => right.Transform(left);
+
+
+    /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The source vector.</param>
+    /// <param name="right">The matrix value.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector4 operator *(Vector4 left, Matrix4x4 right) => left.Transform(right);
 }
 
 public partial struct Vector3 : ITransformable3D<Vector3>
@@ -198,6 +218,26 @@ public partial struct Vector3 : ITransformable3D<Vector3>
     public Vector3 ZYX => new(Z, Y, Z);
     public Vector3 YXZ => new(Y, X, Z);
     public Vector3 YZX => new(Y, Z, X);
+
+
+    /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The matrix value.</param>
+    /// <param name="right">The source vector.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 operator *(Matrix4x4 left, Vector3 right) => right.Transform(left);
+
+
+    /// <summary>
+    /// Transforms a vector by the given matrix.
+    /// </summary>
+    /// <param name="left">The source vector.</param>
+    /// <param name="right">The matrix value.</param>
+    /// <returns>The transformed vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 operator *(Vector3 left, Matrix4x4 right) => left.Transform(right);
 }
 
 public partial struct Line : ITransformable3D<Line>, IPoints, IMappable<Line, Vector3>
@@ -250,6 +290,14 @@ public partial struct Int3
 
 public partial struct Vector2
 {
+    public static readonly Vector2 Right = new(1.0f, 0.0f);
+    public static readonly Vector2 Left = new(-1.0f, 0.0f);
+    public static readonly Vector2 Up = new(0.0f, 1.0f);
+    public static readonly Vector2 Down = new(0.0f, -1.0f);
+    
+    public static readonly Vector2 NegativeInfinity = new(float.NegativeInfinity, float.NegativeInfinity);
+    public static readonly Vector2 PositiveInfinity = new(float.PositiveInfinity, float.PositiveInfinity);
+    
     public Vector3 ToVector3() => new(X, Y, 0);
 
     public static implicit operator Vector3(Vector2 self) => self.ToVector3();

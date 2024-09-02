@@ -16,19 +16,19 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
     public Transform?[] Bones { get; set; } = [];
 
-    private System.Numerics.Matrix4x4[]? _boneTransforms;
+    private Matrix4x4[]? _boneTransforms;
 
 
     private void GetBoneMatrices()
     {
-        _boneTransforms = new System.Numerics.Matrix4x4[Bones.Length];
+        _boneTransforms = new Matrix4x4[Bones.Length];
         for (int i = 0; i < Bones.Length; i++)
         {
             Transform? t = Bones[i];
             if (t == null)
-                _boneTransforms[i] = System.Numerics.Matrix4x4.Identity;
+                _boneTransforms[i] = Matrix4x4.Identity;
             else
-                _boneTransforms[i] = (t.LocalToWorldMatrix * Entity.Transform.WorldToLocalMatrix).ToFloat();
+                _boneTransforms[i] = t.LocalToWorldMatrix * Entity.Transform.WorldToLocalMatrix;
         }
     }
 

@@ -14,14 +14,14 @@ public class AnimationState
     public string Name { get; set; }
     public AnimationClip Clip { get; set; }
     public bool Enabled { get; set; }
-    public double Speed { get; set; } = 1.0;
-    public double Time { get; set; }
-    public double Weight { get; set; } = 1.0;
-    public double MoveWeightSpeed { get; set; } = 1.0;
-    public double TargetWeight { get; set; } = 1.0;
+    public float Speed { get; set; } = 1.0f;
+    public float Time { get; set; }
+    public float Weight { get; set; } = 1.0f;
+    public float MoveWeightSpeed { get; set; } = 1.0f;
+    public float TargetWeight { get; set; } = 1.0f;
     
-    public double Length => Clip.Duration;
-    public double NormalizedTime => Time / Length;
+    public float Length => Clip.Duration;
+    public float NormalizedTime => Time / Length;
 
     public WrapMode Wrap { get; set; } = WrapMode.Loop;
     public BlendMode Blend { get; set; } = BlendMode.Blend;
@@ -36,7 +36,7 @@ public class AnimationState
     }
 
 
-    public Vector3? EvaluatePosition(Transform target, double time)
+    public Vector3? EvaluatePosition(Transform target, float time)
     {
         // If MixingTransforms has elements, ensure target is in the list, it's like an allowlist for an animation clip. Ensure target clip exists inside the list
         if (MixingTransforms.Count > 0 && !MixingTransforms.Contains(target.Entity.Name))
@@ -47,7 +47,7 @@ public class AnimationState
     }
 
 
-    public Quaternion? EvaluateRotation(Transform target, double time)
+    public Quaternion? EvaluateRotation(Transform target, float time)
     {
         // If MixingTransforms has elements, ensure target clip exists inside the list
         if (MixingTransforms.Count > 0 && !MixingTransforms.Contains(target.Entity.Name))
@@ -58,7 +58,7 @@ public class AnimationState
     }
 
 
-    public Vector3? EvaluateScale(Transform target, double time)
+    public Vector3? EvaluateScale(Transform target, float time)
     {
         // If MixingTransforms has elements, ensure target clip exists inside the list
         if (MixingTransforms.Count > 0 && !MixingTransforms.Contains(target.Entity.Name))

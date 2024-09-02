@@ -54,11 +54,11 @@ public class ModelImporter : AssetImporter
         if (!scene.HasMeshes)
             throw new AssetImportException<Mesh>($"No meshes found in scene for asset at {assetPath}");
 
-        double scale = UnitScale;
+        float scale = UnitScale;
 
         // FBX files are usually in cm, so scale them to meters
         if (assetPath.Extension.Equals(".fbx", StringComparison.OrdinalIgnoreCase))
-            scale *= 0.01;
+            scale *= 0.01f;
 
         // Replicate the Assimp node hierarchy.
         // This creates an empty entity hierarchy with the same structure as the assimp scene.
@@ -109,7 +109,7 @@ public class ModelImporter : AssetImporter
         }
 
         Entity rootEntity = entityHierarchy[0].entity;
-        if (!Mathd.ApproximatelyEquals(UnitScale, 1.0f))
+        if (!MathOps.AlmostEquals(UnitScale, 1.0f))
             rootEntity.Transform.LocalScale = Vector3.One * UnitScale;
 
         // Add Animation Component to root, with all the animations assigned to it.
@@ -188,7 +188,7 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, double scaleFactor, int i = 0)
+    private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, float scaleFactor, int i = 0)
     {
         Entity entity = new(null, name ?? assimpNode.Name);
         hierarchy.Add((entity, assimpNode));
@@ -249,7 +249,7 @@ public class ModelImporter : AssetImporter
 
     private static void LoadAssimpDiffuseColor(Assimp.Material sourceMat, Material targetMat)
     {
-        Color diffColor = sourceMat.HasColorDiffuse ? new Color(sourceMat.ColorDiffuse.R, sourceMat.ColorDiffuse.G, sourceMat.ColorDiffuse.B, sourceMat.ColorDiffuse.A) : Color.White;
+        ColorHDR diffColor = sourceMat.HasColorDiffuse ? new ColorHDR(sourceMat.ColorDiffuse.R, sourceMat.ColorDiffuse.G, sourceMat.ColorDiffuse.B, sourceMat.ColorDiffuse.A) : ColorHDR.White;
         targetMat.SetColor("_MainColor", diffColor);
     }
 
@@ -259,12 +259,12 @@ public class ModelImporter : AssetImporter
         if (sourceMat.HasColorEmissive)
         {
             targetMat.SetFloat("_EmissionIntensity", 1f);
-            targetMat.SetColor("_EmissiveColor", new Color(sourceMat.ColorEmissive.R, sourceMat.ColorEmissive.G, sourceMat.ColorEmissive.B, sourceMat.ColorEmissive.A));
+            targetMat.SetColor("_EmissiveColor", new ColorHDR(sourceMat.ColorEmissive.R, sourceMat.ColorEmissive.G, sourceMat.ColorEmissive.B, sourceMat.ColorEmissive.A));
         }
         else
         {
             targetMat.SetFloat("_EmissionIntensity", 0f);
-            targetMat.SetColor("_EmissiveColor", Color.Black);
+            targetMat.SetColor("_EmissiveColor", ColorHDR.Black);
         }
     }
 
@@ -360,7 +360,7 @@ public class ModelImporter : AssetImporter
 
     #region Animation loading
 
-    private static List<ResourceRef<AnimationClip>> LoadAnimations(Scene scene, double scale)
+    private static List<ResourceRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
     {
         List<ResourceRef<AnimationClip>> anims = [];
         foreach (Assimp.Animation? anim in scene.Animations)
@@ -373,14 +373,14 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static AnimationClip LoadAssimpAnimation(Scene scene, double scale, Assimp.Animation sourceAnim)
+    private static AnimationClip LoadAssimpAnimation(Scene scene, float scale, Assimp.Animation sourceAnim)
     {
         // Create Animation
         AnimationClip destinationAnim = new();
         destinationAnim.Name = sourceAnim.Name;
-        destinationAnim.Duration = sourceAnim.DurationInTicks / (Mathd.ApproximatelyEquals(sourceAnim.TicksPerSecond, 0) ? 25.0 : sourceAnim.TicksPerSecond);
-        destinationAnim.TicksPerSecond = sourceAnim.TicksPerSecond;
-        destinationAnim.DurationInTicks = sourceAnim.DurationInTicks;
+        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
+        destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
+        destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
 
         foreach (NodeAnimationChannel? channel in sourceAnim.NodeAnimationChannels)
         {
@@ -408,7 +408,7 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadAssimpAnimationPositionKeys(double scale, NodeAnimationChannel channel, Assimp.Animation sourceAnim, AnimationClip destinationAnim, AnimationClip.AnimBone animBone)
+    private static void LoadAssimpAnimationPositionKeys(float scale, NodeAnimationChannel channel, Assimp.Animation sourceAnim, AnimationClip destinationAnim, AnimationClip.AnimBone animBone)
     {
         AnimationCurve xCurve = new();
         AnimationCurve yCurve = new();
@@ -416,9 +416,9 @@ public class ModelImporter : AssetImporter
         foreach (VectorKey posKey in channel.PositionKeys)
         {
             double time = posKey.Time / sourceAnim.DurationInTicks * destinationAnim.Duration;
-            xCurve.Keys.Add(new KeyFrame(time, posKey.Value.X * scale));
-            yCurve.Keys.Add(new KeyFrame(time, posKey.Value.Y * scale));
-            zCurve.Keys.Add(new KeyFrame(time, posKey.Value.Z * scale));
+            xCurve.Keys.Add(new KeyFrame((float)time, posKey.Value.X * scale));
+            yCurve.Keys.Add(new KeyFrame((float)time, posKey.Value.Y * scale));
+            zCurve.Keys.Add(new KeyFrame((float)time, posKey.Value.Z * scale));
         }
 
         animBone.PosX = xCurve;
@@ -436,10 +436,10 @@ public class ModelImporter : AssetImporter
         foreach (QuaternionKey rotKey in channel.RotationKeys)
         {
             double time = rotKey.Time / sourceAnim.DurationInTicks * destinationAnim.Duration;
-            xCurve.Keys.Add(new KeyFrame(time, rotKey.Value.X));
-            yCurve.Keys.Add(new KeyFrame(time, rotKey.Value.Y));
-            zCurve.Keys.Add(new KeyFrame(time, rotKey.Value.Z));
-            wCurve.Keys.Add(new KeyFrame(time, rotKey.Value.W));
+            xCurve.Keys.Add(new KeyFrame((float)time, rotKey.Value.X));
+            yCurve.Keys.Add(new KeyFrame((float)time, rotKey.Value.Y));
+            zCurve.Keys.Add(new KeyFrame((float)time, rotKey.Value.Z));
+            wCurve.Keys.Add(new KeyFrame((float)time, rotKey.Value.W));
         }
 
         animBone.RotX = xCurve;
@@ -457,9 +457,9 @@ public class ModelImporter : AssetImporter
         foreach (VectorKey scaleKey in channel.ScalingKeys)
         {
             double time = scaleKey.Time / sourceAnim.DurationInTicks * destinationAnim.Duration;
-            xCurve.Keys.Add(new KeyFrame(time, scaleKey.Value.X));
-            yCurve.Keys.Add(new KeyFrame(time, scaleKey.Value.Y));
-            zCurve.Keys.Add(new KeyFrame(time, scaleKey.Value.Z));
+            xCurve.Keys.Add(new KeyFrame((float)time, scaleKey.Value.X));
+            yCurve.Keys.Add(new KeyFrame((float)time, scaleKey.Value.Y));
+            zCurve.Keys.Add(new KeyFrame((float)time, scaleKey.Value.Z));
         }
 
         animBone.ScaleX = xCurve;
@@ -495,7 +495,7 @@ public class ModelImporter : AssetImporter
         int vertexCount = assimpMesh.VertexCount;
         engineMesh.IndexFormat = vertexCount >= ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16;
 
-        System.Numerics.Vector3[] vertices = LoadAssimpMeshVertices(scale, vertexCount, assimpMesh, engineMesh);
+        Vector3[] vertices = LoadAssimpMeshVertices(scale, vertexCount, assimpMesh, engineMesh);
 
         if (assimpMesh.HasNormals)
         {
@@ -536,11 +536,11 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static System.Numerics.Vector3[] LoadAssimpMeshVertices(double scale, int vertexCount, Assimp.Mesh assimpMesh, Mesh engineMesh)
+    private static Vector3[] LoadAssimpMeshVertices(double scale, int vertexCount, Assimp.Mesh assimpMesh, Mesh engineMesh)
     {
-        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[vertexCount];
+        Vector3[] vertices = new Vector3[vertexCount];
         for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = new System.Numerics.Vector3(assimpMesh.Vertices[i].X, assimpMesh.Vertices[i].Y, assimpMesh.Vertices[i].Z) * (float)scale;
+            vertices[i] = new Vector3(assimpMesh.Vertices[i].X, assimpMesh.Vertices[i].Y, assimpMesh.Vertices[i].Z) * (float)scale;
         engineMesh.SetVertexPositions(vertices);
         return vertices;
     }
@@ -548,10 +548,10 @@ public class ModelImporter : AssetImporter
 
     private void LoadAssimpMeshNormals(int vertexCount, Assimp.Mesh assimpMesh, Mesh engineMesh)
     {
-        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertexCount];
+        Vector3[] normals = new Vector3[vertexCount];
         for (int i = 0; i < normals.Length; i++)
         {
-            normals[i] = new System.Numerics.Vector3(assimpMesh.Normals[i].X, assimpMesh.Normals[i].Y, assimpMesh.Normals[i].Z);
+            normals[i] = new Vector3(assimpMesh.Normals[i].X, assimpMesh.Normals[i].Y, assimpMesh.Normals[i].Z);
             if (InvertNormals)
                 normals[i] = -normals[i];
         }
@@ -562,32 +562,32 @@ public class ModelImporter : AssetImporter
 
     private static void LoadAssimpMeshTangents(int vertexCount, Assimp.Mesh assimpMesh, Mesh engineMesh)
     {
-        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertexCount];
+        Vector3[] tangents = new Vector3[vertexCount];
         for (int i = 0; i < tangents.Length; i++)
-            tangents[i] = new System.Numerics.Vector3(assimpMesh.Tangents[i].X, assimpMesh.Tangents[i].Y, assimpMesh.Tangents[i].Z);
+            tangents[i] = new Vector3(assimpMesh.Tangents[i].X, assimpMesh.Tangents[i].Y, assimpMesh.Tangents[i].Z);
         engineMesh.SetVertexTangents(tangents);
     }
 
 
     private static void LoadAssimpMeshTexCoords(int vertexCount, Assimp.Mesh assimpMesh, int channelIndex, Mesh engineMesh)
     {
-        System.Numerics.Vector2[] texCoords = new System.Numerics.Vector2[vertexCount];
+        Vector2[] texCoords = new Vector2[vertexCount];
         for (int i = 0; i < texCoords.Length; i++)
-            texCoords[i] = new System.Numerics.Vector2(assimpMesh.TextureCoordinateChannels[channelIndex][i].X, assimpMesh.TextureCoordinateChannels[channelIndex][i].Y);
+            texCoords[i] = new Vector2(assimpMesh.TextureCoordinateChannels[channelIndex][i].X, assimpMesh.TextureCoordinateChannels[channelIndex][i].Y);
         engineMesh.SetVertexUVs(texCoords, channelIndex);
     }
 
 
     private static void LoadAssimpMeshVertexColors(int vertexCount, Assimp.Mesh assimpMesh, Mesh engineMesh)
     {
-        Color32[] colors = new Color32[vertexCount];
+        ColorRGBA[] colors = new ColorRGBA[vertexCount];
         for (int i = 0; i < colors.Length; i++)
         {
             byte r = (byte)(assimpMesh.VertexColorChannels[0][i].R * 255);
             byte g = (byte)(assimpMesh.VertexColorChannels[0][i].G * 255);
             byte b = (byte)(assimpMesh.VertexColorChannels[0][i].B * 255);
             byte a = (byte)(assimpMesh.VertexColorChannels[0][i].A * 255);
-            colors[i] = new Color32(
+            colors[i] = new ColorRGBA(
                 r, g, b, a);
         }
 
@@ -595,11 +595,11 @@ public class ModelImporter : AssetImporter
     }
     
     
-    private static void LoadAssimpMeshBones(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int vertexCount, System.Numerics.Vector3[] vertices)
+    private static void LoadAssimpMeshBones(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int vertexCount, Vector3[] vertices)
     {
-        engineMesh.BindPoses = new System.Numerics.Matrix4x4[assimpMesh.Bones.Count];
-        System.Numerics.Vector4[] boneIndices = new System.Numerics.Vector4[vertexCount];
-        System.Numerics.Vector4[] boneWeights = new System.Numerics.Vector4[vertexCount];
+        engineMesh.BindPoses = new Matrix4x4[assimpMesh.Bones.Count];
+        Vector4[] boneIndices = new Vector4[vertexCount];
+        Vector4[] boneWeights = new Vector4[vertexCount];
         
         // Initialize bone weights, indices and bind poses
         for (int i = 0; i < assimpMesh.Bones.Count; i++)
@@ -608,16 +608,13 @@ public class ModelImporter : AssetImporter
         // Normalize bone weights
         for (int i = 0; i < vertices.Length; i++)
         {
-            System.Numerics.Vector4 w = boneWeights[i];
+            Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
-            if (Mathd.ApproximatelyEquals(totalWeight, 0))
+            if (MathOps.AlmostZero(totalWeight))
                 continue;
                     
-            w.X /= totalWeight;
-            w.Y /= totalWeight;
-            w.Z /= totalWeight;
-            w.W /= totalWeight;
+            w /= totalWeight;
                     
             boneWeights[i] = w;
         }
@@ -627,12 +624,12 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadAssimpMeshBone(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int i, System.Numerics.Vector4[] boneIndices, System.Numerics.Vector4[] boneWeights)
+    private static void LoadAssimpMeshBone(double scale, Mesh engineMesh, Assimp.Mesh assimpMesh, int i, Vector4[] boneIndices, Vector4[] boneWeights)
     {
         Bone? bone = assimpMesh.Bones[i];
 
         Assimp.Matrix4x4 offsetMatrix = bone.OffsetMatrix;
-        System.Numerics.Matrix4x4 bindPose = new(
+        Matrix4x4 bindPose = new(
             offsetMatrix.A1, offsetMatrix.B1, offsetMatrix.C1, offsetMatrix.D1,
             offsetMatrix.A2, offsetMatrix.B2, offsetMatrix.C2, offsetMatrix.D2,
             offsetMatrix.A3, offsetMatrix.B3, offsetMatrix.C3, offsetMatrix.D3,
@@ -640,7 +637,7 @@ public class ModelImporter : AssetImporter
         );
 
         // Adjust translation by scale
-        bindPose.Translation *= (float)scale;
+        bindPose.SetTranslation(bindPose.Translation * (float)scale);
 
         engineMesh.BindPoses![i] = bindPose;
 
@@ -653,27 +650,27 @@ public class ModelImporter : AssetImporter
         for (int j = 0; j < bone.VertexWeightCount; j++)
         {
             VertexWeight weight = bone.VertexWeights[j];
-            System.Numerics.Vector4 b = boneIndices[weight.VertexID];
-            System.Numerics.Vector4 w = boneWeights[weight.VertexID];
-            if (Mathd.ApproximatelyEquals(b.X, 0) || weight.Weight > w.X)
+            Vector4 b = boneIndices[weight.VertexID];
+            Vector4 w = boneWeights[weight.VertexID];
+            if (b.X.AlmostZero() || weight.Weight > w.X)
             {
-                b.X = boneIndex;
-                w.X = weight.Weight;
+                b = b.SetX(boneIndex);
+                w = w.SetX(weight.Weight);
             }
-            else if (Mathd.ApproximatelyEquals(b.Y, 0) || weight.Weight > w.Y)
+            else if (b.Y.AlmostZero() || weight.Weight > w.Y)
             {
-                b.Y = boneIndex;
-                w.Y = weight.Weight;
+                b = b.SetY(boneIndex);
+                w = w.SetY(weight.Weight);
             }
-            else if (Mathd.ApproximatelyEquals(b.Z, 0) || weight.Weight > w.Z)
+            else if (b.Z.AlmostZero() || weight.Weight > w.Z)
             {
-                b.Z = boneIndex;
-                w.Z = weight.Weight;
+                b = b.SetZ(boneIndex);
+                w = w.SetZ(weight.Weight);
             }
-            else if (Mathd.ApproximatelyEquals(b.W, 0) || weight.Weight > w.W)
+            else if (b.W.AlmostZero() || weight.Weight > w.W)
             {
-                b.W = boneIndex;
-                w.W = weight.Weight;
+                b = b.SetW(boneIndex);
+                w = w.SetW(weight.Weight);
             }
             else
             {

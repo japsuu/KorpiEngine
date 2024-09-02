@@ -5,14 +5,14 @@ namespace KorpiEngine.Rendering.Materials;
 
 public class MaterialPropertyBlock
 {
-    private readonly Dictionary<string, Color> _colors = new();
+    private readonly Dictionary<string, ColorHDR> _colors = new();
     private readonly Dictionary<string, Vector2> _vectors2 = new();
     private readonly Dictionary<string, Vector3> _vectors3 = new();
     private readonly Dictionary<string, Vector4> _vectors4 = new();
     private readonly Dictionary<string, float> _floats = new();
     private readonly Dictionary<string, int> _integers = new();
     private readonly Dictionary<string, Matrix4x4> _matrices = new();
-    private readonly Dictionary<string, System.Numerics.Matrix4x4[]> _matrixArrays = new();
+    private readonly Dictionary<string, Matrix4x4[]> _matrixArrays = new();
     private readonly Dictionary<string, ResourceRef<Texture2D>> _textures = new();
 
 
@@ -23,7 +23,7 @@ public class MaterialPropertyBlock
 
     public MaterialPropertyBlock(MaterialPropertyBlock clone)
     {
-        _colors = new Dictionary<string, Color>(clone._colors);
+        _colors = new Dictionary<string, ColorHDR>(clone._colors);
         _vectors2 = new Dictionary<string, Vector2>(clone._vectors2);
         _vectors3 = new Dictionary<string, Vector3>(clone._vectors3);
         _vectors4 = new Dictionary<string, Vector4>(clone._vectors4);
@@ -37,9 +37,9 @@ public class MaterialPropertyBlock
     public bool IsEmpty => _colors.Count == 0 && _vectors4.Count == 0 && _vectors3.Count == 0 && _vectors2.Count == 0 && _floats.Count == 0 && _integers.Count == 0 &&
                            _matrices.Count == 0 && _textures.Count == 0;
 
-    public void SetColor(string name, Color value) => _colors[name] = value;
+    public void SetColor(string name, ColorHDR value) => _colors[name] = value;
 
-    public Color GetColor(string name) => _colors.TryGetValue(name, out Color value) ? value : Color.White;
+    public ColorHDR GetColor(string name) => _colors.TryGetValue(name, out ColorHDR value) ? value : ColorHDR.White;
     
     public bool HasColor(string name) => _colors.ContainsKey(name);
 
@@ -75,7 +75,7 @@ public class MaterialPropertyBlock
 
     public void SetMatrix(string name, Matrix4x4 value) => _matrices[name] = value;
 
-    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value) => _matrixArrays[name] = value.ToArray();
+    public void SetMatrices(string name, IEnumerable<Matrix4x4> value) => _matrixArrays[name] = value.ToArray();
 
     public Matrix4x4 GetMatrix(string name) => _matrices.TryGetValue(name, out Matrix4x4 value) ? value : Matrix4x4.Identity;
     
@@ -135,16 +135,15 @@ public class MaterialPropertyBlock
             Graphics.Device.SetUniformV3(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, Vector4> item in propertyBlock._vectors4)
             Graphics.Device.SetUniformV4(shader, item.Key, item.Value);
-        foreach (KeyValuePair<string, Color> item in propertyBlock._colors)
+        foreach (KeyValuePair<string, ColorHDR> item in propertyBlock._colors)
             Graphics.Device.SetUniformV4(shader, item.Key, new Vector4(item.Value.R, item.Value.G, item.Value.B, item.Value.A));
 
         foreach ((string? key, Matrix4x4 mat) in propertyBlock._matrices)
         {
-            System.Numerics.Matrix4x4 fMat = mat.ToFloat();
-            Graphics.Device.SetUniformMatrix(shader, key, 1, false, in fMat.M11);
+            Graphics.Device.SetUniformMatrix(shader, key, 1, false, in mat.M11);
         }
 
-        foreach ((string? key, System.Numerics.Matrix4x4[]? mats) in propertyBlock._matrixArrays)
+        foreach ((string? key, Matrix4x4[]? mats) in propertyBlock._matrixArrays)
         {
             Graphics.Device.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].M11);
         }

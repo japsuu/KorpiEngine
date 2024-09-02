@@ -232,9 +232,9 @@ public class TAANode : RenderPassNode
         long n = Time.TotalFrameCount % 16;
         Vector2 halton = Halton16[n];
         Vector2 previousJitter = _jitter;
-        _jitter = new Vector2(halton.X - 0.5f, halton.Y - 0.5f) * 2.0;
+        _jitter = new Vector2(halton.X - 0.5f, halton.Y - 0.5f) * 2.0f;
         if (Jitter2X)
-            _jitter *= 2.0;
+            _jitter *= 2.0f;
 
         Matrix4x4 proj = Graphics.ProjectionMatrix;
         proj.M31 += _jitter.X / width;

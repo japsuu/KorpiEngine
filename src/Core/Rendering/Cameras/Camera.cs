@@ -67,7 +67,7 @@ public sealed class Camera : EntityComponent
     public CameraProjectionType ProjectionType { get; set; } = CameraProjectionType.Perspective;
     public CameraClearType ClearType { get; set; } = CameraClearType.SolidColor;
     public CameraClearFlags ClearFlags { get; set; } = CameraClearFlags.Color | CameraClearFlags.Depth;
-    public Color ClearColor { get; set; } = Color.Gray;
+    public ColorHDR ClearColor { get; set; } = ColorHDR.Gray;
     public CameraDebugDrawType DebugDrawType { get; set; } = CameraDebugDrawType.OFF;
 
     /// <summary>
@@ -86,14 +86,14 @@ public sealed class Camera : EntityComponent
     /// Matrix that transforms from world to camera space.
     /// Does not contain the camera position, since we use camera-relative rendering.
     /// </summary>
-    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookToLeftHanded(Vector3.Zero, Transform.Forward, Transform.Up);
+    public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(Vector3.Zero, Transform.Forward, Transform.Up);
 
     /// <summary>
     /// The projection matrix of this camera.
     /// </summary>
     public Matrix4x4 GetProjectionMatrix(float width, float height) => ProjectionType == CameraProjectionType.Orthographic
-        ? System.Numerics.Matrix4x4.CreateOrthographicOffCenterLeftHanded(-OrthographicSize, OrthographicSize, -OrthographicSize, OrthographicSize, NearClipPlane, FarClipPlane).ToDouble()
-        : System.Numerics.Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(FOVDegrees.ToRad(), width / height, NearClipPlane, FarClipPlane).ToDouble();
+        ? Matrix4x4.CreateOrthographicOffCenter(-OrthographicSize, OrthographicSize, -OrthographicSize, OrthographicSize, NearClipPlane, FarClipPlane)
+        : Matrix4x4.CreatePerspectiveFieldOfView(FOVDegrees.ToRadians(), width / height, NearClipPlane, FarClipPlane);
 
 
     internal void Render(int width = -1, int height = -1)
@@ -365,7 +365,7 @@ public sealed class Camera : EntityComponent
     /// <returns>If the provided world position is visible on screen.</returns>
     public bool WorldToScreenPosition(Vector3 worldPosition, out Vector2 screenPos)
     {
-        Vector4 clipSpacePosition = new Vector4(worldPosition, 1) * ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
+        Vector4 clipSpacePosition = new Vector4(worldPosition, 1f) * ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
 
         // Without this, the coordinates are visible even when looking straight away from them.
         if (clipSpacePosition.W <= 0)
@@ -374,81 +374,21 @@ public sealed class Camera : EntityComponent
             return false;
         }
 
-        Vector3 normalizedDeviceCoordinates = clipSpacePosition.Xyz / clipSpacePosition.W;
+        Vector3 normalizedDeviceCoordinates = clipSpacePosition.XYZ / clipSpacePosition.W;
         Vector2 screenCoordinates = new(normalizedDeviceCoordinates.X, -normalizedDeviceCoordinates.Y);
         screenCoordinates += Vector2.One;
         screenCoordinates /= 2;
-        screenCoordinates.X *= WindowInfo.ClientWidth;
-        screenCoordinates.Y *= WindowInfo.ClientHeight;
+        screenCoordinates *= WindowInfo.ClientSize;
         screenPos = screenCoordinates;
         return true;
     }
 
 
-    public Frustum CalculateFrustum()
+    public BoundingFrustum CalculateFrustum()
     {
         Matrix4x4 viewProjection = ViewMatrix * GetProjectionMatrix(WindowInfo.ClientWidth, WindowInfo.ClientHeight);
-        FrustumPlane[] planes = new FrustumPlane[6];
 
-        // Top plane.
-        planes[0] = new FrustumPlane
-        {
-            Normal = new Vector3(
-                viewProjection.M14 - viewProjection.M12, viewProjection.M24 - viewProjection.M22, viewProjection.M34 - viewProjection.M32),
-            Distance = viewProjection.M44 - viewProjection.M42
-        };
-
-        // Bottom plane.
-        planes[1] = new FrustumPlane
-        {
-            Normal = new Vector3(
-                viewProjection.M14 + viewProjection.M12, viewProjection.M24 + viewProjection.M22, viewProjection.M34 + viewProjection.M32),
-            Distance = viewProjection.M44 + viewProjection.M42
-        };
-
-        // Right plane.
-        planes[2] = new FrustumPlane
-        {
-            Normal = new Vector3(
-                viewProjection.M14 - viewProjection.M11, viewProjection.M24 - viewProjection.M21, viewProjection.M34 - viewProjection.M31),
-            Distance = viewProjection.M44 - viewProjection.M41
-        };
-
-        // Left plane.
-        planes[3] = new FrustumPlane
-        {
-            Normal = new Vector3(
-                viewProjection.M14 + viewProjection.M11, viewProjection.M24 + viewProjection.M21, viewProjection.M34 + viewProjection.M31),
-            Distance = viewProjection.M44 + viewProjection.M41
-        };
-
-        // Far plane.
-        planes[4] = new FrustumPlane
-        {
-            Normal = new Vector3(
-                viewProjection.M14 - viewProjection.M13, viewProjection.M24 - viewProjection.M23, viewProjection.M34 - viewProjection.M33),
-            Distance = viewProjection.M44 - viewProjection.M43
-        };
-
-        // Near plane.
-        planes[5] = new FrustumPlane
-        {
-            Normal = new Vector3(viewProjection.M13, viewProjection.M23, viewProjection.M33),
-            Distance = viewProjection.M43
-        };
-
-        // Construct the frustum.
-        Frustum frustum = new(planes);
-
-        // Normalize the planes.
-        for (int i = 0; i < 6; i++)
-        {
-            double length = frustum.Planes[i].Normal.Magnitude;
-            frustum.Planes[i].Normal /= length;
-            frustum.Planes[i].Distance /= length;
-        }
-
-        return frustum;
+        return new BoundingFrustum(viewProjection);
     }
 
     #endregion

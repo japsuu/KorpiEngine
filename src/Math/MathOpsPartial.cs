@@ -14,6 +14,21 @@ namespace KorpiEngine;
 
 public static partial class MathOps
 {
+    /// <inheritdoc cref="float.MinValue"/>
+    public const float EPSILON_FLOAT = float.MinValue;
+
+    /// <inheritdoc cref="double.MinValue"/>
+    public const double EPSILON_DOUBLE = double.MinValue;
+    
+    
+    public static float MoveTowards(float current, float target, float maxDelta)
+    {
+        if (Math.Abs(target - current) <= maxDelta)
+            return target;
+        return current + Math.Sign(target - current) * maxDelta;
+    }
+    
+    
     /// <summary>
     /// Expresses two values as a ratio
     /// </summary>

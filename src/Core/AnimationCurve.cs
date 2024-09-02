@@ -75,10 +75,10 @@ public class AnimationCurve : ISerializable
     /// </summary>
     /// <param name="position">The position on this <see cref="AnimationCurve"/>.</param>
     /// <returns>Value at the position on this <see cref="AnimationCurve"/>.</returns>
-    public double Evaluate(double position)
+    public float Evaluate(float position)
     {
         if (Keys.Count == 0)
-            return 0.0;
+            return 0.0f;
 
         if (Keys.Count == 1)
             return Keys[0].Value;
@@ -88,12 +88,12 @@ public class AnimationCurve : ISerializable
 
         if (position < first.Position)
         {
-            return HandlePreLoop(position, first, last);
+            return (float)HandlePreLoop(position, first, last);
         }
 
         return position <= last.Position ?
-            GetCurvePosition(position) :
-            HandlePostLoop(position, last, first);
+            (float)GetCurvePosition(position) :
+            (float)HandlePostLoop(position, last, first);
     }
 
 
@@ -245,14 +245,14 @@ public class AnimationCurve : ISerializable
                 key.TangentIn = 0;
                 break;
             case CurveTangent.Linear:
-                key.TangentIn = v - v0;
+                key.TangentIn = (float)(v - v0);
                 break;
             case CurveTangent.Smooth:
                 double pn = p1 - p0;
                 if (Math.Abs(pn) < double.Epsilon)
                     key.TangentIn = 0;
                 else
-                    key.TangentIn = (v1 - v0) * ((p - p0) / pn);
+                    key.TangentIn = (float)((v1 - v0) * ((p - p0) / pn));
                 break;
         }
 
@@ -262,14 +262,14 @@ public class AnimationCurve : ISerializable
                 key.TangentOut = 0;
                 break;
             case CurveTangent.Linear:
-                key.TangentOut = v1 - v;
+                key.TangentOut = (float)(v1 - v);
                 break;
             case CurveTangent.Smooth:
                 double pn = p1 - p0;
                 if (Math.Abs(pn) < double.Epsilon)
                     key.TangentOut = 0;
                 else
-                    key.TangentOut = (v1 - v0) * ((p1 - p) / pn);
+                    key.TangentOut = (float)((v1 - v0) * ((p1 - p) / pn));
                 break;
         }
     }
@@ -356,9 +356,9 @@ public class AnimationCurve : ISerializable
         List<SerializedProperty> keyList = value.Get("Keys")!.List;
         foreach (SerializedProperty key in keyList)
         {
-            double position = key.Get("Position")!.DoubleValue;
+            float position = key.Get("Position")!.FloatValue;
             KeyFrame curveKey = new(
-                position, key.Get("Value")!.DoubleValue, key.Get("TangentIn")!.DoubleValue, key.Get("TangentOut")!.DoubleValue,
+                position, key.Get("Value")!.FloatValue, key.Get("TangentIn")!.FloatValue, key.Get("TangentOut")!.FloatValue,
                 (CurveContinuity)key.Get("Continuity")!.IntValue);
             Keys.Add(curveKey);
         }
@@ -387,16 +387,16 @@ public sealed class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
     public CurveContinuity Continuity { get; set; }
 
     /// <summary> Gets a position of the key on the curve. </summary>
-    public double Position { get; }
+    public float Position { get; }
 
     /// <summary> Gets or sets a tangent when approaching this point from the previous point on the curve. </summary>
-    public double TangentIn { get; set; }
+    public float TangentIn { get; set; }
 
     /// <summary> Gets or sets a tangent when leaving this point to the next point on the curve. </summary>
-    public double TangentOut { get; set; }
+    public float TangentOut { get; set; }
 
     /// <summary> Gets a value of this point. </summary>
-    public double Value { get; set; }
+    public float Value { get; set; }
 
     #endregion
 
@@ -411,7 +411,7 @@ public sealed class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
 
 
     /// <summary> Creates a new instance of <see cref="KeyFrame"/> class. </summary>
-    public KeyFrame(double position, double value, double tangentIn = 0, double tangentOut = 0, CurveContinuity continuity = CurveContinuity.Smooth)
+    public KeyFrame(float position, float value, float tangentIn = 0, float tangentOut = 0, CurveContinuity continuity = CurveContinuity.Smooth)
     {
         Position = position;
         Value = value;

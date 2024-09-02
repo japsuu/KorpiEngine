@@ -210,7 +210,7 @@ public sealed class Material : Resource
 
     #region PROPERTY SETTERS
 
-    public void SetColor(string name, Color value, bool allowFail = false)
+    public void SetColor(string name, ColorHDR value, bool allowFail = false)
     {
         if (HasVariable(name))
             _propertyBlock.SetColor(name, value);
@@ -273,7 +273,7 @@ public sealed class Material : Resource
     }
 
 
-    public void SetMatrices(string name, IEnumerable<System.Numerics.Matrix4x4> value, bool allowFail = false)
+    public void SetMatrices(string name, IEnumerable<Matrix4x4> value, bool allowFail = false)
     {
         if (HasVariable(name))
             _propertyBlock.SetMatrices(name, value);

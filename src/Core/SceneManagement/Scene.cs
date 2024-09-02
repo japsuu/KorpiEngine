@@ -51,7 +51,7 @@ public abstract class Scene
         c.Material = mat;
         
         mat.SetFloat("_EmissionIntensity", 0f);
-        mat.SetColor("_EmissiveColor", Color.Black);
+        mat.SetColor("_EmissiveColor", ColorHDR.Black);
         
         return e;
     }

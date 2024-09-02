@@ -6,8 +6,6 @@ using InvalidOperationException = System.InvalidOperationException;
 
 namespace KorpiEngine.Rendering;
 
-#warning Remove System.Numerics.VectorX and replace with KorpiEngine variants
-
 /// <summary>
 /// Represents a 3D mesh.<br/><br/>
 /// 
@@ -109,12 +107,12 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// <summary>
     /// The bounds of the mesh.
     /// </summary>
-    public Bounds Bounds { get; private set; }
+    public AABox Bounds { get; private set; }
 
     /// <summary>
     /// The bind poses of the mesh, used for skinning.
     /// </summary>
-    public System.Numerics.Matrix4x4[]? BindPoses { get; set; }
+    public Matrix4x4[]? BindPoses { get; set; }
 
     public bool HasVertexUV0 => (_vertexTexCoord0?.Length ?? 0) > 0;
     public bool HasVertexUV1 => (_vertexTexCoord1?.Length ?? 0) > 0;
@@ -241,29 +239,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (_vertexPositions == null)
             throw new InvalidOperationException("Cannot recalculate bounds without vertex positions.");
 
-        bool empty = true;
-        System.Numerics.Vector3 minVec = System.Numerics.Vector3.One * 99999f;
-        System.Numerics.Vector3 maxVec = System.Numerics.Vector3.One * -99999f;
-        foreach (System.Numerics.Vector3 ptVector in GetVertexPositions()!)
-        {
-            minVec.X = minVec.X < ptVector.X ? minVec.X : ptVector.X;
-            minVec.Y = minVec.Y < ptVector.Y ? minVec.Y : ptVector.Y;
-            minVec.Z = minVec.Z < ptVector.Z ? minVec.Z : ptVector.Z;
-
-            maxVec.X = maxVec.X > ptVector.X ? maxVec.X : ptVector.X;
-            maxVec.Y = maxVec.Y > ptVector.Y ? maxVec.Y : ptVector.Y;
-            maxVec.Z = maxVec.Z > ptVector.Z ? maxVec.Z : ptVector.Z;
-
-            empty = false;
-        }
-
-        if (empty)
-            throw new InvalidOperationException("Cannot recalculate bounds on an empty mesh.");
-        
-        Vector3 center = (minVec + maxVec) / 2f;
-        Vector3 size = maxVec - minVec;
-
-        Bounds = new Bounds(center, size);
+        Bounds = AABox.Create(GetVertexPositions()!);
     }
 
 
@@ -272,7 +248,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (_vertexPositions == null || _indexData == null)
             return;
         
-        System.Numerics.Vector3[] vertices = GetVertexPositions()!;
+        Vector3[] vertices = GetVertexPositions()!;
         if (vertices.Length < 3)
             return;
         
@@ -280,7 +256,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (indices.Length < 3)
             return;
 
-        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
+        Vector3[] normals = new Vector3[vertices.Length];
 
         for (int i = 0; i < indices.Length; i += 3)
         {
@@ -288,8 +264,8 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             int bi = indices[i + 1];
             int ci = indices[i + 2];
 
-            System.Numerics.Vector3 n = System.Numerics.Vector3.Normalize(
-                System.Numerics.Vector3.Cross(
+            Vector3 n = MathOps.Normalize(
+                MathOps.Cross(
                     vertices[bi] - vertices[ai],
                     vertices[ci] - vertices[ai]
                 ));
@@ -300,7 +276,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         for (int i = 0; i < vertices.Length; i++)
-            normals[i] = System.Numerics.Vector3.Normalize(normals[i]);
+            normals[i] = MathOps.Normalize(normals[i]);
 
         SetVertexNormals(normals);
     }
@@ -311,7 +287,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (_vertexPositions == null || _indexData == null)
             return;
         
-        System.Numerics.Vector3[] vertices = GetVertexPositions()!;
+        Vector3[] vertices = GetVertexPositions()!;
         if (vertices.Length < 3)
             return;
         
@@ -321,9 +297,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         
         if (_vertexTexCoord0 == null)
             return;
-        System.Numerics.Vector2[] uv = GetVertexUVs(0)!;
+        Vector2[] uv = GetVertexUVs(0)!;
 
-        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
+        Vector3[] tangents = new Vector3[vertices.Length];
 
         for (int i = 0; i < indices.Length; i += 3)
         {
@@ -331,18 +307,18 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             int bi = indices[i + 1];
             int ci = indices[i + 2];
 
-            System.Numerics.Vector3 edge1 = vertices[bi] - vertices[ai];
-            System.Numerics.Vector3 edge2 = vertices[ci] - vertices[ai];
+            Vector3 edge1 = vertices[bi] - vertices[ai];
+            Vector3 edge2 = vertices[ci] - vertices[ai];
 
-            System.Numerics.Vector2 deltaUV1 = uv[bi] - uv[ai];
-            System.Numerics.Vector2 deltaUV2 = uv[ci] - uv[ai];
+            Vector2 deltaUV1 = uv[bi] - uv[ai];
+            Vector2 deltaUV2 = uv[ci] - uv[ai];
 
             float f = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV2.X * deltaUV1.Y);
 
-            System.Numerics.Vector3 tangent;
-            tangent.X = f * (deltaUV2.Y * edge1.X - deltaUV1.Y * edge2.X);
-            tangent.Y = f * (deltaUV2.Y * edge1.Y - deltaUV1.Y * edge2.Y);
-            tangent.Z = f * (deltaUV2.Y * edge1.Z - deltaUV1.Y * edge2.Z);
+            float x = f * (deltaUV2.Y * edge1.X - deltaUV1.Y * edge2.X);
+            float y = f * (deltaUV2.Y * edge1.Y - deltaUV1.Y * edge2.Y);
+            float z = f * (deltaUV2.Y * edge1.Z - deltaUV1.Y * edge2.Z);
+            Vector3 tangent = new Vector3(x, y, z);
 
             tangents[ai] += tangent;
             tangents[bi] += tangent;
@@ -350,7 +326,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         }
 
         for (int i = 0; i < vertices.Length; i++)
-            tangents[i] = System.Numerics.Vector3.Normalize(tangents[i]);
+            tangents[i] = MathOps.Normalize(tangents[i]);
 
         SetVertexTangents(tangents);
     }
@@ -358,16 +334,16 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
 
     #region SIMPLE API
 
-    public int GetVertexPositionsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
-    public System.Numerics.Vector3[]? GetVertexPositions() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexPositions);
-    public void SetVertexPositions(ArraySegment<System.Numerics.Vector3>? positions) => SetVertexAttributeData(positions, ref _vertexPositions);
+    public int GetVertexPositionsNonAlloc(IList<Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexPositions, destination);
+    public Vector3[]? GetVertexPositions() => GetVertexAttributeData<Vector3>(_vertexPositions);
+    public void SetVertexPositions(ArraySegment<Vector3>? positions) => SetVertexAttributeData(positions, ref _vertexPositions);
 
 
-    public int GetVertexUVsNonAlloc(IList<System.Numerics.Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
+    public int GetVertexUVsNonAlloc(IList<Vector2> destination, int channel) => GetVertexAttributeDataNonAlloc(
         VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1, destination);
-    public System.Numerics.Vector2[]? GetVertexUVs(int channel) =>
-        GetVertexAttributeData<System.Numerics.Vector2>(VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1);
-    public void SetVertexUVs(ArraySegment<System.Numerics.Vector2>? uvs, int channel)
+    public Vector2[]? GetVertexUVs(int channel) =>
+        GetVertexAttributeData<Vector2>(VertexAttribute.TexCoord0 + channel == VertexAttribute.TexCoord0 ? _vertexTexCoord0 : _vertexTexCoord1);
+    public void SetVertexUVs(ArraySegment<Vector2>? uvs, int channel)
     {
         if (channel == 0)
             SetVertexAttributeData(uvs, ref _vertexTexCoord0);
@@ -376,29 +352,29 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
     
-    public int GetVertexNormalsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
-    public System.Numerics.Vector3[]? GetVertexNormals() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexNormals);
-    public void SetVertexNormals(ArraySegment<System.Numerics.Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
+    public int GetVertexNormalsNonAlloc(IList<Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexNormals, destination);
+    public Vector3[]? GetVertexNormals() => GetVertexAttributeData<Vector3>(_vertexNormals);
+    public void SetVertexNormals(ArraySegment<Vector3>? normals) => SetVertexAttributeData(normals, ref _vertexNormals);
 
     
-    public int GetVertexTangentsNonAlloc(IList<System.Numerics.Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
-    public System.Numerics.Vector3[]? GetVertexTangents() => GetVertexAttributeData<System.Numerics.Vector3>(_vertexTangents);
-    public void SetVertexTangents(ArraySegment<System.Numerics.Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
+    public int GetVertexTangentsNonAlloc(IList<Vector3> destination) => GetVertexAttributeDataNonAlloc(_vertexTangents, destination);
+    public Vector3[]? GetVertexTangents() => GetVertexAttributeData<Vector3>(_vertexTangents);
+    public void SetVertexTangents(ArraySegment<Vector3>? tangents) => SetVertexAttributeData(tangents, ref _vertexTangents);
 
     
-    public int GetVertexColorsNonAlloc(IList<Color32> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
-    public Color32[]? GetVertexColors() => GetVertexAttributeData<Color32>(_vertexColors);
-    public void SetVertexColors(ArraySegment<Color32>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
+    public int GetVertexColorsNonAlloc(IList<ColorRGBA> destination) => GetVertexAttributeDataNonAlloc(_vertexColors, destination);
+    public ColorRGBA[]? GetVertexColors() => GetVertexAttributeData<ColorRGBA>(_vertexColors);
+    public void SetVertexColors(ArraySegment<ColorRGBA>? colors) => SetVertexAttributeData(colors, ref _vertexColors);
 
     
-    public int GetBoneWeightsNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneWeights, destination);
-    public System.Numerics.Vector4[]? GetBoneWeights() => GetVertexAttributeData<System.Numerics.Vector4>(_boneWeights);
-    public void SetBoneWeights(ArraySegment<System.Numerics.Vector4>? weights) => SetVertexAttributeData(weights, ref _boneWeights);
+    public int GetBoneWeightsNonAlloc(IList<Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneWeights, destination);
+    public Vector4[]? GetBoneWeights() => GetVertexAttributeData<Vector4>(_boneWeights);
+    public void SetBoneWeights(ArraySegment<Vector4>? weights) => SetVertexAttributeData(weights, ref _boneWeights);
 
     
-    public int GetBoneIndicesNonAlloc(IList<System.Numerics.Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneIndices, destination);
-    public System.Numerics.Vector4[]? GetBoneIndices() => GetVertexAttributeData<System.Numerics.Vector4>(_boneIndices);
-    public void SetBoneIndices(ArraySegment<System.Numerics.Vector4>? indices) => SetVertexAttributeData(indices, ref _boneIndices);
+    public int GetBoneIndicesNonAlloc(IList<Vector4> destination) => GetVertexAttributeDataNonAlloc(_boneIndices, destination);
+    public Vector4[]? GetBoneIndices() => GetVertexAttributeData<Vector4>(_boneIndices);
+    public void SetBoneIndices(ArraySegment<Vector4>? indices) => SetVertexAttributeData(indices, ref _boneIndices);
 
 
     public int GetIndicesNonAlloc(IList<int> destination)
@@ -713,7 +689,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         {
             case PrimitiveType.Quad:
             {
-                System.Numerics.Vector3[] positions =
+                Vector3[] positions =
                 [
                     new(-0.5f, -0.5f, 0),
                     new(0.5f, -0.5f, 0),
@@ -721,7 +697,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                     new(-0.5f, 0.5f, 0)
                 ];
 
-                System.Numerics.Vector2[] uvs =
+                Vector2[] uvs =
                 [
                     new(0, 0),
                     new(1, 0),
@@ -744,7 +720,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             }
             case PrimitiveType.Cube:
             {
-                System.Numerics.Vector3 size = new(1, 1, 1);
+                Vector3 size = new(1, 1, 1);
                 return CreateCube(size);
             }
             case PrimitiveType.Sphere:
@@ -770,13 +746,13 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
-    public static Mesh CreateCube(System.Numerics.Vector3 size)
+    public static Mesh CreateCube(Vector3 size)
     {
         float x = size.X / 2f;
         float y = size.Y / 2f;
         float z = size.Z / 2f;
 
-        System.Numerics.Vector3[] positions =
+        Vector3[] positions =
         [
             // Front face
             new(-x, -y, z), new(x, -y, z), new(x, y, z), new(-x, y, z),
@@ -797,7 +773,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
             new(-x, -y, -z), new(x, -y, -z), new(x, -y, z), new(-x, -y, z)
         ];
 
-        System.Numerics.Vector2[] uvs =
+        Vector2[] uvs =
         [
             // Front face
             new(0, 0), new(1, 0), new(1, 1), new(0, 1),
@@ -845,15 +821,15 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     /// <returns></returns>
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
-        System.Numerics.Vector3[] vertices = CreateSphereVertices(radius, rings, slices);
+        Vector3[] vertices = CreateSphereVertices(radius, rings, slices);
 
-        System.Numerics.Vector3[] normals = CreateSphereNormals(vertices);
+        Vector3[] normals = CreateSphereNormals(vertices);
 
-        System.Numerics.Vector2[] uvs = CreateSphereUVs(rings, slices, vertices);
+        Vector2[] uvs = CreateSphereUVs(rings, slices, vertices);
 
         int[] triangles = CreateSphereTriangles(rings, slices, vertices);
         
-        System.Numerics.Vector3[] tangents = CreateSphereTangents(vertices);
+        Vector3[] tangents = CreateSphereTangents(vertices);
 
         Mesh mesh = new();
         if (vertices.Length > 65535)
@@ -871,9 +847,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
-    private static System.Numerics.Vector3[] CreateSphereVertices(float radius, int rings, int slices)
+    private static Vector3[] CreateSphereVertices(float radius, int rings, int slices)
     {
-        System.Numerics.Vector3[] vertices = new System.Numerics.Vector3[(slices + 1) * (rings + 1)];
+        Vector3[] vertices = new Vector3[(slices + 1) * (rings + 1)];
         const float pi = MathF.PI;
         const float _2pi = pi * 2f;
 
@@ -897,18 +873,18 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
-    private static System.Numerics.Vector3[] CreateSphereNormals(System.Numerics.Vector3[] vertices)
+    private static Vector3[] CreateSphereNormals(Vector3[] vertices)
     {
-        System.Numerics.Vector3[] normals = new System.Numerics.Vector3[vertices.Length];
+        Vector3[] normals = new Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
-            normals[n] = System.Numerics.Vector3.Normalize(vertices[n]);
+            normals[n] = MathOps.Normalize(vertices[n]);
         return normals;
     }
 
 
-    private static System.Numerics.Vector2[] CreateSphereUVs(int rings, int slices, System.Numerics.Vector3[] vertices)
+    private static Vector2[] CreateSphereUVs(int rings, int slices, Vector3[] vertices)
     {
-        System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[vertices.Length];
+        Vector2[] uvs = new Vector2[vertices.Length];
         uvs[0] = Vector2.Up;
         uvs[^1] = Vector2.Zero;
         for (int lat = 0; lat <= rings; lat++)
@@ -920,7 +896,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     }
 
 
-    private static int[] CreateSphereTriangles(int rings, int slices, System.Numerics.Vector3[] vertices)
+    private static int[] CreateSphereTriangles(int rings, int slices, Vector3[] vertices)
     {
         int nbFaces = vertices.Length;
         int nbTriangles = nbFaces * 2;
@@ -949,17 +925,17 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         return triangles;
     }
 
-    private static System.Numerics.Vector3[] CreateSphereTangents(System.Numerics.Vector3[] vertices)
+    private static Vector3[] CreateSphereTangents(Vector3[] vertices)
     {
-        System.Numerics.Vector3[] tangents = new System.Numerics.Vector3[vertices.Length];
+        Vector3[] tangents = new Vector3[vertices.Length];
             
         for (int i = 0; i < vertices.Length; i++)
         {
-            System.Numerics.Vector3 v = vertices[i];
-            if (Mathd.ApproximatelyEquals(v.X, 0) && Mathd.ApproximatelyEquals(v.Z, 0))
-                tangents[i] = new System.Numerics.Vector3(1, 0, 0);
+            Vector3 v = vertices[i];
+            if (MathOps.AlmostZero(v.X) && MathOps.AlmostZero(v.Z))
+                tangents[i] = new Vector3(1, 0, 0);
             else
-                tangents[i] = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(v.Z, 0, -v.X));
+                tangents[i] = MathOps.Normalize(new Vector3(v.Z, 0, -v.X));
         }
 
         return tangents;
@@ -977,19 +953,19 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         if (fullScreenQuadCached != null)
             return fullScreenQuadCached;
         Mesh mesh = new();
-        System.Numerics.Vector3[] positions = new System.Numerics.Vector3[4];
-        positions[0] = new System.Numerics.Vector3(-1, -1, 0);
-        positions[1] = new System.Numerics.Vector3(1, -1, 0);
-        positions[2] = new System.Numerics.Vector3(-1, 1, 0);
-        positions[3] = new System.Numerics.Vector3(1, 1, 0);
+        Vector3[] positions = new Vector3[4];
+        positions[0] = new Vector3(-1, -1, 0);
+        positions[1] = new Vector3(1, -1, 0);
+        positions[2] = new Vector3(-1, 1, 0);
+        positions[3] = new Vector3(1, 1, 0);
 
         int[] indices = [0, 2, 1, 2, 3, 1];
 
-        System.Numerics.Vector2[] uvs = new System.Numerics.Vector2[4];
-        uvs[0] = new System.Numerics.Vector2(0, 0);
-        uvs[1] = new System.Numerics.Vector2(1, 0);
-        uvs[2] = new System.Numerics.Vector2(0, 1);
-        uvs[3] = new System.Numerics.Vector2(1, 1);
+        Vector2[] uvs = new Vector2[4];
+        uvs[0] = new Vector2(0, 0);
+        uvs[1] = new Vector2(1, 0);
+        uvs[2] = new Vector2(0, 1);
+        uvs[3] = new Vector2(1, 1);
 
         mesh.SetVertexPositions(positions);
         mesh.SetIndices(indices);

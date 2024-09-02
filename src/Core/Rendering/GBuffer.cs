@@ -81,7 +81,7 @@ public class GBuffer
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Device.BindFramebuffer(FrameBuffer);
-        Vector3 result = Graphics.Device.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
+        Vector3 result = Graphics.Device.ReadPixels<Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
         return result;
     }
 

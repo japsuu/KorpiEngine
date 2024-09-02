@@ -12,9 +12,9 @@ public enum WrapMode
 
 public sealed class AnimationClip : Resource, ISerializable
 {
-    public double Duration { get; set; }
-    public double TicksPerSecond { get; set; }
-    public double DurationInTicks { get; set; }
+    public float Duration { get; set; }
+    public float TicksPerSecond { get; set; }
+    public float DurationInTicks { get; set; }
 
     public WrapMode Wrap { get; set; }
 
@@ -85,9 +85,9 @@ public sealed class AnimationClip : Resource, ISerializable
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
         Name = value.Get("Name")!.StringValue;
-        Duration = value.Get("Duration")!.DoubleValue;
-        TicksPerSecond = value.Get("TicksPerSecond")!.DoubleValue;
-        DurationInTicks = value.Get("DurationInTicks")!.DoubleValue;
+        Duration = value.Get("Duration")!.FloatValue;
+        TicksPerSecond = value.Get("TicksPerSecond")!.FloatValue;
+        DurationInTicks = value.Get("DurationInTicks")!.FloatValue;
         Wrap = (WrapMode)value.Get("Wrap")!.IntValue;
 
         SerializedProperty? boneList = value.Get("Bones");
@@ -172,10 +172,10 @@ public sealed class AnimationClip : Resource, ISerializable
         public AnimationCurve ScaleZ { get; set; }
         
 
-        public Vector3 EvaluatePositionAt(double time) => new(PosX.Evaluate(time), PosY.Evaluate(time), PosZ.Evaluate(time));
+        public Vector3 EvaluatePositionAt(float time) => new(PosX.Evaluate(time), PosY.Evaluate(time), PosZ.Evaluate(time));
 
-        public Quaternion EvaluateRotationAt(double time) => new(RotX.Evaluate(time), RotY.Evaluate(time), RotZ.Evaluate(time), RotW.Evaluate(time));
+        public Quaternion EvaluateRotationAt(float time) => new(RotX.Evaluate(time), RotY.Evaluate(time), RotZ.Evaluate(time), RotW.Evaluate(time));
 
-        public Vector3 EvaluateScaleAt(double time) => new(ScaleX.Evaluate(time), ScaleY.Evaluate(time), ScaleZ.Evaluate(time));
+        public Vector3 EvaluateScaleAt(float time) => new(ScaleX.Evaluate(time), ScaleY.Evaluate(time), ScaleZ.Evaluate(time));
     }
 }

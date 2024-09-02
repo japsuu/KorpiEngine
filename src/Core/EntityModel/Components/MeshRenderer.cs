@@ -11,7 +11,7 @@ public class MeshRenderer : EntityComponent
 
     public ResourceRef<Mesh> Mesh { get; set; }
     public ResourceRef<Material> Material { get; set; }
-    public Color MainColor { get; set; } = Color.White;
+    public ColorHDR MainColor { get; set; } = ColorHDR.White;
     
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();
 

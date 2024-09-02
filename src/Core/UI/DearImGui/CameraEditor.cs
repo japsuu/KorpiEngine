@@ -83,7 +83,7 @@ internal class CameraEditor(Camera target) : EntityComponentEditor(target)
 
         System.Numerics.Vector4 clearColor = new(target.ClearColor.R, target.ClearColor.G, target.ClearColor.B, target.ClearColor.A);
         if (ImGui.ColorEdit4("Clear Color", ref clearColor))
-            target.ClearColor = new Color(clearColor);
+            target.ClearColor = new ColorHDR(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
     }
 
 

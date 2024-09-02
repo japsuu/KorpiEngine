@@ -9,7 +9,7 @@ public class PointLight : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Color Color { get; set; } = Color.White;
+    public ColorHDR Color { get; set; } = ColorHDR.White;
     public float Radius { get; set; } = 4.0f;
     public float Intensity { get; set; } = 1.0f;
 
@@ -36,7 +36,7 @@ public class PointLight : EntityComponent
                 _lightMat.SetTexture("_GPositionRoughness", Camera.RenderingCamera.GBuffer.PositionRoughness);
             }
 
-            _lightMat.SetVector("_LightPosition", Vector3.Transform(Entity.Transform.Position - Camera.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
+            _lightMat.SetVector("_LightPosition", MathOps.Transform(Entity.Transform.Position - Camera.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
             _lightMat.SetColor("_LightColor", Color);
             _lightMat.SetFloat("_LightRadius", Radius);
             _lightMat.SetFloat("_LightIntensity", Intensity);
@@ -47,7 +47,7 @@ public class PointLight : EntityComponent
         }
 
         Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
-        Gizmos.Color = Color.Yellow;
+        Gizmos.Color = ColorHDR.Yellow;
         Gizmos.DrawSphere(Vector3.Zero, Radius);
     }
 }
