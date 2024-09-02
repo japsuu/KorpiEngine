@@ -649,5 +649,5 @@ public static partial class MathOps
     /// Returns a matrix for translation and then rotation. 
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 ToMatrix(this Transform self) => Matrix4x4.CreateTRS(self.Position, self.Orientation, Vector3.One);
+    public static Matrix4x4 ToMatrix(this TransformData self) => Matrix4x4.CreateTRS(self.Position, self.Orientation, self.Scale);
 }

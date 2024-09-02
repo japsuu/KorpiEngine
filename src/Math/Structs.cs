@@ -1161,33 +1161,36 @@ namespace KorpiEngine
     }
     [StructLayout(LayoutKind.Sequential, Pack=4)]
     [DataContract]
-    public readonly partial struct Transform 
-        : IEquatable< Transform >
+    public readonly partial struct TransformData 
+        : IEquatable< TransformData >
     {
         [DataMember]
         public readonly Vector3 Position;
         [DataMember]
         public readonly Quaternion Orientation;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public Transform((Vector3 position, Quaternion orientation) tuple) : this(tuple.position, tuple.orientation) { }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public Transform(Vector3 position, Quaternion orientation) { Position = position; Orientation = orientation; }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static Transform Create(Vector3 position, Quaternion orientation) => new Transform(position, orientation);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static Transform Create((Vector3 position, Quaternion orientation) tuple) => new Transform(tuple);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override bool Equals(object obj) => obj is Transform x && Equals(x);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override int GetHashCode() => Hash.Combine(Position.GetHashCode(), Orientation.GetHashCode());
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override string ToString() => $"Transform(Position = {Position}, Orientation = {Orientation})";
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Deconstruct(out Vector3 position, out Quaternion orientation) {position = Position; orientation = Orientation; }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool Equals(Transform x) => Position == x.Position && Orientation == x.Orientation;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool operator ==(Transform x0, Transform x1) => x0.Equals(x1);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool operator !=(Transform x0, Transform x1) => !x0.Equals(x1);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static implicit operator Transform((Vector3 position, Quaternion orientation) tuple) => new Transform(tuple);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static implicit operator (Vector3 position, Quaternion orientation)(Transform self) => (self.Position, self.Orientation);
+        [DataMember]
+        public readonly Vector3 Scale;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public TransformData((Vector3 position, Quaternion orientation, Vector3 scale) tuple) : this(tuple.position, tuple.orientation, tuple.scale) { }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public TransformData(Vector3 position, Quaternion orientation, Vector3 scale) { Position = position; Orientation = orientation; Scale = scale; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static TransformData Create(Vector3 position, Quaternion orientation, Vector3 scale) => new TransformData(position, orientation, scale);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static TransformData Create((Vector3 position, Quaternion orientation, Vector3 scale) tuple) => new TransformData(tuple);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override bool Equals(object obj) => obj is TransformData x && Equals(x);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override int GetHashCode() => Hash.Combine(Position.GetHashCode(), Orientation.GetHashCode(), Scale.GetHashCode());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public override string ToString() => $"TransformData(Position = {Position}, Orientation = {Orientation}, Scale = {Scale})";
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Deconstruct(out Vector3 position, out Quaternion orientation, out Vector3 scale) {position = Position; orientation = Orientation; scale = Scale; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool Equals(TransformData x) => Position == x.Position && Orientation == x.Orientation && Scale == x.Scale;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool operator ==(TransformData x0, TransformData x1) => x0.Equals(x1);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool operator !=(TransformData x0, TransformData x1) => !x0.Equals(x1);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static implicit operator TransformData((Vector3 position, Quaternion orientation, Vector3 scale) tuple) => new TransformData(tuple);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static implicit operator (Vector3 position, Quaternion orientation, Vector3 scale)(TransformData self) => (self.Position, self.Orientation, self.Scale);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool AlmostEquals(Transform x, float tolerance = Constants.TOLERANCE) => Position.AlmostEquals(x.Position, tolerance) && Orientation.AlmostEquals(x.Orientation, tolerance);
-        public static Transform Zero = new Transform(default, default);
-        public static Transform MinValue = new Transform(Vector3.MinValue, Quaternion.MinValue);
-        public static Transform MaxValue = new Transform(Vector3.MaxValue, Quaternion.MaxValue);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public Transform SetPosition(Vector3 x) => new Transform(x, Orientation);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public Transform SetOrientation(Quaternion x) => new Transform(Position, x);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool AlmostEquals(TransformData x, float tolerance = Constants.TOLERANCE) => Position.AlmostEquals(x.Position, tolerance) && Orientation.AlmostEquals(x.Orientation, tolerance) && Scale.AlmostEquals(x.Scale, tolerance);
+        public static TransformData Zero = new TransformData(default, default, default);
+        public static TransformData MinValue = new TransformData(Vector3.MinValue, Quaternion.MinValue, Vector3.MinValue);
+        public static TransformData MaxValue = new TransformData(Vector3.MaxValue, Quaternion.MaxValue, Vector3.MaxValue);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public TransformData SetPosition(Vector3 x) => new TransformData(x, Orientation, Scale);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public TransformData SetOrientation(Quaternion x) => new TransformData(Position, x, Scale);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public TransformData SetScale(Vector3 x) => new TransformData(Position, Orientation, x);
     }
     [StructLayout(LayoutKind.Sequential, Pack=4)]
     [DataContract]

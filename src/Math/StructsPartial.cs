@@ -270,9 +270,9 @@ public partial struct DQuaternion
     public DVector4 DVector4 => new(X, Y, Z, W);
 }
 
-public partial struct Transform
+public partial struct TransformData
 {
-    public static Transform Identity => new(Vector3.Zero, Quaternion.Identity);
+    public static TransformData Identity => new(Vector3.Zero, Quaternion.Identity, Vector3.One);
 }
 
 public partial struct HorizontalCoordinate

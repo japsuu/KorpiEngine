@@ -48,7 +48,7 @@ namespace KorpiEngine
     CreateStruct("DRay", [ "Position", "Direction" ], [ "DVector3", "DVector3" ]);
     CreateStruct("Sphere", [ "Center", "Radius" ], [ "Vector3", "float" ]);
     CreateStruct("DSphere", [ "Center", "Radius" ], [ "DVector3", "double" ]);
-    CreateStruct("Transform", [ "Position", "Orientation" ], [ "Vector3", "Quaternion" ]);
+    CreateStruct("TransformData", [ "Position", "Orientation", "Scale" ], [ "Vector3", "Quaternion", "Vector3" ]);
 
     // These have surface areas and midpoints and bounding boxes
     CreateShapeStruct("Line", [ "A", "B" ], "Vector3");
