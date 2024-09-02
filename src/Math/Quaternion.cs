@@ -94,17 +94,31 @@ public partial struct Quaternion
 
 
     /// <summary>
-    /// Creates a new Quaternion from the given rotation around X, Y, and Z
+    /// Creates a new Quaternion from the given rotation around X, Y, and Z, in degrees.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion CreateFromEulerAngles(Vector3 v) => CreateFromEulerAngles(v.X, v.Y, v.Z);
+    public static Quaternion CreateFromEulerAnglesDegrees(Vector3 v) => CreateFromEulerAnglesDegrees(v.X, v.Y, v.Z);
 
 
     /// <summary>
-    /// Creates a new Quaternion from the given rotation around X, Y, and Z
+    /// Creates a new Quaternion from the given rotation around X, Y, and Z, in degrees.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Quaternion CreateFromEulerAngles(float x, float y, float z)
+    public static Quaternion CreateFromEulerAnglesDegrees(float x, float y, float z) => CreateFromEulerAnglesRadians(x.ToRadians(), y.ToRadians(), z.ToRadians());
+
+
+    /// <summary>
+    /// Creates a new Quaternion from the given rotation around X, Y, and Z, in radians.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion CreateFromEulerAnglesRadians(Vector3 v) => CreateFromEulerAnglesRadians(v.X, v.Y, v.Z);
+
+
+    /// <summary>
+    /// Creates a new Quaternion from the given rotation around X, Y, and Z, in radians.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion CreateFromEulerAnglesRadians(float x, float y, float z)
     {
         double c1 = Math.Cos(x / 2);
         double s1 = Math.Sin(x / 2);

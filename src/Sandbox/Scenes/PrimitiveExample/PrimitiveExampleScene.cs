@@ -28,7 +28,7 @@ internal class PrimitiveExampleScene : Scene
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(1, 4, -3);
-        e.Transform.Rotation = Quaternion.CreateFromEulerAngles(0, -45, 45);
+        e.Transform.Rotation = Quaternion.CreateFromEulerAnglesDegrees(0, -45, 45);
         
         e = CreateEntity("Sphere 3");
         m = CreatePrimitive(PrimitiveType.Sphere, "Sphere model");
@@ -41,7 +41,7 @@ internal class PrimitiveExampleScene : Scene
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, -1, -2);
-        e.Transform.Rotation = Quaternion.CreateFromEulerAngles(45, 45, 45);
+        e.Transform.Rotation = Quaternion.CreateFromEulerAnglesDegrees(45, 45, 45);
         
         e = CreateEntity("Cube 2");
         m = CreatePrimitive(PrimitiveType.Cube, "Cube model");

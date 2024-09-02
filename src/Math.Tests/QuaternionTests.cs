@@ -878,7 +878,7 @@ public class QuaternionTests
         var y = (float)System.Math.PI * 2f / 7f;
         var z = (float)System.Math.PI / 3f;
         var euler = new Vector3(x, y, z);
-        var quat = Quaternion.CreateFromEulerAngles(euler);
+        var quat = Quaternion.CreateFromEulerAnglesRadians(euler);
         var euler2 = quat.ToEulerAngles();
         Assert.AreEqual(euler.X, euler2.X, 0.001f);
         Assert.AreEqual(euler.Y, euler2.Y, 0.001f);

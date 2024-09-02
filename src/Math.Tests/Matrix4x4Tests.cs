@@ -350,7 +350,7 @@ public class Matrix4x4Tests
     {
         void ExtractScaleTest(Vector3 s, Vector3 r)
         {
-            var m = Matrix4x4.CreateScale(s) * Matrix4x4.CreateRotation(Quaternion.CreateFromEulerAngles(r));
+            var m = Matrix4x4.CreateScale(s) * Matrix4x4.CreateRotation(Quaternion.CreateFromEulerAnglesRadians(r));
             Assert.True(m.ExtractDirectScale().AlmostEquals(s),
                 $"Failed to extract similar scale to input: {m.ExtractDirectScale()} != {s}");
         }

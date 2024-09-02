@@ -38,8 +38,8 @@ public class ArrowGizmo(Vector3 start, Vector3 end, ColorHDR color, float arrowH
         
         // Arrow Head
         Vector3 direction = end - start;
-        Vector3 right = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAngles(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
-        Vector3 left = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAngles(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 right = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAnglesDegrees(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 left = Quaternion.LookAtDirection(direction, Vector3.Up) * Quaternion.CreateFromEulerAnglesDegrees(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
         batch.Line(Pos(end), Pos(end + right * length * arrowHeadLength), color, color);
         batch.Line(Pos(end), Pos(end + left * length * arrowHeadLength), color, color);
     }

@@ -57,7 +57,20 @@ public class TransformTest
     {
         Entity e = new(null, null);
         Transform component = e.Transform;
-        Quaternion expectedRotation = Quaternion.CreateFromEulerAngles(new Vector3(0, 90, 45));
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(15, 90, 45));
+
+        component.Rotation = expectedRotation;
+        
+        Assert.That(component.Rotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
+    }
+
+
+    [Test]
+    public void Rotation_Set_Get_ReturnsCorrectValueNegative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(-15, -90, -45));
 
         component.Rotation = expectedRotation;
         
@@ -92,7 +105,20 @@ public class TransformTest
         component.EulerAngles = expectedEulerAngles;
     
         // Also check if the rotation is correct
-        Assert.That(component.Rotation, Is.EqualTo(Quaternion.CreateFromEulerAngles(expectedEulerAngles.ToRadians())).Using(new QuaternionComparer()));
+        Assert.That(component.Rotation, Is.EqualTo(Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles)).Using(new QuaternionComparer()));
+    }
+
+    [Test]
+    public void EulerAngles_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedEulerAngles = new(-35, -125, -45);
+
+        component.EulerAngles = expectedEulerAngles;
+    
+        // Also check if the rotation is correct
+        Assert.That(component.Rotation, Is.EqualTo(Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles)).Using(new QuaternionComparer()));
     }
 
     #endregion

@@ -128,7 +128,7 @@ public class Transform
         get => MakeSafe(Rotation.ToEulerAngles().WrapEulers().ToDegrees());
         set
         {
-            Rotation = MakeSafe(Quaternion.CreateFromEulerAngles(value.ToRadians()));
+            Rotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
             Version++;
         }
     }
@@ -138,7 +138,7 @@ public class Transform
         get => MakeSafe(_localRotation.ToEulerAngles().ToDegrees());
         set
         {
-            _localRotation = MakeSafe(Quaternion.CreateFromEulerAngles(value.ToRadians()));
+            _localRotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
             Version++;
         }
     }
@@ -223,10 +223,16 @@ public class Transform
     }
 
 
-    public void Rotate(Vector3 eulerAngles, bool relativeToSelf = true)
+    /// <summary>
+    /// Rotates the transform by <paramref name="eulerAngles"/> degrees.
+    /// The rotation is applied in the transform's local space by default.
+    /// </summary>
+    /// <param name="eulerAngles">The rotation to apply in degrees.</param>
+    /// <param name="space">The space in which the rotation is applied.</param>
+    public void Rotate(Vector3 eulerAngles, Space space = Space.Self)
     {
-        Quaternion eulerRot = Quaternion.CreateFromEulerAngles(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
-        if (relativeToSelf)
+        Quaternion eulerRot = Quaternion.CreateFromEulerAnglesDegrees(eulerAngles);
+        if (space == Space.Self)
             LocalRotation *= eulerRot;
         else
             Rotation *= Rotation.Inverse() * eulerRot * Rotation;
