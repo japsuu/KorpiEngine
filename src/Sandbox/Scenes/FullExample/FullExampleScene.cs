@@ -4,7 +4,7 @@ using KorpiEngine.EntityModel.Components;
 using KorpiEngine.Rendering;
 using KorpiEngine.Rendering.Cameras;
 using KorpiEngine.SceneManagement;
-using Random = KorpiEngine.Random;
+using Random = KorpiEngine.SharedRandom;
 
 namespace Sandbox.Scenes.FullExample;
 
@@ -46,7 +46,7 @@ internal class FullExampleScene : Scene
             
             // Get the material of the mesh renderer component (provided by CreatePrimitive),
             // and randomize the color
-            model.GetComponent<MeshRenderer>()!.MainColor = Random.ColorFullAlpha;
+            model.GetComponent<MeshRenderer>()!.MainColor = Random.ColorHDRFullAlpha;
 
             // Move the root entity to a random position
             Vector2 randomPos = Random.InUnitCircle * 20;

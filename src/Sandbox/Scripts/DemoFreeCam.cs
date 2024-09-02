@@ -98,10 +98,10 @@ internal class DemoFreeCam : EntityComponent
 
         // Calculate new pitch and clamp it
         _pitch += Input.MouseDelta.Y * LOOK_SENSITIVITY;
-        _pitch = Mathd.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
+        _pitch = MathOps.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
         // Apply the new rotation
-        Transform.Rotation = Quaternion.Euler((float)_pitch, (float)_yaw, 0f);
+        Transform.Rotation = Quaternion.CreateFromEulerAngles((float)_pitch, (float)_yaw, 0f);
     }
 
 

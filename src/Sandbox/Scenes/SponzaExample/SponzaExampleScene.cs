@@ -36,8 +36,8 @@ internal class SponzaExampleScene : Scene
     {
         Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight directionalLight = dlEntity.AddComponent<DirectionalLight>();
-        directionalLight.Transform.Forward = new Vector3(-0.225, -0.965, -0.135);
-        directionalLight.Color = new Color(1f, 0.9f, 0.7f, 1f);
+        directionalLight.Transform.Forward = new Vector3(-0.225f, -0.965f, -0.135f);
+        directionalLight.Color = new ColorHDR(1f, 0.9f, 0.7f, 1f);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight ambientLight = alEntity.AddComponent<AmbientLight>();
