@@ -31,9 +31,21 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     public Vector3 Row2 => new(M31, M32, M33);
     public Vector3 Row3 => new(M41, M42, M43);
 
-    public Vector3 GetRow(int row) => row == 0 ? Row0 : row == 1 ? Row1 : row == 2 ? Row2 : Row3;
+    public Vector3 GetRow(int row) => row switch
+    {
+        0 => Row0,
+        1 => Row1,
+        2 => Row2,
+        _ => Row3
+    };
 
-    public Vector3 GetCol(int col) => col == 0 ? Col0 : col == 1 ? Col1 : col == 2 ? Col2 : Col3;
+    public Vector3 GetCol(int col) => col switch
+    {
+        0 => Col0,
+        1 => Col1,
+        2 => Col2,
+        _ => Col3
+    };
 
     /// <summary>
     /// Value at row 1, column 1 of the matrix.
@@ -134,7 +146,7 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// <summary>
     /// Returns the multiplicative identity matrix.
     /// </summary>
-    public static Matrix4x4 Identity = new(
+    public static readonly Matrix4x4 Identity = new(
         1f, 0f, 0f, 0f,
         0f, 1f, 0f, 0f,
         0f, 0f, 1f, 0f,
@@ -168,11 +180,16 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     public Vector3 Translation => new(M41, M42, M43);
 
 
+    // From: https://math.stackexchange.com/a/1064759
+    // "If your matrix is the augmented matrix representing an affine transformation in 3D, then yes,
+    // the proper thing to do to see if it switches orientation is checking the sign of the top 3×3 determinant.
+    // This is easy to see: if your transformation is Ax+b, then the +b part is a translation and does not
+    // affect orientation, and x->Ax switches orientation iff detA < 0."
     /// <summary>
-    /// Sets the translation component of this matrix, returning a new Matrix
+    /// Returns true if the 3x3 rotation determinant of the matrix is less than 0. This assumes the matrix represents
+    /// an affine transform.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 SetTranslation(Vector3 v) => CreateFromRows(Row0, Row1, Row2, v);
+    public bool IsReflection => Get3x3RotationDeterminant() < 0;
 
 
     /// <summary>
@@ -217,6 +234,191 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         M43 = m43;
         M44 = m44;
     }
+
+
+#region Instance Methods
+
+
+    /// <summary>
+    /// Sets the translation component of this matrix, returning a new Matrix
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Matrix4x4 SetTranslation(Vector3 v) => CreateFromRows(Row0, Row1, Row2, v);
+
+
+    /// <summary>
+    /// Calculates the determinant of the 3x3 rotational component of the matrix.
+    /// </summary>
+    /// <returns>The determinant of the 3x3 rotational component matrix.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float Get3x3RotationDeterminant()
+    {
+        // | a b c |
+        // | d e f | = a | e f | - b | d f | + c | d e |
+        // | g h i |     | h i |     | g i |     | g h |
+        //
+        // a | e f | = a ( ei - fh )
+        //   | h i | 
+        //
+        // b | d f | = b ( di - gf )
+        //   | g i |
+        //
+        // c | d e | = c ( dh - eg )
+        //   | g h |
+
+        float a = M11,
+            b = M12,
+            c = M13;
+        float d = M21,
+            e = M22,
+            f = M23;
+        float g = M31,
+            h = M32,
+            i = M33;
+
+        float ei_fh = e * i - f * h;
+        float di_gf = d * i - g * f;
+        float dh_eg = d * h - e * g;
+
+        return a * ei_fh -
+               b * di_gf +
+               c * dh_eg;
+    }
+
+
+    /// <summary>
+    /// Calculates the determinant of the matrix.
+    /// </summary>
+    /// <returns>The determinant of the matrix.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float GetDeterminant()
+    {
+        // | a b c d |     | f g h |     | e g h |     | e f h |     | e f g |
+        // | e f g h | = a | j k l | - b | i k l | + c | i j l | - d | i j k |
+        // | i j k l |     | n o p |     | m o p |     | m n p |     | m n o |
+        // | m n o p |
+        //
+        //   | f g h |
+        // a | j k l | = a ( f ( kp - lo ) - g ( jp - ln ) + h ( jo - kn ) )
+        //   | n o p |
+        //
+        //   | e g h |     
+        // b | i k l | = b ( e ( kp - lo ) - g ( ip - lm ) + h ( io - km ) )
+        //   | m o p |     
+        //
+        //   | e f h |
+        // c | i j l | = c ( e ( jp - ln ) - f ( ip - lm ) + h ( in - jm ) )
+        //   | m n p |
+        //
+        //   | e f g |
+        // d | i j k | = d ( e ( jo - kn ) - f ( io - km ) + g ( in - jm ) )
+        //   | m n o |
+        //
+        // Cost of operation
+        // 17 adds and 28 muls.
+        //
+        // add: 6 + 8 + 3 = 17
+        // mul: 12 + 16 = 28
+
+        float a = M11,
+            b = M12,
+            c = M13,
+            d = M14;
+        float e = M21,
+            f = M22,
+            g = M23,
+            h = M24;
+        float i = M31,
+            j = M32,
+            k = M33,
+            l = M34;
+        float m = M41,
+            n = M42,
+            o = M43,
+            p = M44;
+
+        float kp_lo = k * p - l * o;
+        float jp_ln = j * p - l * n;
+        float jo_kn = j * o - k * n;
+        float ip_lm = i * p - l * m;
+        float io_km = i * o - k * m;
+        float in_jm = i * n - j * m;
+
+        return a * (f * kp_lo - g * jp_ln + h * jo_kn) -
+               b * (e * kp_lo - g * ip_lm + h * io_km) +
+               c * (e * jp_ln - f * ip_lm + h * in_jm) -
+               d * (e * jo_kn - f * io_km + g * in_jm);
+    }
+    
+    
+    /// <summary>
+    /// Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
+    /// If successful, the out parameters will contain the extracted values.
+    /// https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Matrix4x4.cs
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Decompose(out Vector3 scale, out Quaternion rotation, out Vector3 translation) => Decompose(this, out scale, out rotation, out translation);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Matrix4x4 Transform(Matrix4x4 mat) => this * mat;
+
+
+    /// <summary>
+    /// Gets the scale factor of each axis. This implementation extracts the scale exclusively,
+    /// so it attempts to ignore rotation.  This is contrary to most math libraries
+    /// that use decompose, so a negation on Y becomes a 90 degree rotation and a negation on X.
+    /// We have implemented this extraction to be able to quickly remove scaling from matrices.
+    /// Multiplying a matrix by the inverse of it's direct scale will preserve it's current rotation.
+    /// It's implemented this way mostly so we can get easy testing on unit tests, and because this
+    /// implementation is equally valid.
+    /// NOTE: This could probably be improved to handle more generic cases by using
+    /// CrossProduct to determine axis flipping: (X Cross Y) Dot Z leq 0 == Flip
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ExtractDirectScale() =>
+        new(
+            Row0.Length() * (M11 > 0 ? 1 : -1),
+            Row1.Length() * (M22 > 0 ? 1 : -1),
+            Row2.Length() * (M33 > 0 ? 1 : -1)
+        );
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Matrix4x4 ScaleTranslation(float amount) => SetTranslation(Translation * amount);
+
+
+    /// <summary>
+    /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix within a given tolerance value.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AlmostEquals(Matrix4x4 other, float tolerance = Constants.TOLERANCE) =>
+        // Check diagonal elements first for early out.
+        M11.AlmostEquals(other.M11, tolerance) &&
+        M22.AlmostEquals(other.M22, tolerance) &&
+        M33.AlmostEquals(other.M33, tolerance) &&
+        M44.AlmostEquals(other.M44, tolerance) &&
+        M12.AlmostEquals(other.M12, tolerance) &&
+        M13.AlmostEquals(other.M13, tolerance) &&
+        M14.AlmostEquals(other.M14, tolerance) &&
+        M21.AlmostEquals(other.M21, tolerance) &&
+        M23.AlmostEquals(other.M23, tolerance) &&
+        M24.AlmostEquals(other.M24, tolerance) &&
+        M31.AlmostEquals(other.M31, tolerance) &&
+        M32.AlmostEquals(other.M32, tolerance) &&
+        M34.AlmostEquals(other.M34, tolerance) &&
+        M41.AlmostEquals(other.M41, tolerance) &&
+        M42.AlmostEquals(other.M42, tolerance) &&
+        M43.AlmostEquals(other.M43, tolerance);
+
+#endregion
+
+
+#region Creation Methods
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 CreateTRS(Vector3 translation, Quaternion rotation, Vector3 scale) =>
+        CreateTranslation(translation) * CreateRotation(rotation) * CreateScale(scale);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1229,127 +1431,11 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
         return result;
     }
 
-
-    /// <summary>
-    /// Calculates the determinant of the 3x3 rotational component of the matrix.
-    /// </summary>
-    /// <returns>The determinant of the 3x3 rotational component matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float Get3x3RotationDeterminant()
-    {
-        // | a b c |
-        // | d e f | = a | e f | - b | d f | + c | d e |
-        // | g h i |     | h i |     | g i |     | g h |
-        //
-        // a | e f | = a ( ei - fh )
-        //   | h i | 
-        //
-        // b | d f | = b ( di - gf )
-        //   | g i |
-        //
-        // c | d e | = c ( dh - eg )
-        //   | g h |
-
-        float a = M11,
-            b = M12,
-            c = M13;
-        float d = M21,
-            e = M22,
-            f = M23;
-        float g = M31,
-            h = M32,
-            i = M33;
-
-        float ei_fh = e * i - f * h;
-        float di_gf = d * i - g * f;
-        float dh_eg = d * h - e * g;
-
-        return a * ei_fh -
-               b * di_gf +
-               c * dh_eg;
-    }
+#endregion
 
 
     /// <summary>
-    /// Returns true if the 3x3 rotation determinant of the matrix is less than 0. This assumes the matrix represents
-    /// an affine transform.
-    /// </summary>
-
-    // From: https://math.stackexchange.com/a/1064759
-    // "If your matrix is the augmented matrix representing an affine transformation in 3D, then yes,
-    // the proper thing to do to see if it switches orientation is checking the sign of the top 3×3 determinant.
-    // This is easy to see: if your transformation is Ax+b, then the +b part is a translation and does not
-    // affect orientation, and x->Ax switches orientation iff detA < 0."
-    public bool IsReflection => Get3x3RotationDeterminant() < 0;
-
-
-    /// <summary>
-    /// Calculates the determinant of the matrix.
-    /// </summary>
-    /// <returns>The determinant of the matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float GetDeterminant()
-    {
-        // | a b c d |     | f g h |     | e g h |     | e f h |     | e f g |
-        // | e f g h | = a | j k l | - b | i k l | + c | i j l | - d | i j k |
-        // | i j k l |     | n o p |     | m o p |     | m n p |     | m n o |
-        // | m n o p |
-        //
-        //   | f g h |
-        // a | j k l | = a ( f ( kp - lo ) - g ( jp - ln ) + h ( jo - kn ) )
-        //   | n o p |
-        //
-        //   | e g h |     
-        // b | i k l | = b ( e ( kp - lo ) - g ( ip - lm ) + h ( io - km ) )
-        //   | m o p |     
-        //
-        //   | e f h |
-        // c | i j l | = c ( e ( jp - ln ) - f ( ip - lm ) + h ( in - jm ) )
-        //   | m n p |
-        //
-        //   | e f g |
-        // d | i j k | = d ( e ( jo - kn ) - f ( io - km ) + g ( in - jm ) )
-        //   | m n o |
-        //
-        // Cost of operation
-        // 17 adds and 28 muls.
-        //
-        // add: 6 + 8 + 3 = 17
-        // mul: 12 + 16 = 28
-
-        float a = M11,
-            b = M12,
-            c = M13,
-            d = M14;
-        float e = M21,
-            f = M22,
-            g = M23,
-            h = M24;
-        float i = M31,
-            j = M32,
-            k = M33,
-            l = M34;
-        float m = M41,
-            n = M42,
-            o = M43,
-            p = M44;
-
-        float kp_lo = k * p - l * o;
-        float jp_ln = j * p - l * n;
-        float jo_kn = j * o - k * n;
-        float ip_lm = i * p - l * m;
-        float io_km = i * o - k * m;
-        float in_jm = i * n - j * m;
-
-        return a * (f * kp_lo - g * jp_ln + h * jo_kn) -
-               b * (e * kp_lo - g * ip_lm + h * io_km) +
-               c * (e * jp_ln - f * ip_lm + h * in_jm) -
-               d * (e * jo_kn - f * io_km + g * in_jm);
-    }
-
-
-    /// <summary>
-    /// Attempts to calculate the inverse of the given matrix. If successful, result will contain the inverted matrix.
+    /// Attempts to calculate the inverse of the given matrix. If successful, the result will contain the inverted matrix.
     /// </summary>
     /// <param name="matrix">The source matrix to invert.</param>
     /// <param name="result">If successful, contains the inverted matrix.</param>
@@ -1624,13 +1710,6 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
 
 
     /// <summary>
-    /// Transposes the rows and columns of a matrix.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 Transpose() => Transpose(this);
-
-
-    /// <summary>
     /// Linearly interpolates between the corresponding values of two matrices.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1701,310 +1780,6 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 Multiply(Matrix4x4 value1, float value2) => value1 * value2;
-
-
-    /// <summary>
-    /// Returns a new matrix with the negated elements of the given matrix.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 operator -(Matrix4x4 value)
-    {
-        Matrix4x4 m;
-
-        m.M11 = -value.M11;
-        m.M12 = -value.M12;
-        m.M13 = -value.M13;
-        m.M14 = -value.M14;
-        m.M21 = -value.M21;
-        m.M22 = -value.M22;
-        m.M23 = -value.M23;
-        m.M24 = -value.M24;
-        m.M31 = -value.M31;
-        m.M32 = -value.M32;
-        m.M33 = -value.M33;
-        m.M34 = -value.M34;
-        m.M41 = -value.M41;
-        m.M42 = -value.M42;
-        m.M43 = -value.M43;
-        m.M44 = -value.M44;
-
-        return m;
-    }
-
-
-    /// <summary>
-    /// Adds two matrices together.
-    /// </summary>
-    /// <param name="value1">The first source matrix.</param>
-    /// <param name="value2">The second source matrix.</param>
-    /// <returns>The resulting matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 operator +(Matrix4x4 value1, Matrix4x4 value2)
-    {
-        Matrix4x4 m;
-
-        m.M11 = value1.M11 + value2.M11;
-        m.M12 = value1.M12 + value2.M12;
-        m.M13 = value1.M13 + value2.M13;
-        m.M14 = value1.M14 + value2.M14;
-        m.M21 = value1.M21 + value2.M21;
-        m.M22 = value1.M22 + value2.M22;
-        m.M23 = value1.M23 + value2.M23;
-        m.M24 = value1.M24 + value2.M24;
-        m.M31 = value1.M31 + value2.M31;
-        m.M32 = value1.M32 + value2.M32;
-        m.M33 = value1.M33 + value2.M33;
-        m.M34 = value1.M34 + value2.M34;
-        m.M41 = value1.M41 + value2.M41;
-        m.M42 = value1.M42 + value2.M42;
-        m.M43 = value1.M43 + value2.M43;
-        m.M44 = value1.M44 + value2.M44;
-
-        return m;
-    }
-
-
-    /// <summary>
-    /// Subtracts the second matrix from the first.
-    /// </summary>
-    /// <param name="value1">The first source matrix.</param>
-    /// <param name="value2">The second source matrix.</param>
-    /// <returns>The result of the subtraction.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 operator -(Matrix4x4 value1, Matrix4x4 value2)
-    {
-        Matrix4x4 m;
-
-        m.M11 = value1.M11 - value2.M11;
-        m.M12 = value1.M12 - value2.M12;
-        m.M13 = value1.M13 - value2.M13;
-        m.M14 = value1.M14 - value2.M14;
-        m.M21 = value1.M21 - value2.M21;
-        m.M22 = value1.M22 - value2.M22;
-        m.M23 = value1.M23 - value2.M23;
-        m.M24 = value1.M24 - value2.M24;
-        m.M31 = value1.M31 - value2.M31;
-        m.M32 = value1.M32 - value2.M32;
-        m.M33 = value1.M33 - value2.M33;
-        m.M34 = value1.M34 - value2.M34;
-        m.M41 = value1.M41 - value2.M41;
-        m.M42 = value1.M42 - value2.M42;
-        m.M43 = value1.M43 - value2.M43;
-        m.M44 = value1.M44 - value2.M44;
-
-        return m;
-    }
-
-
-    /// <summary>
-    /// Multiplies a matrix by another matrix.
-    /// </summary>
-    /// <param name="value1">The first source matrix.</param>
-    /// <param name="value2">The second source matrix.</param>
-    /// <returns>The result of the multiplication.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 operator *(Matrix4x4 value1, Matrix4x4 value2)
-    {
-        Matrix4x4 m;
-
-        // First row
-        m.M11 = value1.M11 * value2.M11 + value1.M12 * value2.M21 + value1.M13 * value2.M31 + value1.M14 * value2.M41;
-        m.M12 = value1.M11 * value2.M12 + value1.M12 * value2.M22 + value1.M13 * value2.M32 + value1.M14 * value2.M42;
-        m.M13 = value1.M11 * value2.M13 + value1.M12 * value2.M23 + value1.M13 * value2.M33 + value1.M14 * value2.M43;
-        m.M14 = value1.M11 * value2.M14 + value1.M12 * value2.M24 + value1.M13 * value2.M34 + value1.M14 * value2.M44;
-
-        // Second row
-        m.M21 = value1.M21 * value2.M11 + value1.M22 * value2.M21 + value1.M23 * value2.M31 + value1.M24 * value2.M41;
-        m.M22 = value1.M21 * value2.M12 + value1.M22 * value2.M22 + value1.M23 * value2.M32 + value1.M24 * value2.M42;
-        m.M23 = value1.M21 * value2.M13 + value1.M22 * value2.M23 + value1.M23 * value2.M33 + value1.M24 * value2.M43;
-        m.M24 = value1.M21 * value2.M14 + value1.M22 * value2.M24 + value1.M23 * value2.M34 + value1.M24 * value2.M44;
-
-        // Third row
-        m.M31 = value1.M31 * value2.M11 + value1.M32 * value2.M21 + value1.M33 * value2.M31 + value1.M34 * value2.M41;
-        m.M32 = value1.M31 * value2.M12 + value1.M32 * value2.M22 + value1.M33 * value2.M32 + value1.M34 * value2.M42;
-        m.M33 = value1.M31 * value2.M13 + value1.M32 * value2.M23 + value1.M33 * value2.M33 + value1.M34 * value2.M43;
-        m.M34 = value1.M31 * value2.M14 + value1.M32 * value2.M24 + value1.M33 * value2.M34 + value1.M34 * value2.M44;
-
-        // Fourth row
-        m.M41 = value1.M41 * value2.M11 + value1.M42 * value2.M21 + value1.M43 * value2.M31 + value1.M44 * value2.M41;
-        m.M42 = value1.M41 * value2.M12 + value1.M42 * value2.M22 + value1.M43 * value2.M32 + value1.M44 * value2.M42;
-        m.M43 = value1.M41 * value2.M13 + value1.M42 * value2.M23 + value1.M43 * value2.M33 + value1.M44 * value2.M43;
-        m.M44 = value1.M41 * value2.M14 + value1.M42 * value2.M24 + value1.M43 * value2.M34 + value1.M44 * value2.M44;
-
-        return m;
-    }
-
-
-    /// <summary>
-    /// Multiplies a matrix by a scalar value.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 operator *(Matrix4x4 value1, float value2)
-    {
-        Matrix4x4 m;
-
-        m.M11 = value1.M11 * value2;
-        m.M12 = value1.M12 * value2;
-        m.M13 = value1.M13 * value2;
-        m.M14 = value1.M14 * value2;
-        m.M21 = value1.M21 * value2;
-        m.M22 = value1.M22 * value2;
-        m.M23 = value1.M23 * value2;
-        m.M24 = value1.M24 * value2;
-        m.M31 = value1.M31 * value2;
-        m.M32 = value1.M32 * value2;
-        m.M33 = value1.M33 * value2;
-        m.M34 = value1.M34 * value2;
-        m.M41 = value1.M41 * value2;
-        m.M42 = value1.M42 * value2;
-        m.M43 = value1.M43 * value2;
-        m.M44 = value1.M44 * value2;
-        return m;
-    }
-
-
-    /// <summary>
-    /// Returns a boolean indicating whether the given two matrices are equal.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(Matrix4x4 value1, Matrix4x4 value2) =>
-        value1.M11 == value2.M11 &&
-        value1.M22 == value2.M22 &&
-        value1.M33 == value2.M33 &&
-        value1.M44 == value2.M44 && // Check diagonal element first for early out.
-        value1.M12 == value2.M12 &&
-        value1.M13 == value2.M13 &&
-        value1.M14 == value2.M14 &&
-        value1.M21 == value2.M21 &&
-        value1.M23 == value2.M23 &&
-        value1.M24 == value2.M24 &&
-        value1.M31 == value2.M31 &&
-        value1.M32 == value2.M32 &&
-        value1.M34 == value2.M34 &&
-        value1.M41 == value2.M41 &&
-        value1.M42 == value2.M42 &&
-        value1.M43 == value2.M43;
-
-
-    /// <summary>
-    /// Returns a boolean indicating whether the given two matrices are not equal.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(Matrix4x4 value1, Matrix4x4 value2) =>
-        value1.M11 != value2.M11 ||
-        value1.M12 != value2.M12 ||
-        value1.M13 != value2.M13 ||
-        value1.M14 != value2.M14 ||
-        value1.M21 != value2.M21 ||
-        value1.M22 != value2.M22 ||
-        value1.M23 != value2.M23 ||
-        value1.M24 != value2.M24 ||
-        value1.M31 != value2.M31 ||
-        value1.M32 != value2.M32 ||
-        value1.M33 != value2.M33 ||
-        value1.M34 != value2.M34 ||
-        value1.M41 != value2.M41 ||
-        value1.M42 != value2.M42 ||
-        value1.M43 != value2.M43 ||
-        value1.M44 != value2.M44;
-
-
-    /// <summary>
-    /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix.
-    /// </summary>
-    /// <param name="other">The matrix to compare this instance to.</param>
-    /// <returns>True if the matrices are equal; False otherwise.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Matrix4x4 other) => this == other;
-
-
-    /// <summary>
-    /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix within a given tolerance value.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AlmostEquals(Matrix4x4 other, float tolerance = Constants.TOLERANCE) =>
-        M11.AlmostEquals(other.M11, tolerance) &&
-        M12.AlmostEquals(other.M12, tolerance) &&
-        M13.AlmostEquals(other.M13, tolerance) &&
-        M14.AlmostEquals(other.M14, tolerance) &&
-        M21.AlmostEquals(other.M21, tolerance) &&
-        M22.AlmostEquals(other.M22, tolerance) &&
-        M23.AlmostEquals(other.M23, tolerance) &&
-        M24.AlmostEquals(other.M24, tolerance) &&
-        M31.AlmostEquals(other.M31, tolerance) &&
-        M32.AlmostEquals(other.M32, tolerance) &&
-        M33.AlmostEquals(other.M33, tolerance) &&
-        M34.AlmostEquals(other.M34, tolerance) &&
-        M41.AlmostEquals(other.M41, tolerance) &&
-        M42.AlmostEquals(other.M42, tolerance) &&
-        M43.AlmostEquals(other.M43, tolerance) &&
-        M44.AlmostEquals(other.M44, tolerance);
-
-
-    /// <summary>
-    /// Returns a boolean indicating whether the given Object is equal to this matrix instance.
-    /// </summary>
-    /// <param name="obj">The Object to compare against.</param>
-    /// <returns>True if the Object is equal to this matrix; False otherwise.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj) => obj is Matrix4x4 other && this == other;
-
-
-    /// <summary>
-    /// Returns a String representing this matrix instance.
-    /// </summary>
-    /// <returns>The string representation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString()
-    {
-        CultureInfo ci = CultureInfo.CurrentCulture;
-
-        return string.Format(
-            ci,
-            "{{ {{M11:{0} M12:{1} M13:{2} M14:{3}}} {{M21:{4} M22:{5} M23:{6} M24:{7}}} {{M31:{8} M32:{9} M33:{10} M34:{11}}} {{M41:{12} M42:{13} M43:{14} M44:{15}}} }}",
-            M11.ToString(ci), M12.ToString(ci), M13.ToString(ci), M14.ToString(ci),
-            M21.ToString(ci), M22.ToString(ci), M23.ToString(ci), M24.ToString(ci),
-            M31.ToString(ci), M32.ToString(ci), M33.ToString(ci), M34.ToString(ci),
-            M41.ToString(ci), M42.ToString(ci), M43.ToString(ci), M44.ToString(ci));
-    }
-
-
-    /// <summary>
-    /// Returns the hash code for this instance.
-    /// </summary>
-    /// <returns>The hash code.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return M11.GetHashCode() +
-                   M12.GetHashCode() +
-                   M13.GetHashCode() +
-                   M14.GetHashCode() +
-                   M21.GetHashCode() +
-                   M22.GetHashCode() +
-                   M23.GetHashCode() +
-                   M24.GetHashCode() +
-                   M31.GetHashCode() +
-                   M32.GetHashCode() +
-                   M33.GetHashCode() +
-                   M34.GetHashCode() +
-                   M41.GetHashCode() +
-                   M42.GetHashCode() +
-                   M43.GetHashCode() +
-                   M44.GetHashCode();
-        }
-    }
-
-
-    /// <summary>
-    /// Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
-    /// If successful, the out parameters will contained the extracted values.
-    /// https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Matrix4x4.cs
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Decompose(out Vector3 scale, out Quaternion rotation, out Vector3 translation) => Decompose(this, out scale, out rotation, out translation);
 
 
     /// <summary>
@@ -2178,35 +1953,263 @@ public struct Matrix4x4 : IEquatable<Matrix4x4>, ITransformable3D<Matrix4x4>
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 Transform(Matrix4x4 mat) => this * mat;
+#region Operators
 
-
+    /// <summary>
+    /// Returns a new matrix with the negated elements of the given matrix.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix4x4 CreateTRS(Vector3 translation, Quaternion rotation, Vector3 scale) =>
-        CreateTranslation(translation) * CreateRotation(rotation) * CreateScale(scale);
+    public static Matrix4x4 operator -(Matrix4x4 value)
+    {
+        Matrix4x4 m;
+
+        m.M11 = -value.M11;
+        m.M12 = -value.M12;
+        m.M13 = -value.M13;
+        m.M14 = -value.M14;
+        m.M21 = -value.M21;
+        m.M22 = -value.M22;
+        m.M23 = -value.M23;
+        m.M24 = -value.M24;
+        m.M31 = -value.M31;
+        m.M32 = -value.M32;
+        m.M33 = -value.M33;
+        m.M34 = -value.M34;
+        m.M41 = -value.M41;
+        m.M42 = -value.M42;
+        m.M43 = -value.M43;
+        m.M44 = -value.M44;
+
+        return m;
+    }
 
 
     /// <summary>
-    /// Get's the scale factor of each axis.  This implementation extracts the scale exclusively,
-    /// so it attempts to ignore rotation.  This is contrary to most math libraries
-    /// that use decompose, so a negation on Y becomes a 90 degree rotation and a negation on X.
-    /// We have implemented this extraction to be able to quickly remove scaling from matrices.
-    /// Multiplying a matrix by the inverse of it's direct scale will preserve it's current rotation.
-    /// It's implemented this way mostly so we can get easy testing on unit tests, and because this
-    /// implementation is equally valid.
-    /// NOTE: This could probably be improved to handle more generic cases by using
-    /// CrossProduct to determine axis flipping: (X Cross Y) Dot Z < 0 == Flip
+    /// Adds two matrices together.
+    /// </summary>
+    /// <param name="value1">The first source matrix.</param>
+    /// <param name="value2">The second source matrix.</param>
+    /// <returns>The resulting matrix.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 operator +(Matrix4x4 value1, Matrix4x4 value2)
+    {
+        Matrix4x4 m;
+
+        m.M11 = value1.M11 + value2.M11;
+        m.M12 = value1.M12 + value2.M12;
+        m.M13 = value1.M13 + value2.M13;
+        m.M14 = value1.M14 + value2.M14;
+        m.M21 = value1.M21 + value2.M21;
+        m.M22 = value1.M22 + value2.M22;
+        m.M23 = value1.M23 + value2.M23;
+        m.M24 = value1.M24 + value2.M24;
+        m.M31 = value1.M31 + value2.M31;
+        m.M32 = value1.M32 + value2.M32;
+        m.M33 = value1.M33 + value2.M33;
+        m.M34 = value1.M34 + value2.M34;
+        m.M41 = value1.M41 + value2.M41;
+        m.M42 = value1.M42 + value2.M42;
+        m.M43 = value1.M43 + value2.M43;
+        m.M44 = value1.M44 + value2.M44;
+
+        return m;
+    }
+
+
+    /// <summary>
+    /// Subtracts the second matrix from the first.
+    /// </summary>
+    /// <param name="value1">The first source matrix.</param>
+    /// <param name="value2">The second source matrix.</param>
+    /// <returns>The result of the subtraction.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 operator -(Matrix4x4 value1, Matrix4x4 value2)
+    {
+        Matrix4x4 m;
+
+        m.M11 = value1.M11 - value2.M11;
+        m.M12 = value1.M12 - value2.M12;
+        m.M13 = value1.M13 - value2.M13;
+        m.M14 = value1.M14 - value2.M14;
+        m.M21 = value1.M21 - value2.M21;
+        m.M22 = value1.M22 - value2.M22;
+        m.M23 = value1.M23 - value2.M23;
+        m.M24 = value1.M24 - value2.M24;
+        m.M31 = value1.M31 - value2.M31;
+        m.M32 = value1.M32 - value2.M32;
+        m.M33 = value1.M33 - value2.M33;
+        m.M34 = value1.M34 - value2.M34;
+        m.M41 = value1.M41 - value2.M41;
+        m.M42 = value1.M42 - value2.M42;
+        m.M43 = value1.M43 - value2.M43;
+        m.M44 = value1.M44 - value2.M44;
+
+        return m;
+    }
+
+
+    /// <summary>
+    /// Multiplies a matrix by another matrix.
+    /// </summary>
+    /// <param name="value1">The first source matrix.</param>
+    /// <param name="value2">The second source matrix.</param>
+    /// <returns>The result of the multiplication.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix4x4 operator *(Matrix4x4 value1, Matrix4x4 value2)
+    {
+        Matrix4x4 m;
+
+        // First row
+        m.M11 = value1.M11 * value2.M11 + value1.M12 * value2.M21 + value1.M13 * value2.M31 + value1.M14 * value2.M41;
+        m.M12 = value1.M11 * value2.M12 + value1.M12 * value2.M22 + value1.M13 * value2.M32 + value1.M14 * value2.M42;
+        m.M13 = value1.M11 * value2.M13 + value1.M12 * value2.M23 + value1.M13 * value2.M33 + value1.M14 * value2.M43;
+        m.M14 = value1.M11 * value2.M14 + value1.M12 * value2.M24 + value1.M13 * value2.M34 + value1.M14 * value2.M44;
+
+        // Second row
+        m.M21 = value1.M21 * value2.M11 + value1.M22 * value2.M21 + value1.M23 * value2.M31 + value1.M24 * value2.M41;
+        m.M22 = value1.M21 * value2.M12 + value1.M22 * value2.M22 + value1.M23 * value2.M32 + value1.M24 * value2.M42;
+        m.M23 = value1.M21 * value2.M13 + value1.M22 * value2.M23 + value1.M23 * value2.M33 + value1.M24 * value2.M43;
+        m.M24 = value1.M21 * value2.M14 + value1.M22 * value2.M24 + value1.M23 * value2.M34 + value1.M24 * value2.M44;
+
+        // Third row
+        m.M31 = value1.M31 * value2.M11 + value1.M32 * value2.M21 + value1.M33 * value2.M31 + value1.M34 * value2.M41;
+        m.M32 = value1.M31 * value2.M12 + value1.M32 * value2.M22 + value1.M33 * value2.M32 + value1.M34 * value2.M42;
+        m.M33 = value1.M31 * value2.M13 + value1.M32 * value2.M23 + value1.M33 * value2.M33 + value1.M34 * value2.M43;
+        m.M34 = value1.M31 * value2.M14 + value1.M32 * value2.M24 + value1.M33 * value2.M34 + value1.M34 * value2.M44;
+
+        // Fourth row
+        m.M41 = value1.M41 * value2.M11 + value1.M42 * value2.M21 + value1.M43 * value2.M31 + value1.M44 * value2.M41;
+        m.M42 = value1.M41 * value2.M12 + value1.M42 * value2.M22 + value1.M43 * value2.M32 + value1.M44 * value2.M42;
+        m.M43 = value1.M41 * value2.M13 + value1.M42 * value2.M23 + value1.M43 * value2.M33 + value1.M44 * value2.M43;
+        m.M44 = value1.M41 * value2.M14 + value1.M42 * value2.M24 + value1.M43 * value2.M34 + value1.M44 * value2.M44;
+
+        return m;
+    }
+
+
+    /// <summary>
+    /// Multiplies a matrix by a scalar value.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ExtractDirectScale() =>
-        new(
-            Row0.Length() * (M11 > 0 ? 1 : -1),
-            Row1.Length() * (M22 > 0 ? 1 : -1),
-            Row2.Length() * (M33 > 0 ? 1 : -1)
-        );
+    public static Matrix4x4 operator *(Matrix4x4 value1, float value2)
+    {
+        Matrix4x4 m;
+
+        m.M11 = value1.M11 * value2;
+        m.M12 = value1.M12 * value2;
+        m.M13 = value1.M13 * value2;
+        m.M14 = value1.M14 * value2;
+        m.M21 = value1.M21 * value2;
+        m.M22 = value1.M22 * value2;
+        m.M23 = value1.M23 * value2;
+        m.M24 = value1.M24 * value2;
+        m.M31 = value1.M31 * value2;
+        m.M32 = value1.M32 * value2;
+        m.M33 = value1.M33 * value2;
+        m.M34 = value1.M34 * value2;
+        m.M41 = value1.M41 * value2;
+        m.M42 = value1.M42 * value2;
+        m.M43 = value1.M43 * value2;
+        m.M44 = value1.M44 * value2;
+        return m;
+    }
 
 
+    /// <summary>
+    /// Returns a boolean indicating whether the given two matrices are equal.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix4x4 ScaleTranslation(float amount) => SetTranslation(Translation * amount);
+    public static bool operator ==(Matrix4x4 value1, Matrix4x4 value2) =>
+        // Check diagonal elements first for early out.
+        value1.M11 == value2.M11 &&
+        value1.M22 == value2.M22 &&
+        value1.M33 == value2.M33 &&
+        value1.M44 == value2.M44 &&
+        value1.M12 == value2.M12 &&
+        value1.M13 == value2.M13 &&
+        value1.M14 == value2.M14 &&
+        value1.M21 == value2.M21 &&
+        value1.M23 == value2.M23 &&
+        value1.M24 == value2.M24 &&
+        value1.M31 == value2.M31 &&
+        value1.M32 == value2.M32 &&
+        value1.M34 == value2.M34 &&
+        value1.M41 == value2.M41 &&
+        value1.M42 == value2.M42 &&
+        value1.M43 == value2.M43;
+
+
+    /// <summary>
+    /// Returns a boolean indicating whether the given two matrices are not equal.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Matrix4x4 value1, Matrix4x4 value2) => !(value1 == value2);
+
+#endregion
+
+
+    /// <summary>
+    /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix.
+    /// </summary>
+    /// <param name="other">The matrix to compare this instance to.</param>
+    /// <returns>True if the matrices are equal; False otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(Matrix4x4 other) => this == other;
+
+
+    /// <summary>
+    /// Returns a boolean indicating whether the given Object is equal to this matrix instance.
+    /// </summary>
+    /// <param name="obj">The Object to compare against.</param>
+    /// <returns>True if the Object is equal to this matrix; False otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool Equals(object? obj) => obj is Matrix4x4 other && this == other;
+
+
+    /// <summary>
+    /// Returns a String representing this matrix instance.
+    /// </summary>
+    /// <returns>The string representation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override string ToString()
+    {
+        CultureInfo ci = CultureInfo.CurrentCulture;
+
+        return string.Format(
+            ci,
+            "{{ {{M11:{0} M12:{1} M13:{2} M14:{3}}} {{M21:{4} M22:{5} M23:{6} M24:{7}}} {{M31:{8} M32:{9} M33:{10} M34:{11}}} {{M41:{12} M42:{13} M43:{14} M44:{15}}} }}",
+            M11.ToString(ci), M12.ToString(ci), M13.ToString(ci), M14.ToString(ci),
+            M21.ToString(ci), M22.ToString(ci), M23.ToString(ci), M24.ToString(ci),
+            M31.ToString(ci), M32.ToString(ci), M33.ToString(ci), M34.ToString(ci),
+            M41.ToString(ci), M42.ToString(ci), M43.ToString(ci), M44.ToString(ci));
+    }
+
+
+    /// <summary>
+    /// Returns the hash code for this instance.
+    /// </summary>
+    /// <returns>The hash code.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            return M11.GetHashCode() +
+                   M12.GetHashCode() +
+                   M13.GetHashCode() +
+                   M14.GetHashCode() +
+                   M21.GetHashCode() +
+                   M22.GetHashCode() +
+                   M23.GetHashCode() +
+                   M24.GetHashCode() +
+                   M31.GetHashCode() +
+                   M32.GetHashCode() +
+                   M33.GetHashCode() +
+                   M34.GetHashCode() +
+                   M41.GetHashCode() +
+                   M42.GetHashCode() +
+                   M43.GetHashCode() +
+                   M44.GetHashCode();
+        }
+    }
 }
