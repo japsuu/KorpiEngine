@@ -12,8 +12,12 @@ using System.Runtime.CompilerServices;
 
 namespace KorpiEngine;
 
+using IMPL = MethodImplAttribute;
+
 public static partial class MathOps
 {
+    private const MethodImplOptions INLINE = MethodImplOptions.AggressiveInlining;
+    
     /// <inheritdoc cref="float.MinValue"/>
     public const float EPSILON_FLOAT = float.MinValue;
 
@@ -21,7 +25,8 @@ public static partial class MathOps
     public const double EPSILON_DOUBLE = double.MinValue;
     
     
-    public static float MoveTowards(float current, float target, float maxDelta)
+    [IMPL(INLINE)]
+    public static float MoveTowards(this float current, float target, float maxDelta)
     {
         if (Math.Abs(target - current) <= maxDelta)
             return target;
@@ -32,19 +37,21 @@ public static partial class MathOps
     /// <summary>
     /// Expresses two values as a ratio
     /// </summary>
+    [IMPL(INLINE)]
     public static double Percentage(double denominator, double numerator) => numerator / denominator * 100.0;
 
 
     /// <summary>
     /// Calculate the nearest power of 2 from the input number
     /// </summary>
+    [IMPL(INLINE)]
     public static int ToNearestPowOf2(int x) => (int)Math.Pow(2, Math.Round(Math.Log(x) / Math.Log(2)));
 
 
     /// <summary>
     /// Performs a Catmull-Rom interpolation using the specified positions.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float CatmullRom(this float value1, float value2, float value3, float value4, float amount)
     {
         // Using formula from http://www.mvps.org/directx/articles/catmull/
@@ -62,7 +69,7 @@ public static partial class MathOps
     /// <summary>
     /// Creates a new <see cref="Vector3"/> that contains CatmullRom interpolation of the specified vectors.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 CatmullRom(this Vector3 value1, Vector3 value2, Vector3 value3, Vector3 value4, float amount) =>
         new(
             value1.X.CatmullRom(value2.X, value3.X, value4.X, amount), value1.Y.CatmullRom(value2.Y, value3.Y, value4.Y, amount),
@@ -72,7 +79,7 @@ public static partial class MathOps
     /// <summary>
     /// Performs a Hermite spline interpolation.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float Hermite(this float value1, float tangent1, float value2, float tangent2, float amount)
     {
         // All transformed to double not to lose precision
@@ -105,7 +112,7 @@ public static partial class MathOps
     /// <summary>
     /// Creates a new <see cref="Vector3"/> that contains hermite spline interpolation.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Hermite(this Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, float amount) =>
         new(
             value1.X.Hermite(tangent1.X, value2.X, tangent2.X, amount), value1.Y.Hermite(tangent1.Y, value2.Y, tangent2.Y, amount),
@@ -116,7 +123,7 @@ public static partial class MathOps
     /// Interpolates between two values using a cubic equation (Hermite),
     /// clamping the amount to 0 to 1
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float SmoothStep(this float value1, float value2, float amount) => Hermite(value1, 0f, value2, 0f, Clamp(amount, 0f, 1f));
 
 
@@ -152,12 +159,12 @@ public static partial class MathOps
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool IsNonZeroAndValid(this float self, float tolerance = Constants.TOLERANCE) =>
         !self.IsInfinity() && !self.IsNaN() && self.Abs() > tolerance;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float[] ToFloats(this Matrix4x4 m) =>
     [
         m.M11, m.M12, m.M13, m.M14,
@@ -167,7 +174,7 @@ public static partial class MathOps
     ];
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float[] ToFloats(this Matrix4x4[] matrixArray)
     {
         float[] ret = new float[matrixArray.Length * 16];
@@ -196,7 +203,7 @@ public static partial class MathOps
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4[] ToMatrixArray(this float[] m)
     {
         Debug.Assert(m.Length % 16 == 0);
@@ -217,7 +224,7 @@ public static partial class MathOps
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static AABox[] ToAABoxArray(this float[] m)
     {
         const int numFloats = 6;
@@ -237,7 +244,7 @@ public static partial class MathOps
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Ray RayFromProjectionMatrix(this Matrix4x4 projection, Vector2 normalisedScreenCoordinates)
     {
         Matrix4x4 invProjection = projection.Inverse();
@@ -259,21 +266,21 @@ public static partial class MathOps
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4 Inverse(this Matrix4x4 m) => Matrix4x4.Invert(m, out Matrix4x4 r) ? r : throw new InvalidOperationException("No inversion of matrix available");
 
 
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 Transform(this Vector4 value, Matrix4x4 matrix) => value.Transform(matrix);
 
 
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 Transform(this Vector4 value, Quaternion rotation)
     {
         float x2 = rotation.X + rotation.X;
@@ -301,7 +308,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Transform(this Vector3 value, Quaternion rotation)
     {
         float x2 = rotation.X + rotation.X;
@@ -328,14 +335,14 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Transform(this Vector3 value, Matrix4x4 mat) => value.Transform(mat);
 
 
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 Transform(this Vector2 value, Quaternion rotation)
     {
         float x2 = rotation.X + rotation.X;
@@ -357,62 +364,62 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 Transform(this Vector2 position, Matrix4x4 matrix) =>
         new(
             position.X * matrix.M11 + position.Y * matrix.M21 + matrix.M41,
             position.X * matrix.M12 + position.Y * matrix.M22 + matrix.M42);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 ToVector2(this float v) => new(v);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 ToVector2(this Vector3 v) => new(v.X, v.Y);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 ToVector2(this Vector4 v) => new(v.X, v.Y);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 ToVector3(this float v) => new(v);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 ToVector3(this Vector2 v) => new(v.X, v.Y, 0);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 ToVector3(this Vector4 v) => new(v.X, v.Y, v.Z);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 ToVector4(this float v) => new(v);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 ToVector4(this Vector2 v) => new(v.X, v.Y, 0, 0);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 ToVector4(this Vector3 v) => new(v.X, v.Y, v.Z, 0);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Rotate(this Vector3 self, Vector3 axis, float angle) => self.Transform(Matrix4x4.CreateFromAxisAngle(axis, angle));
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool IsNonZeroAndValid(this Vector3 self) => self.LengthSquared().IsNonZeroAndValid();
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool IsZeroOrInvalid(this Vector3 self) => !self.IsNonZeroAndValid();
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool IsPerpendicular(this Vector3 v1, Vector3 v2, float tolerance = Constants.TOLERANCE)
 
         // If either vector is vector(0,0,0) the vectors are not perpendicular
@@ -420,29 +427,29 @@ public static partial class MathOps
             v1 != Vector3.Zero && v2 != Vector3.Zero && v1.Dot(v2).AlmostZero(tolerance);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Projection(this Vector3 v1, Vector3 v2) => v2 * (v1.Dot(v2) / v2.LengthSquared());
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Rejection(this Vector3 v1, Vector3 v2) => v1 - v1.Projection(v2);
 
 
     // The smaller of the two possible angles between the two vectors is returned, therefore, the result will never be greater than 180 degrees or smaller than -180 degrees.
     // If you imagine the from and to vectors as lines on a piece of paper, both originating from the same point, then the /axis/ vector would point up out of the paper.
     // The measured angle between the two vectors would be positive in a clockwise direction and negative in an anti-clockwise direction.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float SignedAngle(Vector3 from, Vector3 to, Vector3 axis) => Angle(from, to) * Math.Sign(axis.Dot(from.Cross(to)));
 
 
     // The smaller of the two possible angles between the two vectors is returned, therefore, the result will never be greater than 180 degrees or smaller than -180 degrees.
     // If you imagine the from and to vectors as lines on a piece of paper, both originating from the same point, then the /axis/ vector would point up out of the paper.
     // The measured angle between the two vectors would be positive in a clockwise direction and negative in an anti-clockwise direction.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float SignedAngle(this Vector3 from, Vector3 to) => SignedAngle(from, to, Vector3.UnitZ);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float Angle(this Vector3 v1, Vector3 v2, float tolerance = Constants.TOLERANCE)
     {
         float d = v1.LengthSquared().Sqrt() * v2.LengthSquared().Sqrt();
@@ -467,7 +474,7 @@ public static partial class MathOps
     /// <summary>
     /// Calculates the dot product of two Quaternions.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static float Dot(this Quaternion quaternion1, Quaternion quaternion2) =>
         quaternion1.X * quaternion2.X +
         quaternion1.Y * quaternion2.Y +
@@ -475,61 +482,61 @@ public static partial class MathOps
         quaternion1.W * quaternion2.W;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool Colinear(this Vector3 v1, Vector3 v2, float tolerance = Constants.TOLERANCE) =>
         !v1.IsNaN() && !v2.IsNaN() && v1.SignedAngle(v2) <= tolerance;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool IsBackFace(this Vector3 normal, Vector3 lineOfSight) => normal.Dot(lineOfSight) < 0;
 
 
     /// <summary>
     /// Creates a new <see cref="Vector3"/> that contains cubic interpolation of the specified vectors.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 SmoothStep(this Vector3 value1, Vector3 value2, float amount) =>
         new(value1.X.SmoothStep(value2.X, amount), value1.Y.SmoothStep(value2.Y, amount), value1.Z.SmoothStep(value2.Z, amount));
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Line ToLine(this Vector3 v) => new(Vector3.Zero, v);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Along(this Vector3 v, float d) => v.Normalize() * d;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 AlongX(this float self) => Vector3.UnitX * self;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 AlongY(this float self) => Vector3.UnitY * self;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 AlongZ(this float self) => Vector3.UnitX * self;
 
 
     /// <summary>
     /// Returns the reflection of a vector off a surface that has the specified normal.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 Reflect(Vector2 vector, Vector2 normal) => vector - 2 * (vector.Dot(normal) * normal);
 
 
     /// <summary>
     /// Returns the reflection of a vector off a surface that has the specified normal.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Reflect(Vector3 vector, Vector3 normal) => vector - 2 * (vector.Dot(normal) * normal);
 
 
     /// <summary>
     /// Transforms a vector normal by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector2 TransformNormal(Vector2 normal, Matrix4x4 matrix) =>
         new(
             normal.X * matrix.M11 + normal.Y * matrix.M21,
@@ -539,7 +546,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector normal by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 TransformNormal(Vector3 normal, Matrix4x4 matrix) =>
         new(
             normal.X * matrix.M11 + normal.Y * matrix.M21 + normal.Z * matrix.M31,
@@ -551,7 +558,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector normal by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 TransformNormal(Vector4 normal, Matrix4x4 matrix) =>
         new(
             normal.X * matrix.M11 + normal.Y * matrix.M21 + normal.Z * matrix.M31 + normal.W * matrix.M41,
@@ -564,7 +571,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 TransformToVector4(Vector2 value, Quaternion rotation)
     {
         float x2 = rotation.X + rotation.X;
@@ -592,7 +599,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given Quaternion rotation value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 TransformToVector4(Vector3 value, Quaternion rotation)
     {
         float x2 = rotation.X + rotation.X;
@@ -620,7 +627,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 TransformToVector4(Vector2 position, Matrix4x4 matrix) =>
         new(
             position.X * matrix.M11 + position.Y * matrix.M21 + matrix.M41,
@@ -632,7 +639,7 @@ public static partial class MathOps
     /// <summary>
     /// Transforms a vector by the given matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector4 TransformToVector4(Vector3 position, Matrix4x4 matrix) =>
         new(
             position.X * matrix.M11 + position.Y * matrix.M21 + position.Z * matrix.M31 + matrix.M41,
@@ -641,39 +648,39 @@ public static partial class MathOps
             position.X * matrix.M14 + position.Y * matrix.M24 + position.Z * matrix.M34 + matrix.M44);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Vector3 Cross(Vector3 a, Vector3 b) => a.Cross(b);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static DVector3 Cross(DVector3 a, DVector3 b) => a.Cross(b);
 
 
     /// <summary>
     /// Returns the bounding box, given stats on a Vector3
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static AABox ToBox(this Stats<Vector3> stats) => new(stats.Min, stats.Max);
 
 
     /// <summary>
     /// Returns the bounding box, given stats on a DVector3
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static DAABox ToBox(this Stats<DVector3> stats) => new(stats.Min, stats.Max);
 
 
     /// <summary>
     /// Returns the bounding box for a series of points
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static AABox ToBox(this IEnumerable<Vector3> points) => AABox.Create(points);
 
 
     /// <summary>
     /// Returns true if the four points are co-planar. 
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static bool Coplanar(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float epsilon = Constants.TOLERANCE) =>
         Math.Abs(Vector3.Dot(v3 - v1, (v2 - v1).Cross(v4 - v1))) < epsilon;
 
@@ -683,7 +690,7 @@ public static partial class MathOps
     /// </summary>
     /// <param name="m"></param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4 ToMatrix(this float[] m) =>
         new(
             m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13],
@@ -693,21 +700,21 @@ public static partial class MathOps
     /// <summary>
     /// Returns a translation matrix. 
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4 ToMatrix(this Vector3 self) => Matrix4x4.CreateTranslation(self);
 
 
     /// <summary>
     /// Returns a rotation matrix. 
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4 ToMatrix(this Quaternion self) => Matrix4x4.CreateRotation(self);
 
 
     /// <summary>
     /// Returns a matrix for translation and then rotation. 
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Matrix4x4 ToMatrix(this TransformData self) => Matrix4x4.CreateTRS(self.Position, self.Orientation, self.Scale);
 
 
@@ -715,7 +722,7 @@ public static partial class MathOps
     ///  Linearly interpolates between two quaternions.
     /// </summary>
     /// (1.0f - 1) 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Quaternion Lerp(this Quaternion q1, Quaternion q2, float t) =>
         (MathOps.Dot(q1, q2) >= 0.0f
             ? q1 * (1.0f - t) + q2 * t
@@ -725,7 +732,7 @@ public static partial class MathOps
     /// <summary>
     /// Interpolates between two quaternions, using spherical linear interpolation.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Quaternion Slerp(this Quaternion q1, Quaternion q2, float t)
     {
         const float epsilon = 1e-6f;
@@ -770,7 +777,7 @@ public static partial class MathOps
     /// <summary>
     /// Concatenates two Quaternions; the result represents the value1 rotation followed by the value2 rotation.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [IMPL(INLINE)]
     public static Quaternion Concatenate(this Quaternion value1, Quaternion value2)
     {
         // Concatenate rotation is actually q2 * q1 instead of q1 * q2.

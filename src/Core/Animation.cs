@@ -145,7 +145,7 @@ public class Animation : EntityComponent
         }
 
         // Weight always update even if the state is disabled
-        state.Weight = MathOps.MoveTowards(state.Weight, state.TargetWeight, state.MoveWeightSpeed * Time.DeltaTime);
+        state.Weight = state.Weight.MoveTowards(state.TargetWeight, state.MoveWeightSpeed * Time.DeltaTime);
     }
 
 
