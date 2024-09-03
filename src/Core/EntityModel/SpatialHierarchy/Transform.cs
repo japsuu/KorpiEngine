@@ -78,7 +78,7 @@ public class Transform
 
     /// <summary>
     /// Local rotation of the transform as a quaternion.
-    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Quaternion LocalRotation
