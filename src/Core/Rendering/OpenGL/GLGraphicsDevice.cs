@@ -37,7 +37,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     private bool _doCull = true;
     private PolyFace _cullFace = PolyFace.Back;
 
-    private WindingOrder _winding = WindingOrder.CW;
+    private WindingOrder _winding = WindingOrder.CCW;
 
 
     #region Initialization and Shutdown
