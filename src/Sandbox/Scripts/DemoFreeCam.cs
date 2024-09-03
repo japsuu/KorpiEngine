@@ -101,7 +101,7 @@ internal class DemoFreeCam : EntityComponent
         _pitch = MathOps.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
         // Apply the new rotation
-        Transform.Rotation = Quaternion.CreateFromEulerAnglesDegrees((float)_pitch, (float)_yaw, 0f);
+        Transform.Rotation = Quaternion.CreateFromYawPitchRoll(-(float)_yaw.ToRadians(), -(float)_pitch.ToRadians(), 0f);
     }
 
 
