@@ -11,6 +11,6 @@ internal static class Program
     {
         Application.Run(
             new WindowingSettings(new Int2(1920, 1080), "KorpiEngine Sandbox"),
-            new PrimitiveExampleScene());
+            new SponzaExampleScene());
     }
 }
