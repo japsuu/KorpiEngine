@@ -952,20 +952,21 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     {
         if (fullScreenQuadCached != null)
             return fullScreenQuadCached;
+        
         Mesh mesh = new();
         Vector3[] positions = new Vector3[4];
         positions[0] = new Vector3(-1, -1, 0);
         positions[1] = new Vector3(1, -1, 0);
-        positions[2] = new Vector3(-1, 1, 0);
-        positions[3] = new Vector3(1, 1, 0);
+        positions[2] = new Vector3(1, 1, 0);
+        positions[3] = new Vector3(-1, 1, 0);
 
-        int[] indices = [0, 2, 1, 2, 3, 1];
+        int[] indices = [0, 1, 2, 2, 3, 0];
 
         Vector2[] uvs = new Vector2[4];
         uvs[0] = new Vector2(0, 0);
         uvs[1] = new Vector2(1, 0);
-        uvs[2] = new Vector2(0, 1);
-        uvs[3] = new Vector2(1, 1);
+        uvs[2] = new Vector2(1, 1);
+        uvs[3] = new Vector2(0, 1);
 
         mesh.SetVertexPositions(positions);
         mesh.SetIndices(indices);

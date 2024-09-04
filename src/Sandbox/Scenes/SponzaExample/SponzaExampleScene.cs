@@ -1,8 +1,11 @@
 ﻿using KorpiEngine;
 using KorpiEngine.EntityModel;
+using KorpiEngine.EntityModel.Components;
+using KorpiEngine.Rendering;
 using KorpiEngine.Rendering.Cameras;
 using KorpiEngine.Rendering.Lighting;
 using KorpiEngine.SceneManagement;
+using Random = KorpiEngine.SharedRandom;
 
 namespace Sandbox.Scenes.SponzaExample;
 
@@ -26,6 +29,7 @@ internal class SponzaExampleScene : Scene
         Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         component.Entity.Transform.Position = new Vector3(0f, 1f, 0f);
+        component.Entity.Transform.Rotate(new Vector3(0f, 90f, 0f));
         
         return component;
     }
