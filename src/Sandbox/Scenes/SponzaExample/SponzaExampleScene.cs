@@ -1,11 +1,8 @@
 ﻿using KorpiEngine;
 using KorpiEngine.EntityModel;
-using KorpiEngine.EntityModel.Components;
-using KorpiEngine.Rendering;
 using KorpiEngine.Rendering.Cameras;
 using KorpiEngine.Rendering.Lighting;
 using KorpiEngine.SceneManagement;
-using Random = KorpiEngine.SharedRandom;
 
 namespace Sandbox.Scenes.SponzaExample;
 
