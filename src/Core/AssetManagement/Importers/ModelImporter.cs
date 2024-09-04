@@ -18,12 +18,12 @@ public class ModelImporter : AssetImporter
     public bool GenerateNormals { get; set; } = true;
     public bool GenerateSmoothNormals { get; set; } = false;
     public bool CalculateTangentSpace { get; set; } = true;
-    public bool MakeLeftHanded { get; set; } = true;
+    public bool MakeLeftHanded { get; set; } = false;
     public bool FlipUVs { get; set; } = false;
     public bool RemoveEmptyEntities { get; set; } = false;
     public bool OptimizeGraph { get; set; } = false;
     public bool OptimizeMeshes { get; set; } = false;
-    public bool FlipWindingOrder { get; set; } = true;
+    public bool FlipWindingOrder { get; set; } = false;
     public bool WeldVertices { get; set; } = false;
     public bool InvertNormals { get; set; } = false;
     public bool GlobalScale { get; set; } = false;
