@@ -156,7 +156,7 @@ public sealed class Camera : EntityComponent
         bool doClear = ClearType == CameraClearType.SolidColor;
         if (DebugDrawType == CameraDebugDrawType.OFF)
         {
-            Graphics.Blit(TargetTexture.Res ?? null, result.InternalTextures[0], doClear);
+            Graphics.Blit(TargetTexture.Res ?? null, result.MainTexture, doClear);
             Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
         }
         else
