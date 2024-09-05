@@ -88,7 +88,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
         {
             if (_instance != null && !_instance.IsDestroyed)
                 return true;
-            return AssetDatabase.Contains(_assetID);
+            return AssetManager.Contains(_assetID);
         }
     }
 
@@ -170,9 +170,9 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     private void RetrieveInstance()
     {
         if (_assetID != Guid.Empty)
-            _instance = AssetDatabase.LoadAsset<T>(_assetID);
+            _instance = AssetManager.LoadAsset<T>(_assetID);
         else if (_instance != null && _instance.AssetID != Guid.Empty)
-            _instance = AssetDatabase.LoadAsset<T>(_instance.AssetID);
+            _instance = AssetManager.LoadAsset<T>(_instance.AssetID);
         else
             _instance = null;
     }

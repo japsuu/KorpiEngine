@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a fully imported asset.
 /// </summary>
-public class Asset
+internal class Asset
 {
     public readonly Guid AssetID;
     public readonly FileInfo AssetPath;

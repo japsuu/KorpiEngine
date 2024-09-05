@@ -338,7 +338,7 @@ public class ModelImporter : AssetImporter
 
     private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
     {
-        if (AssetDatabase.TryGetGuidFromPath(file, out Guid guid))
+        if (AssetManager.TryGetGuidFromPath(file, out Guid guid))
         {
             // We have this texture as an asset, use the asset, we don't need to load it
             mat.SetTexture(name, new ResourceRef<Texture2D>(guid));
@@ -346,12 +346,12 @@ public class ModelImporter : AssetImporter
         else
         {
             // Import external textures
-            string relativePath = AssetDatabase.ToRelativePath(file);
+            string relativePath = AssetManager.ToRelativePath(file);
             
             if (!file.Exists)
                 Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
             
-            mat.SetTexture(name, AssetDatabase.LoadAssetFile<Texture2D>(relativePath));
+            mat.SetTexture(name, AssetManager.LoadAssetFile<Texture2D>(relativePath));
         }
     }
 

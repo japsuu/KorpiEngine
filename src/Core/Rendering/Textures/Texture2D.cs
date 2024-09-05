@@ -42,7 +42,7 @@ public sealed class Texture2D : Texture, ISerializable
     }
 
 
-    public static ResourceRef<Texture2D> Find(string path) => new(AssetDatabase.LoadAssetFile<Texture2D>(path));
+    public static ResourceRef<Texture2D> Find(string path) => new(AssetManager.LoadAssetFile<Texture2D>(path));
 
 
     /// <summary>

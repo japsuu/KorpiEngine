@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.AssetManagement;
 
-public static partial class AssetDatabase
+public static partial class AssetManager
 {
     /// <summary>
     /// Relative path of an asset to its GUID.
