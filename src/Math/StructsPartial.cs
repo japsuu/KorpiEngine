@@ -138,11 +138,34 @@ public partial struct Vector4 : ITransformable3D<Vector4>
 
 public partial struct Vector3 : ITransformable3D<Vector3>
 {
+    /// <summary>
+    /// Shorthand for Vector3(1, 0, 0).
+    /// </summary>
     public static readonly Vector3 Right = new(1.0f, 0.0f, 0.0f);
+    
+    /// <summary>
+    /// Shorthand for Vector3(-1, 0, 0).
+    /// </summary>
     public static readonly Vector3 Left = new(-1.0f, 0.0f, 0.0f);
+    
+    /// <summary>
+    /// Shorthand for Vector3(0, 1, 0).
+    /// </summary>
     public static readonly Vector3 Up = new(0.0f, 1.0f, 0.0f);
+    
+    /// <summary>
+    /// Shorthand for Vector3(0, -1, 0).
+    /// </summary>
     public static readonly Vector3 Down = new(0.0f, -1.0f, 0.0f);
+    
+    /// <summary>
+    /// Shorthand for Vector3(0, 0, 1).
+    /// </summary>
     public static readonly Vector3 Forward = new(0.0f, 0.0f, -1.0f);
+    
+    /// <summary>
+    /// Shorthand for Vector3(0, 0, -1).
+    /// </summary>
     public static readonly Vector3 Backward = new(0.0f, 0.0f, 1.0f);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
