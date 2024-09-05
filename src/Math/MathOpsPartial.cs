@@ -143,6 +143,24 @@ public static partial class MathOps
             return angle - Constants.TWO_PI;
         return angle;
     }
+    
+    
+    /// <summary>
+    /// Reduces a given angle to a value between -180 and 180.
+    /// </summary>
+    /// <param name="angle">The angle to reduce, in degrees.</param>
+    /// <returns>The new angle, in degrees.</returns>
+    public static float WrapAngleDegrees(this float angle)
+    {
+        if (angle > -180 && angle <= 180)
+            return angle;
+        angle %= 360;
+        if (angle <= -180)
+            return angle + 360;
+        if (angle > 180)
+            return angle - 360;
+        return angle;
+    }
 
 
     /// <summary>
@@ -155,6 +173,20 @@ public static partial class MathOps
         float x = eulers.X.WrapAngleRadians();
         float y = eulers.Y.WrapAngleRadians();
         float z = eulers.Z.WrapAngleRadians();
+        return new Vector3(x, y, z);
+    }
+    
+    
+    /// <summary>
+    /// Reduces all components of the given vector to values between -180 and 180.
+    /// </summary>
+    /// <param name="eulers">The vector to reduce, in degrees.</param>
+    /// <returns></returns>
+    public static Vector3 WrapEulersDegrees(this Vector3 eulers)
+    {
+        float x = eulers.X.WrapAngleDegrees();
+        float y = eulers.Y.WrapAngleDegrees();
+        float z = eulers.Z.WrapAngleDegrees();
         return new Vector3(x, y, z);
     }
 
