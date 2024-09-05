@@ -705,7 +705,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
                     new(0, 1)
                 ];
 
-                int[] indices = [0, 1, 2, 0, 2, 3];
+                int[] indices = [0, 1, 2, 2, 3, 0];
 
                 Mesh mesh = new();
                 mesh.SetVertexPositions(positions);
