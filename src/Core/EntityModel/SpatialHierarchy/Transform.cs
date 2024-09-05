@@ -158,6 +158,9 @@ public class Transform
         {
             if (_localScale == value)
                 return;
+            
+            if (value.X < 0 || value.Y < 0 || value.Z < 0)
+                throw new ArgumentException("Scale cannot be negative.");
 
             _localScale = MakeSafe(value);
             Version++;
