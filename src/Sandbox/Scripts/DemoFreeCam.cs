@@ -26,8 +26,8 @@ internal class DemoFreeCam : EntityComponent
     {
         // Set the initial pitch and yaw angles based on the current rotation
         Vector3 currentEulerAngles = Transform.EulerAngles;
-        _pitch = currentEulerAngles.X;
-        _yaw = currentEulerAngles.Y;
+        _pitch = -currentEulerAngles.X;
+        _yaw = -currentEulerAngles.Y;
     }
 
 
