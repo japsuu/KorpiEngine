@@ -3,10 +3,10 @@ using KorpiEngine.Exceptions;
 
 namespace KorpiEngine;
 
-public abstract class Resource : SafeDisposable
+public abstract class AssetInstance : SafeDisposable
 {
-    private static readonly Stack<Resource> DestroyedResources = new();
-    private static readonly Dictionary<int, WeakReference<Resource>> AllResources = new();
+    private static readonly Stack<AssetInstance> DestroyedResources = new();
+    private static readonly Dictionary<int, WeakReference<AssetInstance>> AllResources = new();
 
     /// <summary>
     /// Unique identifier for this resource.
@@ -26,16 +26,16 @@ public abstract class Resource : SafeDisposable
 
     #region Creation, Destruction, and Disposal
 
-    protected Resource(string? name = "New Resource")
+    protected AssetInstance(string? name = "New Resource")
     {
-        InstanceID = ResourceID.Generate();
-        AllResources.Add(InstanceID, new WeakReference<Resource>(this));
+        InstanceID = AssetIDGenerator.Generate();
+        AllResources.Add(InstanceID, new WeakReference<AssetInstance>(this));
 
         Name = name ?? $"New {GetType().Name}";
     }
     
     
-    ~Resource()
+    ~AssetInstance()
     {
         Dispose(false);
     }
@@ -82,7 +82,7 @@ public abstract class Resource : SafeDisposable
 
     internal static void HandleDestroyed()
     {
-        while (DestroyedResources.TryPop(out Resource? obj))
+        while (DestroyedResources.TryPop(out AssetInstance? obj))
         {
             if (!obj.IsDestroyed)
                 continue;
@@ -96,31 +96,31 @@ public abstract class Resource : SafeDisposable
 
     #region Public Static Methods
 
-    public static T? FindObjectOfType<T>() where T : Resource
+    public static T? FindObjectOfType<T>() where T : AssetInstance
     {
-        foreach (WeakReference<Resource> obj in AllResources.Values)
-            if (obj.TryGetTarget(out Resource? target) && target is T t)
+        foreach (WeakReference<AssetInstance> obj in AllResources.Values)
+            if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
                 return t;
         return null;
     }
 
 
-    public static T?[] FindObjectsOfType<T>() where T : Resource
+    public static T?[] FindObjectsOfType<T>() where T : AssetInstance
     {
         List<T> objects = [];
-        foreach (WeakReference<Resource> obj in AllResources.Values)
-            if (obj.TryGetTarget(out Resource? target) && target is T t)
+        foreach (WeakReference<AssetInstance> obj in AllResources.Values)
+            if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
                 objects.Add(t);
         return objects.ToArray();
     }
 
 
-    public static T? FindObjectByID<T>(int id) where T : Resource
+    public static T? FindObjectByID<T>(int id) where T : AssetInstance
     {
-        if (!AllResources.TryGetValue(id, out WeakReference<Resource>? obj))
+        if (!AllResources.TryGetValue(id, out WeakReference<AssetInstance>? obj))
             return null;
 
-        if (!obj.TryGetTarget(out Resource? target) || target is not T t)
+        if (!obj.TryGetTarget(out AssetInstance? target) || target is not T t)
             return null;
 
         return t;

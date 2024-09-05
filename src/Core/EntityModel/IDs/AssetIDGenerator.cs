@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace KorpiEngine.EntityModel.IDs;
 
-namespace KorpiEngine.EntityModel.IDs;
-
-public static class ResourceID
+public static class AssetIDGenerator
 {
     /// <summary>
     /// The next ID to be assigned to a resource.

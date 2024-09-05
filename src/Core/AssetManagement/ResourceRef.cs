@@ -8,19 +8,19 @@ namespace KorpiEngine.AssetManagement;
 // https://github.com/AdamsLair/duality/blob/master/Source/Core/Duality/ContentRef.cs
 
 /// <summary>
-/// This lightweight struct references an <see cref="Resource"/> in an abstract way.
+/// This lightweight struct references an <see cref="AssetInstance"/> in an abstract way.
 /// It is tightly connected to the AssetDatabase, and takes care of keeping or making 
 /// the referenced content available when needed. Never store actual Resource references permanently,
 /// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
 /// temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T : Resource
+public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T : AssetInstance
 {
     private T? _instance;
     private Guid _assetID = Guid.Empty;
 
     /// <summary>
-    /// The actual <see cref="Resource"/>.
+    /// The actual <see cref="AssetInstance"/>.
     /// If currently unavailable, it is loaded and then returned.
     /// Because of that, this Property is only null if the referenced Resource is missing, invalid, or
     /// this content reference has been explicitly set to null. Never returns disposed Resources.
@@ -111,7 +111,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the <see cref="Resource"/> at the specified id / using 
+    /// Creates a AssetRef pointing to the <see cref="AssetInstance"/> at the specified id / using 
     /// the specified alias.
     /// </summary>
     /// <param name="id"></param>
@@ -123,7 +123,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the specified <see cref="Resource"/>.
+    /// Creates a AssetRef pointing to the specified <see cref="AssetInstance"/>.
     /// </summary>
     /// <param name="res">The Resource to reference.</param>
     public ResourceRef(T? res)

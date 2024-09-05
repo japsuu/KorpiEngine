@@ -12,7 +12,7 @@ namespace KorpiEngine.EntityModel;
 /// Container for components and systems.
 /// </summary>
 #warning TODO: Split Entity.cs to partial classes
-public sealed class Entity : Resource
+public sealed class Entity : AssetInstance
 {
     /// <summary>
     /// The scene this entity is in.

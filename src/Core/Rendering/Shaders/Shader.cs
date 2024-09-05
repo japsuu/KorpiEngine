@@ -7,7 +7,7 @@ namespace KorpiEngine.Rendering.Shaders;
 /// The Shader class itself doesn't do much, It stores the properties of the shader and the shader code and Keywords.
 /// This is used in conjunction with the Material class to create shader variants with the correct keywords and to render things
 /// </summary>
-public sealed class Shader : Resource
+public sealed class Shader : AssetInstance
 {
     /// <summary>
     /// Represents a property of a shader, used to set values in the shader.

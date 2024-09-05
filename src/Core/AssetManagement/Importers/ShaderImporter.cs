@@ -16,7 +16,7 @@ internal partial class ShaderImporter : AssetImporter
     private static partial Regex GenerateRegex();
     
     
-    public override Resource? Import(FileInfo assetPath)
+    public override AssetInstance? Import(FileInfo assetPath)
     {
         currentAssetPath = assetPath;
         ImportErrors.Clear();

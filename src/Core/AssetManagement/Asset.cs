@@ -7,10 +7,10 @@ internal class Asset
 {
     public readonly Guid AssetID;
     public readonly FileInfo AssetPath;
-    public readonly Resource Instance;
+    public readonly AssetInstance Instance;
 
 
-    public Asset(Guid assetID, FileInfo assetPath, Resource instance)
+    public Asset(Guid assetID, FileInfo assetPath, AssetInstance instance)
     {
         AssetID = assetID;
         AssetPath = assetPath;

@@ -31,7 +31,7 @@ public class ModelImporter : AssetImporter
     public float UnitScale { get; set; } = 1.0f;
 
 
-    public override Resource Import(FileInfo assetPath)
+    public override AssetInstance Import(FileInfo assetPath)
     {
         using AssimpContext importer = new();
         

@@ -12,7 +12,7 @@ namespace KorpiEngine.Rendering.Materials;
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
-public sealed class Material : Resource
+public sealed class Material : AssetInstance
 {
     public const string MAIN_TEX = "_MainTex";
     public const string NORMAL_TEX = "_NormalTex";
