@@ -97,18 +97,28 @@ public partial struct Quaternion
 
     /// <summary>
     /// Returns Euler123 angles (rotate around, X, then Y, then Z) as degrees.
+    /// The angles are not wrapped to the range [-180, 180].
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The Euler angles in degrees.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ToEulerAnglesDegrees() => ToEulerAnglesRadians().ToDegrees();
+    public Vector3 ToEulerAnglesDegreesUnwrapped() => ToEulerAnglesRadiansUnwrapped().ToDegrees();
+
+    /// <summary>
+    /// Returns Euler123 angles (rotate around, X, then Y, then Z) as degrees.
+    /// The angles are wrapped to the range [-180, 180].
+    /// </summary>
+    /// <returns>The Euler angles in degrees, wrapped to the range [-180, 180].</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToEulerAnglesDegreesWrapped() => ToEulerAnglesRadiansWrapped().ToDegrees();
 
 
     /// <summary>
     /// Returns Euler123 angles (rotate around, X, then Y, then Z) as radians.
+    /// The angles are not wrapped to the range [-PI, PI].
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The Euler angles in radians.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ToEulerAnglesRadians()
+    public Vector3 ToEulerAnglesRadiansUnwrapped()
     {
         /*
         // https://stackoverflow.com/questions/5782658/extracting-yaw-from-a-quaternion
@@ -145,6 +155,15 @@ public partial struct Quaternion
         float z = (float)Math.Atan2(-2 * (X * Y - W * Z), W * W + X * X - Y * Y - Z * Z);
         return new Vector3(x, y, z);
     }
+
+
+    /// <summary>
+    /// Returns Euler123 angles (rotate around, X, then Y, then Z) as radians.
+    /// The angles are wrapped to the range [-PI, PI].
+    /// </summary>
+    /// <returns>The Euler angles in radians, wrapped to the range [-PI, PI].</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToEulerAnglesRadiansWrapped() => ToEulerAnglesRadiansUnwrapped().WrapEulersRadians();
     
 
     public HorizontalCoordinate ToSphericalAngle() => ToSphericalAngle(Vector3.Forward);
