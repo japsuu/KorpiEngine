@@ -825,13 +825,9 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
     public static Mesh CreateSphere(float radius, int rings, int slices)
     {
         Vector3[] vertices = CreateSphereVertices(radius, rings, slices);
-
         Vector3[] normals = CreateSphereNormals(vertices);
-
         Vector2[] uvs = CreateSphereUVs(rings, slices, vertices);
-
         int[] triangles = CreateSphereTriangles(rings, slices, vertices);
-        
         Vector3[] tangents = CreateSphereTangents(vertices);
 
         Mesh mesh = new();
@@ -928,6 +924,7 @@ public sealed class Mesh : Resource //TODO: Implement MeshData class to hide som
         return triangles;
     }
 
+    
     private static Vector3[] CreateSphereTangents(Vector3[] vertices)
     {
         Vector3[] tangents = new Vector3[vertices.Length];
