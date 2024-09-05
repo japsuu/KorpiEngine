@@ -14,7 +14,7 @@ namespace KorpiEngine.AssetManagement;
 /// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
 /// temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T : AssetInstance
+public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : AssetInstance
 {
     private T? _instance;
     private Guid _assetID = Guid.Empty;
@@ -115,7 +115,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     /// the specified alias.
     /// </summary>
     /// <param name="id"></param>
-    public ResourceRef(Guid id)
+    public AssetRef(Guid id)
     {
         _instance = null;
         _assetID = id;
@@ -126,7 +126,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     /// Creates a AssetRef pointing to the specified <see cref="AssetInstance"/>.
     /// </summary>
     /// <param name="res">The Resource to reference.</param>
-    public ResourceRef(T? res)
+    public AssetRef(T? res)
     {
         _instance = res;
         _assetID = res?.AssetID ?? Guid.Empty;
@@ -148,7 +148,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     /// <summary>
     /// Loads the associated content as if it was accessed now.
     /// You don't usually need to call this method. It is invoked implicitly by trying to 
-    /// access the <see cref="ResourceRef{T}"/>.
+    /// access the <see cref="AssetRef{T}"/>.
     /// </summary>
     public void EnsureLoaded()
     {
@@ -208,17 +208,17 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
 
     public override bool Equals(object? obj)
     {
-        if (obj is ResourceRef<T> @ref)
+        if (obj is AssetRef<T> @ref)
             return this == @ref;
         return base.Equals(obj);
     }
 
 
-    public bool Equals(ResourceRef<T> other) => this == other;
+    public bool Equals(AssetRef<T> other) => this == other;
 
-    public static implicit operator ResourceRef<T>(T res) => new(res);
+    public static implicit operator AssetRef<T>(T res) => new(res);
 
-    public static explicit operator T(ResourceRef<T> res) => res.Res!;
+    public static explicit operator T(AssetRef<T> res) => res.Res!;
 
 
     /// <summary>
@@ -230,7 +230,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     /// This is a two-step comparison. First, their actual Resources references are compared.
     /// If they're both not null and equal, true is returned. Otherwise, their AssetID are compared to equality
     /// </remarks>
-    public static bool operator ==(ResourceRef<T> first, ResourceRef<T> second)
+    public static bool operator ==(AssetRef<T> first, AssetRef<T> second)
     {
         // Completely identical
         if (first._instance == second._instance && first._assetID == second._assetID)
@@ -258,7 +258,7 @@ public struct ResourceRef<T> : ISerializable, IEquatable<ResourceRef<T>> where T
     /// </summary>
     /// <param name="first"></param>
     /// <param name="second"></param>
-    public static bool operator !=(ResourceRef<T> first, ResourceRef<T> second) => !(first == second);
+    public static bool operator !=(AssetRef<T> first, AssetRef<T> second) => !(first == second);
 
 
     public SerializedProperty Serialize(Serializer.SerializationContext ctx)

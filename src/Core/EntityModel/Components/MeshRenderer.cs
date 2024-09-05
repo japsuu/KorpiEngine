@@ -9,8 +9,8 @@ public class MeshRenderer : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
-    public ResourceRef<Mesh> Mesh { get; set; }
-    public ResourceRef<Material> Material { get; set; }
+    public AssetRef<Mesh> Mesh { get; set; }
+    public AssetRef<Material> Material { get; set; }
     public ColorHDR MainColor { get; set; } = ColorHDR.White;
     
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();

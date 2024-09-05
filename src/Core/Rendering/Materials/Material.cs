@@ -18,12 +18,12 @@ public sealed class Material : AssetInstance
     public const string NORMAL_TEX = "_NormalTex";
     public const string SURFACE_TEX = "_SurfaceTex";
     public const string EMISSION_TEX = "_EmissionTex";
-    public static ResourceRef<Texture2D> DefaultAlbedoTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultNormalTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultSurfaceTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultEmissionTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultAlbedoTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultNormalTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultSurfaceTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultEmissionTex { get; private set; }
     
-    internal static ResourceRef<Material> InvalidMaterial { get; private set; }
+    internal static AssetRef<Material> InvalidMaterial { get; private set; }
     
     
     internal static void LoadDefaults()
@@ -37,7 +37,7 @@ public sealed class Material : AssetInstance
     }
     
     
-    public readonly ResourceRef<Shader> Shader;
+    public readonly AssetRef<Shader> Shader;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
@@ -50,7 +50,7 @@ public sealed class Material : AssetInstance
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(ResourceRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
+    public Material(AssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
         if (shader.AssetID == Guid.Empty)
             throw new ArgumentNullException(nameof(shader));
@@ -291,7 +291,7 @@ public sealed class Material : AssetInstance
     }
 
 
-    public void SetTexture(string name, ResourceRef<Texture2D> value, bool allowFail = false)
+    public void SetTexture(string name, AssetRef<Texture2D> value, bool allowFail = false)
     {
         if (HasVariable(name))
             _propertyBlock.SetTexture(name, value);

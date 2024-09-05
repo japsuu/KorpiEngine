@@ -67,12 +67,12 @@ public class ModelImporter : AssetImporter
         CreateEntityHierarchy(rootEntityName, scene.RootNode, ref entityHierarchy, scale);
 
         // Materials
-        List<ResourceRef<Material>> materials = [];
+        List<AssetRef<Material>> materials = [];
         if (scene.HasMaterials)
             LoadMaterials(scene, parentDir, materials);
 
         // Animations
-        List<ResourceRef<AnimationClip>> animations = [];
+        List<AssetRef<AnimationClip>> animations = [];
         if (scene.HasAnimations)
             animations = LoadAnimations(scene, scale);
 
@@ -116,7 +116,7 @@ public class ModelImporter : AssetImporter
         if (animations.Count > 0)
         {
             Animation anim = rootEntity.AddComponent<Animation>();
-            foreach (ResourceRef<AnimationClip> a in animations)
+            foreach (AssetRef<AnimationClip> a in animations)
                 anim.Clips.Add(a);
             anim.DefaultClip = animations[0];
         }
@@ -217,7 +217,7 @@ public class ModelImporter : AssetImporter
 
     #region Material loading
 
-    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<ResourceRef<Material>> mats)
+    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<AssetRef<Material>> mats)
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
@@ -341,7 +341,7 @@ public class ModelImporter : AssetImporter
         if (AssetManager.TryGetGuidFromPath(file, out Guid guid))
         {
             // We have this texture as an asset, use the asset, we don't need to load it
-            mat.SetTexture(name, new ResourceRef<Texture2D>(guid));
+            mat.SetTexture(name, new AssetRef<Texture2D>(guid));
         }
         else
         {
@@ -360,9 +360,9 @@ public class ModelImporter : AssetImporter
 
     #region Animation loading
 
-    private static List<ResourceRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
+    private static List<AssetRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
     {
-        List<ResourceRef<AnimationClip>> anims = [];
+        List<AssetRef<AnimationClip>> anims = [];
         foreach (Assimp.Animation? anim in scene.Animations)
         {
             AnimationClip animation = LoadAssimpAnimation(scene, scale, anim);
@@ -472,7 +472,7 @@ public class ModelImporter : AssetImporter
 
     #region Mesh loading
 
-    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<ResourceRef<Material>> mats, List<MeshMaterialBinding> meshMats)
+    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
     {
         foreach (Assimp.Mesh? assimpMesh in scene.Meshes)
         {
@@ -713,11 +713,11 @@ public class ModelImporter : AssetImporter
     #endregion
 
 
-    private sealed class MeshMaterialBinding(string meshName, Assimp.Mesh assimpMesh, ResourceRef<Mesh> engineMesh, ResourceRef<Material> engineMaterial)
+    private sealed class MeshMaterialBinding(string meshName, Assimp.Mesh assimpMesh, AssetRef<Mesh> engineMesh, AssetRef<Material> engineMaterial)
     {
         public string MeshName { get; } = meshName;
-        public ResourceRef<Material> EngineMaterial { get; } = engineMaterial;
-        public ResourceRef<Mesh> EngineMesh { get; } = engineMesh;
+        public AssetRef<Material> EngineMaterial { get; } = engineMaterial;
+        public AssetRef<Mesh> EngineMesh { get; } = engineMesh;
         public Assimp.Mesh AssimpMesh { get; } = assimpMesh;
     }
 }

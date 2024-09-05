@@ -10,7 +10,7 @@ namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private ResourceRef<Entity> _target;
+    private AssetRef<Entity> _target;
 
     public override string Title => "Entity Editor";
 
@@ -37,7 +37,7 @@ public class EntityEditor() : ImGuiWindow(true)
 
     public void SetTarget(Entity? entity)
     {
-        _target = new ResourceRef<Entity>(entity);
+        _target = new AssetRef<Entity>(entity);
     }
 
 

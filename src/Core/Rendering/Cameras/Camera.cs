@@ -57,7 +57,7 @@ public sealed class Camera : EntityComponent
     /// If set, the camera will render to this texture.
     /// If not set, the camera will render to the screen.
     /// </summary>
-    public ResourceRef<RenderTexture> TargetTexture { get; set; }
+    public AssetRef<RenderTexture> TargetTexture { get; set; }
     
     /// <summary>
     /// The G-buffer of this camera.

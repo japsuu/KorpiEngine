@@ -11,8 +11,8 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
-    public ResourceRef<Mesh> Mesh { get; set; }
-    public ResourceRef<Material> Material { get; set; }
+    public AssetRef<Mesh> Mesh { get; set; }
+    public AssetRef<Material> Material { get; set; }
 
     public Transform?[] Bones { get; set; } = [];
 
@@ -100,8 +100,8 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
-        Mesh = Serializer.Deserialize<ResourceRef<Mesh>>(value["Mesh"], ctx);
-        Material = Serializer.Deserialize<ResourceRef<Material>>(value["Material"], ctx);
+        Mesh = Serializer.Deserialize<AssetRef<Mesh>>(value["Mesh"], ctx);
+        Material = Serializer.Deserialize<AssetRef<Material>>(value["Material"], ctx);
         Bones = Serializer.Deserialize<Transform[]>(value["Bones"], ctx)!;
     }
 }
