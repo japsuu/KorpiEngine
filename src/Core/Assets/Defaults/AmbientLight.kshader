@@ -67,8 +67,8 @@ Pass 0
 
 			// Get view-space normal in [0, 1] range.
 			// The normal is relative to the rendering camera:
-			// (0, 0, 1) is directly away from the camera,
-			// (0, 0, -1) is directly towards the camera,
+			// (0, 0, -1) is directly away from the camera,
+			// (0, 0, 1) is directly towards the camera,
 			// (1, 0, 0) is to the right of the camera,
 			// (0, 1, 0) is up from the camera.
 			vec3 normal = textureLod(_GNormalMetallic, TexCoords, 0).xyz;
