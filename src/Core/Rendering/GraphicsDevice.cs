@@ -1,10 +1,8 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.Internal.Rendering;
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Logging;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Shaders;
 
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 internal abstract class GraphicsDevice
 {

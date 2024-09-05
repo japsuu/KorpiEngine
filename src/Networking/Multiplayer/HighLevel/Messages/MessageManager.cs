@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+namespace KorpiEngine.Multiplayer.HighLevel.Messages;
 
 internal static class MessageManager
 {

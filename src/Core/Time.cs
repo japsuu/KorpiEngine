@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core;
+﻿namespace KorpiEngine;
 
 public static class Time
 {

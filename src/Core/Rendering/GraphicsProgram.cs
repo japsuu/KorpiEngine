@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering;
+﻿namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Represents a shaderProgram object.

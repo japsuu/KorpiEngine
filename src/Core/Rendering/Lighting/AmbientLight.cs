@@ -1,16 +1,16 @@
-﻿using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Rendering.Cameras;
+﻿using KorpiEngine.EntityModel;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Shaders;
 
-namespace KorpiEngine.Core.Rendering.Lighting;
+namespace KorpiEngine.Rendering.Lighting;
 
 public class AmbientLight : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.LightingPass;
 
-    public Color SkyColor { get; set; } = Color.White;
-    public Color GroundColor { get; set; } = Color.White;
+    public ColorHDR SkyColor { get; set; } = ColorHDR.White;
+    public ColorHDR GroundColor { get; set; } = ColorHDR.White;
     public float SkyIntensity { get; set; } = 0.4f;
     public float GroundIntensity { get; set; } = 0.05f;
 

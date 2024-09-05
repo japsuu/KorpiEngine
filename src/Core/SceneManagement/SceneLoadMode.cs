@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.SceneManagement;
+﻿namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// Determines how to load a scene.

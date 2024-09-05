@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
-using KorpiEngine.Core.UI.DearImGui;
+using KorpiEngine.UI.DearImGui;
 
-namespace KorpiEngine.Core.UI;
+namespace KorpiEngine.UI;
 
 /// <summary>
 /// Collection of methods for drawing GUI elements from inside the OnDrawGUI method.

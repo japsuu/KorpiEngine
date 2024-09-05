@@ -208,6 +208,11 @@ Pass 0
 			normal = normalize(TBN * normal);
 			
 			// Transform world space normal to view space
+			// After this, the normal is relative to the rendering camera:
+			// (0, 0, -1) is directly away from the camera,
+			// (0, 0, 1) is directly towards the camera,
+			// (1, 0, 0) is to the right of the camera,
+			// (0, 1, 0) is up from the camera.
 			normal = normalize((_MatView * vec4(normal, 0.0)).xyz);
 			
 			// Write the transformed view space normal to buffer

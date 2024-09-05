@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Exceptions;
+﻿namespace KorpiEngine.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an OpenGL-related error occurs.

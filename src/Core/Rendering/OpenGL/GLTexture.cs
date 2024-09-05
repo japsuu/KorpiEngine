@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Core.Rendering.Primitives;
+﻿using KorpiEngine.Rendering.Primitives;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 /// <summary>
 /// Represents a texture object.

@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.API;
-
-namespace KorpiEngine.Core.EntityModel.SpatialHierarchy;
+﻿namespace KorpiEngine.EntityModel.SpatialHierarchy;
 
 public class Transform
 {
@@ -8,13 +6,13 @@ public class Transform
     public Vector3 Left => Rotation * Vector3.Left;
     public Vector3 Up => Rotation * Vector3.Up;
     public Vector3 Down => Rotation * Vector3.Down;
+    public Vector3 Backward => Rotation * Vector3.Backward;
     public Vector3 Forward
     {
         get => Rotation * Vector3.Forward;
-        set => Rotation = Quaternion.LookRotation(value, Vector3.Up);
+        set => Rotation = Quaternion.CreateLookAtDirection(value, Vector3.Up);
     }
 
-    public Vector3 Backward => Rotation * Vector3.Backward;
     public bool IsRootTransform => Parent == null;
     public Transform Root => Parent == null ? this : Parent.Root;
 
@@ -59,7 +57,7 @@ public class Transform
         get
         {
             if (Parent != null)
-                return MakeSafe(Parent.LocalToWorldMatrix.MultiplyPoint(LocalPosition));
+                return MakeSafe(Parent.TransformPoint(LocalPosition));
             return MakeSafe(LocalPosition);
         }
         set
@@ -80,7 +78,7 @@ public class Transform
 
     /// <summary>
     /// Local rotation of the transform as a quaternion.
-    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Quaternion LocalRotation
@@ -113,34 +111,34 @@ public class Transform
         set
         {
             if (Parent != null)
-                LocalRotation = MakeSafe(Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Rotation) * value));
+                LocalRotation = MakeSafe((Parent.Rotation.Inverse() * value).NormalizeSafe());
             else
-                LocalRotation = MakeSafe(Quaternion.NormalizeSafe(value));
+                LocalRotation = MakeSafe(value.NormalizeSafe());
             Version++;
         }
     }
 
     /// <summary>
     /// <see cref="Rotation"/> of the transform as Euler angles in degrees.
-    /// Korpi uses a left-handed coordinate system, so positive rotation is clockwise about the axis of rotation when the axis points toward you.
+    /// Korpi uses a right-handed coordinate system, so positive rotation is counter-clockwise about the axis of rotation when the axis points toward you.
     /// Read more at: https://www.evl.uic.edu/ralph/508S98/coordinates.html
     /// </summary>
     public Vector3 EulerAngles
     {
-        get => MakeSafe(Rotation.EulerAngles);
+        get => MakeSafe(Rotation.ToEulerAnglesDegreesWrapped());
         set
         {
-            Rotation = MakeSafe(Quaternion.Euler(value));
+            Rotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
             Version++;
         }
     }
 
     public Vector3 LocalEulerAngles
     {
-        get => MakeSafe(_localRotation.EulerAngles);
+        get => MakeSafe(_localRotation.ToEulerAnglesDegreesWrapped());
         set
         {
-            _localRotation.EulerAngles = MakeSafe(value);
+            _localRotation = MakeSafe(Quaternion.CreateFromEulerAnglesDegrees(value));
             Version++;
         }
     }
@@ -160,6 +158,9 @@ public class Transform
         {
             if (_localScale == value)
                 return;
+            
+            if (value.X < 0 || value.Y < 0 || value.Z < 0)
+                throw new ArgumentException("Scale cannot be negative.");
 
             _localScale = MakeSafe(value);
             Version++;
@@ -187,13 +188,13 @@ public class Transform
 
     #region Matrices
 
-    public Matrix4x4 WorldToLocalMatrix => LocalToWorldMatrix.Invert();
+    public Matrix4x4 WorldToLocalMatrix => LocalToWorldMatrix.Inverse();
 
     public Matrix4x4 LocalToWorldMatrix
     {
         get
         {
-            Matrix4x4 t = Matrix4x4.TRS(LocalPosition, LocalRotation, LocalScale);
+            Matrix4x4 t = Matrix4x4.CreateTRS(LocalPosition, LocalRotation, LocalScale);
             return Parent != null ? t * Parent.LocalToWorldMatrix : t;
         }
     }
@@ -201,7 +202,7 @@ public class Transform
 
     public Matrix4x4 GetWorldRotationAndScale()
     {
-        Matrix4x4 ret = Matrix4x4.TRS(Vector3.Zero, LocalRotation, LocalScale);
+        Matrix4x4 ret = Matrix4x4.CreateTRS(Vector3.Zero, LocalRotation, LocalScale);
         if (Parent == null)
             return ret;
 
@@ -225,42 +226,48 @@ public class Transform
     }
 
 
-    public void Rotate(Vector3 eulerAngles, bool relativeToSelf = true)
+    /// <summary>
+    /// Rotates the transform by <paramref name="eulerAngles"/> degrees.
+    /// The rotation is applied in the transform's local space by default.
+    /// </summary>
+    /// <param name="eulerAngles">The rotation to apply in degrees.</param>
+    /// <param name="space">The space in which the rotation is applied.</param>
+    public void Rotate(Vector3 eulerAngles, Space space = Space.Self)
     {
-        Quaternion eulerRot = Quaternion.Euler(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
-        if (relativeToSelf)
+        Quaternion eulerRot = Quaternion.CreateFromEulerAnglesDegrees(eulerAngles);
+        if (space == Space.Self)
             LocalRotation *= eulerRot;
         else
-            Rotation *= Quaternion.Inverse(Rotation) * eulerRot * Rotation;
+            Rotation *= Rotation.Inverse() * eulerRot * Rotation;
     }
 
 
-    public void Rotate(Vector3 axis, double angle, bool relativeToSelf = true)
+    public void Rotate(Vector3 axis, float angle, bool relativeToSelf = true)
     {
-        RotateAroundInternal(relativeToSelf ? TransformDirection(axis) : axis, angle * Mathd.DEG_2_RAD);
+        RotateAroundInternal(relativeToSelf ? TransformDirection(axis) : axis, angle.ToRadians());
     }
 
 
-    public void RotateAround(Vector3 point, Vector3 axis, double angle)
+    public void RotateAround(Vector3 point, Vector3 axis, float angle)
     {
         Vector3 worldPos = Position;
-        Quaternion q = Quaternion.AngleAxis(angle, axis);
+        Quaternion q = Quaternion.CreateFromAxisAngle(axis, angle);
         Vector3 dif = worldPos - point;
         dif = q * dif;
         worldPos = point + dif;
         Position = worldPos;
-        RotateAroundInternal(axis, angle * Mathd.DEG_2_RAD);
+        RotateAroundInternal(axis, angle.ToRadians());
     }
 
 
-    private void RotateAroundInternal(Vector3 worldAxis, double rad)
+    private void RotateAroundInternal(Vector3 worldAxis, float rad)
     {
         Vector3 localAxis = InverseTransformDirection(worldAxis);
-        if (localAxis.SqrMagnitude > Mathd.EPSILON)
+        if (localAxis.MagnitudeSquared() > MathOps.EPSILON_FLOAT)
         {
             localAxis.Normalize();
-            Quaternion q = Quaternion.AngleAxis(rad, localAxis);
-            LocalRotation = Quaternion.NormalizeSafe(LocalRotation * q);
+            Quaternion q = Quaternion.CreateFromAxisAngle(localAxis, rad);
+            LocalRotation = (LocalRotation * q).NormalizeSafe();
         }
     }
 
@@ -269,7 +276,7 @@ public class Transform
     {
         // Cheat using Matrix4x4.CreateLookAt
         Matrix4x4 m = Matrix4x4.CreateLookAt(Position, worldPosition, worldUp);
-        LocalRotation = Quaternion.NormalizeSafe(Quaternion.MatrixToQuaternion(m));
+        LocalRotation = Quaternion.CreateFromRotationMatrix(m).NormalizeSafe();
     }
 
 
@@ -288,7 +295,7 @@ public class Transform
     /// </summary>
     /// <param name="direction">The direction to transform.</param>
     /// <returns>The transformed direction.</returns>
-    public Vector3 InverseTransformDirection(Vector3 direction) => Quaternion.Inverse(Rotation) * direction;
+    public Vector3 InverseTransformDirection(Vector3 direction) => Rotation.Inverse() * direction;
 
 
     /// <summary>
@@ -297,7 +304,7 @@ public class Transform
     /// </summary>
     /// <param name="position">The position to transform.</param>
     /// <returns>The transformed position.</returns>
-    public Vector3 TransformPoint(Vector3 position) => Vector4.Transform(new Vector4(position, 1.0), LocalToWorldMatrix).Xyz;
+    public Vector3 TransformPoint(Vector3 position) => new Vector4(position, 1.0f).Transform(LocalToWorldMatrix).XYZ;
 
 
     /// <summary>
@@ -306,7 +313,7 @@ public class Transform
     /// </summary>
     /// <param name="position">The position to transform.</param>
     /// <returns>The transformed position.</returns>
-    public Vector3 InverseTransformPoint(Vector3 position) => Vector4.Transform(new Vector4(position, 1.0), WorldToLocalMatrix).Xyz;
+    public Vector3 InverseTransformPoint(Vector3 position) => new Vector4(position, 1.0f).Transform(WorldToLocalMatrix).XYZ;
 
 
     public Vector3 TransformVector(Vector3 inVector)
@@ -334,7 +341,7 @@ public class Transform
         else
             localVector = inVector;
 
-        Vector3 newVector = Quaternion.Inverse(LocalRotation) * localVector;
+        Vector3 newVector = LocalRotation.Inverse() * localVector;
         if (LocalScale != Vector3.One)
             newVector.Scale(InverseSafe(LocalScale));
 
@@ -357,7 +364,7 @@ public class Transform
     }
 
 
-    public Quaternion InverseTransformRotation(Quaternion worldRotation) => Quaternion.Inverse(Rotation) * worldRotation;
+    public Quaternion InverseTransformRotation(Quaternion worldRotation) => Rotation.Inverse() * worldRotation;
 
     #endregion
 
@@ -432,9 +439,9 @@ public class Transform
     #endregion
 
 
-    private static double MakeSafe(double v) => double.IsNaN(v) ? 0 : v;
+    private static float MakeSafe(float v) => double.IsNaN(v) ? 0 : v;
     private static Vector3 MakeSafe(Vector3 v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z));
     private static Quaternion MakeSafe(Quaternion v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z), MakeSafe(v.W));
-    private static double InverseSafe(double f) => Math.Abs(f) > Mathd.EPSILON ? 1.0F / f : 0.0F;
+    private static float InverseSafe(float f) => Math.Abs(f) > MathOps.EPSILON_FLOAT ? 1.0F / f : 0.0F;
     private static Vector3 InverseSafe(Vector3 v) => new(InverseSafe(v.X), InverseSafe(v.Y), InverseSafe(v.Z));
 }

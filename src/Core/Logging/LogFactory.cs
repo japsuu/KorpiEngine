@@ -4,7 +4,7 @@ using log4net.Config;
 using log4net.Core;
 using log4net.Repository;
 
-namespace KorpiEngine.Core.Logging;
+namespace KorpiEngine.Logging;
 
 public static class LogFactory
 {

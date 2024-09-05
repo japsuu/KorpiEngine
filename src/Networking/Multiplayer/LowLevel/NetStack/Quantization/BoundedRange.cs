@@ -20,16 +20,9 @@
  *  SOFTWARE.
  */
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
-#if !(ENABLE_MONO || ENABLE_IL2CPP)
-
-#else
-	using UnityEngine;
-#endif
-
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Quantization;
 
 public struct QuantizedVector2
 {
@@ -173,7 +166,7 @@ public class BoundedRange
     }
 
 
-    public static QuantizedVector2 Quantize(Vector2 vector2, BoundedRange[] boundedRange)
+    public static QuantizedVector2 Quantize(System.Numerics.Vector2 vector2, BoundedRange[] boundedRange)
     {
         QuantizedVector2 data = default;
 
@@ -189,7 +182,7 @@ public class BoundedRange
     }
 
 
-    public static QuantizedVector3 Quantize(Vector3 vector3, BoundedRange[] boundedRange)
+    public static QuantizedVector3 Quantize(System.Numerics.Vector3 vector3, BoundedRange[] boundedRange)
     {
         QuantizedVector3 data = default;
 
@@ -207,7 +200,7 @@ public class BoundedRange
     }
 
 
-    public static QuantizedVector4 Quantize(Vector4 vector4, BoundedRange[] boundedRange)
+    public static QuantizedVector4 Quantize(System.Numerics.Vector4 vector4, BoundedRange[] boundedRange)
     {
         QuantizedVector4 data = default;
 
@@ -227,14 +220,14 @@ public class BoundedRange
     }
 
 
-    public static Vector2 Dequantize(QuantizedVector2 data, BoundedRange[] boundedRange) =>
+    public static System.Numerics.Vector2 Dequantize(QuantizedVector2 data, BoundedRange[] boundedRange) =>
         new(boundedRange[0].Dequantize(data.x), boundedRange[1].Dequantize(data.y));
 
 
-    public static Vector3 Dequantize(QuantizedVector3 data, BoundedRange[] boundedRange) => new(
+    public static System.Numerics.Vector3 Dequantize(QuantizedVector3 data, BoundedRange[] boundedRange) => new(
         boundedRange[0].Dequantize(data.x), boundedRange[1].Dequantize(data.y), boundedRange[2].Dequantize(data.z));
 
 
-    public static Vector4 Dequantize(QuantizedVector4 data, BoundedRange[] boundedRange) => new(
+    public static System.Numerics.Vector4 Dequantize(QuantizedVector4 data, BoundedRange[] boundedRange) => new(
         boundedRange[0].Dequantize(data.x), boundedRange[1].Dequantize(data.y), boundedRange[2].Dequantize(data.z), boundedRange[3].Dequantize(data.w));
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
 
 public static class QueueUtils
 {

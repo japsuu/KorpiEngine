@@ -1,8 +1,7 @@
-﻿using KorpiEngine.Core.API;
-using OpenTK.Windowing.Common;
+﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace KorpiEngine.Core.Windowing;
+namespace KorpiEngine.Windowing;
 
 /// <summary>
 /// Contains the initial windowing configuration for a <see cref="Application"/>.
@@ -12,7 +11,7 @@ public struct WindowingSettings
     public GameWindowSettings GameWindowSettings { get; }
     public NativeWindowSettings NativeWindowSettings { get; }
 
-    public WindowingSettings(Vector2i windowSize, string windowTitle)
+    public WindowingSettings(Int2 windowSize, string windowTitle)
     {
         GameWindowSettings gws = new()
         {

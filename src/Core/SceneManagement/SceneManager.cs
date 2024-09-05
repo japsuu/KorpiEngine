@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Core.Logging;
+﻿using KorpiEngine.Logging;
 
-namespace KorpiEngine.Core.SceneManagement;
+namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// Manages in-game scenes.

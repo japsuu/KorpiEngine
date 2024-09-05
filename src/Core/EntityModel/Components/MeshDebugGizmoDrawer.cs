@@ -1,7 +1,4 @@
-using KorpiEngine.Core.API;
-using Vector3 = System.Numerics.Vector3;
-
-namespace KorpiEngine.Core.EntityModel.Components;
+namespace KorpiEngine.EntityModel.Components;
 
 /// <summary>
 /// Can draw gizmos to debug a mesh.
@@ -86,7 +83,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return;
         
-        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Size);
+        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Extent);
     }
 
 
@@ -137,14 +134,14 @@ public class MeshDebugGizmoDrawer : EntityComponent
             }
             
             // Transform the position and direction vectors by the local-to-world matrix
-            position = KorpiEngine.Core.API.Vector3.Transform(position, localToWorldMatrix);
-            direction = KorpiEngine.Core.API.Vector3.TransformNormal(direction, localToWorldMatrix);
+            position = position.Transform(localToWorldMatrix);
+            direction = direction.TransformNormal(localToWorldMatrix);
             
             // Decide the line color based on the normal, ensure there are no black lines
             float r = Math.Abs(direction.X);
             float g = Math.Abs(direction.Y);
             float b = Math.Abs(direction.Z);
-            Gizmos.Color = new Color(r, g, b, 1f);
+            Gizmos.Color = new ColorHDR(r, g, b, 1f);
             
             Gizmos.DrawArrow(position, position + direction * length);
         }

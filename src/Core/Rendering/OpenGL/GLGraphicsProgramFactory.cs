@@ -1,8 +1,8 @@
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.Exceptions;
+using KorpiEngine.Exceptions;
+using KorpiEngine.Rendering.Shaders;
 using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 /// <summary>
 /// Contains methods to automatically initialize shader shaderProgram objects.

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using KorpiEngine.Core;
 
-namespace KorpiEngine.Networking;
+namespace KorpiEngine;
 
 public sealed class DownloadHandler
 {

@@ -1,8 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using ImGuiNET;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Rendering;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Rendering;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -11,9 +10,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
-using Vector4 = System.Numerics.Vector4;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 internal class ImGuiController : GraphicsResource
 {
@@ -230,9 +228,9 @@ internal class ImGuiController : GraphicsResource
     public void Update()
     {
         // Emulate the cursor being fixed to the center of the screen, as OpenTK doesn't fix the cursor position when it's grabbed.
-        Vector2 mousePos = Input.MouseState.Position;
+        OpenTK.Mathematics.Vector2 mousePos = Input.MouseState.Position;
         if (_window.CursorState == CursorState.Grabbed)
-            mousePos = new Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
+            mousePos = new OpenTK.Mathematics.Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
 
         float deltaSeconds = Time.DeltaTime;
 
@@ -271,7 +269,7 @@ internal class ImGuiController : GraphicsResource
 
 
     // NOTE: Modified to take in an override mouse position
-    private void UpdateImGuiInput(Vector2 mousePos)
+    private void UpdateImGuiInput(OpenTK.Mathematics.Vector2 mousePos)
     {
         ImGuiIOPtr io = ImGui.GetIO();
         
@@ -374,7 +372,7 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    private static void MouseScroll(Vector2 offset)
+    private static void MouseScroll(OpenTK.Mathematics.Vector2 offset)
     {
         ImGuiIOPtr io = ImGui.GetIO();
 
@@ -524,7 +522,7 @@ internal class ImGuiController : GraphicsResource
             CheckGlError("Texture");
 
             // We do _windowHeight - (int)clip.W instead of (int)clip.Y because gl has flipped Y when it comes to these coordinates
-            Vector4 clip = pcmd.ClipRect;
+            System.Numerics.Vector4 clip = pcmd.ClipRect;
             GL.Scissor((int)clip.X, _windowHeight - (int)clip.W, (int)(clip.Z - clip.X), (int)(clip.W - clip.Y));
             CheckGlError("Scissor");
 

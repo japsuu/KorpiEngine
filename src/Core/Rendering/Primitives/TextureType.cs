@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Primitives;
+﻿namespace KorpiEngine.Rendering.Primitives;
 
 public enum TextureType
 {

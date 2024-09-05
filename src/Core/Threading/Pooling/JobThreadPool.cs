@@ -1,8 +1,8 @@
-﻿using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.Threading.Jobs;
-using KorpiEngine.Core.Threading.Threads;
+﻿using KorpiEngine.Logging;
+using KorpiEngine.Threading.Jobs;
+using KorpiEngine.Threading.Threads;
 
-namespace KorpiEngine.Core.Threading.Pooling;
+namespace KorpiEngine.Threading.Pooling;
 
 /// <summary>
 /// Custom thread pool with progressive throttling.

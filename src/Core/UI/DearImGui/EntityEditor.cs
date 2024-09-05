@@ -1,13 +1,12 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.EntityModel;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Primitives;
+﻿namespace KorpiEngine.Rendering.Primitives;
 
 public struct RasterizerState
 {
@@ -14,7 +14,7 @@ public struct RasterizerState
     public bool EnableCulling = true;
     public PolyFace FaceCulling = PolyFace.Back;
 
-    public WindingOrder WindingOrder = WindingOrder.CW;
+    public WindingOrder WindingOrder = WindingOrder.CCW;
 
 
     public RasterizerState()

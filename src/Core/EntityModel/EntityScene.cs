@@ -1,9 +1,8 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.UI;
+﻿using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.UI;
 
-namespace KorpiEngine.Core.EntityModel;
+namespace KorpiEngine.EntityModel;
 
 /// <summary>
 /// Manages all entities, components, and systems in a scene.

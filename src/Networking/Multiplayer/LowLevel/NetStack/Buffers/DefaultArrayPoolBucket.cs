@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Buffers;
+namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Buffers;
 
 internal sealed partial class DefaultArrayPool<T> : ArrayPool<T>
 {

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Rendering.Primitives;
+﻿namespace KorpiEngine.Rendering.Primitives;
 
 /// <summary>
 /// The format of a texture image.<br/>

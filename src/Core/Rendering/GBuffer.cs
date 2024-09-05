@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Textures;
 
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 // Taken and modified from Prowl's GBuffer.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/GBuffer.cs.
@@ -82,7 +81,7 @@ public class GBuffer
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Device.BindFramebuffer(FrameBuffer);
-        Vector3 result = Graphics.Device.ReadPixels<System.Numerics.Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
+        Vector3 result = Graphics.Device.ReadPixels<Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
         return result;
     }
 

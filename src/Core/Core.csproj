@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>KorpiEngine.Core</RootNamespace>
+        <RootNamespace>KorpiEngine</RootNamespace>
         <AssemblyName>KorpiEngine.Core</AssemblyName>
         <Configurations>Debug;Release;Production</Configurations>
         <Platforms>AnyCPU</Platforms>
@@ -42,5 +42,13 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Math\Math.csproj" />
+    </ItemGroup>
+
+    <!--ItemGroup>
+      <ProjectReference Include="..\Math\Math.csproj" />
+    </ItemGroup-->
 
 </Project>

@@ -1,8 +1,8 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.EntityModel;
+using KorpiEngine.EntityModel;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 public abstract class EntityComponentEditor : ImGuiWindow
 {

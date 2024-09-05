@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Threading.Threads;
+﻿namespace KorpiEngine.Threading.Threads;
 
 /// <summary>
 /// Status of a <see cref="WorkerThread"/>.

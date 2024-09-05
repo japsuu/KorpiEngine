@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Threading.Pooling;
-using KorpiEngine.Core.UI;
-using KorpiEngine.Core.UI.DearImGui;
-using KorpiEngine.Core.Windowing;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Logging;
+using KorpiEngine.SceneManagement;
+using KorpiEngine.Threading.Pooling;
+using KorpiEngine.UI;
+using KorpiEngine.UI.DearImGui;
+using KorpiEngine.Windowing;
 using OpenTK.Windowing.Common;
 
-namespace KorpiEngine.Core;
+namespace KorpiEngine;
 
 /// <summary>
 /// The main class for the application.

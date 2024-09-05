@@ -1,11 +1,10 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.UI.DearImGui;
+﻿using KorpiEngine.EntityModel;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.UI.DearImGui;
 
-namespace KorpiEngine.Core.Rendering.Lighting;
+namespace KorpiEngine.Rendering.Lighting;
 
 public sealed class DirectionalLight : EntityComponent
 {
@@ -29,7 +28,7 @@ public sealed class DirectionalLight : EntityComponent
         }
     }
 
-    public Color Color { get; set; } = Color.White;
+    public ColorHDR Color { get; set; } = ColorHDR.White;
     public float Intensity { get; set; } = 8f;
     public int QualitySamples { get; set; } = 64;
     public int BlockerSamples { get; set; } = 64;
@@ -64,7 +63,7 @@ public sealed class DirectionalLight : EntityComponent
     protected override void OnRenderObject()
     {
         _lightMat ??= new Material(Shader.Find("Assets/Defaults/DirectionalLight.kshader"), "directional light material", false);
-        _lightMat.SetVector("_LightDirection", Vector3.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
+        _lightMat.SetVector("_LightDirection", MathOps.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
         _lightMat.SetColor("_LightColor", Color);
         _lightMat.SetFloat("_LightIntensity", Intensity);
 
@@ -98,7 +97,7 @@ public sealed class DirectionalLight : EntityComponent
     protected override void OnDrawGizmos()
     {
         Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
-        Gizmos.Color = Color.Yellow;
+        Gizmos.Color = ColorHDR.Yellow;
         Gizmos.DrawDirectionalLight(Vector3.Zero);
     }
 
@@ -115,7 +114,7 @@ public sealed class DirectionalLight : EntityComponent
             Graphics.DepthProjectionMatrix = Matrix4x4.CreateOrthographic(ShadowDistance, ShadowDistance, 0, ShadowDistance*2);
 
             Vector3 forward = Entity.Transform.Forward;
-            Graphics.DepthViewMatrix = Matrix4x4.CreateLookToLeftHanded(-forward * ShadowDistance, -forward, Entity.Transform.Up);
+            Graphics.DepthViewMatrix = Matrix4x4.CreateLookAt(-forward * ShadowDistance, -forward, Entity.Transform.Up);
 
             _depthMVP = Matrix4x4.Identity;
             _depthMVP = Matrix4x4.Multiply(_depthMVP, Graphics.DepthViewMatrix);

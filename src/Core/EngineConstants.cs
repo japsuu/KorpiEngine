@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core;
+﻿namespace KorpiEngine;
 
 /// <summary>
 /// Contains constants used throughout the engine.

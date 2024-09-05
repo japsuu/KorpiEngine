@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
+﻿using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+namespace KorpiEngine.Multiplayer.HighLevel.Messages;
 
 /// <summary>
 /// Packet sent to all clients when a client connects or disconnects.

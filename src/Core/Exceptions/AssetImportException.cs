@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Core.Exceptions;
+﻿namespace KorpiEngine.Exceptions;
 
 public class AssetImportException<T> : KorpiException
 {

@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Authentication;
+namespace KorpiEngine.Multiplayer.HighLevel.Authentication;
 
 public abstract class Authenticator
 {

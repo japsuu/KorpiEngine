@@ -1,13 +1,11 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Internal.Serialization;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Rendering;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Serialization;
 
-namespace KorpiEngine.Core.EntityModel.Components;
+namespace KorpiEngine.EntityModel.Components;
 
 public class SkinnedMeshRenderer : EntityComponent, ISerializable
 {
@@ -18,19 +16,19 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
     public Transform?[] Bones { get; set; } = [];
 
-    private System.Numerics.Matrix4x4[]? _boneTransforms;
+    private Matrix4x4[]? _boneTransforms;
 
 
     private void GetBoneMatrices()
     {
-        _boneTransforms = new System.Numerics.Matrix4x4[Bones.Length];
+        _boneTransforms = new Matrix4x4[Bones.Length];
         for (int i = 0; i < Bones.Length; i++)
         {
             Transform? t = Bones[i];
             if (t == null)
-                _boneTransforms[i] = System.Numerics.Matrix4x4.Identity;
+                _boneTransforms[i] = Matrix4x4.Identity;
             else
-                _boneTransforms[i] = (t.LocalToWorldMatrix * Entity.Transform.WorldToLocalMatrix).ToFloat();
+                _boneTransforms[i] = t.LocalToWorldMatrix * Entity.Transform.WorldToLocalMatrix;
         }
     }
 

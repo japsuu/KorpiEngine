@@ -1,12 +1,12 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Utils;
+﻿using System.Diagnostics;
 using System.Reflection;
-using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.SceneManagement;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.EntityModel;
+namespace KorpiEngine.EntityModel;
 
 /// <summary>
 /// Container for components and systems.
@@ -56,8 +56,7 @@ public sealed class Entity : Resource
         get
         {
             Matrix4x4 t = Transform.LocalToWorldMatrix;
-            t.Translation -= Camera.RenderingCamera.Transform.Position;
-            return t;
+            return t.SetTranslation(t.Translation - Camera.RenderingCamera.Transform.Position);
         }
     }
 
@@ -158,8 +157,9 @@ public sealed class Entity : Resource
     }
 
 
-    protected override void OnDispose()
+    protected override void OnDispose(bool manual)
     {
+        Debug.Assert(manual, "Entity was not manually disposed of!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
             _childList[0].DestroyImmediate();
@@ -241,17 +241,17 @@ public sealed class Entity : Resource
             if (Parent != null)
             {
                 Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
-                Transform.LocalRotation = Quaternion.NormalizeSafe(Quaternion.Inverse(Parent.Transform.Rotation) * worldRotation);
+                Transform.LocalRotation = (Parent.Transform.Rotation.Inverse() * worldRotation).NormalizeSafe();
             }
             else
             {
                 Transform.LocalPosition = worldPosition;
-                Transform.LocalRotation = Quaternion.NormalizeSafe(worldRotation);
+                Transform.LocalRotation = worldRotation.NormalizeSafe();
             }
 
             Transform.LocalScale = Vector3.One;
-            Matrix4x4 inverseRotationScale = Transform.GetWorldRotationAndScale().Invert() * worldScale;
-            Transform.LocalScale = new Vector3(inverseRotationScale[0, 0], inverseRotationScale[1, 1], inverseRotationScale[2, 2]);
+            Matrix4x4 inverseRotationScale = Transform.GetWorldRotationAndScale().Inverse() * worldScale;
+            Transform.LocalScale = new Vector3(inverseRotationScale.M11, inverseRotationScale.M22, inverseRotationScale.M33);
         }
 
         HierarchyStateChanged();

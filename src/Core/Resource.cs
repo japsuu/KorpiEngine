@@ -1,8 +1,7 @@
-﻿using KorpiEngine.Core.EntityModel.IDs;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Internal;
+﻿using KorpiEngine.EntityModel.IDs;
+using KorpiEngine.Exceptions;
 
-namespace KorpiEngine.Core;
+namespace KorpiEngine;
 
 public abstract class Resource : SafeDisposable
 {
@@ -48,12 +47,7 @@ public abstract class Resource : SafeDisposable
             return;
         base.Dispose(manual);
         
-#if TOOLS
-        if (!manual)
-            throw new ResourceLeakException($"Resource of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
-#endif
-        
-        OnDispose();
+        OnDispose(manual);
         AllResources.Remove(InstanceID);
     }
 
@@ -135,6 +129,11 @@ public abstract class Resource : SafeDisposable
     #endregion
 
 
-    protected virtual void OnDispose() { }
+    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
+    /// Managed and unmanaged resources can be disposed.<br/>
+    /// 
+    /// False, if caused by the GC and therefore from another thread and the result of a resource leak.
+    /// Only unmanaged resources can be disposed.</param>
+    protected virtual void OnDispose(bool manual) { }
     public override string ToString() => Name;
 }

@@ -1,15 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Primitives;
-using KorpiEngine.Core.Windowing;
+using KorpiEngine.Exceptions;
+using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.Rendering.Textures;
+using KorpiEngine.Windowing;
 
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 public static class Graphics
 {

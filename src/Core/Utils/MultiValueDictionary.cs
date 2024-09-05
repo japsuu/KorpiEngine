@@ -4,7 +4,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace KorpiEngine.Core.Utils;
+namespace KorpiEngine.Utils;
 
 /// <summary>
 /// A MultiValueDictionary can be viewed as a <see cref="IDictionary" /> that allows multiple 
