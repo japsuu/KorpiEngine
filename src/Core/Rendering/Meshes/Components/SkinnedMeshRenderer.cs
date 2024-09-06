@@ -36,7 +36,7 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
     protected override void OnRenderObject()
     {
         // Store the current camera-relative transform to be used in the next frame
-        Matrix4x4 mat = Entity.GlobalCameraRelativeTransform;
+        Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
         int camID = Camera.RenderingCamera.InstanceID;
         if (!_prevMats.ContainsKey(camID))
             _prevMats[camID] = Entity.GlobalCameraRelativeTransform;
@@ -44,6 +44,9 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
         if (Mesh.IsAvailable && Material.IsAvailable)
         {
+            if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+                return;
+
             GetBoneMatrices();
             Material.Res!.EnableKeyword("SKINNED");
             Material.Res!.SetInt("_ObjectID", Entity.InstanceID);
@@ -52,13 +55,13 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
             for (int i = 0; i < Material.Res!.PassCount; i++)
             {
                 Material.Res!.SetPass(i);
-                Graphics.DrawMeshNow(Mesh.Res!, mat, Material.Res!, prevMat);
+                Graphics.DrawMeshNow(Mesh.Res!, transform, Material.Res!, prevMat);
             }
 
             Material.Res!.DisableKeyword("SKINNED");
         }
 
-        _prevMats[camID] = mat;
+        _prevMats[camID] = transform;
     }
 
 
@@ -73,7 +76,12 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
         Material.Res!.SetMatrices("_BoneTransforms", _boneTransforms!);
 
         Matrix4x4 mvp = Matrix4x4.Identity;
-        mvp = Matrix4x4.Multiply(mvp, Entity.GlobalCameraRelativeTransform);
+        Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
+        
+        if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+            return;
+        
+        mvp = Matrix4x4.Multiply(mvp, transform);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
         Material.Res!.SetMatrix("_MatMVP", mvp);

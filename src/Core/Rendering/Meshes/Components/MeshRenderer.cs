@@ -34,7 +34,7 @@ public class MeshRenderer : EntityComponent
 #endif
         }
         
-        if (Mesh.IsAvailable)
+        if (Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
         {
             material.SetColor("_MainColor", MainColor);
             material.SetInt("_ObjectID", Entity.InstanceID);
@@ -55,6 +55,9 @@ public class MeshRenderer : EntityComponent
             return;
         
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
+        
+        if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+            return;
 
         Matrix4x4 mvp = Matrix4x4.Identity;
         mvp = Matrix4x4.Multiply(mvp, transform);

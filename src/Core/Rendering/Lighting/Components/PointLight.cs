@@ -20,6 +20,10 @@ public class PointLight : EntityComponent
         _mesh ??= Mesh.CreateSphere(1f, 16, 16);
 
         Matrix4x4 mat = Matrix4x4.CreateScale(Radius) * Entity.GlobalCameraRelativeTransform;
+        
+        if (!Graphics.FrustumTest(_mesh.BoundingSphere, mat))
+            return;
+
         if (_lightMat == null)
         {
             _lightMat = new Material(Shader.Find("Assets/Defaults/PointLight.kshader"), "point light material", false);
