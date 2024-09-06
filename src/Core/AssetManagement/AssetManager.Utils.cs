@@ -23,10 +23,10 @@ public static partial class AssetManager
     /// </summary>
     /// <param name="relativePath">The relative path of the file.</param>
     /// <returns>The GUID of the file.</returns>
-    public static Guid GuidFromRelativePath(string relativePath)
+    public static UUID GuidFromRelativePath(string relativePath)
     {
         FileInfo path = GetFileInfoFromRelativePath(relativePath);
-        return TryGetGuidFromPath(path, out Guid guid) ? guid : Guid.Empty;
+        return TryGetGuidFromPath(path, out UUID guid) ? guid : UUID.Empty;
     }
 
 
@@ -35,7 +35,7 @@ public static partial class AssetManager
     /// </summary>
     /// <param name="assetID">The GUID of the file.</param>
     /// <returns>True if the file exists in the AssetDatabase, false otherwise.</returns>
-    public static bool Contains(Guid assetID) => GuidToAsset.ContainsKey(assetID);
+    public static bool Contains(UUID assetID) => GuidToAsset.ContainsKey(assetID);
 
 
     /// <summary>
@@ -44,9 +44,9 @@ public static partial class AssetManager
     /// <param name="file">The file to get the GUID for.</param>
     /// <param name="guid">The GUID of the file.</param>
     /// <returns>True if the GUID was found, false otherwise.</returns>
-    public static bool TryGetGuidFromPath(FileInfo file, out Guid guid)
+    public static bool TryGetGuidFromPath(FileInfo file, out UUID guid)
     {
-        guid = Guid.Empty;
+        guid = UUID.Empty;
         if (!File.Exists(file.FullName))
             return false;
         

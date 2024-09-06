@@ -5,12 +5,12 @@
 /// </summary>
 internal class Asset
 {
-    public readonly Guid AssetID;
+    public readonly UUID AssetID;
     public readonly FileInfo AssetPath;
     public readonly AssetInstance Instance;
 
 
-    public Asset(Guid assetID, FileInfo assetPath, AssetInstance instance)
+    public Asset(UUID assetID, FileInfo assetPath, AssetInstance instance)
     {
         AssetID = assetID;
         AssetPath = assetPath;

@@ -15,7 +15,7 @@ public abstract class AssetInstance : SafeDisposable
     public string Name { get; set; }
     
     // Asset path if we have one
-    public Guid AssetID { get; internal set; } = Guid.Empty;
+    public UUID AssetID { get; internal set; } = UUID.Empty;
     
     /// <summary>
     /// Whether the underlying object has been destroyed (disposed or waiting for disposal).

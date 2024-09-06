@@ -52,7 +52,7 @@ public sealed class Material : AssetInstance
 
     public Material(AssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
-        if (shader.AssetID == Guid.Empty)
+        if (shader.AssetID == UUID.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
         _propertyBlock = new MaterialPropertyBlock();

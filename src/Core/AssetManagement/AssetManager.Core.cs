@@ -8,8 +8,8 @@ public static partial class AssetManager
     /// Relative path of an asset to its GUID.
     /// The path is relative to the project root.
     /// </summary>
-    private static readonly Dictionary<string, Guid> RelativePathToGuid = new();
-    private static readonly Dictionary<Guid, Asset> GuidToAsset = new();
+    private static readonly Dictionary<string, UUID> RelativePathToGuid = new();
+    private static readonly Dictionary<UUID, Asset> GuidToAsset = new();
 
 
     #region ASSET LOADING
@@ -29,7 +29,7 @@ public static partial class AssetManager
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
         // Check if the asset at the specified path has been loaded before
-        if (TryGetGuidFromPath(fileInfo, out Guid guid))
+        if (TryGetGuidFromPath(fileInfo, out UUID guid))
             return LoadAsset<T>(guid);
 
         // The path hasn't been accessed before, so we need to import the asset
@@ -47,10 +47,10 @@ public static partial class AssetManager
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="assetGuid">The GUID of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAsset<T>(Guid assetGuid) where T : AssetInstance
+    public static T LoadAsset<T>(UUID assetGuid) where T : AssetInstance
     {
-        if (assetGuid == Guid.Empty)
-            throw new ArgumentException("Asset Guid cannot be empty", nameof(assetGuid));
+        if (assetGuid == UUID.Empty)
+            throw new ArgumentException("Asset UUID cannot be empty", nameof(assetGuid));
 
         if (GetAssetWithId(assetGuid)?.Instance is not T asset)
             throw new AssetLoadException<T>(assetGuid.ToString(), "Asset not found");
@@ -63,7 +63,7 @@ public static partial class AssetManager
 
     #region ASSET UNLOADING
 
-    public static void UnloadAsset(Guid guid)
+    public static void UnloadAsset(UUID guid)
     {
         if (!GuidToAsset.TryGetValue(guid, out Asset? asset))
             return;
@@ -96,7 +96,7 @@ public static partial class AssetManager
             throw new AssetImportException(relativePath, "The importer failed.");
             
         // Generate a new GUID for the asset
-        Guid assetID = Guid.NewGuid();
+        UUID assetID = new();
         instance.AssetID = assetID;
         Asset asset = new(assetID, assetFile, instance);
 
@@ -143,5 +143,5 @@ public static partial class AssetManager
     /// <summary>
     /// Gets the asset with the specified GUID.
     /// </summary>
-    private static Asset? GetAssetWithId(Guid assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
+    private static Asset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
 }

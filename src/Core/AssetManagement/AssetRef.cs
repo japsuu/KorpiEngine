@@ -17,7 +17,7 @@ namespace KorpiEngine.AssetManagement;
 public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : AssetInstance
 {
     private T? _instance;
-    private Guid _assetID = Guid.Empty;
+    private UUID _assetID = UUID.Empty;
 
     /// <summary>
     /// The actual <see cref="AssetInstance"/>.
@@ -35,7 +35,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         }
         private set
         {
-            _assetID = value?.AssetID ?? Guid.Empty;
+            _assetID = value?.AssetID ?? UUID.Empty;
             _instance = value;
         }
     }
@@ -49,7 +49,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <summary>
     /// The path where to look for the Resource, if it is currently unavailable.
     /// </summary>
-    public Guid AssetID
+    public UUID AssetID
     {
         get => _assetID;
         set
@@ -63,7 +63,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <summary>
     /// Returns whether this content reference has been explicitly set to null.
     /// </summary>
-    public bool IsExplicitNull => _instance == null && _assetID == Guid.Empty;
+    public bool IsExplicitNull => _instance == null && _assetID == UUID.Empty;
 
     /// <summary>
     /// Returns whether this content reference is available in general. This may trigger loading it, if currently unavailable.
@@ -95,7 +95,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <summary>
     /// Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
     /// </summary>
-    public bool IsRuntimeResource => _instance != null && _assetID == Guid.Empty;
+    public bool IsRuntimeResource => _instance != null && _assetID == UUID.Empty;
 
     public string Name
     {
@@ -115,7 +115,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// the specified alias.
     /// </summary>
     /// <param name="id"></param>
-    public AssetRef(Guid id)
+    public AssetRef(UUID id)
     {
         _instance = null;
         _assetID = id;
@@ -129,7 +129,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     public AssetRef(T? res)
     {
         _instance = res;
-        _assetID = res?.AssetID ?? Guid.Empty;
+        _assetID = res?.AssetID ?? UUID.Empty;
     }
 
 
@@ -169,9 +169,9 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
 
     private void RetrieveInstance()
     {
-        if (_assetID != Guid.Empty)
+        if (_assetID != UUID.Empty)
             _instance = AssetManager.LoadAsset<T>(_assetID);
-        else if (_instance != null && _instance.AssetID != Guid.Empty)
+        else if (_instance != null && _instance.AssetID != UUID.Empty)
             _instance = AssetManager.LoadAsset<T>(_instance.AssetID);
         else
             _instance = null;
@@ -198,7 +198,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
 
     public override int GetHashCode()
     {
-        if (_assetID != Guid.Empty)
+        if (_assetID != UUID.Empty)
             return _assetID.GetHashCode();
         if (_instance != null)
             return _instance.GetHashCode();
@@ -247,8 +247,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
             return first.IsExplicitNull;
 
         // Path comparison
-        Guid? firstPath = first._instance?.AssetID ?? first._assetID;
-        Guid? secondPath = second._instance?.AssetID ?? second._assetID;
+        UUID? firstPath = first._instance?.AssetID ?? first._assetID;
+        UUID? secondPath = second._instance?.AssetID ?? second._assetID;
         return firstPath == secondPath;
     }
 
@@ -265,7 +265,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         SerializedProperty compoundTag = SerializedProperty.NewCompound();
         compoundTag.Add("AssetID", new SerializedProperty(_assetID.ToString()));
-        if (_assetID != Guid.Empty)
+        if (_assetID != UUID.Empty)
             ctx.AddDependency(_assetID);
         if (IsRuntimeResource)
             compoundTag.Add("Instance", Serializer.Serialize(_instance, ctx));
@@ -275,8 +275,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
 
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
-        _assetID = Guid.Parse(value["AssetID"].StringValue);
-        if (_assetID == Guid.Empty && value.TryGet("Instance", out SerializedProperty? tag))
+        _assetID = UUID.Parse(value["AssetID"].StringValue);
+        if (_assetID == UUID.Empty && value.TryGet("Instance", out SerializedProperty? tag))
             _instance = Serializer.Deserialize<T?>(tag!, ctx);
     }
 }
