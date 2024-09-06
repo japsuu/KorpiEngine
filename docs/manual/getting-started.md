@@ -3,6 +3,8 @@
 
 This guide will help you get started with the KorpiEngine. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
 
+<br/>
+
 ## Run the example project
 
 There's an example project included in the engine solution, that will teach you the basics of the engine.
@@ -22,11 +24,15 @@ The example has multiple scenes, each showcasing different features of the engin
       - `dotnet build ./Sandbox.csproj`
       - The built executable is now located at `./bin/<configuration>/<framework>/Sandbox.exe`
 
+<br/>
+
 ## Start developing your own game
 
 Download the repository, or skip this step if you already have it (see step 1 above).
 
 There are two main ways you can create your own projects with the engine:
+
+<br/>
 
 ### New solution with the engine as a dependency
 
@@ -42,6 +48,8 @@ There are two main ways you can create your own projects with the engine:
    - Open the engine solution and build the projects you need.
    - Reference the built engine DLLs from your game project.
    - You should now have access to the engine API in your game project.
+
+<br/>
 
 ### New project in the engine solution
 

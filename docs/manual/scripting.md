@@ -5,10 +5,14 @@ Korpi Engine uses a Unity-like C# scripting API for game logic.
 The scripting API is designed to be quite similar to Unity's API,
 to make it easier for developers to transition from Unity to KorpiEngine.
 
-> [!INFO]
+> [!NOTE]
 > Most of the API has been annotated with XML comments, so you can see the documentation in your IDE.
 
+<br/>
+
 ## Entity/Component/System model
+
+<br/>
 
 ### Entities
 
@@ -27,6 +31,8 @@ They:
 - can be dynamically created and destroyed at runtime.
 - cannot be inherited from.
 
+<br/>
+
 ### Components
 
 Components are reusable pieces that can be attached to entities to give them functionality.
@@ -37,6 +43,8 @@ They:
 - inherit from `EntityComponent`.
 - can be added and removed at runtime.
 - have the usual expected lifecycle methods (`OnAwake`, `OnStart`, `OnUpdate`, `OnDestroy`, ...).
+
+<br/>
 
 ### Systems
 

@@ -3,6 +3,8 @@
 
 Materials are used to define the visual appearance of objects in the scene. They are composed of a shader, and a set of properties that are passed to the shader at runtime.
 
+<br/>
+
 ## Creating a Material
 
 ```csharp
@@ -14,9 +16,11 @@ Material material = new Material(shaderRef, "directional light material", false)
 
 ```
 
+<br/>
+
 ## Setting Material Properties
 
-Material properties can be set using the `Material` API (see <xref:KorpiEngine.Rendering.Materials.Material>).
+Material properties can be set using the `Material` API (see <xref:KorpiEngine.Rendering.Material>).
 
 ```csharp
 material.SetTexture("_ExampleTexture", value);
