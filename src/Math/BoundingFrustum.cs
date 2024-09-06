@@ -117,6 +117,13 @@ public sealed class BoundingFrustum : IEquatable<BoundingFrustum>
         Contains(ref box, out ContainmentType result);
         return result;
     }
+    
+    
+    public ContainmentType Contains(Sphere sphere)
+    {
+        Contains(ref sphere, out ContainmentType result);
+        return result;
+    }
 
 
     public void Contains(ref AABox box, out ContainmentType result)
@@ -125,6 +132,27 @@ public sealed class BoundingFrustum : IEquatable<BoundingFrustum>
         for (int i = 0; i < PLANE_COUNT; ++i)
         {
             PlaneIntersectionType planeIntersectionType = box.Intersects(_planes[i]);
+            switch (planeIntersectionType)
+            {
+                case PlaneIntersectionType.Front:
+                    result = ContainmentType.Disjoint;
+                    return;
+                case PlaneIntersectionType.Intersecting:
+                    intersects = true;
+                    break;
+            }
+        }
+
+        result = intersects ? ContainmentType.Intersects : ContainmentType.Contains;
+    }
+
+
+    public void Contains(ref Sphere sphere, out ContainmentType result)
+    {
+        bool intersects = false;
+        for (int i = 0; i < PLANE_COUNT; ++i)
+        {
+            PlaneIntersectionType planeIntersectionType = sphere.Intersects(_planes[i]);
             switch (planeIntersectionType)
             {
                 case PlaneIntersectionType.Front:
