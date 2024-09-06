@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using KorpiEngine.AssetManagement;
 using KorpiEngine.Utils;
 using Debug = KorpiEngine.Tools.Debug;

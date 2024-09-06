@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Debug = KorpiEngine.Tools.Debug;
+﻿using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Rendering;
 
