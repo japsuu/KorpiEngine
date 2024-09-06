@@ -1,3 +1,3 @@
-﻿namespace KorpiEngine.Core.SceneManagement;
+﻿namespace KorpiEngine.SceneManagement;
 
 public class EmptyScene : Scene;

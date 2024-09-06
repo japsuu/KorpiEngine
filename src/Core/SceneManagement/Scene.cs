@@ -1,19 +1,12 @@
-﻿using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.Components;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
-using Entity = KorpiEngine.Core.EntityModel.Entity;
+﻿using KorpiEngine.Entities;
+using KorpiEngine.Rendering;
+using Entity = KorpiEngine.Entities.Entity;
 
-namespace KorpiEngine.Core.SceneManagement;
+namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
+/// Can create <see cref="Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene
 {
@@ -53,7 +46,7 @@ public abstract class Scene
         c.Material = mat;
         
         mat.SetFloat("_EmissionIntensity", 0f);
-        mat.SetColor("_EmissiveColor", Color.Black);
+        mat.SetColor("_EmissiveColor", ColorHDR.Black);
         
         return e;
     }

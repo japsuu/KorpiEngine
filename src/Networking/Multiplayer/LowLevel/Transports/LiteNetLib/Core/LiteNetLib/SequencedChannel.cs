@@ -1,4 +1,4 @@
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
 {
     internal sealed class SequencedChannel : BaseChannel
     {

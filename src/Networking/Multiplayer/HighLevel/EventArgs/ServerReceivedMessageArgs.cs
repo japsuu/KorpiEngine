@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Multiplayer.HighLevel.Messages;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.EventArgs;
+namespace KorpiEngine.Multiplayer.HighLevel.EventArgs;
 
 /// <summary>
 /// Container about a message received on the server.

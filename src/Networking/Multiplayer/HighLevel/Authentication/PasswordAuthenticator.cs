@@ -1,8 +1,8 @@
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+using KorpiEngine.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Multiplayer.HighLevel.Messages;
+using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Authentication;
+namespace KorpiEngine.Multiplayer.HighLevel.Authentication;
 
 public class PasswordAuthenticator : Authenticator
 {

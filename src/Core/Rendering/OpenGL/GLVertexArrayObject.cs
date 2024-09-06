@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Core.Internal.Rendering;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 internal sealed class GLVertexArrayObject : GraphicsVertexArrayObject
 {

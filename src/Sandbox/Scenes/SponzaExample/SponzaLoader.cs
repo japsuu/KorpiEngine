@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using KorpiEngine.Core.API.AssetManagement;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Internal.AssetManagement.Importers;
-using KorpiEngine.Networking;
+using KorpiEngine;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
 
 namespace Sandbox.Scenes.SponzaExample;
 
@@ -86,11 +85,11 @@ internal class SponzaLoader : EntityComponent
     private void LoadSponzaDisk(string path)
     {
         // Create a custom importer to scale the model down
-        ModelImporter importer = (ModelImporter)AssetDatabase.GetImporter(".obj");
+        ModelImporter importer = (ModelImporter)AssetManager.GetImporter(".obj");
         importer.UnitScale = 0.1f;
         
         // Load the Sponza model from disk
-        Entity asset = AssetDatabase.LoadAssetFile<Entity>(path, importer);
+        Entity asset = AssetManager.LoadAssetFile<Entity>(path, importer);
         
         // Spawn the Sponza model in the scene
         asset.Spawn(Entity.Scene!);

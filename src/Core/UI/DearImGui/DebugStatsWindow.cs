@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
 using ImGuiNET;
-using KorpiEngine.Core.Rendering;
+using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 public class DebugStatsWindow : ImGuiWindow
 {

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+﻿namespace KorpiEngine.Multiplayer.HighLevel.Connections;
 
 /// <summary>
 /// States a remote client can be in.

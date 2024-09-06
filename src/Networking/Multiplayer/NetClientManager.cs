@@ -1,15 +1,15 @@
-﻿using KorpiEngine.Core.Logging;
-using KorpiEngine.Networking.Multiplayer.HighLevel;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.HighLevel.EventArgs;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Messages.Handlers;
-using KorpiEngine.Networking.Multiplayer.LowLevel;
-using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
-using KorpiEngine.Networking.Utility;
+﻿using KorpiEngine.Multiplayer.HighLevel;
+using KorpiEngine.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Multiplayer.HighLevel.EventArgs;
+using KorpiEngine.Multiplayer.HighLevel.Messages;
+using KorpiEngine.Multiplayer.HighLevel.Messages.Handlers;
+using KorpiEngine.Multiplayer.LowLevel;
+using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
+using KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
+using KorpiEngine.Tools.Logging;
+using KorpiEngine.Utility;
 
-namespace KorpiEngine.Networking.Multiplayer;
+namespace KorpiEngine.Multiplayer;
 
 /// <summary>
 /// Manages the network client.

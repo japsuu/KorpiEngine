@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.Rendering.Primitives;
-
-namespace KorpiEngine.Core.Rendering;
+﻿namespace KorpiEngine.Rendering;
 
 internal abstract class GraphicsTexture(int handle) : GraphicsObject(handle)
 {

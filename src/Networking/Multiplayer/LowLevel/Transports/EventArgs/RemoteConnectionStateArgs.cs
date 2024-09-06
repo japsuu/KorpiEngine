@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
 
 public readonly struct RemoteConnectionStateArgs
 {

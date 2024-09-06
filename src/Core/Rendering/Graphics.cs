@@ -1,15 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering;
-using KorpiEngine.Core.API.Rendering.Materials;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.API.Rendering.Textures;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Primitives;
-using KorpiEngine.Core.Windowing;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 public static class Graphics
 {
@@ -188,6 +180,18 @@ public static class Graphics
         Device.BindVertexArray(mesh.VertexArrayObject);
         Device.DrawElements(mesh.Topology, 0, mesh.IndexCount, mesh.IndexFormat == IndexFormat.UInt32);
         Device.BindVertexArray(null);
+    }
+    
+    
+    public static bool FrustumTest(Sphere boundingSphere, Matrix4x4 transform)
+    {
+        if (Camera.RenderingCamera == null)
+            throw new RenderStateException("FrustumTest must be called during a rendering context!");
+        
+        BoundingFrustum frustum = Camera.RenderingCamera.CalculateFrustum();
+        ContainmentType type = frustum.Contains(boundingSphere.Transform(transform));
+        
+        return type != ContainmentType.Disjoint;
     }
 
 

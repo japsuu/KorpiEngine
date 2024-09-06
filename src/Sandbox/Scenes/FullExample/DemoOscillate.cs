@@ -1,7 +1,7 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using Random = KorpiEngine.Core.API.Random;
+﻿using KorpiEngine;
+using KorpiEngine.Entities;
+using KorpiEngine.Utils;
+using Random = KorpiEngine.SharedRandom;
 
 namespace Sandbox.Scenes.FullExample;
 
@@ -27,7 +27,7 @@ internal class DemoOscillate : EntityComponent
     {
         // Oscillate the entity up and down
         double time = Time.TotalTime + _oscillationOffset;
-        double height = Math.Sin(time * OSCILLATION_SPEED) * OSCILLATION_HEIGHT;
+        float height = (float)MathOps.Sin(time * OSCILLATION_SPEED) * OSCILLATION_HEIGHT;
         Transform.Position = new Vector3(Transform.Position.X, height, Transform.Position.Z);
     }
 }

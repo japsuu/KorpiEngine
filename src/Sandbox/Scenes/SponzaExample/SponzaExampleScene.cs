@@ -1,9 +1,7 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Rendering.Cameras;
-using KorpiEngine.Core.Rendering.Lighting;
-using KorpiEngine.Core.SceneManagement;
+﻿using KorpiEngine;
+using KorpiEngine.Entities;
+using KorpiEngine.Rendering;
+using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.SponzaExample;
 
@@ -27,6 +25,7 @@ internal class SponzaExampleScene : Scene
         Camera component = base.CreateSceneCamera();
         component.Entity.AddComponent<DemoFreeCam>();
         component.Entity.Transform.Position = new Vector3(0f, 1f, 0f);
+        component.Entity.Transform.Rotate(new Vector3(0f, 90f, 0f));
         
         return component;
     }
@@ -37,8 +36,8 @@ internal class SponzaExampleScene : Scene
     {
         Entity dlEntity = CreateEntity("Directional Light");
         DirectionalLight directionalLight = dlEntity.AddComponent<DirectionalLight>();
-        directionalLight.Transform.Forward = new Vector3(-0.225, -0.965, -0.135);
-        directionalLight.Color = new Color(1f, 0.9f, 0.7f, 1f);
+        directionalLight.Transform.Forward = new Vector3(-0.225f, -0.965f, -0.135f);
+        directionalLight.Color = new ColorHDR(1f, 0.9f, 0.7f, 1f);
         
         Entity alEntity = CreateEntity("Ambient Light");
         AmbientLight ambientLight = alEntity.AddComponent<AmbientLight>();

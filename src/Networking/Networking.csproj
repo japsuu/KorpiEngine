@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>KorpiEngine.Networking</RootNamespace>
+        <RootNamespace>KorpiEngine</RootNamespace>
         <AssemblyName>KorpiEngine.Networking</AssemblyName>
         <Configurations>Debug;Release;Production</Configurations>
         <Platforms>AnyCPU</Platforms>

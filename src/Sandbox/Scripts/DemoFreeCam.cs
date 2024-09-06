@@ -1,8 +1,8 @@
-﻿using KorpiEngine.Core;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.UI;
+﻿using KorpiEngine;
+using KorpiEngine.Entities;
+using KorpiEngine.Input;
+using KorpiEngine.UI;
+using KorpiEngine.Utils;
 
 namespace Sandbox;
 
@@ -27,8 +27,8 @@ internal class DemoFreeCam : EntityComponent
     {
         // Set the initial pitch and yaw angles based on the current rotation
         Vector3 currentEulerAngles = Transform.EulerAngles;
-        _pitch = currentEulerAngles.X;
-        _yaw = currentEulerAngles.Y;
+        _pitch = -currentEulerAngles.X;
+        _yaw = -currentEulerAngles.Y;
     }
 
 
@@ -99,10 +99,10 @@ internal class DemoFreeCam : EntityComponent
 
         // Calculate new pitch and clamp it
         _pitch += Input.MouseDelta.Y * LOOK_SENSITIVITY;
-        _pitch = Mathd.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
+        _pitch = MathOps.Clamp(_pitch, MIN_PITCH, MAX_PITCH);
 
         // Apply the new rotation
-        Transform.Rotation = Quaternion.Euler((float)_pitch, (float)_yaw, 0f);
+        Transform.Rotation = Quaternion.CreateFromYawPitchRoll(-(float)_yaw.ToRadians(), -(float)_pitch.ToRadians(), 0f);
     }
 
 

@@ -1,6 +1,4 @@
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.EntityModel.SpatialHierarchy;
+using KorpiEngine.Entities;
 
 namespace KorpiEngine.Core.Tests;
 
@@ -12,7 +10,7 @@ public class TransformTest
     {
         public bool Equals(Vector3 x, Vector3 y)
         {
-            return Vector3.Approximately(x, y, 0.001f);
+            return x.AlmostEquals(y, 0.01f);
         }
 
         
@@ -27,7 +25,7 @@ public class TransformTest
     {
         public bool Equals(Quaternion x, Quaternion y)
         {
-            return Quaternion.Approximately(x, y, 0.01f);
+            return x.AlmostEquals(y, 0.01f);
         }
 
         
@@ -38,7 +36,22 @@ public class TransformTest
     }
     
     
-    #region POSITION ROTATION SCALE
+    private class QuaternionRotationComparer : IEqualityComparer<Quaternion>
+    {
+        public bool Equals(Quaternion x, Quaternion y)
+        {
+            return x.AlmostEquals(y, 0.01f) || x.AlmostEquals(-y, 0.01f);
+        }
+
+        
+        public int GetHashCode(Quaternion obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+    
+    
+#region POSITION
 
     [Test]
     public void Position_Set_Get_ReturnsCorrectValue()
@@ -52,13 +65,53 @@ public class TransformTest
         Assert.That(component.Position, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
     }
 
+    [Test]
+    public void Position_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedPosition = new(-1, -2, -3);
+
+        component.Position = expectedPosition;
+
+        Assert.That(component.Position, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
+    }
+
+    [Test]
+    public void LocalPosition_Set_Get_ReturnsCorrectValue()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedPosition = new(1, 2, 3);
+
+        component.LocalPosition = expectedPosition;
+
+        Assert.That(component.LocalPosition, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
+    }
+
+    [Test]
+    public void LocalPosition_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedPosition = new(-1, -2, -3);
+
+        component.LocalPosition = expectedPosition;
+
+        Assert.That(component.LocalPosition, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
+    }
+
+#endregion
+
+
+#region ROTATION
 
     [Test]
     public void Rotation_Set_Get_ReturnsCorrectValue()
     {
         Entity e = new(null, null);
         Transform component = e.Transform;
-        Quaternion expectedRotation = Quaternion.Euler(new Vector3(0, 90, 45));
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(15, 90, 45));
 
         component.Rotation = expectedRotation;
         
@@ -67,7 +120,50 @@ public class TransformTest
 
 
     [Test]
-    public void Scale_Set_Get_ReturnsCorrectValue()
+    public void Rotation_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(-15, -90, -45));
+
+        component.Rotation = expectedRotation;
+        
+        Assert.That(component.Rotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
+    }
+
+
+    [Test]
+    public void LocalRotation_Set_Get_ReturnsCorrectValue()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(15, 90, 45));
+
+        component.LocalRotation = expectedRotation;
+        
+        Assert.That(component.LocalRotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
+    }
+
+
+    [Test]
+    public void LocalRotation_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Quaternion expectedRotation = Quaternion.CreateFromEulerAnglesDegrees(new Vector3(-15, -90, -45));
+
+        component.LocalRotation = expectedRotation;
+        
+        Assert.That(component.LocalRotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
+    }
+
+#endregion
+
+
+#region SCALE
+
+    [Test]
+    public void LocalScale_Set_Get_ReturnsCorrectValue()
     {
         Entity e = new(null, null);
         Transform component = e.Transform;
@@ -78,10 +174,10 @@ public class TransformTest
         Assert.That(component.LocalScale, Is.EqualTo(expectedScale));
     }
 
-    #endregion
+#endregion
 
 
-    #region EULERS
+#region EULERS
 
     [Test]
     public void EulerAngles_Set_Get_ReturnsCorrectValue()
@@ -89,19 +185,80 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         Vector3 expectedEulerAngles = new(35, 125, 45);
+        Quaternion expectedQuaternion = Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles);
 
         component.EulerAngles = expectedEulerAngles;
-    
-        Assert.That(component.EulerAngles, Is.EqualTo(expectedEulerAngles).Using(new Vector3Comparer()));
+        Vector3 actual = component.EulerAngles;
         
-        // Also check if the rotation is correct
-        Assert.That(component.Rotation, Is.EqualTo(Quaternion.Euler(expectedEulerAngles)).Using(new QuaternionComparer()));
+        Console.WriteLine($"Expected: {expectedEulerAngles} | Actual: {actual}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
+            Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
+        });
     }
 
-    #endregion
+    [Test]
+    public void EulerAngles_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedEulerAngles = new(-35, -125, -45);
+        Quaternion expectedQuaternion = Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles);
+
+        component.EulerAngles = expectedEulerAngles;
+        Vector3 actual = component.EulerAngles;
+        
+        Console.WriteLine($"Expected: {expectedEulerAngles} | Actual: {actual}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
+            Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
+        });
+    }
+
+    [Test]
+    public void LocalEulerAngles_Set_Get_ReturnsCorrectValue()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedEulerAngles = new(35, 125, 45);
+        Quaternion expectedQuaternion = Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles);
+
+        component.LocalEulerAngles = expectedEulerAngles;
+        Vector3 actual = component.LocalEulerAngles;
+        
+        Console.WriteLine($"Expected: {expectedEulerAngles} | Actual: {actual}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
+            Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
+        });
+    }
+
+    [Test]
+    public void LocalEulerAngles_Set_Get_ReturnsCorrectValue_Negative()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        Vector3 expectedEulerAngles = new(-35, -125, -45);
+        Quaternion expectedQuaternion = Quaternion.CreateFromEulerAnglesDegrees(expectedEulerAngles);
+
+        component.LocalEulerAngles = expectedEulerAngles;
+        Vector3 actual = component.LocalEulerAngles;
+        
+        Console.WriteLine($"Expected: {expectedEulerAngles} | Actual: {actual}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
+            Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
+        });
+    }
+
+#endregion
 
 
-    #region FORWARD UP RIGHT
+#region FORWARD UP RIGHT
 
     [Test]
     public void Forward_Get_Default_ReturnsCorrectValue()
@@ -110,9 +267,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedForward = Vector3.Forward;
-        
-        Assert.That(component.Forward, Is.EqualTo(expectedForward));
+        Vector3 expected = Vector3.Forward;
+        Vector3 actual = component.Forward;
+
+        Assert.That(actual, Is.EqualTo(expected));
     }
     
 
@@ -122,12 +280,13 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Y-axis, when viewed from above
+        // Rotate 90 degrees CCW around the Y-axis, when viewed from above
         component.EulerAngles = new Vector3(0, 90, 0);
 
-        Vector3 expectedForward = Vector3.Right;
-        
-        Assert.That(component.Forward, Is.EqualTo(expectedForward).Using(new Vector3Comparer()));
+        Vector3 expected = Vector3.Left;
+        Vector3 actual = component.Forward;
+
+        Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
     }
 
 
@@ -138,9 +297,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedUp = Vector3.Up;
+        Vector3 expected = Vector3.Up;
+        Vector3 actual = component.Up;
 
-        Assert.That(component.Up, Is.EqualTo(expectedUp));
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
 
@@ -150,12 +310,13 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Z-axis, when viewed from front
-        component.EulerAngles = new Vector3(0, 0, 90);
+        // Rotate 90 degrees CCW around the X-axis, when viewed from the front
+        component.EulerAngles = new Vector3(90, 0, 0);
 
-        Vector3 expectedUp = Vector3.Left;
+        Vector3 expected = Vector3.Backward;
+        Vector3 actual = component.Up;
 
-        Assert.That(component.Up, Is.EqualTo(expectedUp).Using(new Vector3Comparer()));
+        Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
     }
 
 
@@ -166,9 +327,10 @@ public class TransformTest
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
 
-        Vector3 expectedRight = Vector3.Right;
+        Vector3 expected = Vector3.Right;
+        Vector3 actual = component.Right;
 
-        Assert.That(component.Right, Is.EqualTo(expectedRight));
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
 
@@ -178,7 +340,7 @@ public class TransformTest
         Entity e = new(null, null);
         Transform component = e.Transform;
         component.Position = new Vector3(1, 2, 3);
-        // Rotate 90 degrees clockwise around the Z-axis, when viewed from front
+        // Rotate 90 degrees CCW around the Z-axis, when viewed from the front
         component.EulerAngles = new Vector3(0, 0, 90);
 
         Vector3 expectedRight = Vector3.Up;
@@ -186,13 +348,13 @@ public class TransformTest
         Assert.That(component.Right, Is.EqualTo(expectedRight).Using(new Vector3Comparer()));
     }
 
-    #endregion
+#endregion
 
 
-    #region CONVERSIONS
+#region CONVERSIONS
 
     [Test]
-    public void ImplicitConversionToMatrix4x4_ReturnsCorrectMatrix()
+    public void ImplicitConversionToMatrix4x4_ReturnsCorrectMatrix_Identity()
     {
         Entity e = new(null, null);
         Transform component = e.Transform;
@@ -203,5 +365,26 @@ public class TransformTest
         Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
     }
 
-    #endregion
+    [Test]
+    public void ImplicitConversionToMatrix4x4_ReturnsCorrectMatrix()
+    {
+        Entity e = new(null, null);
+        Transform component = e.Transform;
+        component.Position = new Vector3(-123.6f, 83.1f, 432.2f);
+        component.EulerAngles = new Vector3(12.4f, -63.9f, 137.7f);
+        component.LocalScale = new Vector3(1.5f, 2.5f, 3.5f);
+        Matrix4x4 expectedMatrix = new Matrix4x4(
+            -0.48808908f, 1.9998544f, -1.7646828f, 0f,
+            -0.44412678f, -1.4814868f, -2.621884f, 0f,
+            -1.3470414f, -0.23617618f, 1.5038674f, 0f,
+            -558.7704f, -472.36893f, 650.2077f, 1f
+        );
+
+        Matrix4x4 resultMatrix = component.LocalToWorldMatrix;
+
+        Console.WriteLine(resultMatrix);
+        Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
+    }
+
+#endregion
 }

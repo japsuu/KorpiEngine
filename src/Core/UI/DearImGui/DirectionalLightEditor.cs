@@ -1,9 +1,8 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.Rendering.Lighting;
+using KorpiEngine.Rendering;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 internal class DirectionalLightEditor(DirectionalLight target) : EntityComponentEditor(target)
 {
@@ -20,7 +19,7 @@ internal class DirectionalLightEditor(DirectionalLight target) : EntityComponent
         ImGui.Text("Color");
         System.Numerics.Vector4 color = new(target.Color.R, target.Color.G, target.Color.B, target.Color.A);
         if (ImGui.ColorEdit4("##Color", ref color))
-            target.Color = new Color(color);
+            target.Color = new ColorHDR(color.X, color.Y, color.Z, color.W);
         
         float intensity = target.Intensity;
         if (ImGui.DragFloat("Intensity", ref intensity, 0.5f, 0.5f, 50f))

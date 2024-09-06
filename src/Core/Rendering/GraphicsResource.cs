@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Internal;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Core.Rendering;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Represents a graphics (GPU) resource.<br/>

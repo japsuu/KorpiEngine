@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.Logging;
-using KorpiEngine.Core.SceneManagement;
-using KorpiEngine.Core.Threading.Pooling;
-using KorpiEngine.Core.UI;
-using KorpiEngine.Core.UI.DearImGui;
-using KorpiEngine.Core.Windowing;
+using KorpiEngine.Rendering;
+using KorpiEngine.SceneManagement;
+using KorpiEngine.Threading;
+using KorpiEngine.Tools.Logging;
+using KorpiEngine.UI;
+using KorpiEngine.UI.DearImGui;
+using KorpiEngine.Utils;
 using OpenTK.Windowing.Common;
 
-namespace KorpiEngine.Core;
+namespace KorpiEngine;
 
 /// <summary>
 /// The main class for the application.
@@ -134,7 +133,7 @@ public static class Application
     private static void InternalUpdate(double deltaTime, double fixedAlpha)
     {
         Time.Update(deltaTime, fixedAlpha);
-        Input.Update(window.KeyboardState, window.MouseState);
+        Input.Input.Update(window.KeyboardState, window.MouseState);
         
         imGuiController.Update();
         ImGuiWindowManager.Update();

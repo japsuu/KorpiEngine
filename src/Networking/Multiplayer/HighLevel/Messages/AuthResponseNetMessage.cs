@@ -1,6 +1,6 @@
-using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
+using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
 
-namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+namespace KorpiEngine.Multiplayer.HighLevel.Messages;
 
 /// <summary>
 /// Sent by the server to the client to indicate the result of the authentication process.

@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Core.Threading.Jobs;
-
-namespace KorpiEngine.Core.Threading.Pooling;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Represents an object that can pool jobs.

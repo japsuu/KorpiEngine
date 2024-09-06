@@ -1,4 +1,4 @@
-namespace KorpiEngine.Core.Rendering.Cameras;
+namespace KorpiEngine.Rendering;
 
 public enum CameraDebugDrawType
 {

@@ -1,14 +1,9 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.Rendering.Shaders;
-using KorpiEngine.Core.Exceptions;
-using KorpiEngine.Core.Internal.Rendering;
-using KorpiEngine.Core.Platform;
-using KorpiEngine.Core.Rendering.Primitives;
+using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
-namespace KorpiEngine.Core.Rendering.OpenGL;
+namespace KorpiEngine.Rendering.OpenGL;
 
 /// <summary>
 /// OpenGL graphics driver.
@@ -39,7 +34,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     private bool _doCull = true;
     private PolyFace _cullFace = PolyFace.Back;
 
-    private WindingOrder _winding = WindingOrder.CW;
+    private WindingOrder _winding = WindingOrder.CCW;
 
 
     #region Initialization and Shutdown

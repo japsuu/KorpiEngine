@@ -1,26 +1,24 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Core.API;
-using KorpiEngine.Core.API.InputManagement;
-using KorpiEngine.Core.EntityModel;
-using KorpiEngine.Core.Internal.AssetManagement;
-using KorpiEngine.Core.Rendering;
-using KorpiEngine.Core.Rendering.Cameras;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
+using KorpiEngine.Input;
+using KorpiEngine.Rendering;
 
-namespace KorpiEngine.Core.UI.DearImGui;
+namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private ResourceRef<Entity> _target;
+    private AssetRef<Entity> _target;
 
     public override string Title => "Entity Editor";
 
     protected override void PreUpdate()
     {
-        if (!Input.GetMouseDown(MouseButton.Left) || GUI.WantCaptureMouse)
+        if (!Input.Input.GetMouseDown(MouseButton.Left) || GUI.WantCaptureMouse)
             return;
 
-        Vector2 mousePos = Input.MousePosition;
+        Vector2 mousePos = Input.Input.MousePosition;
         Vector2 mouseUV = new Vector2(mousePos.X / Graphics.ViewportResolution.X, mousePos.Y / Graphics.ViewportResolution.Y);
         GBuffer? gBuffer = Camera.LastRenderedCamera?.GBuffer;
         
@@ -31,14 +29,14 @@ public class EntityEditor() : ImGuiWindow(true)
         if (instanceID == 0)
             return;
         
-        Entity? e = Resource.FindObjectByID<Entity>(instanceID);
+        Entity? e = AssetInstance.FindObjectByID<Entity>(instanceID);
         SetTarget(e);
     }
 
 
     public void SetTarget(Entity? entity)
     {
-        _target = new ResourceRef<Entity>(entity);
+        _target = new AssetRef<Entity>(entity);
     }
 
 

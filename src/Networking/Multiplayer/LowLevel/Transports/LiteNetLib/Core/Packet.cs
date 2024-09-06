@@ -1,7 +1,7 @@
-using KorpiEngine.Networking.Multiplayer.HighLevel;
-using KorpiEngine.Networking.Utility;
+using KorpiEngine.Multiplayer.HighLevel;
+using KorpiEngine.Utility;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
 
 internal readonly struct Packet
 {

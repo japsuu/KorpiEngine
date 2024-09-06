@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Math", "Math\Math.csproj", "{91914B8D-F4BF-422A-BA6A-67AF86019812}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Math.Tests", "Math.Tests\Math.Tests.csproj", "{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +43,17 @@ Global
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Production|Any CPU.ActiveCfg = Debug|Any CPU
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Production|Any CPU.Build.0 = Debug|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Production|Any CPU.ActiveCfg = Debug|Any CPU
+		{91914B8D-F4BF-422A-BA6A-67AF86019812}.Production|Any CPU.Build.0 = Debug|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Production|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F2B86A-93F4-49CA-BEA7-4556468F1DB2}.Production|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
