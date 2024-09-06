@@ -11,7 +11,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
 {
     public bool DrawNormals { get; set; }
     public bool DrawTangents { get; set; }
-    public bool DrawBounds { get; set; }
+    public bool DrawBounds { get; set; } = true;
     public bool IgnoreDepth { get; set; }
     
     public float NormalLength { get; set; } = 0.1f;
@@ -85,8 +85,11 @@ public class MeshDebugGizmoDrawer : EntityComponent
     {
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return;
-        
+
+        Gizmos.Color = ColorHDR.Yellow;
         Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Extent);
+        Gizmos.Color = ColorHDR.Red;
+        Gizmos.DrawSphere(Transform.Position + _renderer.Mesh.Res!.BoundingSphere.Center, _renderer.Mesh.Res!.BoundingSphere.Radius);
     }
 
 

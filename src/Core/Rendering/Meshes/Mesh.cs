@@ -104,9 +104,17 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
     }
 
     /// <summary>
-    /// The bounds of the mesh.
+    /// The axis-aligned bounds of the mesh.
+    /// This is automatically recalculated when the mesh data is modified.
+    /// Should not be used if the mesh is rotated or scaled.
     /// </summary>
     public AABox Bounds { get; private set; }
+    
+    /// <summary>
+    /// The bounding sphere of the mesh.
+    /// This is automatically recalculated when the mesh data is modified.
+    /// </summary>
+    public Sphere BoundingSphere { get; private set; }
 
     /// <summary>
     /// The bind poses of the mesh, used for skinning.
@@ -239,6 +247,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
             throw new InvalidOperationException("Cannot recalculate bounds without vertex positions.");
 
         Bounds = AABox.Create(GetVertexPositions()!);
+        BoundingSphere = Sphere.Create(Bounds);
     }
 
 
