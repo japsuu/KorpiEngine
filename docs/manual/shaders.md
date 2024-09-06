@@ -5,9 +5,13 @@ Shaders are programs that run on the GPU and are used to render graphics. In Kor
 
 The KSL files are compiled into GLSL, so you can use any GLSL code/syntax in your shaders.
 
+<br/>
+
 ## Shader Files
 
 Shader files are text files with the `.ksl` extension. They can be [loaded at runtime](external-assets.md) using the `AssetManager` API.
+
+<br/>
 
 ## Shader Structure
 
@@ -71,6 +75,8 @@ Pass 0
 }
 ```
 
+<br/>
+
 ## Shader Properties
 
 Properties are used to define the inputs to the shader. They are declared in the `Properties` block at the beginning of the shader file. Internally, they are used to check if a specific uniform is present in the shader, and to set its value.
@@ -89,6 +95,8 @@ The following property types are supported:
 - `MATRIX_4X4`
 - `MATRIX_4X4_ARRAY`
 
+<br/>
+
 ### Property Defaults
 
-Property default values are not yet supported. You can follow the progress of this feature in [issue #33](
+Property default values are not yet supported. You can follow the progress of this feature in [issue #48](https://github.com/japsuu/KorpiEngine/issues/48).

@@ -5,6 +5,8 @@ Korpi Engine uses a modified version of [vimaec/Math3D](https://github.com/vimae
 
 Their API documentation can be found [here](https://vimaec.github.io/Math3D/).
 
+<br/>
+
 ## Angles
 
 In the Korpi Engine when working with angles, you can use either degrees or radians.

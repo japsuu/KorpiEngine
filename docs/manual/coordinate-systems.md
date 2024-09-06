@@ -1,6 +1,8 @@
 
 # Coordinate Systems
 
+<br/>
+
 ## Introduction
 
 Korpi Engine uses a right-handed coordinate system, similar to OpenGL.
@@ -10,6 +12,8 @@ This means that the positive x-axis points to the right, the positive y-axis poi
 This can be easily visualized by holding your right hand in front of you, with your thumb pointing to the right, your index finger pointing up, and your middle finger pointing towards you. Your thumb represents the x-axis, your index finger represents the y-axis, and your middle finger represents the z-axis.
 
 ![Right-Handed Coordinate System](https://learn.microsoft.com/en-us/windows/mixed-reality/design/images/004-coord-system-right-hand.png)
+
+<br/>
 
 ## Rotations
 

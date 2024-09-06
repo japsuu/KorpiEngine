@@ -18,6 +18,8 @@ Korpi Engine **DOES** aim to
 - be a good learning tool for game/engine development
 - be modular and extensible, to allow for easy integration of new features and systems.
 
+<br/>
+
 ## Which types of games is Korpi Engine best suited for?
 
 - **Open-world games**: The engine is designed to handle large worlds with minimal additional programmer effort.
@@ -25,12 +27,16 @@ Korpi Engine **DOES** aim to
 
 An example of such a game could be a Minecraft-like voxel game, or a deep-space exploration game.
 
+<br/>
+
 ## Which types of games is Korpi Engine NOT well-suited for?
 
 - **2D games**: The engine is designed for 3D games, and does not have built-in support for 2D games.
 - **Mobile games**: The engine is designed for desktop platforms, and does not have built-in support for mobile platforms.
 - **Highly visual games**: The engine does not have a visual scripting system, and is not designed for rapid prototyping of visual effects.
 - **Games that require a large/complex asset pipeline**: While the current pipeline supports streaming and dynamic loading/unloading, features like asset compression have not yet been implemented.
+
+<br/>
 
 ## Why the name "Korpi"?
 
