@@ -1,17 +1,12 @@
-﻿using KorpiEngine.EntityModel;
-using KorpiEngine.EntityModel.Components;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Lighting;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Shaders;
-using Entity = KorpiEngine.EntityModel.Entity;
+using Entity = KorpiEngine.Entities.Entity;
 
 namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// An in-game scene, that can be loaded and unloaded and receives updates.
-/// Can create <see cref="EntityModel.Entity"/>s and register systems to process them.
+/// Can create <see cref="Entity"/>s and register systems to process them.
 /// </summary>
 public abstract class Scene
 {

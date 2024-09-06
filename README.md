@@ -39,9 +39,36 @@ An open-source, MIT-licensed 3D game engine written in pure C# and .NET 8. The e
 
 The goal of this project is to provide a viable alternative to other game engines for **programmers**,
 and other people who prefer working directly with code.
-Korpi Engine offers a smooth transition for developers familiar with Unity, by providing a clean and familiar API,
-while also adhering to the [KISS principle](https://en.m.wikipedia.org/wiki/KISS_principle).
-The engine is designed to be modular and extensible, allowing for easy integration of new features and systems.
+
+Korpi Engine does **NOT** aim to:
+- be just like Unity or Unreal Engine
+- offer a visual scripting system
+- be a one-size-fits-all solution for every game project
+
+Korpi Engine **DOES** aim to
+- stand out with its 'programmer-first' approach
+- offer a clean and simple API
+- adhere to the [KISS principle](https://en.m.wikipedia.org/wiki/KISS_principle)
+- be a good learning tool for game/engine development
+- be modular and extensible, to allow for easy integration of new features and systems.
+
+## <p align="center">Which types of games is Korpi Engine best suited for?</p>
+
+- **Open-world games**: The engine is designed to handle large worlds with minimal additional programmer effort.
+- **Procedural generation**: The APIs have been designed to support custom procedurally generated meshes.
+
+An example of such a game could be a Minecraft-like voxel game, or a deep-space exploration game.
+
+## <p align="center">Which types of games is Korpi Engine NOT well-suited for?</p>
+
+- **2D games**: The engine is designed for 3D games, and does not have built-in support for 2D games.
+- **Mobile games**: The engine is designed for desktop platforms, and does not have built-in support for mobile platforms.
+- **Highly visual games**: The engine does not have a visual scripting system, and is not designed for rapid prototyping of visual effects.
+- **Games that require a large/complex asset pipeline**: While the current pipeline supports streaming and dynamic loading/unloading, features like asset compression have not yet been implemented.
+
+## <p align="center">Why the name "Korpi"?</p>
+
+The name "Korpi" is Finnish and means "wilderness" or "forest". It was chosen to reflect the engine's focus on large, open-world games.
 
 ---
 
@@ -63,6 +90,8 @@ A non-exhaustive list of currently implemented engine features. Updated every on
     - [x] Camera-relative rendering
     - [x] Point, spot & directional lights
     - [x] Post-processing pipeline
+    - [x] Gizmo rendering
+    - [x] Custom shader language (KSL)
   - UI
     - [x] Native Dear ImGUI support
   - Physics
@@ -95,20 +124,9 @@ Quick links:
 
 # <p align="center">Getting Started</p>
 
-1. Download the repository
-   - Either download this repository as an archive or clone it:
-   - `git clone https://www.github.com/japsuu/KorpiEngine`
-2. Build & run the [basic usage example](./src/Sandbox/Sandbox.csproj) (optional).
-   - This example is updated every once in a while, and teaches you the basics.
-   - `cd ./KorpiEngine/src/Sandbox`
-   - `dotnet build ./Sandbox.csproj`
-   - The built executable is now located at `./bin/<configuration>/<framework>/Sandbox.exe`
-3. Start developing your own game!
-	- There are a couple of ways you can create your own projects with the engine:
-		- **As a project reference** (recommended): You can add the engine as a project reference to your own solution: https://learn.microsoft.com/en-us/visualstudio/ide/managing-references-in-a-project
-        - **As a standalone project**: You can create a new project in to the same solution as the engine. This is not recommended, as it may make updating the engine more difficult.
-        - **As a NuGet package**: There is no NuGet package available yet :(. You can follow the progress of this feature in [issue #11](https://github.com/japsuu/KorpiEngine/issues/11).
-4. If you encounter any issues, please report them in the [issue tracker](https://github.com/japsuu/KorpiEngine/issues).
+Check out the [Getting Started](https://japsuu.github.io/KorpiEngine/manual/getting-started.html) guide in the documentation.
+
+It will help you get the engine up and running on your machine, and guide you through building and running the example project.
 
 ---
 

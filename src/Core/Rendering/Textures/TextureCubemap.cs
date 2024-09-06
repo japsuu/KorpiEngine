@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Platform;
-using KorpiEngine.Rendering.Primitives;
+﻿using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Textures;
+namespace KorpiEngine.Rendering;
 
 public sealed class TextureCubemap : Texture
 {

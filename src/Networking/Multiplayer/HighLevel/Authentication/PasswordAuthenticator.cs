@@ -1,6 +1,6 @@
-using KorpiEngine.Logging;
 using KorpiEngine.Multiplayer.HighLevel.Connections;
 using KorpiEngine.Multiplayer.HighLevel.Messages;
+using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Multiplayer.HighLevel.Authentication;
 

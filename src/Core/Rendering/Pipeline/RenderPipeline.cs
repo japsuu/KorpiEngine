@@ -1,4 +1,4 @@
-namespace KorpiEngine.Rendering.Pipeline;
+namespace KorpiEngine.Rendering;
 
 public class RenderPipeline
 {

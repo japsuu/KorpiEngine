@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Threading.Jobs;
+namespace KorpiEngine.Threading;
 
 public interface IAwaitable : INotifyCompletion
 {

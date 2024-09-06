@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Threading.Pooling;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Represents the execution priority of a job.

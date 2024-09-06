@@ -1,6 +1,5 @@
 ﻿using KorpiEngine;
-using KorpiEngine.Windowing;
-using Sandbox.Scenes.PrimitiveExample;
+using KorpiEngine.Rendering;
 using Sandbox.Scenes.SponzaExample;
 
 namespace Sandbox;

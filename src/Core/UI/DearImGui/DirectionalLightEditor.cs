@@ -1,6 +1,6 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.Rendering.Lighting;
+using KorpiEngine.Rendering;
 
 namespace KorpiEngine.UI.DearImGui;
 

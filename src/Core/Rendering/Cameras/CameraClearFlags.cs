@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Rendering.Cameras;
+﻿namespace KorpiEngine.Rendering;
 
 [Flags]
 public enum CameraClearFlags

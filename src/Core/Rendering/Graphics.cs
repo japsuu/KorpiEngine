@@ -1,11 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
-using KorpiEngine.Rendering.Textures;
-using KorpiEngine.Windowing;
+using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;
 

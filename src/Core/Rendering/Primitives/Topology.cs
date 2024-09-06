@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Rendering.Primitives;
+﻿namespace KorpiEngine.Rendering;
 
 public enum Topology
 {

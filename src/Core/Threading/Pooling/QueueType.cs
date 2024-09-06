@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Threading.Pooling;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Queue type used by the thread-pool to handle updates pushed to main.

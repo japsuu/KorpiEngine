@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Logging;
-using KorpiEngine.Multiplayer.HighLevel.Connections;
+﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
 using KorpiEngine.Multiplayer.LowLevel.Transports;
+using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Multiplayer;
 

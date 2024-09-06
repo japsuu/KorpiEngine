@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Threading.Jobs;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Represents the completion state of a <see cref="IKorpiJob"/>.

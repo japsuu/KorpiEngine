@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Exceptions;
-using KorpiEngine.Logging;
+﻿using KorpiEngine.Tools.Logging;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Rendering.OpenGL;
@@ -96,6 +95,6 @@ internal class GLGraphicsProgram : GraphicsProgram
         
         string msg = $"Error linking shaderProgram '{Handle}'";
         Logger.Error(msg);
-        throw new ProgramLinkException(msg, info);
+        throw new ShaderProgramLinkException(msg, info);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Rendering.Cameras;
+﻿namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Defines how the camera clears the screen.

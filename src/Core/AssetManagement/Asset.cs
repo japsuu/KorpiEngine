@@ -1,16 +1,18 @@
-﻿namespace KorpiEngine.AssetManagement;
+﻿using KorpiEngine.Utils;
+
+namespace KorpiEngine.AssetManagement;
 
 /// <summary>
 /// Represents a fully imported asset.
 /// </summary>
-public class Asset
+internal class Asset
 {
-    public readonly Guid AssetID;
+    public readonly UUID AssetID;
     public readonly FileInfo AssetPath;
-    public readonly Resource Instance;
+    public readonly AssetInstance Instance;
 
 
-    public Asset(Guid assetID, FileInfo assetPath, Resource instance)
+    public Asset(UUID assetID, FileInfo assetPath, AssetInstance instance)
     {
         AssetID = assetID;
         AssetPath = assetPath;

@@ -1,8 +1,6 @@
-﻿using KorpiEngine.Logging;
-using KorpiEngine.Threading.Jobs;
-using KorpiEngine.Threading.Pooling;
+﻿using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Threading.Threads;
+namespace KorpiEngine.Threading;
 
 public sealed class WorkerThread
 {

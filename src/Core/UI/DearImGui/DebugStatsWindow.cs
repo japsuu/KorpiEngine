@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using ImGuiNET;
 using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 
 namespace KorpiEngine.UI.DearImGui;
 

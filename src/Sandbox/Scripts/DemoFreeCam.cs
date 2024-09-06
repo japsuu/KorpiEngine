@@ -1,7 +1,8 @@
 ﻿using KorpiEngine;
-using KorpiEngine.EntityModel;
-using KorpiEngine.InputManagement;
+using KorpiEngine.Entities;
+using KorpiEngine.Input;
 using KorpiEngine.UI;
+using KorpiEngine.Utils;
 
 namespace Sandbox;
 

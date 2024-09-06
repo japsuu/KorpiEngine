@@ -1,6 +1,6 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.EntityModel;
+using KorpiEngine.Entities;
 
 namespace KorpiEngine.UI.DearImGui;
 

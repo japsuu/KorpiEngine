@@ -1,9 +1,7 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Rendering.Shaders;
-using KorpiEngine.Rendering.Textures;
 using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Materials;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// A material used for rendering.
@@ -12,18 +10,18 @@ namespace KorpiEngine.Rendering.Materials;
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
-public sealed class Material : Resource
+public sealed class Material : AssetInstance
 {
     public const string MAIN_TEX = "_MainTex";
     public const string NORMAL_TEX = "_NormalTex";
     public const string SURFACE_TEX = "_SurfaceTex";
     public const string EMISSION_TEX = "_EmissionTex";
-    public static ResourceRef<Texture2D> DefaultAlbedoTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultNormalTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultSurfaceTex { get; private set; }
-    public static ResourceRef<Texture2D> DefaultEmissionTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultAlbedoTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultNormalTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultSurfaceTex { get; private set; }
+    public static AssetRef<Texture2D> DefaultEmissionTex { get; private set; }
     
-    internal static ResourceRef<Material> InvalidMaterial { get; private set; }
+    internal static AssetRef<Material> InvalidMaterial { get; private set; }
     
     
     internal static void LoadDefaults()
@@ -33,11 +31,11 @@ public sealed class Material : Resource
         DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
         DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
 
-        InvalidMaterial = new Material(Shaders.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
+        InvalidMaterial = new Material(Rendering.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
     }
     
     
-    public readonly ResourceRef<Shader> Shader;
+    public readonly AssetRef<Shader> Shader;
 
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
@@ -50,9 +48,9 @@ public sealed class Material : Resource
     public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(ResourceRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
+    public Material(AssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
-        if (shader.AssetID == Guid.Empty)
+        if (shader.AssetID == UUID.Empty)
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
         _propertyBlock = new MaterialPropertyBlock();
@@ -166,13 +164,13 @@ public sealed class Material : Resource
         
         int currentHash = Hashing.GetAdditiveHashCode(_materialKeywords);
 
-        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Shaders.Shader.GlobalKeywordsVersion;
+        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Rendering.Shader.GlobalKeywordsVersion;
         bool materialKeywordsChanged = currentHash != _lastHash;
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
             string materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Shaders.Shader.GlobalKeywordsString}";
-            _lastGlobalKeywordsVersion = Shaders.Shader.GlobalKeywordsVersion;
+            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
+            _lastGlobalKeywordsVersion = Rendering.Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
 
@@ -183,7 +181,7 @@ public sealed class Material : Resource
         List<string> allKeywords = [];
         
         // Add all global keywords
-        allKeywords.AddRange(Shaders.Shader.GetGlobalKeywords());
+        allKeywords.AddRange(Rendering.Shader.GetGlobalKeywords());
         
         // Add all material keywords
         foreach (string keyword in _materialKeywords)
@@ -291,7 +289,7 @@ public sealed class Material : Resource
     }
 
 
-    public void SetTexture(string name, ResourceRef<Texture2D> value, bool allowFail = false)
+    public void SetTexture(string name, AssetRef<Texture2D> value, bool allowFail = false)
     {
         if (HasVariable(name))
             _propertyBlock.SetTexture(name, value);

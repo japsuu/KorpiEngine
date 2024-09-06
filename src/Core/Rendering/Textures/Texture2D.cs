@@ -1,9 +1,8 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Platform;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Serialization;
+using KorpiEngine.Tools.Serialization;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Textures;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// A <see cref="Texture"/> whose image has two dimensions and support for multisampling.
@@ -42,7 +41,7 @@ public sealed class Texture2D : Texture, ISerializable
     }
 
 
-    public static ResourceRef<Texture2D> Find(string path) => new(AssetDatabase.LoadAssetFile<Texture2D>(path));
+    public static AssetRef<Texture2D> Find(string path) => new(AssetManager.LoadAssetFile<Texture2D>(path));
 
 
     /// <summary>
