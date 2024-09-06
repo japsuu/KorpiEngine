@@ -7,7 +7,7 @@ Any files inside the `Assets` directory (located at the root of the project) are
 
 ## Loading/Unloading Assets
 
-Assets can be loaded/unloaded at runtime using the `AssetManager` API (see @KorpiEngine.AssetManagement.AssetManager), which makes sure that each asset is loaded only once, and that it is properly disposed of when no longer needed.
+Assets can be loaded/unloaded at runtime using the `AssetManager` API (see <xref:KorpiEngine.AssetManagement.AssetManager>), which makes sure that each asset is loaded only once, and that it is properly disposed of when no longer needed.
 
 Example (loading the default albedo texture):
 ```csharp

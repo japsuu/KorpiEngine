@@ -16,7 +16,7 @@ Material material = new Material(shaderRef, "directional light material", false)
 
 ## Setting Material Properties
 
-Material properties can be set using the `Material` API (see @KorpiEngine.Rendering.Materials.Material).
+Material properties can be set using the `Material` API (see <xref:KorpiEngine.Rendering.Materials.Material>).
 
 ```csharp
 material.SetTexture("_ExampleTexture", value);
