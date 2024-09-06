@@ -1,15 +1,23 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
 [AssetImporter(".kshader")]
 internal partial class ShaderImporter : AssetImporter
 {
+    private sealed class ShaderParseException : KorpiException
+    {
+        public ShaderParseException(string? message) : base(message) { }
+        public ShaderParseException(string? message, Exception? innerException) : base(message, innerException) { }
+    }
+    
+    
     private static readonly Regex PreprocessorIncludeRegex = GenerateRegex();
     private static readonly List<string> ImportErrors = [];
-    private static FileInfo? currentAssetPath;
+    private static FileInfo? currentAssetPath { get; set; }
 
     [GeneratedRegex("""^\s*#include\s*["<](.+?)[">]\s*$""", RegexOptions.Multiline)]
     private static partial Regex GenerateRegex();
@@ -79,7 +87,7 @@ internal partial class ShaderImporter : AssetImporter
     {
         Match match = Regex.Match(input, @"Shader\s+""([^""]+)""");
         if (!match.Success)
-            throw new Exception("Malformed input: Missing Shader declaration");
+            throw new ShaderParseException("Malformed input: Missing Shader declaration");
         return match.Groups[1].Value;
     }
 
@@ -148,18 +156,21 @@ internal partial class ShaderImporter : AssetImporter
     private static ParsedShaderShadowPass? ParseShadowPass(string input)
     {
         MatchCollection passMatches = Regex.Matches(input, @"ShadowPass (\d+)\s+({(?:[^{}]|(?<o>{)|(?<-o>}))+(?(o)(?!))})");
-        foreach (Match passMatch in passMatches)
-        {
-            string passContent = passMatch.Groups[2].Value;
-            ParsedShaderShadowPass shaderPass = new(
-                ParseRasterState(passContent),
-                ParseBlockContent(passContent, "Vertex"),
-                ParseBlockContent(passContent, "Fragment"));
+        if (passMatches.Count == 0)
+            return null;    // No shadow pass found
+        
+        if (passMatches.Count > 1)
+            Application.Logger.Warn("Multiple shadow passes found, only the first one will be used");
+        
+        Match passMatch = passMatches[0];
+        
+        string passContent = passMatch.Groups[2].Value;
+        ParsedShaderShadowPass shaderPass = new(
+            ParseRasterState(passContent),
+            ParseBlockContent(passContent, "Vertex"),
+            ParseBlockContent(passContent, "Fragment"));
             
-            return shaderPass; // Just return the first one, any other ones are ignored
-        }
-
-        return null; // No shadow pass
+        return shaderPass; // Return the first one, any other ones are ignored
     }
 
 

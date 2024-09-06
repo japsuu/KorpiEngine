@@ -8,6 +8,7 @@
         <AssemblyName>KorpiEngine.Math</AssemblyName>
         <RootNamespace>KorpiEngine</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <SonarQubeExclude>true</SonarQubeExclude>
     </PropertyGroup>
 
     <ItemGroup>

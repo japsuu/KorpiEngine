@@ -15,7 +15,7 @@ public static class Cursor
             if (LockState == value)
                 return;
         
-            window.CursorState = (CursorState)value;
+            window!.CursorState = (CursorState)value;
             lockState = value;
         }
     }
