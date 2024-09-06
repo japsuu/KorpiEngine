@@ -1,4 +1,7 @@
-namespace KorpiEngine.EntityModel.Components;
+using KorpiEngine.Entities;
+using KorpiEngine.Tools.Gizmos;
+
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Can draw gizmos to debug a mesh.

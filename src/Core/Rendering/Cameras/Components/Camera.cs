@@ -1,14 +1,11 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.EntityModel;
-using KorpiEngine.InputManagement;
-using KorpiEngine.Platform;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Pipeline;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.Entities;
+using KorpiEngine.Input;
+using KorpiEngine.Tools.Gizmos;
 using KorpiEngine.UI.DearImGui;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Cameras;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Camera component that can be attached to an entity to render the scene from its perspective.
@@ -298,7 +295,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnUpdate()
     {
-        if (!Input.GetKeyDown(KeyCode.F1))
+        if (!Input.Input.GetKeyDown(KeyCode.F1))
             return;
 
         SetDebugDrawType(DebugDrawType.Next());

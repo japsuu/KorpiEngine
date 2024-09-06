@@ -1,10 +1,6 @@
 ﻿using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Tools.Gizmos;
 
 public static class Gizmos
 {

@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Exceptions;
+﻿using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 

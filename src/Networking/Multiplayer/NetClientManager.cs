@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Logging;
-using KorpiEngine.Multiplayer.HighLevel;
+﻿using KorpiEngine.Multiplayer.HighLevel;
 using KorpiEngine.Multiplayer.HighLevel.Connections;
 using KorpiEngine.Multiplayer.HighLevel.EventArgs;
 using KorpiEngine.Multiplayer.HighLevel.Messages;
@@ -7,6 +6,7 @@ using KorpiEngine.Multiplayer.HighLevel.Messages.Handlers;
 using KorpiEngine.Multiplayer.LowLevel;
 using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
 using KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
+using KorpiEngine.Tools.Logging;
 using KorpiEngine.Utility;
 
 namespace KorpiEngine.Multiplayer;

@@ -1,7 +1,7 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace KorpiEngine.Windowing;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// Contains the initial windowing configuration for a <see cref="Application"/>.

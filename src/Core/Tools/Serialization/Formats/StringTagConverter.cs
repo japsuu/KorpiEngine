@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace KorpiEngine.Serialization.Formats
+namespace KorpiEngine.Tools.Serialization
 {
     public static class StringTagConverter
     {

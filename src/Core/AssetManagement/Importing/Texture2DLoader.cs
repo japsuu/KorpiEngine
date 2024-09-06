@@ -1,7 +1,5 @@
 ﻿using ImageMagick;
 using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Textures;
 
 namespace KorpiEngine.AssetManagement;
 

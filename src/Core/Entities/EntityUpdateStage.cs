@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel;
+﻿namespace KorpiEngine.Entities;
 
 /// <summary>
 /// Determines the stage at which a system is updated.

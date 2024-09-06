@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Exceptions;
+﻿using KorpiEngine.Utils;
+
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// The exception that is thrown when a render state is invalid.

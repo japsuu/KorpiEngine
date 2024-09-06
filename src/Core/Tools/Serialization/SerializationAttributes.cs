@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Serialization
+﻿namespace KorpiEngine.Tools.Serialization
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public sealed class IgnoreOnNullAttribute : Attribute { }

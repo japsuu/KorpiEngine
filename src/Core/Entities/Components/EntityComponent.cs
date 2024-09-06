@@ -1,12 +1,9 @@
 ﻿using System.Collections;
 using System.Reflection;
-using KorpiEngine.EntityModel.Coroutines;
-using KorpiEngine.EntityModel.IDs;
-using KorpiEngine.EntityModel.SpatialHierarchy;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Rendering.Cameras;
+using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.EntityModel;
+namespace KorpiEngine.Entities;
 
 public abstract class EntityComponent
 {

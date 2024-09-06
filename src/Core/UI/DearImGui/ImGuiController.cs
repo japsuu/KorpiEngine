@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using ImGuiNET;
-using KorpiEngine.InputManagement;
 using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -10,6 +10,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
+using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace KorpiEngine.UI.DearImGui;
 
@@ -228,7 +229,7 @@ internal class ImGuiController : GraphicsResource
     public void Update()
     {
         // Emulate the cursor being fixed to the center of the screen, as OpenTK doesn't fix the cursor position when it's grabbed.
-        OpenTK.Mathematics.Vector2 mousePos = Input.MouseState.Position;
+        OpenTK.Mathematics.Vector2 mousePos = Input.Input.MouseState.Position;
         if (_window.CursorState == CursorState.Grabbed)
             mousePos = new OpenTK.Mathematics.Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
 
@@ -276,8 +277,8 @@ internal class ImGuiController : GraphicsResource
         GUI.WantCaptureKeyboard = io.WantCaptureKeyboard;
         GUI.WantCaptureMouse = io.WantCaptureMouse;
 
-        MouseState mouseState = Input.MouseState;
-        KeyboardState keyboardState = Input.KeyboardState;
+        MouseState mouseState = Input.Input.MouseState;
+        KeyboardState keyboardState = Input.Input.KeyboardState;
 
         io.MouseDown[0] = mouseState[MouseButton.Left];
         io.MouseDown[1] = mouseState[MouseButton.Right];

@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks.Dataflow;
-using KorpiEngine.Logging;
-using KorpiEngine.Threading.Jobs;
+using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Threading.Pooling;
+namespace KorpiEngine.Threading;
 
 public sealed class JobTplPool : IJobPool
 {

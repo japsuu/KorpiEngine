@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Exceptions;
-
-namespace KorpiEngine.EntityModel.IDs;
+﻿namespace KorpiEngine.Utils;
 
 /// <summary>
 /// Provides a unique ID for a type.

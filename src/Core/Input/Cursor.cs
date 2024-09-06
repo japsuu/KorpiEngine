@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using OpenTK.Windowing.Common;
+﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using Debug = KorpiEngine.Tools.Debug;
 
-namespace KorpiEngine.InputManagement;
+namespace KorpiEngine.Input;
 
 public static class Cursor
 {

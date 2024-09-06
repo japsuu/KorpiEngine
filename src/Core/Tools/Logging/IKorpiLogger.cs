@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Logging;
+﻿namespace KorpiEngine.Tools.Logging;
 
 public interface IKorpiLogger
 {

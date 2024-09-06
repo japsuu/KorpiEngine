@@ -1,6 +1,7 @@
-﻿using KorpiEngine.Serialization;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Tools.Serialization;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Animations;
 
 public enum WrapMode
 {

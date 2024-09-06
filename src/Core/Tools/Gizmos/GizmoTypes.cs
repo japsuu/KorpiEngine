@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.Rendering;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Tools.Gizmos;
 
 public abstract class Gizmo
 {

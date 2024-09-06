@@ -1,9 +1,6 @@
-﻿using KorpiEngine.EntityModel;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Shaders;
+﻿using KorpiEngine.Entities;
 
-namespace KorpiEngine.Rendering.Lighting;
+namespace KorpiEngine.Rendering;
 
 public class AmbientLight : EntityComponent
 {

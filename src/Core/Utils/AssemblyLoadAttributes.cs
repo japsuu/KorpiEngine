@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Utils;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class OnApplicationUnloadAttribute : Attribute

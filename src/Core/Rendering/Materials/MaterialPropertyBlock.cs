@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Rendering.Textures;
 
-namespace KorpiEngine.Rendering.Materials;
+namespace KorpiEngine.Rendering;
 
 public class MaterialPropertyBlock
 {

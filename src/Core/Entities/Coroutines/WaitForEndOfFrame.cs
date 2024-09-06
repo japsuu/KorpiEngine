@@ -1,3 +1,3 @@
-namespace KorpiEngine.EntityModel.Coroutines;
+namespace KorpiEngine.Entities;
 
 public sealed class WaitForEndOfFrame;

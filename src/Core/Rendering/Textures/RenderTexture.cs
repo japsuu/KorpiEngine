@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Platform;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Textures;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.Utils;
+using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Rendering;
 

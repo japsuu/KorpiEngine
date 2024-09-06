@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine;
+﻿namespace KorpiEngine.Utils;
 
 /// <summary>
 /// Base class for resources that require manual disposal.

@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Logging;
+using KorpiEngine.Tools.Logging;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KorpiEngine.Rendering.OpenGL;
@@ -32,7 +31,7 @@ internal class GLGraphicsShader : GraphicsObject
     /// Initializes a new shader object of the given type.
     /// </summary>
     /// <param name="type"></param>
-    public GLGraphicsShader(ShaderType type) : base(GL.CreateShader(type))
+    public GLGraphicsShader(ShaderType type) : base(GL.CreateShader((OpenTK.Graphics.OpenGL4.ShaderType)type))
     {
         Type = type;
         SourceFiles = new List<string>();

@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Textures;
+﻿using KorpiEngine.Rendering;
 
-namespace KorpiEngine.AssetManagement.Importers;
+namespace KorpiEngine.AssetManagement;
 
 [AssetImporter(".png", ".bmp", ".jpg", ".jpeg", ".qoi", ".psd", ".tga", ".dds", ".hdr", ".ktx", ".pkm", ".pvr")]
 internal class TextureImporter : AssetImporter

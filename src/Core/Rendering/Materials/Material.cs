@@ -1,9 +1,7 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Rendering.Shaders;
-using KorpiEngine.Rendering.Textures;
 using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Materials;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// A material used for rendering.
@@ -33,7 +31,7 @@ public sealed class Material : AssetInstance
         DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
         DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
 
-        InvalidMaterial = new Material(Shaders.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
+        InvalidMaterial = new Material(Rendering.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
     }
     
     
@@ -166,13 +164,13 @@ public sealed class Material : AssetInstance
         
         int currentHash = Hashing.GetAdditiveHashCode(_materialKeywords);
 
-        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Shaders.Shader.GlobalKeywordsVersion;
+        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Rendering.Shader.GlobalKeywordsVersion;
         bool materialKeywordsChanged = currentHash != _lastHash;
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
             string materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Shaders.Shader.GlobalKeywordsString}";
-            _lastGlobalKeywordsVersion = Shaders.Shader.GlobalKeywordsVersion;
+            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
+            _lastGlobalKeywordsVersion = Rendering.Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
 
@@ -183,7 +181,7 @@ public sealed class Material : AssetInstance
         List<string> allKeywords = [];
         
         // Add all global keywords
-        allKeywords.AddRange(Shaders.Shader.GetGlobalKeywords());
+        allKeywords.AddRange(Rendering.Shader.GetGlobalKeywords());
         
         // Add all material keywords
         foreach (string keyword in _materialKeywords)

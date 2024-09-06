@@ -1,11 +1,8 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.EntityModel.SpatialHierarchy;
-using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Serialization;
+using KorpiEngine.Entities;
+using KorpiEngine.Tools.Serialization;
 
-namespace KorpiEngine.EntityModel.Components;
+namespace KorpiEngine.Rendering;
 
 public class SkinnedMeshRenderer : EntityComponent, ISerializable
 {

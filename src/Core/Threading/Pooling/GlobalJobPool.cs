@@ -1,8 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using KorpiEngine.Logging;
-using KorpiEngine.Threading.Jobs;
+using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Threading.Pooling;
+namespace KorpiEngine.Threading;
 
 /// <summary>
 /// A static pool for executing jobs.

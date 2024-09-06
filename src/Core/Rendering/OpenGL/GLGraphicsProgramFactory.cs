@@ -1,5 +1,3 @@
-using KorpiEngine.Exceptions;
-using KorpiEngine.Rendering.Shaders;
 using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace KorpiEngine.Rendering.OpenGL;

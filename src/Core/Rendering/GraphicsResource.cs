@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using KorpiEngine.Exceptions;
+using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;
 

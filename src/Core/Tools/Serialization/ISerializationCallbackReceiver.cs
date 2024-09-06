@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Serialization
+﻿namespace KorpiEngine.Tools.Serialization
 {
     /// <summary>
     /// Sometimes you dont want a Constructor to be called when deserializing, but still need todo some work after the object has been created

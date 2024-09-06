@@ -1,9 +1,7 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Materials;
+using KorpiEngine.Entities;
 
-namespace KorpiEngine.EntityModel.Components;
+namespace KorpiEngine.Rendering;
 
 public class MeshRenderer : EntityComponent
 {
@@ -30,7 +28,7 @@ public class MeshRenderer : EntityComponent
         Material? material = Material.Res;
         if (material == null)
         {
-            material = Rendering.Materials.Material.InvalidMaterial.Res!;
+            material = Rendering.Material.InvalidMaterial.Res!;
 #if TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif

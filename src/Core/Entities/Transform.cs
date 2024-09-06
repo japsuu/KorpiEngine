@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel.SpatialHierarchy;
+﻿namespace KorpiEngine.Entities;
 
 public class Transform
 {

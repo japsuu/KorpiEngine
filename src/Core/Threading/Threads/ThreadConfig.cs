@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Threading.Threads;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Parameters for thread states.

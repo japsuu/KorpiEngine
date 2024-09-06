@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Exceptions;
+﻿namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// The exception that is thrown when a program link error occurs.

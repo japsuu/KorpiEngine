@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel.Coroutines;
+﻿namespace KorpiEngine.Entities;
 
 internal enum CoroutineUpdateStage
 {

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Rendering.Primitives;
+using KorpiEngine.AssetManagement;
 using KorpiEngine.Utils;
 using InvalidOperationException = System.InvalidOperationException;
 

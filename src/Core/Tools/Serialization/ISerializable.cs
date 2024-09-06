@@ -1,6 +1,6 @@
-﻿using static KorpiEngine.Serialization.Serializer;
+﻿using static KorpiEngine.Tools.Serialization.Serializer;
 
-namespace KorpiEngine.Serialization
+namespace KorpiEngine.Tools.Serialization
 {
     public interface ISerializable
     {

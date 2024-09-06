@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Exceptions;
+﻿using KorpiEngine.Utils;
+
+namespace KorpiEngine.Rendering;
 
 internal class ResourceLeakException : KorpiException
 {

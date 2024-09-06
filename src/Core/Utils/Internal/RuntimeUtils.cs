@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
-using KorpiEngine.Serialization;
+using KorpiEngine.Tools.Serialization;
 
 namespace KorpiEngine.Utils;
 

@@ -1,7 +1,6 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Rendering.Primitives;
 
-namespace KorpiEngine.Rendering.Shaders;
+namespace KorpiEngine.Rendering;
 
 /// <summary>
 /// The Shader class itself doesn't do much, It stores the properties of the shader and the shader code and Keywords.

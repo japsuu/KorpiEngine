@@ -1,7 +1,6 @@
-﻿using KorpiEngine.Exceptions;
-using KorpiEngine.Rendering.Primitives;
+﻿using KorpiEngine.AssetManagement;
 
-namespace KorpiEngine.Rendering.Textures;
+namespace KorpiEngine.Rendering;
 
 public abstract class Texture : AssetInstance
 {

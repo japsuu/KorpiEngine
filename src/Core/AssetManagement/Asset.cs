@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.AssetManagement;
+﻿using KorpiEngine.Utils;
+
+namespace KorpiEngine.AssetManagement;
 
 /// <summary>
 /// Represents a fully imported asset.

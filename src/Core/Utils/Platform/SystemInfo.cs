@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace KorpiEngine.Platform;
+namespace KorpiEngine.Utils;
 
 /// <summary>
 /// Contains information about the current system.

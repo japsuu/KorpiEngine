@@ -1,7 +1,7 @@
-﻿using KorpiEngine.EntityModel.IDs;
-using KorpiEngine.Exceptions;
+﻿using KorpiEngine.Tools;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine;
+namespace KorpiEngine.AssetManagement;
 
 public abstract class AssetInstance : SafeDisposable
 {

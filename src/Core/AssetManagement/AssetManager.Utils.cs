@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.AssetManagement;
+﻿using KorpiEngine.Utils;
+
+namespace KorpiEngine.AssetManagement;
 
 public static partial class AssetManager
 {

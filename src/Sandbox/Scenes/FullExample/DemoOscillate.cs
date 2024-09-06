@@ -1,5 +1,6 @@
 ﻿using KorpiEngine;
-using KorpiEngine.EntityModel;
+using KorpiEngine.Entities;
+using KorpiEngine.Utils;
 using Random = KorpiEngine.SharedRandom;
 
 namespace Sandbox.Scenes.FullExample;

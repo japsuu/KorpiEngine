@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace KorpiEngine.EntityModel.Coroutines;
+namespace KorpiEngine.Entities;
 
 /// <summary>
 /// Represents an instruction that can be executed over multiple frames.

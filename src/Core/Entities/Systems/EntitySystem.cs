@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel;
+﻿namespace KorpiEngine.Entities;
 
 /// <summary>
 /// A system that influences a single entity.

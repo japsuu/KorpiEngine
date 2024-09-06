@@ -1,10 +1,6 @@
-﻿using KorpiEngine.Rendering.Cameras;
-using KorpiEngine.Rendering.Lighting;
-using KorpiEngine.Rendering.Materials;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
+﻿using KorpiEngine.Utils;
 
-namespace KorpiEngine.Rendering.Pipeline;
+namespace KorpiEngine.Rendering;
 
 public abstract class RenderPassNode
 {

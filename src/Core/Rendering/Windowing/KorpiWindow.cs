@@ -1,10 +1,9 @@
-﻿using KorpiEngine.Platform;
-using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.OpenGL;
+﻿using KorpiEngine.Rendering.OpenGL;
+using KorpiEngine.Utils;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace KorpiEngine.Windowing;
+namespace KorpiEngine.Rendering;
 
 internal sealed class KorpiWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
     : GameWindow(gameWindowSettings, nativeWindowSettings)
@@ -14,7 +13,7 @@ internal sealed class KorpiWindow(GameWindowSettings gameWindowSettings, NativeW
         SystemInfo.ProcessorCount = Environment.ProcessorCount;
         SystemInfo.MainThreadId = Environment.CurrentManagedThreadId;
         WindowInfo.Initialize(this);
-        InputManagement.Cursor.Initialize(this);
+        Input.Cursor.Initialize(this);
 
         Graphics.Initialize<GLGraphicsDevice>(this);
         

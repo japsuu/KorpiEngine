@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using KorpiEngine.EntityModel.IDs;
-using KorpiEngine.EntityModel.SpatialHierarchy;
-using KorpiEngine.Rendering.Cameras;
+﻿using System.Reflection;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Utils;
+using Debug = KorpiEngine.Tools.Debug;
 
-namespace KorpiEngine.EntityModel;
+namespace KorpiEngine.Entities;
 
 /// <summary>
 /// Container for components and systems.

@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Threading.Pooling;
-
-namespace KorpiEngine.Threading.Jobs;
+﻿namespace KorpiEngine.Threading;
 
 /// <summary>
 /// Test job with an integer result equal to the product of 7 and 6.

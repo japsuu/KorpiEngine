@@ -1,7 +1,6 @@
-﻿using KorpiEngine.EntityModel;
-using KorpiEngine.EntityModel.SpatialHierarchy;
+﻿using KorpiEngine.Entities;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Animations;
 
 public class AnimationState
 {

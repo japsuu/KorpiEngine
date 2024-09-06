@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine;
+﻿namespace KorpiEngine.Entities;
 
 /// <summary>
 /// The coordinate space in which to operate.

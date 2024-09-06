@@ -1,6 +1,7 @@
 using System.Collections;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine.EntityModel.Coroutines;
+namespace KorpiEngine.Entities;
 
 public sealed class WaitForSecondsRealtime(float seconds) : IEnumerator
 {

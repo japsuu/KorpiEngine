@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel;
+﻿namespace KorpiEngine.Entities;
 
 /// <summary>
 /// A system that influences all existing components of a given type in the world.

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using KorpiEngine.Serialization;
+using KorpiEngine.Tools.Serialization;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Animations;
 
 // MIT License - Copyright (C) The Mono.Xna Team
 // Modified from: https://github.com/MonoGame/MonoGame/blob/develop/MonoGame.Framework/Curve.cs

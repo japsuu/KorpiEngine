@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Logging;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
+﻿using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Rendering;
 

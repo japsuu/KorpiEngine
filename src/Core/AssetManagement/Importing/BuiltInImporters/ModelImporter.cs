@@ -1,15 +1,15 @@
 ﻿using Assimp;
-using KorpiEngine.EntityModel;
-using KorpiEngine.EntityModel.Components;
-using KorpiEngine.EntityModel.SpatialHierarchy;
-using KorpiEngine.Exceptions;
+using KorpiEngine.Animations;
+using KorpiEngine.Entities;
 using KorpiEngine.Rendering;
-using KorpiEngine.Rendering.Shaders;
-using Material = KorpiEngine.Rendering.Materials.Material;
+using KorpiEngine.Utils;
+using Animation = KorpiEngine.Animations.Animation;
+using Material = KorpiEngine.Rendering.Material;
 using Mesh = KorpiEngine.Rendering.Mesh;
-using Texture2D = KorpiEngine.Rendering.Textures.Texture2D;
+using Texture2D = KorpiEngine.Rendering.Texture2D;
+using TextureType = Assimp.TextureType;
 
-namespace KorpiEngine.AssetManagement.Importers;
+namespace KorpiEngine.AssetManagement;
 
 [AssetImporter(".obj", ".blend", ".dae", ".fbx", ".gltf", ".ply", ".pmx", ".stl")]
 public class ModelImporter : AssetImporter

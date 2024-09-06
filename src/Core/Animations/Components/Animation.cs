@@ -1,8 +1,8 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.EntityModel;
-using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Entities;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Animations;
 
 // Taken and modified from Prowl's Animation.cs
 // https://github.com/ProwlEngine/Prowl/blob/main/Prowl.Runtime/Components/Animation.cs.

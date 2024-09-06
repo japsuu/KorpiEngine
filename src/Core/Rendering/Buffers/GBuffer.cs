@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Textures;
+using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Rendering;
 

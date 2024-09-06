@@ -1,8 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Exceptions;
-using KorpiEngine.Platform;
-using KorpiEngine.Rendering.Primitives;
-using KorpiEngine.Rendering.Shaders;
+using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 

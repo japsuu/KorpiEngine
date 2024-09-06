@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using KorpiEngine.Exceptions;
+using KorpiEngine.Utils;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Tools;
 
 internal static class Debug
 {

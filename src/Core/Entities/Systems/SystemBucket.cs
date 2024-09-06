@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.EntityModel;
+﻿namespace KorpiEngine.Entities;
 
 /// <summary>
 /// A collection of system buckets grouped by update stage.
