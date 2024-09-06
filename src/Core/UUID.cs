@@ -5,18 +5,30 @@
 /// </summary>
 public readonly struct UUID
 {
+    public static readonly UUID Empty = Guid.Empty;
+    
     private readonly Guid _value;
 
-    public UUID()
+    
+    public UUID() => _value = Guid.NewGuid();
+    private UUID(Guid guid) => _value = guid;
+    
+    
+    public static bool TryParse(string input, out UUID result)
     {
-        _value = Guid.NewGuid();
-    }
+        if (Guid.TryParse(input, out Guid guid))
+        {
+            result = guid;
+            return true;
+        }
 
-
-    private UUID(Guid guid)
-    {
-        _value = guid;
+        result = Empty;
+        return false;
     }
+    
+    
+    public static UUID Parse(string input) => Guid.Parse(input);
+    
 
     public static implicit operator Guid(UUID uuid) => uuid._value;
     public static implicit operator UUID(Guid value) => new(value);
