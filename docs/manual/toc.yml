@@ -10,3 +10,7 @@
   href: math.md
 - name: Working With External Assets
   href: external-assets.md
+- name: Working With Shaders
+  href: shaders.md
+- name: Working With Materials
+  href: materials.md
