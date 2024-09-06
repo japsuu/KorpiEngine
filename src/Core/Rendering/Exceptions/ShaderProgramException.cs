@@ -3,11 +3,11 @@
 /// <summary>
 /// The exception that is thrown when a program related error occurs.
 /// </summary>
-public class ProgramException : OpenGLException
+internal class ShaderProgramException : OpenGLException
 {
     public string InfoLog { get; private set; }
 
-    internal ProgramException(string message, string infoLog)
+    internal ShaderProgramException(string message, string infoLog)
         : base($"{message}:\n{infoLog}")
     {
         InfoLog = infoLog;

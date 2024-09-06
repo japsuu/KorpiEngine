@@ -5,6 +5,23 @@ namespace KorpiEngine;
 
 public abstract class AssetInstance : SafeDisposable
 {
+    private static class AssetInstanceID
+    {
+        /// <summary>
+        /// The next ID to be assigned to a resource.
+        /// Starts at 1, because the ObjectID buffer (in G-Buffer) uses 0 as a "null" value.
+        /// </summary>
+        private static int nextID = 1;
+    
+    
+        public static int Generate()
+        {
+            int id = Interlocked.Increment(ref nextID);
+            Debug.Assert(id != int.MaxValue, "AssetInstanceID overflow!");
+            return id;
+        }
+    }
+    
     private static readonly Stack<AssetInstance> DestroyedResources = new();
     private static readonly Dictionary<int, WeakReference<AssetInstance>> AllResources = new();
 
@@ -28,7 +45,7 @@ public abstract class AssetInstance : SafeDisposable
 
     protected AssetInstance(string? name = "New Resource")
     {
-        InstanceID = AssetIDGenerator.Generate();
+        InstanceID = AssetInstanceID.Generate();
         AllResources.Add(InstanceID, new WeakReference<AssetInstance>(this));
 
         Name = name ?? $"New {GetType().Name}";
@@ -56,11 +73,11 @@ public abstract class AssetInstance : SafeDisposable
     /// Queues this resource for disposal.
     /// The resource will be destroyed at the end of the frame.
     /// </summary>
-    /// <exception cref="ResourceDestroyedException">Thrown if the resource is already destroyed.</exception>
+    /// <exception cref="AssetDestroyedException">Thrown if the resource is already destroyed.</exception>
     public void Destroy()
     {
         if (IsDestroyed)
-            throw new ResourceDestroyedException($"{Name} is already destroyed.");
+            throw new AssetDestroyedException($"{Name} is already destroyed.");
         
         IsWaitingDisposal = true;
         DestroyedResources.Push(this);
@@ -70,11 +87,11 @@ public abstract class AssetInstance : SafeDisposable
     /// <summary>
     /// Calls <see cref="Dispose"/> on this resource, destroying it immediately.
     /// </summary>
-    /// <exception cref="ResourceDestroyedException">Thrown if the resource is already destroyed.</exception>
+    /// <exception cref="AssetDestroyedException">Thrown if the resource is already destroyed.</exception>
     public void DestroyImmediate()
     {
         if (IsDestroyed)
-            throw new ResourceDestroyedException($"{Name} is already destroyed.");
+            throw new AssetDestroyedException($"{Name} is already destroyed.");
         
         Dispose();
     }
@@ -84,7 +101,7 @@ public abstract class AssetInstance : SafeDisposable
     {
         while (DestroyedResources.TryPop(out AssetInstance? obj))
         {
-            if (!obj.IsDestroyed)
+            if (obj.IsDisposed)
                 continue;
 
             obj.Dispose();

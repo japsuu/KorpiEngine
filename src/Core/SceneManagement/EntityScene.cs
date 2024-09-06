@@ -14,7 +14,7 @@ internal sealed class EntityScene
     private readonly Queue<Entity> _entitiesAwaitingRegistration = [];
     private readonly List<Entity> _entities = [];
     private readonly List<EntityComponent> _components = [];
-    private readonly Dictionary<SceneSystemID, SceneSystem> _sceneSystems = [];
+    private readonly Dictionary<ulong, SceneSystem> _sceneSystems = [];
     private readonly EntitySceneRenderer _renderer = new();
     
     internal IReadOnlyList<EntityComponent> Components => _components;
@@ -87,7 +87,7 @@ internal sealed class EntityScene
             return;
 
         SceneSystem system = new T();
-        SceneSystemID id = SceneSystemID.Generate<T>();
+        ulong id = TypeID.Get<T>();
         
         if (!_sceneSystems.TryAdd(id, system))
             throw new InvalidOperationException($"Scene system {id} already exists. Scene systems are singletons by default.");
@@ -101,7 +101,7 @@ internal sealed class EntityScene
         if (_isBeingDestroyed)
             return;
 
-        SceneSystemID id = SceneSystemID.Generate<T>();
+        ulong id = TypeID.Get<T>();
         
         if (!_sceneSystems.Remove(id, out SceneSystem? system))
             throw new InvalidOperationException($"Scene system {id} does not exist.");

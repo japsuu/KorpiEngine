@@ -565,39 +565,39 @@ public sealed class Entity : AssetInstance
 
     #region Systems API
 
-    public void AddSystem<T>() where T : IEntitySystem, new()
+    public void AddSystem<T>() where T : class, IEntitySystem, new()
     {
         if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         T system = new();
-        ulong id = EntitySystemID.Generate<T>();
+        ulong typeId = TypeID.Get<T>();
 
-        if (system.IsSingleton && _systems.ContainsKey(id))
+        if (system.IsSingleton && _systems.ContainsKey(typeId))
             throw new InvalidOperationException($"Entity {InstanceID} already has a singleton system of type {typeof(T).Name}.");
 
         if (system.UpdateStages.Length <= 0)
             throw new InvalidOperationException($"System of type {typeof(T).Name} does not specify when it should be updated.");
 
-        _systems.Add(id, system);
+        _systems.Add(typeId, system);
 
-        _systemBuckets.AddSystem(id, system);
+        _systemBuckets.AddSystem(typeId, system);
 
         system.OnRegister(this);
     }
 
 
-    public void RemoveSystem<T>() where T : IEntitySystem
+    public void RemoveSystem<T>() where T : class, IEntitySystem
     {
         if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
-        ulong id = EntitySystemID.Generate<T>();
+        ulong typeId = TypeID.Get<T>();
 
-        if (!_systems.Remove(id, out IEntitySystem? system))
+        if (!_systems.Remove(typeId, out IEntitySystem? system))
             throw new InvalidOperationException($"Entity {InstanceID} does not have a system of type {typeof(T).Name}.");
 
-        _systemBuckets.RemoveSystem(id);
+        _systemBuckets.RemoveSystem(typeId);
 
         system.OnUnregister(this);
     }

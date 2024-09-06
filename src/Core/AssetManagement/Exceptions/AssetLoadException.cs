@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Exceptions;
 
-public class AssetLoadException<T> : KorpiException
+internal class AssetLoadException<T> : KorpiException
 {
     public AssetLoadException(string assetPath, string info) : base($"Failed to load asset of type {typeof(T).Name} at path '{assetPath}': {info}") { }
     

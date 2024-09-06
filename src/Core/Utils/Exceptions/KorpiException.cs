@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Exceptions;
 
-public class KorpiException : Exception
+internal class KorpiException : Exception
 {
     public KorpiException(string? message) : base(message)
     {

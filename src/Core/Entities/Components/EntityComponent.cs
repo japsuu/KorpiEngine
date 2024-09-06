@@ -3,12 +3,29 @@ using System.Reflection;
 using KorpiEngine.EntityModel.Coroutines;
 using KorpiEngine.EntityModel.IDs;
 using KorpiEngine.EntityModel.SpatialHierarchy;
+using KorpiEngine.Exceptions;
 using KorpiEngine.Rendering.Cameras;
 
 namespace KorpiEngine.EntityModel;
 
 public abstract class EntityComponent
 {
+    private static class ComponentID
+    {
+        private static int nextID;
+
+    
+        public static int Generate()
+        {
+            int id = Interlocked.Increment(ref nextID);
+            if (id == int.MaxValue)
+                throw new IdOverflowException("ComponentID overflow");
+            
+            return id;
+        }
+    }
+    
+    
     public event Action? Destroying;
     
     /// <summary>

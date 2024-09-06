@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Exceptions;
 
-public class ResourceLeakException : KorpiException
+internal class ResourceLeakException : KorpiException
 {
     public ResourceLeakException(string message) : base(message)
     {

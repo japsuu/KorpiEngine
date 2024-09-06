@@ -96,6 +96,6 @@ internal class GLGraphicsProgram : GraphicsProgram
         
         string msg = $"Error linking shaderProgram '{Handle}'";
         Logger.Error(msg);
-        throw new ProgramLinkException(msg, info);
+        throw new ShaderProgramLinkException(msg, info);
     }
 }
