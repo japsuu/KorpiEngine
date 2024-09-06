@@ -90,7 +90,16 @@ public static partial class AssetManager
             throw new AssetImportException(relativePath, "File does not exist.");
         
         importer ??= GetImporter(assetFile.Extension);
-        AssetInstance? instance = importer.Import(assetFile);
+        AssetInstance? instance;
+
+        try
+        {
+            instance = importer.Import(assetFile);
+        }
+        catch (Exception e)
+        {
+            throw new AssetImportException(relativePath, "The importer failed.", e);
+        }
             
         if (instance == null)
             throw new AssetImportException(relativePath, "The importer failed.");
