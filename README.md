@@ -70,6 +70,12 @@ An example of such a game could be a Minecraft-like voxel game, or a deep-space 
 
 The name "Korpi" is Finnish and means "wilderness" or "forest". It was chosen to reflect the engine's focus on large, open-world games.
 
+Sponza example scene @ ~5ms / frame
+![Screenshot 2024-08-30 111435](https://github.com/user-attachments/assets/99f9a027-7b62-41d4-9eb8-90292b17cebe) Composite frame | ![Screenshot 2024-08-30 111439](https://github.com/user-attachments/assets/5f1177d2-595e-49fa-a621-80ed21499e67) Albedo
+:-:|:-:
+![Screenshot 2024-08-30 111443](https://github.com/user-attachments/assets/83f12cba-7616-4415-be95-56312efbff3b) Normal | ![Screenshot 2024-08-30 111451](https://github.com/user-attachments/assets/b582b0ae-9673-4685-bf55-c4c1688b9021) ObjectID
+![Screenshot 2024-08-30 111455](https://github.com/user-attachments/assets/8acfd40d-d830-4232-8c41-79abcd518510) Depth | ![Screenshot 2024-08-30 111500](https://github.com/user-attachments/assets/2d614ee4-68be-4010-80ae-271e9a24f3cd) Wireframe
+
 ---
 
 # <p align="center">Features / Roadmap</p>
