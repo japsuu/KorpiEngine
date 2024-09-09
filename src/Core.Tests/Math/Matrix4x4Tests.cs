@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using KorpiEngine.Mathematics;
 
-namespace KorpiEngine.Math.Tests;
+namespace KorpiEngine.Core.Tests.Math;
 
 public class Matrix4x4Tests
 {

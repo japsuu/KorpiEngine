@@ -5,7 +5,7 @@
 using System.Runtime.InteropServices;
 using KorpiEngine.Mathematics;
 
-namespace KorpiEngine.Math.Tests;
+namespace KorpiEngine.Core.Tests.Math;
 
 public class Vector3Tests
 {

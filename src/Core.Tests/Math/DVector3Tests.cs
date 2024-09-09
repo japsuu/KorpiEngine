@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.Mathematics;
 
-namespace KorpiEngine.Math.Tests;
+namespace KorpiEngine.Core.Tests.Math;
 
 public class DVector3Tests
 {

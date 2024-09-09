@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using KorpiEngine.Mathematics;
 
-namespace KorpiEngine.Math.Tests;
+namespace KorpiEngine.Core.Tests.Math;
 
 [TestFixture]
 public static class RayTests
