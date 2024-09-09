@@ -6,7 +6,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 public partial struct Triangle : ITransformable3D<Triangle>, IPoints, IMappable<Triangle, Vector3>
 {

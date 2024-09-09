@@ -3,7 +3,7 @@
 // Copyright (C) 2019 Ara 3D. Inc
 // https://ara3d.com
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 public static class StatelessRandom
 {

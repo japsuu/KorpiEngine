@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.Common;
+﻿using KorpiEngine.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
 namespace KorpiEngine.Rendering;

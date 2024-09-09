@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 using InvalidOperationException = System.InvalidOperationException;
 
@@ -272,8 +273,8 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
             int bi = indices[i + 1];
             int ci = indices[i + 2];
 
-            Vector3 n = MathOps.Normalize(
-                MathOps.Cross(
+            Vector3 n = Mathematics.MathOps.Normalize(
+                Mathematics.MathOps.Cross(
                     vertices[bi] - vertices[ai],
                     vertices[ci] - vertices[ai]
                 ));
@@ -284,7 +285,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
         }
 
         for (int i = 0; i < vertices.Length; i++)
-            normals[i] = MathOps.Normalize(normals[i]);
+            normals[i] = Mathematics.MathOps.Normalize(normals[i]);
 
         SetVertexNormals(normals);
     }
@@ -334,7 +335,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
         }
 
         for (int i = 0; i < vertices.Length; i++)
-            tangents[i] = MathOps.Normalize(tangents[i]);
+            tangents[i] = Mathematics.MathOps.Normalize(tangents[i]);
 
         SetVertexTangents(tangents);
     }
@@ -884,7 +885,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
     {
         Vector3[] normals = new Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
-            normals[n] = MathOps.Normalize(vertices[n]);
+            normals[n] = Mathematics.MathOps.Normalize(vertices[n]);
         return normals;
     }
 
@@ -940,10 +941,10 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
         for (int i = 0; i < vertices.Length; i++)
         {
             Vector3 v = vertices[i];
-            if (MathOps.AlmostZero(v.X) && MathOps.AlmostZero(v.Z))
+            if (Mathematics.MathOps.AlmostZero(v.X) && Mathematics.MathOps.AlmostZero(v.Z))
                 tangents[i] = new Vector3(1, 0, 0);
             else
-                tangents[i] = MathOps.Normalize(new Vector3(v.Z, 0, -v.X));
+                tangents[i] = Mathematics.MathOps.Normalize(new Vector3(v.Z, 0, -v.X));
         }
 
         return tangents;

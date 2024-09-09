@@ -9,7 +9,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 public partial struct Ray : ITransformable3D<Ray>
 {

@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Entities;
+﻿using KorpiEngine.Mathematics;
+
+namespace KorpiEngine.Entities;
 
 public class Transform
 {
@@ -263,7 +265,7 @@ public class Transform
     private void RotateAroundInternal(Vector3 worldAxis, float rad)
     {
         Vector3 localAxis = InverseTransformDirection(worldAxis);
-        if (localAxis.MagnitudeSquared() > MathOps.EPSILON_FLOAT)
+        if (localAxis.MagnitudeSquared() > Mathematics.MathOps.EPSILON_FLOAT)
         {
             localAxis.Normalize();
             Quaternion q = Quaternion.CreateFromAxisAngle(localAxis, rad);
@@ -442,6 +444,6 @@ public class Transform
     private static float MakeSafe(float v) => double.IsNaN(v) ? 0 : v;
     private static Vector3 MakeSafe(Vector3 v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z));
     private static Quaternion MakeSafe(Quaternion v) => new(MakeSafe(v.X), MakeSafe(v.Y), MakeSafe(v.Z), MakeSafe(v.W));
-    private static float InverseSafe(float f) => Math.Abs(f) > MathOps.EPSILON_FLOAT ? 1.0F / f : 0.0F;
+    private static float InverseSafe(float f) => Math.Abs(f) > Mathematics.MathOps.EPSILON_FLOAT ? 1.0F / f : 0.0F;
     private static Vector3 InverseSafe(Vector3 v) => new(InverseSafe(v.X), InverseSafe(v.Y), InverseSafe(v.Z));
 }

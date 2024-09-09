@@ -3,6 +3,7 @@ using ImGuiNET;
 using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
 using KorpiEngine.Input;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 
 namespace KorpiEngine.UI.DearImGui;

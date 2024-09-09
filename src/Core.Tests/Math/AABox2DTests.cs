@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Math.Tests;
+﻿using KorpiEngine.Mathematics;
+
+namespace KorpiEngine.Math.Tests;
 
 [TestFixture]
 public static class AABox2DTests

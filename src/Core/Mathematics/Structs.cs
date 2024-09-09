@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
-namespace KorpiEngine
+namespace KorpiEngine.Mathematics
 {
     [StructLayout(LayoutKind.Sequential, Pack=4)]
     [DataContract]

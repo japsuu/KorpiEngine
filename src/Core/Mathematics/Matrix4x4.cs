@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 /// <summary>
 /// A structure encapsulating a 4x4 matrix.

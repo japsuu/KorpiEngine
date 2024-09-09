@@ -1,11 +1,14 @@
 ﻿using Assimp;
 using KorpiEngine.Animations;
 using KorpiEngine.Entities;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.Utils;
 using Animation = KorpiEngine.Animations.Animation;
 using Material = KorpiEngine.Rendering.Material;
+using Matrix4x4 = KorpiEngine.Mathematics.Matrix4x4;
 using Mesh = KorpiEngine.Rendering.Mesh;
+using Quaternion = KorpiEngine.Mathematics.Quaternion;
 using Texture2D = KorpiEngine.Rendering.Texture2D;
 using TextureType = Assimp.TextureType;
 
@@ -109,7 +112,7 @@ public class ModelImporter : AssetImporter
         }
 
         Entity rootEntity = entityHierarchy[0].entity;
-        if (!MathOps.AlmostEquals(UnitScale, 1.0f))
+        if (!Mathematics.MathOps.AlmostEquals(UnitScale, 1.0f))
             rootEntity.Transform.LocalScale = Vector3.One * UnitScale;
 
         // Add Animation Component to root, with all the animations assigned to it.
@@ -378,7 +381,7 @@ public class ModelImporter : AssetImporter
         // Create Animation
         AnimationClip destinationAnim = new();
         destinationAnim.Name = sourceAnim.Name;
-        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
+        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (Mathematics.MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
         destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
         destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
 
@@ -611,7 +614,7 @@ public class ModelImporter : AssetImporter
             Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
-            if (MathOps.AlmostZero(totalWeight))
+            if (Mathematics.MathOps.AlmostZero(totalWeight))
                 continue;
                     
             w /= totalWeight;

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine;
+﻿namespace KorpiEngine.Mathematics;
 
 public interface IMappable<TContainer, TPart>
 {

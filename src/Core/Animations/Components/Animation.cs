@@ -1,5 +1,6 @@
 ﻿using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.Animations;
@@ -87,11 +88,11 @@ public class Animation : EntityComponent
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation = MathOps.Slerp(rotation, rot.Value, (float)normalizedWeight);
+                rotation = Mathematics.MathOps.Slerp(rotation, rot.Value, (float)normalizedWeight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = MathOps.Lerp(scale, scl.Value, (float)normalizedWeight);
+                scale = Mathematics.MathOps.Lerp(scale, scl.Value, (float)normalizedWeight);
         }
     }
 
@@ -106,11 +107,11 @@ public class Animation : EntityComponent
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation *= MathOps.Slerp(Quaternion.Identity, rot.Value, (float)state.Weight);
+                rotation *= Mathematics.MathOps.Slerp(Quaternion.Identity, rot.Value, (float)state.Weight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = MathOps.Lerp(scale, scale * scl.Value, (float)state.Weight);
+                scale = Mathematics.MathOps.Lerp(scale, scale * scl.Value, (float)state.Weight);
         }
     }
 

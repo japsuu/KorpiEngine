@@ -9,7 +9,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 /// <summary>
 /// A structure encapsulating a 3D Plane

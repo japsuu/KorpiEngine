@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Math.Tests;
+﻿using KorpiEngine.Mathematics;
+
+namespace KorpiEngine.Math.Tests;
 
 public class DVector3Tests
 {
@@ -12,7 +14,7 @@ public class DVector3Tests
         var expected = new DVector3(0.0d, 0.0d, 1.0d);
         DVector3 actual;
 
-        actual = MathOps.Cross(a, b);
+        actual = Mathematics.MathOps.Cross(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Cross did not return the expected value.");
     }
 }

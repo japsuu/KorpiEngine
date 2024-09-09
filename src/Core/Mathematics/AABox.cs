@@ -8,7 +8,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 public partial struct AABox : ITransformable3D<AABox>
 {

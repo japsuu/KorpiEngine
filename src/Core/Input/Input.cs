@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Rendering;
+﻿using KorpiEngine.Mathematics;
+using KorpiEngine.Rendering;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KorpiEngine.Input;

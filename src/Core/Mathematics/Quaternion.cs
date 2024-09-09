@@ -9,7 +9,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 /// <summary>
 /// A structure encapsulating a four-dimensional vector (x,y,z,w), 
@@ -295,7 +295,7 @@ public partial struct Quaternion
         Vector3 axis = fromA.Cross(toB);
         float lengthSquared = axis.LengthSquared();
         if (lengthSquared > 0.0f)
-            return CreateFromAxisAngle(axis / (float)Math.Sqrt(lengthSquared), (float)Math.Acos(MathOps.Clamp(fromA.Dot(toB), -1, 1)));
+            return CreateFromAxisAngle(axis / (float)Math.Sqrt(lengthSquared), (float)Math.Acos(KorpiEngine.MathOps.Clamp(fromA.Dot(toB), -1, 1)));
 
         // The vectors are parallel to each other
         if ((fromA + toB).AlmostZero())

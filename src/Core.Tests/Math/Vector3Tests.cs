@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Runtime.InteropServices;
+using KorpiEngine.Mathematics;
 
 namespace KorpiEngine.Math.Tests;
 
@@ -50,7 +51,7 @@ public class Vector3Tests
         var expected = new Vector3(0.0f, 0.0f, 1.0f);
         Vector3 actual;
 
-        actual = MathOps.Cross(a, b);
+        actual = Mathematics.MathOps.Cross(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Cross did not return the expected value.");
     }
 
@@ -63,7 +64,7 @@ public class Vector3Tests
         var b = new Vector3(0.0f, 1.0f, 0.0f);
 
         var expected = new Vector3(0.0f, 0.0f, 0.0f);
-        var actual = MathOps.Cross(a, b);
+        var actual = Mathematics.MathOps.Cross(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Cross did not return the expected value.");
     }
 
@@ -77,7 +78,7 @@ public class Vector3Tests
         var expected = (float)System.Math.Sqrt(27);
         float actual;
 
-        actual = MathOps.Distance(a, b);
+        actual = Mathematics.MathOps.Distance(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Distance did not return the expected value.");
     }
 
@@ -89,7 +90,7 @@ public class Vector3Tests
         var a = new Vector3(1.051f, 2.05f, 3.478f);
         var b = new Vector3(1.051f, 2.05f, 3.478f);
 
-        var actual = MathOps.Distance(a, b);
+        var actual = Mathematics.MathOps.Distance(a, b);
         Assert.AreEqual(0.0f, actual);
     }
 
@@ -103,7 +104,7 @@ public class Vector3Tests
         var expected = 27.0f;
         float actual;
 
-        actual = MathOps.DistanceSquared(a, b);
+        actual = Mathematics.MathOps.DistanceSquared(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.DistanceSquared did not return the expected value.");
     }
 
@@ -117,7 +118,7 @@ public class Vector3Tests
         var expected = 32.0f;
         float actual;
 
-        actual = MathOps.Dot(a, b);
+        actual = Mathematics.MathOps.Dot(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Dot did not return the expected value.");
     }
 
@@ -128,11 +129,11 @@ public class Vector3Tests
     {
         var a = new Vector3(1.55f, 1.55f, 1);
         var b = new Vector3(2.5f, 3, 1.5f);
-        var c = MathOps.Cross(a, b);
+        var c = Mathematics.MathOps.Cross(a, b);
 
         var expected = 0.0f;
-        var actual1 = MathOps.Dot(a, c);
-        var actual2 = MathOps.Dot(b, c);
+        var actual1 = Mathematics.MathOps.Dot(a, c);
+        var actual2 = Mathematics.MathOps.Dot(b, c);
         Assert.True(MathHelper.Equal(expected, actual1), "Vector3f.Dot did not return the expected value.");
         Assert.True(MathHelper.Equal(expected, actual2), "Vector3f.Dot did not return the expected value.");
     }
@@ -192,7 +193,7 @@ public class Vector3Tests
 
         var expected = new Vector3(-1.0f, 1.0f, -3.0f);
         Vector3 actual;
-        actual = MathOps.Min(a, b);
+        actual = Mathematics.MathOps.Min(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Min did not return the expected value.");
     }
 
@@ -205,7 +206,7 @@ public class Vector3Tests
 
         var expected = new Vector3(2.0f, 4.0f, -1.0f);
         Vector3 actual;
-        actual = MathOps.Max(a, b);
+        actual = Mathematics.MathOps.Max(a, b);
         Assert.True(MathHelper.Equal(expected, actual), "MathOps.Max did not return the expected value.");
     }
 
@@ -217,17 +218,17 @@ public class Vector3Tests
         Vector3 actual;
 
         // Min.
-        actual = MathOps.Min(min, max);
+        actual = Mathematics.MathOps.Min(min, max);
         Assert.AreEqual(actual, min);
 
-        actual = MathOps.Min(max, min);
+        actual = Mathematics.MathOps.Min(max, min);
         Assert.AreEqual(actual, min);
 
         // Max.
-        actual = MathOps.Max(min, max);
+        actual = Mathematics.MathOps.Max(min, max);
         Assert.AreEqual(actual, max);
 
-        actual = MathOps.Max(max, min);
+        actual = Mathematics.MathOps.Max(max, min);
         Assert.AreEqual(actual, max);
     }
 
@@ -243,7 +244,7 @@ public class Vector3Tests
         var expected = new Vector3(2.5f, 3.5f, 4.5f);
         Vector3 actual;
 
-        actual = MathOps.Lerp(a, b, t);
+        actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -257,7 +258,7 @@ public class Vector3Tests
 
         var t = 0.0f;
         var expected = new Vector3(1.0f, 2.0f, 3.0f);
-        var actual = MathOps.Lerp(a, b, t);
+        var actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -271,7 +272,7 @@ public class Vector3Tests
 
         var t = 1.0f;
         var expected = new Vector3(4.0f, 5.0f, 6.0f);
-        var actual = MathOps.Lerp(a, b, t);
+        var actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -285,7 +286,7 @@ public class Vector3Tests
 
         var t = 2.0f;
         var expected = new Vector3(8.0f, 10.0f, 12.0f);
-        var actual = MathOps.Lerp(a, b, t);
+        var actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -299,7 +300,7 @@ public class Vector3Tests
 
         var t = -2.0f;
         var expected = new Vector3(-8.0f, -10.0f, -12.0f);
-        var actual = MathOps.Lerp(a, b, t);
+        var actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -313,7 +314,7 @@ public class Vector3Tests
 
         var t = 0.18f;
         var expected = new Vector3(1.68f, 2.34f, 5.43f);
-        var actual = MathOps.Lerp(a, b, t);
+        var actual = Mathematics.MathOps.Lerp(a, b, t);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Lerp did not return the expected value.");
     }
 
@@ -321,24 +322,24 @@ public class Vector3Tests
     [Test]
     public void Vector3ReflectTest()
     {
-        var a = MathOps.Normalize(new Vector3(1.0f, 1.0f, 1.0f));
+        var a = Mathematics.MathOps.Normalize(new Vector3(1.0f, 1.0f, 1.0f));
 
         // Reflect on XZ plane.
         var n = new Vector3(0.0f, 1.0f, 0.0f);
         var expected = new Vector3(a.X, -a.Y, a.Z);
-        var actual = MathOps.Reflect(a, n);
+        var actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
 
         // Reflect on XY plane.
         n = new Vector3(0.0f, 0.0f, 1.0f);
         expected = new Vector3(a.X, a.Y, -a.Z);
-        actual = MathOps.Reflect(a, n);
+        actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
 
         // Reflect on YZ plane.
         n = new Vector3(1.0f, 0.0f, 0.0f);
         expected = new Vector3(-a.X, a.Y, a.Z);
-        actual = MathOps.Reflect(a, n);
+        actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
     }
 
@@ -348,11 +349,11 @@ public class Vector3Tests
     public void Vector3ReflectTest1()
     {
         var n = new Vector3(0.45f, 1.28f, 0.86f);
-        n = MathOps.Normalize(n);
+        n = Mathematics.MathOps.Normalize(n);
         var a = n;
 
         var expected = -n;
-        var actual = MathOps.Reflect(a, n);
+        var actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
     }
 
@@ -362,11 +363,11 @@ public class Vector3Tests
     public void Vector3ReflectTest2()
     {
         var n = new Vector3(0.45f, 1.28f, 0.86f);
-        n = MathOps.Normalize(n);
+        n = Mathematics.MathOps.Normalize(n);
         var a = -n;
 
         var expected = n;
-        var actual = MathOps.Reflect(a, n);
+        var actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
     }
 
@@ -378,10 +379,10 @@ public class Vector3Tests
         var n = new Vector3(0.45f, 1.28f, 0.86f);
         var temp = new Vector3(1.28f, 0.45f, 0.01f);
         // find a perpendicular vector of n
-        var a = MathOps.Cross(temp, n);
+        var a = Mathematics.MathOps.Cross(temp, n);
 
         var expected = a;
-        var actual = MathOps.Reflect(a, n);
+        var actual = Mathematics.MathOps.Reflect(a, n);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Reflect did not return the expected value.");
     }
 
@@ -416,26 +417,26 @@ public class Vector3Tests
         // Normal case.
         // Case N1: specified value is in the range.
         var expected = new Vector3(0.5f, 0.3f, 0.33f);
-        var actual = MathOps.Clamp(a, min, max);
+        var actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // Normal case.
         // Case N2: specified value is bigger than max value.
         a = new Vector3(2.0f, 3.0f, 4.0f);
         expected = max;
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // Case N3: specified value is smaller than max value.
         a = new Vector3(-2.0f, -3.0f, -4.0f);
         expected = min;
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // Case N4: combination case.
         a = new Vector3(-2.0f, 0.5f, 4.0f);
         expected = new Vector3(min.X, a.Y, max.Z);
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // User specified min value is bigger than max value.
@@ -445,20 +446,20 @@ public class Vector3Tests
         // Case W1: specified value is in the range.
         a = new Vector3(0.5f, 0.3f, 0.33f);
         expected = min;
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // Normal case.
         // Case W2: specified value is bigger than max and min value.
         a = new Vector3(2.0f, 3.0f, 4.0f);
         expected = min;
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
 
         // Case W3: specified value is smaller than min and max value.
         a = new Vector3(-2.0f, -3.0f, -4.0f);
         expected = min;
-        actual = MathOps.Clamp(a, min, max);
+        actual = Mathematics.MathOps.Clamp(a, min, max);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Clamp did not return the expected value.");
     }
 
@@ -478,7 +479,7 @@ public class Vector3Tests
         var expected = new Vector3(2.19198728f, 1.53349364f, 2.61602545f);
         Vector3 actual;
 
-        actual = MathOps.TransformNormal(v, m);
+        actual = Mathematics.MathOps.TransformNormal(v, m);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.TransformNormal did not return the expected value.");
     }
 
@@ -508,7 +509,7 @@ public class Vector3Tests
         var q = new Quaternion();
         var expected = v;
 
-        var actual = MathOps.Transform(v, q);
+        var actual = Mathematics.MathOps.Transform(v, q);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Transform did not return the expected value.");
     }
 
@@ -521,7 +522,7 @@ public class Vector3Tests
         var q = Quaternion.Identity;
         var expected = v;
 
-        var actual = MathOps.Transform(v, q);
+        var actual = Mathematics.MathOps.Transform(v, q);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Transform did not return the expected value.");
     }
 
@@ -537,7 +538,7 @@ public class Vector3Tests
             0.80178372573727315405366044263926f);
         Vector3 actual;
 
-        actual = MathOps.Normalize(a);
+        actual = Mathematics.MathOps.Normalize(a);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Normalize did not return the expected value.");
     }
 
@@ -549,7 +550,7 @@ public class Vector3Tests
         var a = new Vector3(1.0f, 0.0f, 0.0f);
 
         var expected = new Vector3(1.0f, 0.0f, 0.0f);
-        var actual = MathOps.Normalize(a);
+        var actual = Mathematics.MathOps.Normalize(a);
         Assert.True(MathHelper.Equal(expected, actual), "Vector3f.Normalize did not return the expected value.");
     }
 
@@ -561,7 +562,7 @@ public class Vector3Tests
         var a = new Vector3(0.0f, 0.0f, 0.0f);
 
         var expected = new Vector3(0.0f, 0.0f, 0.0f);
-        var actual = MathOps.Normalize(a);
+        var actual = Mathematics.MathOps.Normalize(a);
         Assert.True(float.IsNaN(actual.X) && float.IsNaN(actual.Y) && float.IsNaN(actual.Z), "Vector3f.Normalize did not return the expected value.");
     }
 
@@ -792,7 +793,7 @@ public class Vector3Tests
         var expected = new Vector3(6.0f, 8.0f, 10.0f);
         Vector3 actual;
 
-        actual = MathOps.Add(a, b);
+        actual = Mathematics.MathOps.Add(a, b);
         Assert.AreEqual(expected, actual);
     }
 
@@ -816,7 +817,7 @@ public class Vector3Tests
         var expected = new Vector3(1.0f / 5.0f, 6.0f / 2.0f, 7.0f / 3.0f);
         Vector3 actual;
 
-        actual = MathOps.Divide(a, b);
+        actual = Mathematics.MathOps.Divide(a, b);
         Assert.AreEqual(expected, actual);
     }
 
@@ -884,7 +885,7 @@ public class Vector3Tests
         var expected = new Vector3(5.0f, 12.0f, 21.0f);
         Vector3 actual;
 
-        actual = MathOps.Multiply(a, b);
+        actual = Mathematics.MathOps.Multiply(a, b);
         Assert.AreEqual(expected, actual);
     }
 
@@ -897,7 +898,7 @@ public class Vector3Tests
         var expected = new Vector3(-1.0f, -2.0f, -3.0f);
         Vector3 actual;
 
-        actual = MathOps.Negate(a);
+        actual = Mathematics.MathOps.Negate(a);
         Assert.AreEqual(expected, actual);
     }
 
@@ -949,7 +950,7 @@ public class Vector3Tests
         var expected = new Vector3(-4.0f, 4.0f, 0.0f);
         Vector3 actual;
 
-        actual = MathOps.Subtract(a, b);
+        actual = Mathematics.MathOps.Subtract(a, b);
         Assert.AreEqual(expected, actual);
     }
 
@@ -1058,8 +1059,8 @@ public class Vector3Tests
     public void Vector3AbsTest()
     {
         var v1 = new Vector3(-2.5f, 2.0f, 0.5f);
-        var v3 = MathOps.Abs(new Vector3(0.0f, float.NegativeInfinity, float.NaN));
-        var v = MathOps.Abs(v1);
+        var v3 = Mathematics.MathOps.Abs(new Vector3(0.0f, float.NegativeInfinity, float.NaN));
+        var v = Mathematics.MathOps.Abs(v1);
         Assert.AreEqual(2.5f, v.X);
         Assert.AreEqual(2.0f, v.Y);
         Assert.AreEqual(0.5f, v.Z);
@@ -1073,10 +1074,10 @@ public class Vector3Tests
     {
         var a = new Vector3(-2.5f, 2.0f, 0.5f);
         var b = new Vector3(5.5f, 4.5f, 16.5f);
-        Assert.AreEqual(2, (int)MathOps.SquareRoot(b).X);
-        Assert.AreEqual(2, (int)MathOps.SquareRoot(b).Y);
-        Assert.AreEqual(4, (int)MathOps.SquareRoot(b).Z);
-        Assert.AreEqual(float.NaN, MathOps.SquareRoot(a).X);
+        Assert.AreEqual(2, (int)Mathematics.MathOps.SquareRoot(b).X);
+        Assert.AreEqual(2, (int)Mathematics.MathOps.SquareRoot(b).Y);
+        Assert.AreEqual(4, (int)Mathematics.MathOps.SquareRoot(b).Z);
+        Assert.AreEqual(float.NaN, Mathematics.MathOps.SquareRoot(a).X);
     }
 
     [StructLayout(LayoutKind.Sequential)]

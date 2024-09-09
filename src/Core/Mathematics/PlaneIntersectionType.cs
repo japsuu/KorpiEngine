@@ -7,25 +7,25 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 /// <summary>
-/// Defines how the bounding volumes intersect or contain one another.
+/// Defines the intersection between a Plane and a bounding volume.
 /// </summary>
-public enum ContainmentType
+public enum PlaneIntersectionType
 {
     /// <summary>
-    /// Indicates that there is no overlap between two bounding volumes.
+    /// There is no intersection, the bounding volume is in the negative half space of the plane.
     /// </summary>
-    Disjoint,
+    Front,
 
     /// <summary>
-    /// Indicates that one bounding volume completely contains another volume.
+    /// There is no intersection, the bounding volume is in the positive half space of the plane.
     /// </summary>
-    Contains,
+    Back,
 
     /// <summary>
-    /// Indicates that bounding volumes partially overlap one another.
+    /// The plane is intersected.
     /// </summary>
-    Intersects
+    Intersecting
 }

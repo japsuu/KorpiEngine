@@ -10,7 +10,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine;
+namespace KorpiEngine.Mathematics;
 
 using IMPL = MethodImplAttribute;
 
@@ -124,7 +124,7 @@ public static partial class MathOps
     /// clamping the amount to 0 to 1
     /// </summary>
     [IMPL(INLINE)]
-    public static float SmoothStep(this float value1, float value2, float amount) => Hermite(value1, 0f, value2, 0f, Clamp(amount, 0f, 1f));
+    public static float SmoothStep(this float value1, float value2, float amount) => Hermite(value1, 0f, value2, 0f, KorpiEngine.MathOps.Clamp(amount, 0f, 1f));
 
 
     /// <summary>

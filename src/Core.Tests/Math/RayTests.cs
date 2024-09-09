@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using KorpiEngine.Mathematics;
 
 namespace KorpiEngine.Math.Tests;
 

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine;
+﻿namespace KorpiEngine.Mathematics;
 
 public interface ITransformable3D<out TSelf>
 {

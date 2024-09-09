@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace KorpiEngine
+namespace KorpiEngine.Mathematics
 {
     public static partial class MathOps
     {
