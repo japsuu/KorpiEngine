@@ -73,8 +73,20 @@ public static class SharedRandom
         }
     }
 
-    /// <summary> Returns a random point inside the unit circle </summary>
-    public static Vector2 InUnitCircle => OnUnitCircle * ValueFloat;
+    /// <summary> Returns a random point inside the unit circle, using rejection sampling </summary>
+    public static Vector2 InUnitCircle
+    {
+        get
+        {
+            while (true)
+            {
+                float x = ValueFloat * 2 - 1;
+                float y = ValueFloat * 2 - 1;
+                if (x * x + y * y < 1)
+                    return new Vector2(x, y);
+            }
+        }
+    }
 
     /// <summary> Returns a random point inside the unit square [0-1] </summary>
     public static Vector2 InUnitSquare => new(ValueFloat, ValueFloat);
