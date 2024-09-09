@@ -3,15 +3,41 @@
     {
       "src": [
         {
-          "src": "../src",
+          "src": "../src/Core",
           "files": [
             "**/*.csproj"
           ]
         }
       ],
-      "dest": "api",
-	  "memberLayout": "separatePages",
-	  "namespaceLayout": "nested"
+      "dest": "api/Core",
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage"
+    },
+    {
+      "src": [
+        {
+          "src": "../src/Math",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api/Math",
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage"
+    },
+    {
+      "src": [
+        {
+          "src": "../src/Networking",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api/Networking",
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage"
     }
   ],
   "build": {
@@ -42,11 +68,13 @@
     ],
     "globalMetadata": {
       "_appName": "KorpiEngine",
+      "_appFooter": "Made with <3",
       "_appTitle": "KorpiEngine",
       "_appLogoPath": "media/logo_64x64.png",
       "_appFaviconPath": "media/favicon.ico",
       "_enableSearch": true,
-      "pdf": false
+      "pdf": false,
+      "_disableBreadcrumb": true
     },
     "sitemap":{
       "baseUrl": "https://japsuu.github.io/KorpiEngine",

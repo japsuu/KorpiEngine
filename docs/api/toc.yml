@@ -1,0 +1,6 @@
+- name: Core
+  href: Core/toc.yml
+- name: Math
+  href: Math/toc.yml
+- name: Networking
+  href: Networking/toc.yml
