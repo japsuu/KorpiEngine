@@ -1,13 +1,9 @@
 using System.Runtime.CompilerServices;
 using KorpiEngine.Networking.Multiplayer.HighLevel;
 using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers;
 using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 public class LiteNetLibTransport : Transport
 {

@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports;
+using KorpiEngine.Networking.Multiplayer.LowLevel;
 using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Networking.Multiplayer;

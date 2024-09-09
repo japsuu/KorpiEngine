@@ -22,7 +22,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Buffers;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 public abstract class ArrayPool<T>
 {

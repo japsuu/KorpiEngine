@@ -1,4 +1,4 @@
-using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.Multiplayer.LowLevel;
 
 namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
 

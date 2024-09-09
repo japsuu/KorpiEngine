@@ -3,10 +3,8 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using KorpiEngine.Networking.Multiplayer.HighLevel;
 using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 internal class ServerSocket : CommonSocket
 {

@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public sealed class Crc32cLayer : PacketLayerBase
     {

@@ -22,7 +22,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 public struct QuantizedVector2
 {

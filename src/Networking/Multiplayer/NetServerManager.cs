@@ -2,11 +2,7 @@
 using KorpiEngine.Networking.Multiplayer.HighLevel.Authentication;
 using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
 using KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
-using KorpiEngine.Networking.Multiplayer.HighLevel.Messages.Handlers;
 using KorpiEngine.Networking.Multiplayer.LowLevel;
-using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
 using KorpiEngine.Networking.Utility;
 using KorpiEngine.Tools.Logging;
 

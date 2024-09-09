@@ -26,7 +26,7 @@ using System.Runtime.CompilerServices;
 	using UnityEngine.Assertions;
 #endif
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Buffers;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 internal static class Utilities
 {

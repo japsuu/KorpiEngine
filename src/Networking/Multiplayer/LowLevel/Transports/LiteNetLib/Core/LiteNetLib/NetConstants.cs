@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     /// <summary>
     /// Sending method type

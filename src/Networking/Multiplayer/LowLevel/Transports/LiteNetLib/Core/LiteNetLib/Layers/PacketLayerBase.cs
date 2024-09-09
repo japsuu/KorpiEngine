@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public abstract class PacketLayerBase
     {

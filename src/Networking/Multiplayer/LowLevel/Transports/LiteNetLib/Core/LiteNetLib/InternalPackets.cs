@@ -1,7 +1,6 @@
 using System.Net;
-using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
    internal sealed class NetConnectRequestPacket
     {

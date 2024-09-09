@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.Networking.Multiplayer.HighLevel;
 
-namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 /// <summary>
 /// Container about data received on the server.

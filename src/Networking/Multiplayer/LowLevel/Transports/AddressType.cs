@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports;
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 /// <summary>
 /// The type of an address.
