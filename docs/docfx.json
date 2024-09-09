@@ -16,19 +16,6 @@
     {
       "src": [
         {
-          "src": "../src/Math",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "dest": "api/Math",
-      "namespaceLayout": "flattened",
-      "memberLayout": "samePage"
-    },
-    {
-      "src": [
-        {
           "src": "../src/Networking",
           "files": [
             "**/*.csproj"
