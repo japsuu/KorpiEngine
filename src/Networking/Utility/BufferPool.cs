@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
+﻿using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
 
-namespace KorpiEngine.Utility;
+namespace KorpiEngine.Networking.Utility;
 
 /// <summary>
 /// One-time allocation pool of <see cref="bitBuffer"/>s.

@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
 {
     public readonly ref struct PooledPacket
     {

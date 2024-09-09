@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers
+namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Layers
 {
     public class XorEncryptLayer : PacketLayerBase
     {

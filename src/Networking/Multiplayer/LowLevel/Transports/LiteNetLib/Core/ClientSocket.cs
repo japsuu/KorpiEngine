@@ -1,11 +1,11 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using KorpiEngine.Multiplayer.HighLevel;
-using KorpiEngine.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
-using KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
+using KorpiEngine.Networking.Multiplayer.HighLevel;
+using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.EventArgs;
+using KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
 
 internal class ClientSocket : CommonSocket
 {

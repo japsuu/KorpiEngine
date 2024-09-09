@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Multiplayer.LowLevel;
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 /// <summary>
 /// Represents the type of data being sent or received.

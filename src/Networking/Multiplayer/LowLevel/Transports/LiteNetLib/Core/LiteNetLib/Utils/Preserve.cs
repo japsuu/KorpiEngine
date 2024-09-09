@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils
 {
     /// <summary>
     ///   <para>PreserveAttribute prevents byte code stripping from removing a class, method, field, or property.</para>

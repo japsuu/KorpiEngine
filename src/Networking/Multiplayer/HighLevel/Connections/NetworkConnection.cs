@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Multiplayer.HighLevel.Connections;
+namespace KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
 
 /// <summary>
 /// A container for a connected client used to perform actions on and gather information for the declared client.

@@ -22,7 +22,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Threading;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Threading;
 
 [StructLayout(LayoutKind.Explicit, Size = 192)]
 public sealed class ConcurrentBuffer

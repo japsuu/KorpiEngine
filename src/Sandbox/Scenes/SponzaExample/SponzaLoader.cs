@@ -2,6 +2,7 @@
 using KorpiEngine;
 using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
+using KorpiEngine.Networking;
 
 namespace Sandbox.Scenes.SponzaExample;
 

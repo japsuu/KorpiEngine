@@ -22,7 +22,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Unsafe;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Unsafe;
 #if NET_4_6 || NET_STANDARD_2_0
 public static class Memory
 {

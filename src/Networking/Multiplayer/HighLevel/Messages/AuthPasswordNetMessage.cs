@@ -1,6 +1,6 @@
-using KorpiEngine.Multiplayer.LowLevel.NetStack.Serialization;
+using KorpiEngine.Networking.Multiplayer.LowLevel.NetStack.Serialization;
 
-namespace KorpiEngine.Multiplayer.HighLevel.Messages;
+namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
 
 /// <summary>
 /// Sent by the client to the server to authenticate with a password.
