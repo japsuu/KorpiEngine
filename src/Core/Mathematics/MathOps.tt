@@ -57,13 +57,13 @@ foreach (var t in floatTypes) {
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> Ceiling (this <#= t #> x) => (<#= t #>)Math.Ceiling(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> Floor (this <#= t #> x) => (<#= t #>)Math.Floor(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> Round (this <#= t #> x) => (<#= t #>)System.Math.Round(x);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> ToRadians(this <#= t #> x) => (<#= t #>)(x * Constants.DegreesToRadians);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> ToDegrees(this <#= t #> x) => (<#= t #>)(x * Constants.RadiansToDegrees);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> ToRadians(this <#= t #> x) => (<#= t #>)(x * Constants.DEGREES_TO_RADIANS);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> ToDegrees(this <#= t #> x) => (<#= t #>)(x * Constants.RADIANS_TO_DEGREES);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> Distance(this <#= t #> v1, <#= t #> v2) => (v1 - v2).Abs();
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsInfinity(this <#= t #> v) => <#= t #>.IsInfinity(v);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsNaN(this <#= t #> v) => <#= t #>.IsNaN(v);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this <#= t #> v1, <#= t #> v2, float tolerance = Constants.Tolerance) => (v2 - v1).AlmostZero(tolerance);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this <#= t #> v, float tolerance = Constants.Tolerance) => v.Abs() < tolerance;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this <#= t #> v1, <#= t #> v2, float tolerance = Constants.TOLERANCE) => (v2 - v1).AlmostZero(tolerance);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this <#= t #> v, float tolerance = Constants.TOLERANCE) => v.Abs() < tolerance;
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static <#= t #> Smoothstep(this <#= t #> v) => v * v * (3 - 2 * v);
 <# } #>
 

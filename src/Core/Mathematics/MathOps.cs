@@ -48,13 +48,13 @@ namespace KorpiEngine.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Ceiling (this float x) => (float)Math.Ceiling(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Floor (this float x) => (float)Math.Floor(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Round (this float x) => (float)System.Math.Round(x);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ToRadians(this float x) => (float)(x * Constants.DegreesToRadians);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ToDegrees(this float x) => (float)(x * Constants.RadiansToDegrees);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ToRadians(this float x) => (float)(x * Constants.DEGREES_TO_RADIANS);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ToDegrees(this float x) => (float)(x * Constants.RADIANS_TO_DEGREES);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Distance(this float v1, float v2) => (v1 - v2).Abs();
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsInfinity(this float v) => float.IsInfinity(v);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsNaN(this float v) => float.IsNaN(v);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this float v1, float v2, float tolerance = Constants.Tolerance) => (v2 - v1).AlmostZero(tolerance);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this float v, float tolerance = Constants.Tolerance) => v.Abs() < tolerance;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this float v1, float v2, float tolerance = Constants.TOLERANCE) => (v2 - v1).AlmostZero(tolerance);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this float v, float tolerance = Constants.TOLERANCE) => v.Abs() < tolerance;
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Smoothstep(this float v) => v * v * (3 - 2 * v);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static int Sign(this double x) => x > 0 ? 1 : x < 0 ? -1 : 0;
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Magnitude(this double x) => x;
@@ -64,13 +64,13 @@ namespace KorpiEngine.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Ceiling (this double x) => (double)Math.Ceiling(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Floor (this double x) => (double)Math.Floor(x);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Round (this double x) => (double)System.Math.Round(x);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double ToRadians(this double x) => (double)(x * Constants.DegreesToRadians);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double ToDegrees(this double x) => (double)(x * Constants.RadiansToDegrees);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double ToRadians(this double x) => (double)(x * Constants.DEGREES_TO_RADIANS);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double ToDegrees(this double x) => (double)(x * Constants.RADIANS_TO_DEGREES);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Distance(this double v1, double v2) => (v1 - v2).Abs();
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsInfinity(this double v) => double.IsInfinity(v);
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsNaN(this double v) => double.IsNaN(v);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this double v1, double v2, float tolerance = Constants.Tolerance) => (v2 - v1).AlmostZero(tolerance);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this double v, float tolerance = Constants.Tolerance) => v.Abs() < tolerance;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostEquals(this double v1, double v2, float tolerance = Constants.TOLERANCE) => (v2 - v1).AlmostZero(tolerance);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool AlmostZero(this double v, float tolerance = Constants.TOLERANCE) => v.Abs() < tolerance;
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static double Smoothstep(this double v) => v * v * (3 - 2 * v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static int Add (this int v1, int v2) => v1 + v2;
