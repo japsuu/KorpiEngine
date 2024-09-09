@@ -1,8 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     /// <summary>
     /// Type of message that you receive in OnNetworkReceiveUnconnected event

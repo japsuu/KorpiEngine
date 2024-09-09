@@ -1,4 +1,5 @@
-﻿using Debug = KorpiEngine.Tools.Debug;
+﻿using KorpiEngine.Mathematics;
+using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Rendering;
 

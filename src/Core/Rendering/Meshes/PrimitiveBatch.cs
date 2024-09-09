@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Rendering;
+﻿using KorpiEngine.Mathematics;
+
+namespace KorpiEngine.Rendering;
 
 public class PrimitiveBatch
 {

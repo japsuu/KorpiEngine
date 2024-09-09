@@ -1,8 +1,8 @@
-﻿using KorpiEngine.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Multiplayer.LowLevel.Transports;
+﻿using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Networking.Multiplayer.LowLevel;
 using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Multiplayer;
+namespace KorpiEngine.Networking.Multiplayer;
 
 public class NetworkManager
 {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public static class FastBitConverter
     {

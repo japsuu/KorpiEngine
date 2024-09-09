@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public class InvalidPacketException : ArgumentException
     {

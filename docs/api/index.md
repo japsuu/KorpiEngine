@@ -1,6 +1,6 @@
 ﻿# KorpiEngine Scripting API Reference
 
-> [!INFO]
+> [!NOTE]
 > Use the sidebar to navigate the manual.
 
 Welcome to the Scripting API Reference pages.

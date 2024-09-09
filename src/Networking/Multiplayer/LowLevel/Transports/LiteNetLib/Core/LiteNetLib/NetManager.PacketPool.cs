@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+﻿namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public partial class NetManager
     {

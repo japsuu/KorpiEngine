@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 public struct QuantizedQuaternion
 {

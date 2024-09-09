@@ -6,4 +6,5 @@
 _site
 api/*
 !api/index.md
+!api/toc.yml
 log.txt

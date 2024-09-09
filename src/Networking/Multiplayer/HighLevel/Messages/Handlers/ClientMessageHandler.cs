@@ -1,6 +1,6 @@
-using KorpiEngine.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
 
-namespace KorpiEngine.Multiplayer.HighLevel.Messages.Handlers;
+namespace KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
 
 /// <summary>
 /// Handles packets received on server, from clients.

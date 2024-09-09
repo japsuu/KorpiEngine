@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public class NetPacketProcessor
     {

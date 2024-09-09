@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;

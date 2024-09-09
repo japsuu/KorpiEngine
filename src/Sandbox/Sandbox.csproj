@@ -29,7 +29,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj"/>
-        <ProjectReference Include="..\Math\Math.csproj" />
         <ProjectReference Include="..\Networking\Networking.csproj"/>
     </ItemGroup>
 

@@ -1,8 +1,9 @@
 ﻿using KorpiEngine;
 using KorpiEngine.Entities;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
-using Random = KorpiEngine.SharedRandom;
+using Random = KorpiEngine.Mathematics.SharedRandom;
 
 namespace Sandbox.Scenes.FullExample;
 

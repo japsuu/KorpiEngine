@@ -1,10 +1,10 @@
-﻿using KorpiEngine.Multiplayer.HighLevel;
-using KorpiEngine.Multiplayer.HighLevel.Messages;
-using KorpiEngine.Multiplayer.LowLevel.Transports;
+﻿using KorpiEngine.Networking.Multiplayer.HighLevel;
+using KorpiEngine.Networking.Multiplayer.HighLevel.Messages;
+using KorpiEngine.Networking.Multiplayer.LowLevel;
+using KorpiEngine.Networking.Utility;
 using KorpiEngine.Tools.Logging;
-using KorpiEngine.Utility;
 
-namespace KorpiEngine.Multiplayer;
+namespace KorpiEngine.Networking.Multiplayer;
 
 public class TransportManager
 {

@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.Entities;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Gizmos;
 
 namespace KorpiEngine.Rendering;
@@ -38,7 +39,7 @@ public class PointLight : EntityComponent
                 _lightMat.SetTexture("_GPositionRoughness", Camera.RenderingCamera.GBuffer.PositionRoughness);
             }
 
-            _lightMat.SetVector("_LightPosition", MathOps.Transform(Entity.Transform.Position - Camera.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
+            _lightMat.SetVector("_LightPosition", Mathematics.MathOps.Transform(Entity.Transform.Position - Camera.RenderingCamera.Entity.Transform.Position, Graphics.ViewMatrix));
             _lightMat.SetColor("_LightColor", Color);
             _lightMat.SetFloat("_LightRadius", Radius);
             _lightMat.SetFloat("_LightIntensity", Intensity);

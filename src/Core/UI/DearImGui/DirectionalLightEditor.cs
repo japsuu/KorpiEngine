@@ -1,5 +1,6 @@
 ﻿#if TOOLS
 using ImGuiNET;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 
 namespace KorpiEngine.UI.DearImGui;

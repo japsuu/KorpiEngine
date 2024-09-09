@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Serialization;
 
 namespace KorpiEngine.Animations;
@@ -66,8 +67,8 @@ public sealed class AnimationClip : AssetInstance, ISerializable
                 Quaternion midQ = (prev + cur) * 0.5f;
                 Quaternion midQFlipped = (prev + -cur) * 0.5f;
 
-                double angle = MathOps.AngleDegrees(prev, midQ);
-                double angleFlipped = MathOps.AngleDegrees(prev, midQFlipped);
+                double angle = Mathematics.MathOps.AngleDegrees(prev, midQ);
+                double angleFlipped = Mathematics.MathOps.AngleDegrees(prev, midQFlipped);
                 Quaternion continuous = angleFlipped < angle ? -cur : cur;
 
                 // Update the keyframe values with the continuous quaternion

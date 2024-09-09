@@ -1,6 +1,6 @@
-﻿using KorpiEngine.Multiplayer.HighLevel;
+﻿using KorpiEngine.Networking.Multiplayer.HighLevel;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 /// <summary>
 /// Container about data received on the local client.

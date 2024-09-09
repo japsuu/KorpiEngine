@@ -23,7 +23,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace KorpiEngine.Multiplayer.LowLevel.NetStack.Quantization;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 public static class HalfPrecision
 {

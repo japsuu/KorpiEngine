@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Rendering;
+﻿using KorpiEngine.Mathematics;
+using KorpiEngine.Rendering;
 
 namespace KorpiEngine.Tools.Gizmos;
 
@@ -9,7 +10,7 @@ public abstract class Gizmo
 
     public Vector3 Pos(Vector3 worldPos)
     {
-        Vector3 transformedPos = MathOps.Transform(worldPos, Matrix);
+        Vector3 transformedPos = Mathematics.MathOps.Transform(worldPos, Matrix);
         return transformedPos;
     }
 

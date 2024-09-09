@@ -1,5 +1,6 @@
 ﻿using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Serialization;
 
 namespace KorpiEngine.Rendering;

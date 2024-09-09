@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;

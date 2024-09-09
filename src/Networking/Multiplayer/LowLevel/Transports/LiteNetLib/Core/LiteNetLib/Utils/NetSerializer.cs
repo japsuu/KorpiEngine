@@ -3,7 +3,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib.Utils
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     public class InvalidTypeException : ArgumentException
     {

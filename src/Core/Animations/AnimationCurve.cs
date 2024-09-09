@@ -125,7 +125,7 @@ public class AnimationCurve : ISerializable
                 // go back on curve from end and target start 
                 // start → end / end → start
                 cycle = GetNumberOfCycle(position);
-                if (MathOps.AlmostEquals(cycle % 2.0, 0)) //if pair
+                if (Mathematics.MathOps.AlmostEquals(cycle % 2.0, 0)) //if pair
                     virtualPos = position - cycle * (last.Position - first.Position);
                 else
                     virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
@@ -164,7 +164,7 @@ public class AnimationCurve : ISerializable
                 // go back on curve from end and target start 
                 // start → end / end → start
                 cycle = GetNumberOfCycle(position);
-                if (MathOps.AlmostEquals(cycle % 2.0, 0)) //if pair
+                if (Mathematics.MathOps.AlmostEquals(cycle % 2.0, 0)) //if pair
                     virtualPos = position - cycle * (last.Position - first.Position);
                 else
                     virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
@@ -434,10 +434,10 @@ public sealed class KeyFrame : IEquatable<KeyFrame>, IComparable<KeyFrame>
         if (Equals(value2, null))
             return Equals(value1, null);
 
-        return MathOps.AlmostEquals(value1.Position, value2.Position)
-               && MathOps.AlmostEquals(value1.Value, value2.Value)
-               && MathOps.AlmostEquals(value1.TangentIn, value2.TangentIn)
-               && MathOps.AlmostEquals(value1.TangentOut, value2.TangentOut)
+        return Mathematics.MathOps.AlmostEquals(value1.Position, value2.Position)
+               && Mathematics.MathOps.AlmostEquals(value1.Value, value2.Value)
+               && Mathematics.MathOps.AlmostEquals(value1.TangentIn, value2.TangentIn)
+               && Mathematics.MathOps.AlmostEquals(value1.TangentOut, value2.TangentOut)
                && value1.Continuity == value2.Continuity;
     }
 
@@ -482,7 +482,7 @@ public class CurveKeyCollection : ICollection<KeyFrame>
             if (index >= _keys.Count)
                 throw new IndexOutOfRangeException("The index is out of range.");
 
-            if (MathOps.AlmostEquals(_keys[index].Position, value.Position))
+            if (Mathematics.MathOps.AlmostEquals(_keys[index].Position, value.Position))
             {
                 _keys[index] = value;
             }

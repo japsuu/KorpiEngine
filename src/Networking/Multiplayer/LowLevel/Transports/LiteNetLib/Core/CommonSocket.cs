@@ -1,11 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using KorpiEngine.Multiplayer.HighLevel;
-using KorpiEngine.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
-using KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib;
-using KorpiEngine.Utility;
+using KorpiEngine.Networking.Multiplayer.HighLevel;
+using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
+using KorpiEngine.Networking.Utility;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 internal abstract class CommonSocket
 {

@@ -44,11 +44,35 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Math\Math.csproj" />
+      <Folder Include="Rendering\Lighting\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Rendering\Lighting\" />
+      <None Update="Math\MathOps.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>MathOps.cs</LastGenOutput>
+      </None>
+      <None Update="Math\Structs.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Structs.cs</LastGenOutput>
+      </None>
+      <None Update="Mathematics\Structs.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Structs.cs</LastGenOutput>
+      </None>
+      <None Update="Mathematics\MathOps.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>MathOps.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Mathematics\Structs.cs">
+        <DependentUpon>Structs.tt</DependentUpon>
+      </Compile>
+      <Compile Update="Mathematics\MathOps.cs">
+        <DependentUpon>MathOps.tt</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

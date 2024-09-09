@@ -1,9 +1,8 @@
-﻿using KorpiEngine.Multiplayer.HighLevel;
-using KorpiEngine.Multiplayer.HighLevel.Connections;
-using KorpiEngine.Multiplayer.LowLevel.Transports.EventArgs;
+﻿using KorpiEngine.Networking.Multiplayer.HighLevel;
+using KorpiEngine.Networking.Multiplayer.HighLevel.Connections;
 using KorpiEngine.Tools.Logging;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports;
+namespace KorpiEngine.Networking.Multiplayer.LowLevel;
 
 /// <summary>
 /// Represents an object that can handle network messages.

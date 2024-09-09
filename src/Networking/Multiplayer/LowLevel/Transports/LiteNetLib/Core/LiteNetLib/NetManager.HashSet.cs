@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace KorpiEngine.Multiplayer.LowLevel.Transports.LiteNetLib.Core.LiteNetLib
+namespace KorpiEngine.Networking.Multiplayer.LowLevel
 {
     //minimal hashset class from dotnet with some optimizations
     public partial class NetManager
