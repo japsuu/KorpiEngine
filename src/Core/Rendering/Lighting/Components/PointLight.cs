@@ -16,10 +16,14 @@ public class PointLight : EntityComponent
     private Mesh? _mesh;
     private int _lastCamID = -1;
 
-    protected override void OnRenderObject()
+    protected override void OnStart()
     {
         _mesh ??= Mesh.CreateSphere(1f, 16, 16);
+    }
 
+
+    protected override void OnRenderObject()
+    {
         Matrix4x4 mat = Matrix4x4.CreateScale(Radius) * Entity.GlobalCameraRelativeTransform;
         
         if (!Graphics.FrustumTest(_mesh.BoundingSphere, mat))
@@ -52,5 +56,12 @@ public class PointLight : EntityComponent
         Gizmos.Matrix = Entity.Transform.LocalToWorldMatrix;
         Gizmos.Color = ColorHDR.Yellow;
         Gizmos.DrawSphere(Vector3.Zero, Radius);
+    }
+
+
+    protected override void OnDestroy()
+    {
+        _lightMat?.Destroy();
+        _mesh?.Destroy();
     }
 }
