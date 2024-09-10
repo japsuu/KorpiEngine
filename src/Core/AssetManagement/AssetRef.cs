@@ -162,7 +162,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// Discards the resolved content reference cache to allow garbage-collecting the Resource
     /// without losing its reference. Accessing it will result in reloading the Resource.
     /// </summary>
-    public void Detach()
+    public void Release()
     {
         _instance = null;
     }
