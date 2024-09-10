@@ -68,4 +68,11 @@ public class MeshRenderer : EntityComponent
         Material.Res!.SetShadowPass(true);
         Graphics.DrawMeshNowDirect(Mesh.Res!);
     }
+
+
+    protected override void OnDestroy()
+    {
+        Mesh.Release();
+        Material.Release();
+    }
 }
