@@ -289,7 +289,7 @@ public abstract class EntityComponent
         }
         catch (Exception e)
         {
-            Application.Logger.Error("Caught exception:\n", e);
+            Application.Logger.Error("\nCaught exception:", e);
         }
     }
 
