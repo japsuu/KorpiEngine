@@ -1,8 +1,6 @@
-﻿using KorpiEngine;
-using KorpiEngine.Entities;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.SponzaExample;
 
@@ -10,10 +8,19 @@ namespace Sandbox.Scenes.SponzaExample;
 /// This scene demonstrates how to send a web request to load a 3D-model,
 /// and spawn it into the scene.
 /// </summary>
-internal class SponzaExampleScene : Scene
+internal class SponzaExampleScene : ExampleScene
 {
+    protected override string HelpTitle => "Sponza Example Scene";
+    protected override string HelpText =>
+        "This scene demonstrates how to send a web request to load a 3D-model, and spawn it into the scene.\n" +
+        "Use the WASD keys to move the camera, and the mouse to look around.\n" +
+        "Check the console to see the progress of the model loading.";
+
+
     protected override void OnLoad()
     {
+        base.OnLoad();
+
         // Create an entity that loads the Sponza model.
         Entity sponzaLoader = CreateEntity("Sponza Loader");
         sponzaLoader.AddComponent<SponzaLoader>();

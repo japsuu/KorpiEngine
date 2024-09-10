@@ -1,8 +1,6 @@
-﻿using KorpiEngine;
-using KorpiEngine.Entities;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using KorpiEngine.SceneManagement;
 using Random = KorpiEngine.Mathematics.SharedRandom;
 
 namespace Sandbox.Scenes.FullExample;
@@ -11,10 +9,19 @@ namespace Sandbox.Scenes.FullExample;
 /// This scene demonstrates a variety of features, including
 /// entity creation, component addition, input handling.
 /// </summary>
-internal class FullExampleScene : Scene
+internal class FullExampleScene : ExampleScene
 {
+    protected override string HelpTitle => "Full Example Scene";
+    protected override string HelpText =>
+        "This scene demonstrates a variety of features, including\n" +
+        "entity creation, component addition, input handling.\n" +
+        "Use the WASD keys to move the camera, and the mouse to look around.";
+
+
     protected override void OnLoad()
     {
+        base.OnLoad();
+
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 

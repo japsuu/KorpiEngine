@@ -1,5 +1,4 @@
-﻿using KorpiEngine;
-using KorpiEngine.Entities;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 using MathOps = KorpiEngine.Mathematics.MathOps;

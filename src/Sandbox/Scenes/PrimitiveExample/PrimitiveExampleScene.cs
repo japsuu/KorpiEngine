@@ -1,18 +1,24 @@
-﻿using KorpiEngine;
-using KorpiEngine.Entities;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.PrimitiveExample;
 
 /// <summary>
 /// This scene is a simplified example of basic primitive shape rendering.
 /// </summary>
-internal class PrimitiveExampleScene : Scene
+internal class PrimitiveExampleScene : ExampleScene
 {
+    protected override string HelpTitle => "Primitive Example Scene";
+    protected override string HelpText =>
+        "This scene is a simplified example of basic primitive shape rendering.\n" +
+        "Use the WASD keys to move the camera, and the mouse to look around.\n";
+
+
     protected override void OnLoad()
     {
+        base.OnLoad();
+        
         Entity e;
         Entity m;
         

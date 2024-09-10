@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using KorpiEngine;
 using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
 using KorpiEngine.Networking;
@@ -71,6 +70,8 @@ internal class SponzaLoader : EntityComponent
     
     private IEnumerator LoadSponzaWeb()
     {
+        yield return new WaitForSecondsRealtime(1f);
+        
         // Create a web request to load the Sponza model and all its assets,
         // and save them to disk next to the executable in "WebAssets/sponza" subfolder.
         WebAssetLoadOperation operation = new("sponza", SPONZA_WEB_URL, false, SponzaAssets);
