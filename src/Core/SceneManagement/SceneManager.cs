@@ -9,8 +9,16 @@ namespace KorpiEngine.SceneManagement;
 /// </summary>
 public static class SceneManager
 {
+    private readonly struct SceneLoadOperation(Scene scene, SceneLoadMode mode)
+    {
+        public readonly Scene Scene = scene;
+        public readonly SceneLoadMode Mode = mode;
+    }
+    
+    
     private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(SceneManager));
     private static readonly List<Scene> LoadedScenes = [];
+    private static readonly Queue<SceneLoadOperation> OperationQueue = [];
     private static Scene? currentScene;
 
     /// <summary>
@@ -30,11 +38,23 @@ public static class SceneManager
     }
 
     
+    /// <summary>
+    /// Loads the specified scene.
+    /// The scene loading will be deferred until the next frame.
+    /// </summary>
+    /// <param name="scene">The scene to load.</param>
+    /// <param name="mode">The mode in which to load the scene.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the scene is null.</exception>
     public static void LoadScene(Scene scene, SceneLoadMode mode)
     {
-        if (scene == null)
-            throw new ArgumentNullException(nameof(scene));
-        
+        ArgumentNullException.ThrowIfNull(scene);
+
+        OperationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+    }
+
+
+    private static void LoadSceneInternal(Scene scene, SceneLoadMode mode)
+    {
         switch (mode)
         {
             case SceneLoadMode.Single:
@@ -50,6 +70,7 @@ public static class SceneManager
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
         }
+
         Logger.Debug($"Loaded scene '{scene.GetType().Name}' as {mode}.");
     }
 
@@ -85,6 +106,13 @@ public static class SceneManager
     internal static void Update()
     {
         AssetInstance.HandleDestroyed();
+        
+        while (OperationQueue.Count > 0)
+        {
+            SceneLoadOperation operation = OperationQueue.Dequeue();
+            LoadSceneInternal(operation.Scene, operation.Mode);
+        }
+        
         CurrentScene.InternalUpdate();
     }
     
