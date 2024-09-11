@@ -3,7 +3,7 @@ using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
-public abstract class Asset
+public abstract class Asset : SafeDisposable
 {
     private static class AssetID
     {
@@ -46,12 +46,28 @@ public abstract class Asset
     /// If this property is true, the asset is managed by the AssetManager and should not be disposed of manually.
     /// </summary>
     public bool IsExternal { get; internal set; }
-    
+
     /// <summary>
-    /// Whether the asset has been destroyed.
+    /// Whether the asset has been destroyed (disposed).
     /// </summary>
-    public bool IsDestroyed { get; private set; }
-    private bool _isWaitingRelease;
+    public bool IsDestroyed => IsDisposed;
+
+    /// <summary>
+    /// The number of references to this asset.
+    /// </summary>
+    public int ReferenceCount
+    {
+        get => _referenceCount;
+        set
+        {
+            if (value < 0)
+                throw new InvalidOperationException("Reference count cannot be negative.");
+            _referenceCount = value;
+        }
+    }
+
+    private int _referenceCount;
+    private bool _isWaitingDisposal;
 
 
     #region Creation, Destruction, and Disposal
@@ -63,89 +79,50 @@ public abstract class Asset
 
         Name = name ?? $"New {GetType().Name} Asset";
     }
-    
-    
-    ~Asset()
+
+
+    /// <summary>
+    /// Queues this asset for disposal.
+    /// The disposing will be deferred until the end of the frame.
+    /// </summary>
+    /// <exception cref="AssetReleaseException">Thrown if the asset is already disposed.</exception>
+    public void DisposeDeferred()
     {
-        Dispose(false);
-    }
-
-
-    internal void Dispose()
-    {
-        Dispose(true);
-        // Take this object off the finalization queue to prevent the destructor from being called.
-        GC.SuppressFinalize(this);
-    }
-
-
-    private void Dispose(bool manual)
-    {
-        if (IsDestroyed)
+        if (IsDisposed || _isWaitingDisposal)
             return;
-        IsDestroyed = true;
         
-        if (IsExternal)
-        {
-            // This should never fail because of the reference counting system.
-            Debug.Assert(!manual, $"External asset {Name} ({GetType().FullName}) was released by the GC. This is a memory leak! Did you forget to call Release() or AssetManager.UnloadAsset()?");
-            throw new InvalidOperationException($"{Name} ({GetType().FullName}) is an external asset and cannot be released manually.");
-        }
+        if (ReferenceCount > 0)
+            throw new AssetReleaseException("Cannot dispose of an asset with active references.");
+        
+        _isWaitingDisposal = true;
+        DisposeDeferredAssets.Push(this);
+    }
+
+
+    protected override void Dispose(bool manual)
+    {
+        if (IsDisposed || _isWaitingDisposal)
+            return;
+        
+        if (ReferenceCount > 0)
+            throw new AssetReleaseException("Cannot dispose of an asset with active references.");
+
+        base.Dispose(manual);
 
         OnDispose(manual);
         AllAssets.Remove(InstanceID);
     }
 
 
-    /// <summary>
-    /// Queues this asset for disposal.
-    /// The asset will be disposed of at the end of the frame.
-    /// </summary>
-    /// <exception cref="AssetReleasedException">Thrown if the asset is already released.</exception>
-    public void Release()
-    {
-        if (IsDestroyed)
-            throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
-        
-        _isWaitingRelease = true;
-        DisposeDeferredAssets.Push(this);
-    }
-
-
-    /// <summary>
-    /// Disposes of this asset, releasing it immediately.
-    /// Should only be called if the asset is not external.
-    /// </summary>
-    /// <exception cref="AssetReleasedException">Thrown if the asset is already released.</exception>
-    public void ReleaseImmediate()
-    {
-        if (IsDestroyed)
-            throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
-        
-        HandleRelease();
-    }
-    
-    
-    private void HandleRelease()
-    {
-        _isWaitingRelease = false;
-
-        if (IsExternal)
-            // Decreases the reference count of the external asset, and call Dispose it if it reaches 0.
-            AssetManager.UnloadAsset(ExternalAssetID);
-        else
-            Dispose();
-    }
-
-
-    internal static void ProcessReleaseQueue()
+    internal static void ProcessDisposeQueue()
     {
         while (DisposeDeferredAssets.TryPop(out Asset? obj))
         {
-            if (obj.IsDestroyed)
+            if (obj.IsDisposed)
                 continue;
 
-            obj.HandleRelease();
+            obj._isWaitingDisposal = false;
+            obj.Dispose();
         }
     }
 
@@ -187,7 +164,7 @@ public abstract class Asset
     #endregion
 
 
-    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Release"/> or <see cref="ReleaseImmediate"/>.<br/>
+    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/> or <see cref="DisposeDeferred"/>.<br/>
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
     /// False, if caused by the GC and therefore from another thread.

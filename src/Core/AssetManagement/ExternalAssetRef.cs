@@ -1,4 +1,4 @@
-﻿using KorpiEngine.Utils;
+﻿/*using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
@@ -222,4 +222,4 @@ public struct ExternalAssetRef<T> : IEquatable<ExternalAssetRef<T>> where T : As
     /// <param name="first"></param>
     /// <param name="second"></param>
     public static bool operator !=(ExternalAssetRef<T> first, ExternalAssetRef<T> second) => !(first == second);
-}
+}*/

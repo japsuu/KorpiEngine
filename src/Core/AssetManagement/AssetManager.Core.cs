@@ -59,8 +59,6 @@ public static partial class AssetManager
         if (externalAsset?.Instance is not T asset)
             throw new AssetLoadException<T>(assetGuid.ToString(), "Asset not found");
         
-        externalAsset.ReferenceOnce();
-        
         return asset;
     }
 
@@ -103,32 +101,23 @@ public static partial class AssetManager
 
     #region ASSET UNLOADING
 
-    internal static void UnloadAsset(Asset asset)
+    internal static void NotifyUnloadAsset(Asset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
         
         if (!asset.IsExternal)
             throw new InvalidOperationException("Cannot unload an asset that is not external. Did you mean to call AssetInstance.Release()?");
         
-        if (asset.IsDestroyed)
-            throw new InvalidOperationException("Cannot unload an asset that has already been destroyed.");
-
-        UnloadAsset(asset.ExternalAssetID);
+        NotifyUnloadAsset(asset.ExternalAssetID);
     }
 
-    internal static void UnloadAsset(UUID guid)
+    internal static void NotifyUnloadAsset(UUID guid)
     {
         if (!GuidToAsset.TryGetValue(guid, out ExternalAsset? asset))
             return;
 
         string relativePath = ToRelativePath(asset.AssetPath);
 
-        // Make sure the asset is not being referenced by any other objects
-        if (!asset.TryRelease())
-            return;
-        
-        asset.Instance.Dispose();
-        
         GuidToAsset.Remove(guid);
         RelativePathToGuid.Remove(relativePath);
         

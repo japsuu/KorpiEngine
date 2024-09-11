@@ -11,8 +11,6 @@ internal class ExternalAsset
     public readonly FileInfo AssetPath;
     public readonly Asset Instance;
 
-    public int ReferenceCount { get; private set; }
-
 
     public ExternalAsset(UUID assetID, FileInfo assetPath, Asset instance)
     {
@@ -20,22 +18,6 @@ internal class ExternalAsset
         AssetPath = assetPath;
         Instance = instance;
         
-        ReferenceOnce();
-        
         Application.Logger.Info($"Imported {assetPath.Name} as {instance.Name}");
-    }
-    
-    
-    public void ReferenceOnce()
-    {
-        ReferenceCount++;
-    }
-
-
-    public bool TryRelease()
-    {
-        ReferenceCount--;
-
-        return ReferenceCount == 0;
     }
 }
