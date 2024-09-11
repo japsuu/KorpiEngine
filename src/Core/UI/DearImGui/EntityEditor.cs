@@ -30,7 +30,7 @@ public class EntityEditor() : ImGuiWindow(true)
         if (instanceID == 0)
             return;
         
-        Entity? e = AssetInstance.FindObjectByID<Entity>(instanceID);
+        Entity? e = Asset.FindObjectByID<Entity>(instanceID);
         SetTarget(e);
     }
 

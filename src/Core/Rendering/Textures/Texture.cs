@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Rendering;
 
-public abstract class Texture : AssetInstance
+public abstract class Texture : Asset
 {
     private protected const TextureMin DEFAULT_MIN_FILTER = TextureMin.Nearest;
     private protected const TextureMin DEFAULT_MIPMAP_MIN_FILTER = TextureMin.NearestMipmapNearest;

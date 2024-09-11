@@ -3,9 +3,9 @@ using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
-public abstract class AssetInstance
+public abstract class Asset
 {
-    private static class AssetInstanceID
+    private static class AssetID
     {
         /// <summary>
         /// The next ID to be assigned to a resource.
@@ -22,8 +22,8 @@ public abstract class AssetInstance
         }
     }
     
-    private static readonly Stack<AssetInstance> DisposeDeferredAssets = new();
-    private static readonly Dictionary<int, WeakReference<AssetInstance>> AllAssets = new();
+    private static readonly Stack<Asset> DisposeDeferredAssets = new();
+    private static readonly Dictionary<int, WeakReference<Asset>> AllAssets = new();
 
     /// <summary>
     /// Unique identifier for this asset.
@@ -56,16 +56,16 @@ public abstract class AssetInstance
 
     #region Creation, Destruction, and Disposal
 
-    protected AssetInstance(string? name = null)
+    protected Asset(string? name = null)
     {
-        InstanceID = AssetInstanceID.Generate();
-        AllAssets.Add(InstanceID, new WeakReference<AssetInstance>(this));
+        InstanceID = AssetID.Generate();
+        AllAssets.Add(InstanceID, new WeakReference<Asset>(this));
 
         Name = name ?? $"New {GetType().Name} Asset";
     }
     
     
-    ~AssetInstance()
+    ~Asset()
     {
         Dispose(false);
     }
@@ -140,7 +140,7 @@ public abstract class AssetInstance
 
     internal static void ProcessReleaseQueue()
     {
-        while (DisposeDeferredAssets.TryPop(out AssetInstance? obj))
+        while (DisposeDeferredAssets.TryPop(out Asset? obj))
         {
             if (obj.IsDestroyed)
                 continue;
@@ -154,31 +154,31 @@ public abstract class AssetInstance
 
     #region Public Static Methods
 
-    public static T? FindObjectOfType<T>() where T : AssetInstance
+    public static T? FindObjectOfType<T>() where T : Asset
     {
-        foreach (WeakReference<AssetInstance> obj in AllAssets.Values)
-            if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
+        foreach (WeakReference<Asset> obj in AllAssets.Values)
+            if (obj.TryGetTarget(out Asset? target) && target is T t)
                 return t;
         return null;
     }
 
 
-    public static T?[] FindObjectsOfType<T>() where T : AssetInstance
+    public static T?[] FindObjectsOfType<T>() where T : Asset
     {
         List<T> objects = [];
-        foreach (WeakReference<AssetInstance> obj in AllAssets.Values)
-            if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
+        foreach (WeakReference<Asset> obj in AllAssets.Values)
+            if (obj.TryGetTarget(out Asset? target) && target is T t)
                 objects.Add(t);
         return objects.ToArray();
     }
 
 
-    public static T? FindObjectByID<T>(int id) where T : AssetInstance
+    public static T? FindObjectByID<T>(int id) where T : Asset
     {
-        if (!AllAssets.TryGetValue(id, out WeakReference<AssetInstance>? obj))
+        if (!AllAssets.TryGetValue(id, out WeakReference<Asset>? obj))
             return null;
 
-        if (!obj.TryGetTarget(out AssetInstance? target) || target is not T t)
+        if (!obj.TryGetTarget(out Asset? target) || target is not T t)
             return null;
 
         return t;

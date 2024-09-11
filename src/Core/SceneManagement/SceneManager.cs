@@ -113,7 +113,7 @@ public static class SceneManager
         
         CurrentScene.InternalUpdate();
         
-        AssetInstance.ProcessReleaseQueue();
+        Asset.ProcessReleaseQueue();
     }
     
     
@@ -138,7 +138,7 @@ public static class SceneManager
             loadedScene.Destroy();
         
         // Handle all objects that were just destroyed.
-        AssetInstance.ProcessReleaseQueue();
+        Asset.ProcessReleaseQueue();
         
         LoadedScenes.Clear();
         currentScene = null;

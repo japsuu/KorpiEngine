@@ -9,12 +9,12 @@ internal class ExternalAsset
 {
     public readonly UUID AssetID;
     public readonly FileInfo AssetPath;
-    public readonly AssetInstance Instance;
+    public readonly Asset Instance;
 
     public int ReferenceCount { get; private set; }
 
 
-    public ExternalAsset(UUID assetID, FileInfo assetPath, AssetInstance instance)
+    public ExternalAsset(UUID assetID, FileInfo assetPath, Asset instance)
     {
         AssetID = assetID;
         AssetPath = assetPath;

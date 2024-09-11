@@ -12,7 +12,7 @@ public enum WrapMode
     ClampForever
 }
 
-public sealed class AnimationClip : AssetInstance, ISerializable
+public sealed class AnimationClip : Asset, ISerializable
 {
     public float Duration { get; set; }
     public float TicksPerSecond { get; set; }
