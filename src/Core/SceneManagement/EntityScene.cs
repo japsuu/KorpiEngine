@@ -303,8 +303,9 @@ internal sealed class EntityScene
         _isIteratingEntities = true;
         foreach (Entity entity in _entities)
         {
+            // The entity may have been destroyed during the update loop.
             if (entity.IsDestroyed)
-                throw new InvalidOperationException($"Entity {entity.InstanceID} has been destroyed.");
+                return;
 
             if (!entity.Enabled)
                 return;
