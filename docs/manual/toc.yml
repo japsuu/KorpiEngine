@@ -8,8 +8,8 @@
   href: coordinate-systems.md
 - name: Math
   href: math.md
-- name: Working With External Assets
-  href: external-assets.md
+- name: Working With Assets
+  href: assets.md
 - name: Working With Shaders
   href: shaders.md
 - name: Working With Materials
