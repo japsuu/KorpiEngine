@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Tools.Serialization;
-using KorpiEngine.Utils;
+﻿using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
@@ -14,11 +13,11 @@ namespace KorpiEngine.AssetManagement;
 /// Never store references to external assets permanently, instead use an <see cref="ExternalAssetRef{T}"/> to it.
 /// However, you may retrieve and store a direct asset reference temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T>> where T : AssetInstance
+public struct ExternalAssetRef<T> : IEquatable<ExternalAssetRef<T>> where T : AssetInstance
 {
     private T? _assetReference;
-    private UUID _assetID = UUID.Empty;
-//#error Change to use AssetManager.Get on each property read.
+    private readonly UUID _assetID = UUID.Empty;
+    
     /// <summary>
     /// The referenced <see cref="AssetInstance"/>.
     /// If currently unavailable, it is loaded and then returned.
@@ -33,18 +32,13 @@ public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T
                 RetrieveReference();
             return _assetReference;
         }
-        private set
-        {
-            _assetID = value?.ExternalAssetID ?? UUID.Empty;
-            _assetReference = value;
-        }
     }
 
     /// <summary>
     /// Returns the current reference to the Resource that is stored locally. No attempt is made to load or reload
     /// the Resource if it is currently unavailable.
     /// </summary>
-    public T? ResWeak => _assetReference == null || _assetReference.IsDestroyed ? null : _assetReference;
+    public T? AssetWeak => _assetReference == null || _assetReference.IsDestroyed ? null : _assetReference;
 
     /// <summary>
     /// The path where to look for the Resource, if it is currently unavailable.
@@ -52,12 +46,6 @@ public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T
     public UUID AssetID
     {
         get => _assetID;
-        set
-        {
-            _assetID = value;
-            if (_assetReference != null && _assetReference.ExternalAssetID != value)
-                _assetReference = null;
-        }
     }
 
     /// <summary>
@@ -133,30 +121,6 @@ public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T
     }
 
 
-    public object? GetInstance() => Asset;
-
-
-    public void SetInstance(object? obj)
-    {
-        if (obj is T res)
-            Asset = res;
-        else
-            Asset = null;
-    }
-
-
-    /// <summary>
-    /// Loads the associated content as if it was accessed now.
-    /// You don't usually need to call this method. It is invoked implicitly by trying to 
-    /// access the <see cref="ExternalAssetRef{T}"/>.
-    /// </summary>
-    public void EnsureLoaded()
-    {
-        if (_assetReference == null || _assetReference.IsDestroyed)
-            RetrieveReference();
-    }
-
-
     /// <summary>
     /// Discards the resolved content reference cache to allow garbage-collecting the Resource
     /// without losing its reference. Accessing it will result in reloading the Resource.
@@ -217,7 +181,6 @@ public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T
     public bool Equals(ExternalAssetRef<T> other) => this == other;
 
     public static implicit operator ExternalAssetRef<T>(T res) => new(res);
-
     public static explicit operator T(ExternalAssetRef<T> res) => res.Asset!;
 
 
@@ -259,24 +222,4 @@ public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T
     /// <param name="first"></param>
     /// <param name="second"></param>
     public static bool operator !=(ExternalAssetRef<T> first, ExternalAssetRef<T> second) => !(first == second);
-
-
-    public SerializedProperty Serialize(Serializer.SerializationContext ctx)
-    {
-        SerializedProperty compoundTag = SerializedProperty.NewCompound();
-        compoundTag.Add("AssetID", new SerializedProperty(_assetID.ToString()));
-        if (_assetID != UUID.Empty)
-            ctx.AddDependency(_assetID);
-        if (IsRuntimeResource)
-            compoundTag.Add("Instance", Serializer.Serialize(_assetReference, ctx));
-        return compoundTag;
-    }
-
-
-    public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
-    {
-        _assetID = UUID.Parse(value["AssetID"].StringValue);
-        if (_assetID == UUID.Empty && value.TryGet("Instance", out SerializedProperty? tag))
-            _assetReference = Serializer.Deserialize<T?>(tag!, ctx);
-    }
 }
