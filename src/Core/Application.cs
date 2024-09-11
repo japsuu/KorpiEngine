@@ -135,13 +135,13 @@ public static class Application
         Time.Update(deltaTime, fixedAlpha);
         Input.Input.Update(window.KeyboardState, window.MouseState);
         
-        imGuiController.Update();
-        ImGuiWindowManager.Update();
-        
         SceneManager.Update();
         
         // Instantly execute jobs.
         GlobalJobPool.Update();
+        
+        imGuiController.Update();
+        ImGuiWindowManager.Update();
     }
 
 
