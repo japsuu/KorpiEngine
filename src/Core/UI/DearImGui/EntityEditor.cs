@@ -10,7 +10,7 @@ namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private ExternalAssetRef<Entity> _target;
+    private AssetReference<Entity>? _target;
 
     public override string Title => "Entity Editor";
 
@@ -37,19 +37,19 @@ public class EntityEditor() : ImGuiWindow(true)
 
     public void SetTarget(Entity? entity)
     {
-        _target = new ExternalAssetRef<Entity>(entity);
+        _target = new AssetReference<Entity>(entity);
     }
 
 
     protected override void DrawContent()
     {
-        if (!_target.IsAvailable)
+        if (_target == null || !_target.IsAlive)
         {
             ImGui.Text("No entity selected.");
             return;
         }
         
-        ImGui.Text($"Entity: {_target.Name}");
+        ImGui.Text($"Entity: {_target.Asset!.Name}");
         ImGui.Separator();
         
         DrawEntityHierarchy(_target.Asset!);
@@ -61,7 +61,7 @@ public class EntityEditor() : ImGuiWindow(true)
         // Inline destroy button
         if (ImGui.Button("Destroy"))
         {
-            entity.Release();
+            entity.DisposeDeferred();
             return;
         }
         ImGui.SameLine();
@@ -81,6 +81,12 @@ public class EntityEditor() : ImGuiWindow(true)
         {
             ImGui.Text(entity.Name);
         }
+    }
+
+
+    protected override void OnDestroy()
+    {
+        _target.Release();
     }
 }
 #endif

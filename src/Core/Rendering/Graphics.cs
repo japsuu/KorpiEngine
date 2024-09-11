@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using KorpiEngine.AssetManagement;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 
@@ -33,13 +34,15 @@ public static class Graphics
         Window = korpiWindow;
         Device.Initialize();
         
-        defaultBlitMaterial = new Material(Shader.Find("Assets/Defaults/Basic.kshader"), "basic material", false);
+        defaultBlitMaterial = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Basic.kshader"), "basic material", false);
         Material.LoadDefaults();
     }
 
 
     internal static void Shutdown()
     {
+        Material.UnloadDefaults();
+        
         Device.Shutdown();
     }
     

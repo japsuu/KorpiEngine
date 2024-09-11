@@ -47,7 +47,7 @@ internal sealed class EntitySceneRenderer
             if (!c.EnabledInHierarchy)
                 continue;
                     
-            if (c.TargetTexture.IsAvailable)
+            if (c.TargetTexture != null)
                 _renderQueueTexture.Enqueue(c, c.RenderPriority);
             else
                 _renderQueueScreen.Enqueue(c, c.RenderPriority);

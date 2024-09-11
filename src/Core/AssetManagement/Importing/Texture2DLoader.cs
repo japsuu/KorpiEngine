@@ -36,7 +36,7 @@ public static class Texture2DLoader
         }
         catch
         {
-            texture.Release();
+            texture.Dispose();
             throw;
         }
     }

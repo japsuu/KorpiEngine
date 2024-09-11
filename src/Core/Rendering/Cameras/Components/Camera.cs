@@ -35,6 +35,7 @@ public sealed class Camera : EntityComponent
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
+    private AssetReference<RenderTexture>? _targetTexture;
     private Material _debugMaterial = null!;
     private Matrix4x4? _oldView;
     private Matrix4x4? _oldProjection;
@@ -55,7 +56,11 @@ public sealed class Camera : EntityComponent
     /// If set, the camera will render to this texture.
     /// If not set, the camera will render to the screen.
     /// </summary>
-    public ExternalAssetRef<RenderTexture> TargetTexture { get; set; }
+    public RenderTexture? TargetTexture
+    {
+        get => _targetTexture?.Asset;
+        set => _targetTexture = value == null ? null : new AssetReference<RenderTexture>(value);
+    }
     
     /// <summary>
     /// The G-buffer of this camera.
@@ -100,10 +105,10 @@ public sealed class Camera : EntityComponent
             throw new InvalidOperationException("Camera must be attached to an Entity in a Scene to render!");
         
         // Determine render target size
-        if (TargetTexture.IsAvailable)
+        if (_targetTexture != null && _targetTexture.IsAlive)
         {
-            width = TargetTexture.Asset!.Width;
-            height = TargetTexture.Asset!.Height;
+            width = TargetTexture!.Width;
+            height = TargetTexture!.Height;
         }
         else if (width == -1 || height == -1)
         {
@@ -154,8 +159,8 @@ public sealed class Camera : EntityComponent
         bool doClear = ClearType == CameraClearType.SolidColor;
         if (DebugDrawType == CameraDebugDrawType.OFF)
         {
-            Graphics.Blit(TargetTexture.Asset ?? null, result.MainTexture, doClear);
-            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Asset ?? null);
+            Graphics.Blit(TargetTexture ?? null, result.MainTexture, doClear);
+            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture ?? null);
         }
         else
         {
@@ -171,7 +176,7 @@ public sealed class Camera : EntityComponent
             _debugMaterial.SetFloat("_CameraNearClip", NearClipPlane);
             _debugMaterial.SetFloat("_CameraFarClip", FarClipPlane);
             
-            Graphics.Blit(TargetTexture.Asset ?? null, _debugMaterial, 0, doClear);
+            Graphics.Blit(TargetTexture ?? null, _debugMaterial, 0, doClear);
         }
         
         _oldView = Graphics.ViewMatrix;
@@ -233,8 +238,8 @@ public sealed class Camera : EntityComponent
     
     private Vector2 GetRenderTargetSize()
     {
-        if (TargetTexture.IsAvailable)
-            return new Vector2(TargetTexture.Asset!.Width, TargetTexture.Asset!.Height);
+        if (_targetTexture != null && _targetTexture.IsAlive)
+            return new Vector2(TargetTexture!.Width, TargetTexture!.Height);
         
         return new Vector2(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
     }
@@ -251,7 +256,7 @@ public sealed class Camera : EntityComponent
         }
         else if (GBuffer.Width != (int)renderSize.X || GBuffer.Height != (int)renderSize.Y)
         {
-            GBuffer.UnloadGBuffer();
+            GBuffer.Dispose();
             GBuffer = new GBuffer((int)renderSize.X, (int)renderSize.Y);
             Resized?.Invoke(GBuffer.Width, GBuffer.Height);
         }
@@ -265,7 +270,7 @@ public sealed class Camera : EntityComponent
         // Clear the screen
         if (ClearType == CameraClearType.SolidColor)
         {
-            TargetTexture.Asset?.Begin();
+            TargetTexture?.Begin();
             
             ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
             bool clearColor = ClearFlags.HasFlagFast(CameraClearFlags.Color);
@@ -273,7 +278,7 @@ public sealed class Camera : EntityComponent
             bool clearStencil = ClearFlags.HasFlagFast(CameraClearFlags.Stencil);
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
             
-            TargetTexture.Asset?.End();
+            TargetTexture?.End();
         }
         
         RenderingCamera = null!;
@@ -282,7 +287,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnEnable()
     {
-        _debugMaterial = new Material(Shader.Find("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
+        _debugMaterial = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
     
     
@@ -311,15 +316,15 @@ public sealed class Camera : EntityComponent
 
     protected override void OnDisable()
     {
-        GBuffer?.UnloadGBuffer();
+        GBuffer?.Dispose();
 
         // Clear the Cached RenderTextures
         foreach (var (renderTexture, _) in _cachedRenderTextures.Values)
-            renderTexture.Release();
+            renderTexture.Dispose();
         
         _cachedRenderTextures.Clear();
         
-        _debugMaterial.ReleaseImmediate();
+        _debugMaterial.Dispose();
     }
 
 
@@ -351,7 +356,7 @@ public sealed class Camera : EntityComponent
         foreach ((RenderTexture, string) renderTexture in disposableTextures)
         {
             _cachedRenderTextures.Remove(renderTexture.Item2);
-            renderTexture.Item1.Release();
+            renderTexture.Item1.Dispose();
         }
     }
 

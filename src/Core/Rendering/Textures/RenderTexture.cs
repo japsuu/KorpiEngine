@@ -50,7 +50,7 @@ public sealed class RenderTexture : Asset
         InternalTextures = new Texture2D[numTextures];
         for (int i = 0; i < numTextures; i++)
         {
-            InternalTextures[i] = new Texture2D(width, height, false, textureFormats[i]);
+            InternalTextures[i] = new Texture2D(width, height, false, textureFormats[i]).IncreaseReferenceCount();
             InternalTextures[i].SetTextureFilters(TextureMin.Linear, TextureMag.Linear);
             InternalTextures[i].SetWrapModes(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
             attachments[i] = new GraphicsFrameBuffer.Attachment
@@ -62,7 +62,7 @@ public sealed class RenderTexture : Asset
 
         if (hasDepthAttachment)
         {
-            InternalDepth = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24);
+            InternalDepth = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24).IncreaseReferenceCount();
             attachments[numTextures] = new GraphicsFrameBuffer.Attachment
             {
                 Texture = InternalDepth.Handle,
@@ -98,9 +98,9 @@ public sealed class RenderTexture : Asset
 #endif
 
         foreach (Texture2D texture in InternalTextures)
-            texture.Release();
+            texture.DisposeDeferred();
         
-        InternalDepth?.Release();
+        InternalDepth?.DisposeDeferred();
 
         FrameBuffer?.Dispose();
     }
@@ -197,7 +197,7 @@ public sealed class RenderTexture : Asset
         }
 
         foreach (RenderTexture renderTexture in DisposableTextures)
-            renderTexture.Release();
+            renderTexture.DisposeDeferred();
     }
 
     #endregion

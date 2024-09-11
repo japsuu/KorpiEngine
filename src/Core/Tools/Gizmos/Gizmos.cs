@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Mathematics;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 
 namespace KorpiEngine.Tools.Gizmos;
@@ -107,7 +108,7 @@ public static class Gizmos
 
     public static void Render(bool enableDepthTest)
     {
-        gizmosMat ??= new Material(Shader.Find("Assets/Defaults/Gizmos.kshader"), "Gizmos Material", false);
+        gizmosMat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Gizmos.kshader"), "Gizmos Material", false);
         lineBatch ??= new PrimitiveBatch(Topology.Lines);
 
         if (!lineBatch.IsUploaded)

@@ -43,6 +43,14 @@ You can think of it as a smart reference that knows what it should contain and t
 
 ## Referencing Assets and Ownership
 
+---------------------------------------------------------------------------
+
+Classes/Objects should never expose their owned `AssetReference` objects publicly. Instead, they should expose the `Asset` objects themselves.
+This is done to prevent the outside world from accidentally calling `.Release()` on the `AssetReference` object, which would result in the asset being unloaded while it is still potentially in use by the original owner.
+This allows other classes to take the `Asset` and create their own `AssetReference` objects.
+
+---------------------------------------------------------------------------
+
 Generally, the object that created/loaded an `AssetInstance` also owns it, and should be responsible for calling `.Release()` on it when it is no longer needed. This means that if the asset is passed to another object, the other object should not call `.Release()` on it.
 
 <br/>

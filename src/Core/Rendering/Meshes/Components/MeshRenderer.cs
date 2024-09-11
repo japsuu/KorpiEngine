@@ -8,11 +8,34 @@ public class MeshRenderer : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
-    public ExternalAssetRef<Mesh> Mesh { get; set; }
-    public ExternalAssetRef<Material> Material { get; set; }
     public ColorHDR MainColor { get; set; } = ColorHDR.White;
-    
+    public Mesh? Mesh
+    {
+        get => _mesh?.Asset;
+        set
+        {
+            if (_mesh != null)
+                _mesh.Release();
+            
+            _mesh = new AssetReference<Mesh>(value);
+        }
+    }
+
+    public Material? Material
+    {
+        get => _material?.Asset;
+        set
+        {
+            if (_material != null)
+                _material.Release();
+            
+            _material = new AssetReference<Material>(value);
+        }
+    }
+
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();
+    private AssetReference<Mesh>? _mesh;
+    private AssetReference<Material>? _material;
 
     
     protected override void OnRenderObject()
@@ -23,26 +46,26 @@ public class MeshRenderer : EntityComponent
         _previousTransforms.TryAdd(camID, transform);
         Matrix4x4 previousTransform = _previousTransforms[camID];
         
-        if (!Mesh.IsAvailable)
+        if (Mesh == null)
             return;
-            
-        Material? material = Material.Asset;
+        
+        Material? material = Material;
         if (material == null)
         {
-            material = Rendering.Material.InvalidMaterial.Asset!;
+            material = Material.InvalidMaterial;
 #if TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif
         }
         
-        if (Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
+        if (Graphics.FrustumTest(Mesh.BoundingSphere, transform))
         {
             material.SetColor("_MainColor", MainColor);
             material.SetInt("_ObjectID", Entity.InstanceID);
             for (int i = 0; i < material.PassCount; i++)
             {
                 material.SetPass(i);
-                Graphics.DrawMeshNow(Mesh.Asset!, transform, material, previousTransform);
+                Graphics.DrawMeshNow(Mesh, transform, material, previousTransform);
             }
         }
 
@@ -52,27 +75,27 @@ public class MeshRenderer : EntityComponent
     
     protected override void OnRenderDepth()
     {
-        if (!Mesh.IsAvailable || !Material.IsAvailable)
+        if (Mesh == null || Material == null)
             return;
         
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
         
-        if (!Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
+        if (!Graphics.FrustumTest(Mesh.BoundingSphere, transform))
             return;
 
         Matrix4x4 mvp = Matrix4x4.Identity;
         mvp = Matrix4x4.Multiply(mvp, transform);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
-        Material.Asset!.SetMatrix("_MatMVP", mvp);
-        Material.Asset!.SetShadowPass(true);
-        Graphics.DrawMeshNowDirect(Mesh.Asset!);
+        Material.SetMatrix("_MatMVP", mvp);
+        Material.SetShadowPass(true);
+        Graphics.DrawMeshNowDirect(Mesh);
     }
 
 
     protected override void OnDestroy()
     {
-        Mesh.Release();
-        Material.Release();
+        _mesh?.Release();
+        _material?.Release();
     }
 }

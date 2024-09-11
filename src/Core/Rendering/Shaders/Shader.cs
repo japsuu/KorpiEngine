@@ -74,9 +74,6 @@ public sealed class Shader : Asset
     }
 
 
-    public static ExternalAssetRef<Shader> Find(string path) => new(AssetManager.LoadAssetFile<Shader>(path));
-
-
     public bool HasVariable(string name)
     {
         foreach (Property p in _properties)
@@ -135,8 +132,8 @@ public sealed class Shader : Asset
                     const string fallbackShader = "Assets/Defaults/Invalid.kshader";
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
-                    ExternalAssetRef<Shader> fallback = Find(fallbackShader);
-                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Asset!._passes[0], defines);
+                    Shader fallback = AssetManager.LoadAssetFile<Shader>(fallbackShader);
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback._passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
                 }
             }
@@ -156,8 +153,8 @@ public sealed class Shader : Asset
             }
             else
             {
-                ExternalAssetRef<Shader> depth = Find("Assets/Defaults/Depth.kshader");
-                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Asset!._passes[0], defines);
+                Shader depth = AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Depth.kshader");
+                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
             }
 

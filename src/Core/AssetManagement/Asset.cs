@@ -99,7 +99,7 @@ public abstract class Asset : SafeDisposable
     }
 
 
-    protected override void Dispose(bool manual)
+    protected sealed override void Dispose(bool manual)
     {
         if (IsDisposed || _isWaitingDisposal)
             return;

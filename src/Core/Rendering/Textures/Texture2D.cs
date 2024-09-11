@@ -41,9 +41,6 @@ public sealed class Texture2D : Texture, ISerializable
     }
 
 
-    public static ExternalAssetRef<Texture2D> Find(string path) => new(AssetManager.LoadAssetFile<Texture2D>(path));
-
-
     /// <summary>
     /// Sets the data of an area of the <see cref="Texture2D"/>.
     /// </summary>

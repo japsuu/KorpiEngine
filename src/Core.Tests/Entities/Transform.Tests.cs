@@ -64,7 +64,7 @@ public class TransformTest
         component.Position = expectedPosition;
 
         Assert.That(component.Position, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class TransformTest
         component.Position = expectedPosition;
 
         Assert.That(component.Position, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class TransformTest
         component.LocalPosition = expectedPosition;
 
         Assert.That(component.LocalPosition, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class TransformTest
         component.LocalPosition = expectedPosition;
 
         Assert.That(component.LocalPosition, Is.EqualTo(expectedPosition).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion
@@ -121,7 +121,7 @@ public class TransformTest
         component.Rotation = expectedRotation;
         
         Assert.That(component.Rotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -135,7 +135,7 @@ public class TransformTest
         component.Rotation = expectedRotation;
         
         Assert.That(component.Rotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -149,7 +149,7 @@ public class TransformTest
         component.LocalRotation = expectedRotation;
         
         Assert.That(component.LocalRotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -163,7 +163,7 @@ public class TransformTest
         component.LocalRotation = expectedRotation;
         
         Assert.That(component.LocalRotation, Is.EqualTo(expectedRotation).Using(new QuaternionComparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion
@@ -181,7 +181,7 @@ public class TransformTest
         component.LocalScale = expectedScale;
         
         Assert.That(component.LocalScale, Is.EqualTo(expectedScale));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion
@@ -206,7 +206,7 @@ public class TransformTest
             Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
             Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
         });
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -226,7 +226,7 @@ public class TransformTest
             Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
             Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
         });
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -246,7 +246,7 @@ public class TransformTest
             Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
             Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
         });
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -266,7 +266,7 @@ public class TransformTest
             Assert.That(component.Rotation, Is.EqualTo(expectedQuaternion).Using(new QuaternionComparer()));
             Assert.That(Quaternion.CreateFromEulerAnglesDegrees(actual), Is.EqualTo(expectedQuaternion).Using(new QuaternionRotationComparer()));
         });
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion
@@ -285,7 +285,7 @@ public class TransformTest
         Vector3 actual = component.Forward;
 
         Assert.That(actual, Is.EqualTo(expected));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
     
 
@@ -302,7 +302,7 @@ public class TransformTest
         Vector3 actual = component.Forward;
 
         Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -317,7 +317,7 @@ public class TransformTest
         Vector3 actual = component.Up;
 
         Assert.That(actual, Is.EqualTo(expected));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -334,7 +334,7 @@ public class TransformTest
         Vector3 actual = component.Up;
 
         Assert.That(actual, Is.EqualTo(expected).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -349,7 +349,7 @@ public class TransformTest
         Vector3 actual = component.Right;
 
         Assert.That(actual, Is.EqualTo(expected));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 
@@ -365,7 +365,7 @@ public class TransformTest
         Vector3 expectedRight = Vector3.Up;
 
         Assert.That(component.Right, Is.EqualTo(expectedRight).Using(new Vector3Comparer()));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion
@@ -383,7 +383,7 @@ public class TransformTest
         Matrix4x4 resultMatrix = component.LocalToWorldMatrix;
 
         Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
     [Test]
@@ -405,7 +405,7 @@ public class TransformTest
 
         Console.WriteLine(resultMatrix);
         Assert.That(resultMatrix, Is.EqualTo(expectedMatrix));
-        e.ReleaseImmediate();
+        e.Dispose();
     }
 
 #endregion

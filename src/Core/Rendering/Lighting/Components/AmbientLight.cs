@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Entities;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 
 namespace KorpiEngine.Rendering;
@@ -17,7 +18,7 @@ public class AmbientLight : EntityComponent
     
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Assets/Defaults/AmbientLight.kshader"), "ambient light material", false);
+        _lightMat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/AmbientLight.kshader"), "ambient light material", false);
 
         _lightMat.SetColor("_SkyColor", SkyColor);
         _lightMat.SetColor("_GroundColor", GroundColor);
@@ -30,5 +31,11 @@ public class AmbientLight : EntityComponent
         _lightMat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
 
         Graphics.Blit(_lightMat);
+    }
+
+
+    protected override void OnDestroy()
+    {
+        _lightMat?.Dispose();
     }
 }

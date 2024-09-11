@@ -6,8 +6,34 @@ public static class AssetExtensions
 {
     public static AssetReference<T> CreateReference<T>(this T asset) where T : Asset
     {
-        asset.ReferenceCount++;
+        asset.IncreaseReferenceCount();
         return new AssetReference<T>(asset);
+    }
+    
+    
+    /// <summary>
+    /// Explicitly increases the reference count of the asset, without creating a reference.
+    /// </summary>
+    /// <param name="asset">The asset to increase the reference count of.</param>
+    /// <typeparam name="T">The type of the asset.</typeparam>
+    /// <returns>The asset with the reference count increased.</returns>
+    public static T IncreaseReferenceCount<T>(this T asset) where T : Asset
+    {
+        asset.ReferenceCount++;
+        return asset;
+    }
+    
+    
+    /// <summary>
+    /// Explicitly decreases the reference count of the asset, without creating a reference.
+    /// </summary>
+    /// <param name="asset">The asset to decrease the reference count of.</param>
+    /// <typeparam name="T">The type of the asset.</typeparam>
+    /// <returns>The asset with the reference count decreased.</returns>
+    public static T DecreaseReferenceCount<T>(this T asset) where T : Asset
+    {
+        asset.ReferenceCount--;
+        return asset;
     }
 
 
@@ -17,7 +43,7 @@ public static class AssetExtensions
         if (asset == null)
             return false;
 
-        asset.ReferenceCount--;
+        asset.DecreaseReferenceCount();
         return asset.ReferenceCount <= 0;
     }
 }
@@ -34,9 +60,11 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
     /// The referenced <see cref="AssetManagement.Asset"/>.
     /// Null, if the <see cref="AssetReference{T}"/> has been disposed.
     /// </summary>
-    public T? Asset { get; internal set; }
+    public T? Asset { get; private set; }
     
     public bool HasBeenReleased { get; private set; }
+    
+    public bool IsAlive => Asset != null;
 
     /// <summary>
     /// Returns whether the referenced asset is loaded from a file.
@@ -53,7 +81,7 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
     /// Creates an AssetReferenceCounter referencing the specified <see cref="AssetManagement.Asset"/>.
     /// </summary>
     /// <param name="asset">The asset to reference.</param>
-    internal AssetReference(T asset)
+    internal AssetReference(T? asset)
     {
         Asset = asset;
     }
@@ -63,10 +91,7 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
     /// Discards the resolved content reference cache, and releases the asset.
     /// Equivalent to calling Dispose().
     /// </summary>
-    public void Release()
-    {
-        Dispose();
-    }
+    public void Release() => Dispose();
 
 
     protected override void Dispose(bool manual)
@@ -74,6 +99,9 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
         if (IsDisposed)
             return;
         base.Dispose(manual);
+        
+        if (!manual)
+            throw new InvalidOperationException("AssetReference was not disposed of manually. Did you forget to call Release()?");
         
         if (this.TryRelease())
         {

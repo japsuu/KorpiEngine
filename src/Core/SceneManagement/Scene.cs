@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Entities;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using Entity = KorpiEngine.Entities.Entity;
@@ -41,7 +42,7 @@ public abstract class Scene
     {
         Entity e = CreateEntity(name);
         MeshRenderer c = e.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
+        Material mat = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;

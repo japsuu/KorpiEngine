@@ -70,12 +70,12 @@ public class ModelImporter : AssetImporter
         CreateEntityHierarchy(rootEntityName, scene.RootNode, ref entityHierarchy, scale);
 
         // Materials
-        List<ExternalAssetRef<Material>> materials = [];
+        List<Material> materials = [];
         if (scene.HasMaterials)
             LoadMaterials(scene, parentDir, materials);
 
         // Animations
-        List<ExternalAssetRef<AnimationClip>> animations = [];
+        List<AnimationClip> animations = [];
         if (scene.HasAnimations)
             animations = LoadAnimations(scene, scale);
 
@@ -112,16 +112,16 @@ public class ModelImporter : AssetImporter
         }
 
         Entity rootEntity = entityHierarchy[0].entity;
-        if (!Mathematics.MathOps.AlmostEquals(UnitScale, 1.0f))
+        if (!MathOps.AlmostEquals(UnitScale, 1.0f))
             rootEntity.Transform.LocalScale = Vector3.One * UnitScale;
 
         // Add Animation Component to root, with all the animations assigned to it.
         if (animations.Count > 0)
         {
             Animation anim = rootEntity.AddComponent<Animation>();
-            foreach (ExternalAssetRef<AnimationClip> a in animations)
-                anim.Clips.Add(a);
-            anim.DefaultClip = animations[0];
+            foreach (AnimationClip a in animations)
+                anim.AddClip(a);
+            anim.SetDefaultClip(animations[0]);
         }
 
         if (!RemoveEmptyEntities)
@@ -138,7 +138,7 @@ public class ModelImporter : AssetImporter
         foreach ((Entity entity, Node node) pair in entitiesToRemove)
         {
             if (!pair.entity.IsDestroyed)
-                pair.entity.ReleaseImmediate();
+                pair.entity.Dispose();
             entityHierarchy.Remove(pair);
         }
 
@@ -220,11 +220,11 @@ public class ModelImporter : AssetImporter
 
     #region Material loading
 
-    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<ExternalAssetRef<Material>> mats)
+    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<Material> mats)
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
-            Material targetMat = new(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
+            Material targetMat = new(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Standard.kshader"), "standard material");
             targetMat.Name = sourceMat.HasName ? sourceMat.Name : "Standard Material";
 
             // Diffuse color (main color)
@@ -341,21 +341,13 @@ public class ModelImporter : AssetImporter
 
     private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
     {
-        if (AssetManager.TryGetGuidFromPath(file, out UUID guid))
-        {
-            // We have this texture as an asset, use the asset, we don't need to load it
-            mat.SetTexture(name, new ExternalAssetRef<Texture2D>(guid));
-        }
-        else
-        {
-            // Import external textures
-            string relativePath = AssetManager.ToRelativePath(file);
+        // Import external textures
+        string relativePath = AssetManager.ToRelativePath(file);
             
-            if (!file.Exists)
-                Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
+        if (!file.Exists)
+            Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
             
-            mat.SetTexture(name, AssetManager.LoadAssetFile<Texture2D>(relativePath));
-        }
+        mat.SetTexture(name, AssetManager.LoadAssetFile<Texture2D>(relativePath));
     }
 
     #endregion
@@ -363,9 +355,9 @@ public class ModelImporter : AssetImporter
 
     #region Animation loading
 
-    private static List<ExternalAssetRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
+    private static List<AnimationClip> LoadAnimations(Scene scene, float scale)
     {
-        List<ExternalAssetRef<AnimationClip>> anims = [];
+        List<AnimationClip> anims = [];
         foreach (Assimp.Animation? anim in scene.Animations)
         {
             AnimationClip animation = LoadAssimpAnimation(scene, scale, anim);
@@ -381,7 +373,7 @@ public class ModelImporter : AssetImporter
         // Create Animation
         AnimationClip destinationAnim = new();
         destinationAnim.Name = sourceAnim.Name;
-        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (Mathematics.MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
+        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
         destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
         destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
 
@@ -475,7 +467,7 @@ public class ModelImporter : AssetImporter
 
     #region Mesh loading
 
-    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<ExternalAssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
+    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<Material> mats, List<MeshMaterialBinding> meshMats)
     {
         foreach (Assimp.Mesh? assimpMesh in scene.Meshes)
         {
@@ -614,7 +606,7 @@ public class ModelImporter : AssetImporter
             Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
-            if (Mathematics.MathOps.AlmostZero(totalWeight))
+            if (MathOps.AlmostZero(totalWeight))
                 continue;
                     
             w /= totalWeight;
@@ -716,11 +708,11 @@ public class ModelImporter : AssetImporter
     #endregion
 
 
-    private sealed class MeshMaterialBinding(string meshName, Assimp.Mesh assimpMesh, ExternalAssetRef<Mesh> engineMesh, ExternalAssetRef<Material> engineMaterial)
+    private sealed class MeshMaterialBinding(string meshName, Assimp.Mesh assimpMesh, Mesh engineMesh, Material engineMaterial)
     {
         public string MeshName { get; } = meshName;
-        public ExternalAssetRef<Material> EngineMaterial { get; } = engineMaterial;
-        public ExternalAssetRef<Mesh> EngineMesh { get; } = engineMesh;
+        public Material EngineMaterial { get; } = engineMaterial;
+        public Mesh EngineMesh { get; } = engineMesh;
         public Assimp.Mesh AssimpMesh { get; } = assimpMesh;
     }
 }

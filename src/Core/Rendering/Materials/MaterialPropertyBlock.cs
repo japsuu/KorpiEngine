@@ -3,7 +3,7 @@ using KorpiEngine.Mathematics;
 
 namespace KorpiEngine.Rendering;
 
-public class MaterialPropertyBlock
+public sealed class MaterialPropertyBlock : IDisposable
 {
     private readonly Dictionary<string, ColorHDR> _colors = new();
     private readonly Dictionary<string, Vector2> _vectors2 = new();
@@ -13,29 +13,17 @@ public class MaterialPropertyBlock
     private readonly Dictionary<string, int> _integers = new();
     private readonly Dictionary<string, Matrix4x4> _matrices = new();
     private readonly Dictionary<string, Matrix4x4[]> _matrixArrays = new();
-    private readonly Dictionary<string, ExternalAssetRef<Texture2D>> _textures = new();
+    private readonly Dictionary<string, AssetReference<Texture2D>> _textures = new();
 
-
-    public MaterialPropertyBlock()
-    {
-    }
-
-
-    public MaterialPropertyBlock(MaterialPropertyBlock clone)
-    {
-        _colors = new Dictionary<string, ColorHDR>(clone._colors);
-        _vectors2 = new Dictionary<string, Vector2>(clone._vectors2);
-        _vectors3 = new Dictionary<string, Vector3>(clone._vectors3);
-        _vectors4 = new Dictionary<string, Vector4>(clone._vectors4);
-        _floats = new Dictionary<string, float>(clone._floats);
-        _integers = new Dictionary<string, int>(clone._integers);
-        _matrices = new Dictionary<string, Matrix4x4>(clone._matrices);
-        _textures = new Dictionary<string, ExternalAssetRef<Texture2D>>(clone._textures);
-    }
-
-
-    public bool IsEmpty => _colors.Count == 0 && _vectors4.Count == 0 && _vectors3.Count == 0 && _vectors2.Count == 0 && _floats.Count == 0 && _integers.Count == 0 &&
-                           _matrices.Count == 0 && _textures.Count == 0;
+    public bool IsEmpty =>
+        _colors.Count   == 0 &&
+        _vectors4.Count == 0 &&
+        _vectors3.Count == 0 &&
+        _vectors2.Count == 0 &&
+        _floats.Count   == 0 &&
+        _integers.Count == 0 &&
+        _matrices.Count == 0 &&
+        _textures.Count == 0;
 
     public void SetColor(string name, ColorHDR value) => _colors[name] = value;
 
@@ -86,16 +74,14 @@ public class MaterialPropertyBlock
         if (value == null)
             _textures.Remove(name);
         else
-            _textures[name] = value;
+            _textures[name] = value.CreateReference();
     }
 
 
-    public void SetTexture(string name, ExternalAssetRef<Texture2D> value) => _textures[name] = value;
-
-    public ExternalAssetRef<Texture2D>? GetTexture(string name)
+    public Texture2D? GetTexture(string name)
     {
-        if (_textures.TryGetValue(name, out ExternalAssetRef<Texture2D> tex))
-            return tex;
+        if (_textures.TryGetValue(name, out AssetReference<Texture2D>? tex))
+            return tex.Asset;
         return null;
     }
     
@@ -149,30 +135,46 @@ public class MaterialPropertyBlock
         }
 
         uint texSlot = 0;
-        List<(string, ExternalAssetRef<Texture2D>)> keysToUpdate = new();
-        foreach (KeyValuePair<string, ExternalAssetRef<Texture2D>> item in propertyBlock._textures)
+        List<(string, AssetReference<Texture2D>)> keysToUpdate = [];
+        foreach ((string? key, AssetReference<Texture2D>? tex) in propertyBlock._textures)
         {
-            ExternalAssetRef<Texture2D> tex = item.Value;
-            if (!tex.IsAvailable)
+            if (!tex.IsAlive)
             {
-                Application.Logger.Warn($"Texture '{item.Key}' on material '{materialName}' is not available (has it been destroyed?)");
+                Application.Logger.Warn($"Texture '{key}' on material '{materialName}' is not available (has it been destroyed?)");
                 
                 // Clear the texture slot
-                Graphics.Device.ClearUniformTexture(shader, item.Key, (int)texSlot);
+                Graphics.Device.ClearUniformTexture(shader, key, (int)texSlot);
                 
                 // Remove from the property block
-                propertyBlock.SetTexture(item.Key, null);
+                propertyBlock.SetTexture(key, null);
                 
                 continue;
             }
             
             texSlot++;
-            Graphics.Device.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Asset!.Handle);
+            Graphics.Device.SetUniformTexture(shader, key, (int)texSlot, tex.Asset!.Handle);
 
-            keysToUpdate.Add((item.Key, tex));
+            keysToUpdate.Add((key, tex));
         }
 
-        foreach ((string, ExternalAssetRef<Texture2D>) item in keysToUpdate)
+        foreach ((string, AssetReference<Texture2D>) item in keysToUpdate)
             propertyBlock._textures[item.Item1] = item.Item2;
+    }
+
+
+    public void Dispose()
+    {
+        _colors.Clear();
+        _vectors2.Clear();
+        _vectors3.Clear();
+        _vectors4.Clear();
+        _floats.Clear();
+        _integers.Clear();
+        _matrices.Clear();
+        _matrixArrays.Clear();
+        
+        foreach (AssetReference<Texture2D> tex in _textures.Values)
+            tex.Release();
+        _textures.Clear();
     }
 }

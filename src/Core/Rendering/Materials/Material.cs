@@ -17,43 +17,50 @@ public sealed class Material : Asset
     public const string NORMAL_TEX = "_NormalTex";
     public const string SURFACE_TEX = "_SurfaceTex";
     public const string EMISSION_TEX = "_EmissionTex";
-    public static ExternalAssetRef<Texture2D> DefaultAlbedoTex { get; private set; }
-    public static ExternalAssetRef<Texture2D> DefaultNormalTex { get; private set; }
-    public static ExternalAssetRef<Texture2D> DefaultSurfaceTex { get; private set; }
-    public static ExternalAssetRef<Texture2D> DefaultEmissionTex { get; private set; }
     
-    internal static ExternalAssetRef<Material> InvalidMaterial { get; private set; }
+    public static Texture2D DefaultAlbedoTex { get; private set; } = null!;
+    public static Texture2D DefaultNormalTex { get; private set; } = null!;
+    public static Texture2D DefaultSurfaceTex { get; private set; } = null!;
+    public static Texture2D DefaultEmissionTex { get; private set; } = null!;
+    public static Material InvalidMaterial { get; private set; } = null!;
     
     
     internal static void LoadDefaults()
     {
-        DefaultAlbedoTex = Texture2D.Find("Assets/Defaults/default_albedo.png");
-        DefaultNormalTex = Texture2D.Find("Assets/Defaults/default_normal.png");
-        DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
-        DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
-
-        InvalidMaterial = new Material(Rendering.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
+        DefaultAlbedoTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_albedo.png").IncreaseReferenceCount();
+        DefaultNormalTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_normal.png").IncreaseReferenceCount();
+        DefaultSurfaceTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_surface.png").IncreaseReferenceCount();
+        DefaultEmissionTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_emission.png").IncreaseReferenceCount();
+        InvalidMaterial = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Invalid.kshader"), "invalid material", false).IncreaseReferenceCount();
     }
     
     
-    public readonly ExternalAssetRef<Shader> Shader;
-
+    internal static void UnloadDefaults()
+    {
+        DefaultAlbedoTex.DecreaseReferenceCount();
+        DefaultNormalTex.DecreaseReferenceCount();
+        DefaultSurfaceTex.DecreaseReferenceCount();
+        DefaultEmissionTex.DecreaseReferenceCount();
+        InvalidMaterial.DecreaseReferenceCount();
+    }
+    
+    
     // Key is Shader.GUID + "-" + keywords + "-" + Shader.globalKeywords
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
-    private readonly MaterialPropertyBlock _propertyBlock;
     private readonly SortedSet<string> _materialKeywords = [];
+    private readonly MaterialPropertyBlock _propertyBlock;
+    private readonly AssetReference<Shader> _shader;
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _allKeywordsString = "";
 
-    public int PassCount => Shader.IsAvailable ? GetCompiledVariant().Passes.Length : 0;
+    public Shader Shader => _shader.Asset!;
+    public int PassCount => _shader.IsAlive ? GetCompiledVariant().Passes.Length : 0;
 
 
-    public Material(ExternalAssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
+    public Material(Shader shader, string name, bool setDefaultTextures = true) : base(name)
     {
-        if (shader.AssetID == UUID.Empty)
-            throw new ArgumentNullException(nameof(shader));
-        Shader = shader;
+        _shader = shader.CreateReference();
         _propertyBlock = new MaterialPropertyBlock();
         
         if (setDefaultTextures)
@@ -120,7 +127,7 @@ public sealed class Material : Asset
 
     public void SetPass(int pass, bool applyProperties = false)
     {
-        if (!Shader.IsAvailable)
+        if (!_shader.IsAlive)
             return;
         
         Shader.CompiledShader shader = GetCompiledVariant();
@@ -135,7 +142,7 @@ public sealed class Material : Asset
 
     public void SetShadowPass(bool applyProperties = false)
     {
-        if (!Shader.IsAvailable)
+        if (!_shader.IsAlive)
             return;
         
         Shader.CompiledShader shader = GetCompiledVariant();
@@ -160,18 +167,18 @@ public sealed class Material : Asset
 #warning TODO: Fix shader complied variant naming
     private Shader.CompiledShader GetCompiledVariant()
     {
-        if (!Shader.IsAvailable)
+        if (!_shader.IsAlive)
             throw new InvalidOperationException("Cannot compile without a valid shader assigned");
         
         int currentHash = Hashing.GetAdditiveHashCode(_materialKeywords);
 
-        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Rendering.Shader.GlobalKeywordsVersion;
+        bool globalKeywordsChanged = _lastGlobalKeywordsVersion != Shader.GlobalKeywordsVersion;
         bool materialKeywordsChanged = currentHash != _lastHash;
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
             string materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Asset!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
-            _lastGlobalKeywordsVersion = Rendering.Shader.GlobalKeywordsVersion;
+            _allKeywordsString = $"{Shader.InstanceID}-{materialKeywordsString}-{Shader.GlobalKeywordsString}";
+            _lastGlobalKeywordsVersion = Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
 
@@ -182,7 +189,7 @@ public sealed class Material : Asset
         List<string> allKeywords = [];
         
         // Add all global keywords
-        allKeywords.AddRange(Rendering.Shader.GetGlobalKeywords());
+        allKeywords.AddRange(Shader.GetGlobalKeywords());
         
         // Add all material keywords
         foreach (string keyword in _materialKeywords)
@@ -198,7 +205,7 @@ public sealed class Material : Asset
 
         // Compile Each Pass
         Application.Logger.Debug($"Compiling Shader Variant: {_allKeywordsString}");
-        Shader.CompiledShader compiledPasses = Shader.Asset!.Compile(allKeywords.ToArray());
+        Shader.CompiledShader compiledPasses = Shader.Compile(allKeywords.ToArray());
 
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
@@ -289,17 +296,14 @@ public sealed class Material : Asset
             Application.Logger.Warn($"Material {Name} does not have a property named {name}");
     }
 
-
-    public void SetTexture(string name, ExternalAssetRef<Texture2D> value, bool allowFail = false)
-    {
-        if (HasVariable(name))
-            _propertyBlock.SetTexture(name, value);
-        else if (!allowFail)
-            Application.Logger.Warn($"Material {Name} does not have a property named {name}");
-    }
-
     #endregion
     
     
-    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Asset!.HasVariable(name);
+    private bool HasVariable(string name) => _shader.IsAlive && Shader.HasVariable(name);
+
+    protected override void OnDispose(bool manual)
+    {
+        _propertyBlock.Dispose();
+        _shader.Release();
+    }
 }

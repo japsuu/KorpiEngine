@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Mathematics;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Rendering;
@@ -6,7 +7,7 @@ namespace KorpiEngine.Rendering;
 // Taken and modified from Prowl's GBuffer.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/GBuffer.cs.
 
-public class GBuffer
+public sealed class GBuffer : IDisposable
 {
     internal readonly RenderTexture Buffer;
     internal GraphicsFrameBuffer? FrameBuffer => Buffer.FrameBuffer;
@@ -35,7 +36,7 @@ public class GBuffer
             TextureImageFormat.R_32_F,      // ObjectIDs
             TextureImageFormat.RGBA_16_F    // Unlit objects
         ];
-        Buffer = new RenderTexture(width, height, 7, true, formats);
+        Buffer = new RenderTexture(width, height, 7, true, formats).IncreaseReferenceCount();
     }
 
 
@@ -85,19 +86,20 @@ public class GBuffer
     }
 
 
-    public void UnloadGBuffer()
+    public void Dispose()
     {
         if (FrameBuffer == null)
             return;
         
-        AlbedoAO.Release();
-        NormalMetallic.Release();
-        PositionRoughness.Release();
-        Emission.Release();
-        Velocity.Release();
-        ObjectIDs.Release();
-        Unlit.Release();
-        Depth?.Release();
+        // Might need to decrease reference count
+        AlbedoAO.DisposeDeferred();
+        NormalMetallic.DisposeDeferred();
+        PositionRoughness.DisposeDeferred();
+        Emission.DisposeDeferred();
+        Velocity.DisposeDeferred();
+        ObjectIDs.DisposeDeferred();
+        Unlit.DisposeDeferred();
+        Depth?.DisposeDeferred();
         FrameBuffer.Dispose();
     }
 }

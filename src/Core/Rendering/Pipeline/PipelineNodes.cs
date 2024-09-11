@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Mathematics;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;
@@ -99,7 +100,7 @@ public class LightingCombinePassNode : RenderPassNode
         if (source == null)
             return null;
 
-        _combineShader ??= new Material(Shader.Find("Assets/Defaults/GBufferCombine.kshader"), "G-buffer combine material", false);
+        _combineShader ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/GBufferCombine.kshader"), "G-buffer combine material", false);
         _combineShader.SetTexture("_GAlbedoAO", gBuffer.AlbedoAO);
         _combineShader.SetTexture("_GLighting", source.MainTexture);
 
@@ -140,7 +141,7 @@ public class ProceduralSkyboxNode : RenderPassNode
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Assets/Defaults/ProceduralSkybox.kshader"), "procedural skybox material", false);
+        _mat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/ProceduralSkybox.kshader"), "procedural skybox material", false);
         _mat.SetTexture("_GColor", source.MainTexture);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
         _mat.SetFloat("_FogDensity", FogDensity);
@@ -177,7 +178,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
         Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Assets/Defaults/SSR.kshader"), "SSR material", false);
+        _mat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/SSR.kshader"), "SSR material", false);
         _mat.SetTexture("_GColor", source.MainTexture);
         _mat.SetTexture("_GNormalMetallic", gBuffer.NormalMetallic);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -254,7 +255,7 @@ public class TAANode : RenderPassNode
 
         RenderTexture history = camera.GetCachedRT("TAA_HISTORY", Pipeline.Width, Pipeline.Height, [TextureImageFormat.RGB_16_F]);
 
-        _mat ??= new Material(Shader.Find("Assets/Defaults/TAA.kshader"), "TAA material", false);
+        _mat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/TAA.kshader"), "TAA material", false);
         _mat.SetTexture("_GColor", source.MainTexture);
         _mat.SetTexture("_GHistory", history.MainTexture);
         _mat.SetTexture("_GPositionRoughness", gBuffer.PositionRoughness);
@@ -291,7 +292,7 @@ public class DepthOfFieldNode : RenderPassNode
         Camera camera = Camera.RenderingCamera;
         GBuffer gBuffer = camera.GBuffer!;
 
-        _mat ??= new Material(Shader.Find("Assets/Defaults/DOF.kshader"), "DOF material", false);
+        _mat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/DOF.kshader"), "DOF material", false);
         _mat.SetTexture("_GCombined", source.MainTexture);
         _mat.SetTexture("_GDepth", gBuffer.Depth!);
 
@@ -321,7 +322,7 @@ public class BloomNode : RenderPassNode
         if (source == null)
             return null;
 
-        _mat ??= new Material(Shader.Find("Assets/Defaults/Bloom.kshader"), "bloom material", false);
+        _mat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Bloom.kshader"), "bloom material", false);
 
         RenderTexture front = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
         RenderTexture back = GetRenderTexture(1f, [TextureImageFormat.RGB_16_F]);
@@ -381,7 +382,7 @@ public class TonemappingNode : RenderPassNode
         if (source == null)
             return null;
 
-        _acesMat ??= new Material(Shader.Find("Assets/Defaults/Tonemapper.kshader"), "tonemapping material", false);
+        _acesMat ??= new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Tonemapper.kshader"), "tonemapping material", false);
         _acesMat.SetTexture("_GAlbedo", source.MainTexture);
         _acesMat.SetFloat("_Contrast", Math.Clamp(Contrast, 0, 2));
         _acesMat.SetFloat("_Saturation", Math.Clamp(Saturation, 0, 2));

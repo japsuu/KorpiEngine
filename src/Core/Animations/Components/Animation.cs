@@ -10,30 +10,39 @@ namespace KorpiEngine.Animations;
 
 public class Animation : EntityComponent
 {
-    public List<ExternalAssetRef<AnimationClip>> Clips { get; set; } = [];
-    public ExternalAssetRef<AnimationClip> DefaultClip { get; set; }
     public bool PlayAutomatically { get; set; } = true;
     public float Speed { get; set; } = 1.0f;
+    
+    public IEnumerable<AnimationClip> Clips => _clips.Select(c => c.Asset!);
+    public AnimationClip DefaultClip => _defaultClip.Asset!;
+    
+    // AssetReferences keep the clips alive until the component is destroyed
+    private List<AssetReference<AnimationClip>> _clips = [];
+    private AssetReference<AnimationClip> _defaultClip;
 
     private readonly List<AnimationState> _states = [];
     private readonly Dictionary<string, AnimationState> _stateDictionary = new();
     private readonly List<Transform> _transforms = [];
+    
+    
+    public void AddClip(AnimationClip clip) => _clips.Add(new AssetReference<AnimationClip>(clip));
+    public void SetDefaultClip(AnimationClip clip) => _defaultClip = new AssetReference<AnimationClip>(clip);
 
 
     protected override void OnEnable()
     {
         // Assign DefaultClip to the first clip if it's not set
-        if (!DefaultClip.IsAvailable && Clips.Count > 0)
-            DefaultClip = Clips[0];
+        if (!_defaultClip.IsAlive && _clips.Count > 0)
+            _defaultClip = _clips[0];
 
-        foreach (ExternalAssetRef<AnimationClip> clip in Clips)
-            if (clip.IsAvailable)
-                AddClip(clip.Asset!);
-        if (DefaultClip.IsAvailable)
+        foreach (AssetReference<AnimationClip> clip in _clips)
+            if (clip.IsAlive)
+                AddClipInternal(clip.Asset!);
+        if (_defaultClip.IsAlive)
         {
-            AddClip(DefaultClip.Asset!);
+            AddClipInternal(_defaultClip.Asset!);
             if (PlayAutomatically)
-                Play(DefaultClip.Asset!.Name);
+                Play(_defaultClip.Asset!.Name);
         }
     }
 
@@ -54,6 +63,15 @@ public class Animation : EntityComponent
         // Update all transforms
         foreach (Transform transform in _transforms)
             UpdateTransform(blendNormalizer, transform);
+    }
+
+
+    protected override void OnDestroy()
+    {
+        foreach (AssetReference<AnimationClip> clip in _clips)
+            clip.Release();
+        
+        _defaultClip.Release();
     }
 
 
@@ -201,7 +219,7 @@ public class Animation : EntityComponent
     }
 
 
-    public void AddClip(AnimationClip clip)
+    private void AddClipInternal(AnimationClip clip)
     {
         if (_stateDictionary.ContainsKey(clip.Name))
             return;

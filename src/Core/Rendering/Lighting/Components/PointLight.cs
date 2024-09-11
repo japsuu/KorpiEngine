@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Entities;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Gizmos;
 
@@ -31,7 +32,7 @@ public class PointLight : EntityComponent
 
         if (_lightMat == null)
         {
-            _lightMat = new Material(Shader.Find("Assets/Defaults/PointLight.kshader"), "point light material", false);
+            _lightMat = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/PointLight.kshader"), "point light material", false);
         }
         else
         {
@@ -61,7 +62,7 @@ public class PointLight : EntityComponent
 
     protected override void OnDestroy()
     {
-        _lightMat?.Release();
-        _mesh?.Release();
+        _lightMat?.Dispose();
+        _mesh?.Dispose();
     }
 }
