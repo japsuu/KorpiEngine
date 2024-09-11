@@ -10,8 +10,8 @@ namespace KorpiEngine.Animations;
 
 public class Animation : EntityComponent
 {
-    public List<AssetRef<AnimationClip>> Clips { get; set; } = [];
-    public AssetRef<AnimationClip> DefaultClip { get; set; }
+    public List<ExternalAssetRef<AnimationClip>> Clips { get; set; } = [];
+    public ExternalAssetRef<AnimationClip> DefaultClip { get; set; }
     public bool PlayAutomatically { get; set; } = true;
     public float Speed { get; set; } = 1.0f;
 
@@ -26,14 +26,14 @@ public class Animation : EntityComponent
         if (!DefaultClip.IsAvailable && Clips.Count > 0)
             DefaultClip = Clips[0];
 
-        foreach (AssetRef<AnimationClip> clip in Clips)
+        foreach (ExternalAssetRef<AnimationClip> clip in Clips)
             if (clip.IsAvailable)
-                AddClip(clip.Res!);
+                AddClip(clip.Asset!);
         if (DefaultClip.IsAvailable)
         {
-            AddClip(DefaultClip.Res!);
+            AddClip(DefaultClip.Asset!);
             if (PlayAutomatically)
-                Play(DefaultClip.Res!.Name);
+                Play(DefaultClip.Asset!.Name);
         }
     }
 

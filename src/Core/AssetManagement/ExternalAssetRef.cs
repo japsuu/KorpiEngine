@@ -9,35 +9,34 @@ namespace KorpiEngine.AssetManagement;
 // https://github.com/AdamsLair/duality/blob/master/Source/Core/Duality/ContentRef.cs
 
 /// <summary>
-/// This lightweight struct references an <see cref="AssetInstance"/> in an abstract way.
-/// It is tightly connected to the AssetDatabase, and takes care of keeping or making 
-/// the referenced content available when needed. Never store actual Resource references permanently,
-/// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
-/// temporarily, although this is only recommended at method-local scope.
+/// This lightweight struct references an external <see cref="AssetInstance"/> in an abstract way.
+/// It is tightly connected to the AssetDatabase, and takes care of keeping or making the referenced content available when needed.
+/// Never store references to external assets permanently, instead use an <see cref="ExternalAssetRef{T}"/> to it.
+/// However, you may retrieve and store a direct asset reference temporarily, although this is only recommended at method-local scope.
 /// </summary>
-public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : AssetInstance
+public struct ExternalAssetRef<T> : ISerializable, IEquatable<ExternalAssetRef<T>> where T : AssetInstance
 {
-    private T? _instance;
+    private T? _assetReference;
     private UUID _assetID = UUID.Empty;
-
+//#error Change to use AssetManager.Get on each property read.
     /// <summary>
-    /// The actual <see cref="AssetInstance"/>.
+    /// The referenced <see cref="AssetInstance"/>.
     /// If currently unavailable, it is loaded and then returned.
-    /// Because of that, this Property is only null if the referenced Resource is missing, invalid, or
+    /// Because of that, this property is only null if the referenced external asset is missing, invalid, or
     /// this content reference has been explicitly set to null. Never returns disposed Resources.
     /// </summary>
-    public T? Res
+    public T? Asset
     {
         get
         {
-            if (_instance == null || _instance.IsReleased)
-                RetrieveInstance();
-            return _instance;
+            if (_assetReference == null || _assetReference.IsDestroyed)
+                RetrieveReference();
+            return _assetReference;
         }
         private set
         {
-            _assetID = value?.AssetID ?? UUID.Empty;
-            _instance = value;
+            _assetID = value?.ExternalAssetID ?? UUID.Empty;
+            _assetReference = value;
         }
     }
 
@@ -45,7 +44,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// Returns the current reference to the Resource that is stored locally. No attempt is made to load or reload
     /// the Resource if it is currently unavailable.
     /// </summary>
-    public T? ResWeak => _instance == null || _instance.IsReleased ? null : _instance;
+    public T? ResWeak => _assetReference == null || _assetReference.IsDestroyed ? null : _assetReference;
 
     /// <summary>
     /// The path where to look for the Resource, if it is currently unavailable.
@@ -56,15 +55,15 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         set
         {
             _assetID = value;
-            if (_instance != null && _instance.AssetID != value)
-                _instance = null;
+            if (_assetReference != null && _assetReference.ExternalAssetID != value)
+                _assetReference = null;
         }
     }
 
     /// <summary>
     /// Returns whether this content reference has been explicitly set to null.
     /// </summary>
-    public bool IsExplicitNull => _instance == null && _assetID == UUID.Empty;
+    public bool IsExplicitNull => _assetReference == null && _assetID == UUID.Empty;
 
     /// <summary>
     /// Returns whether this content reference is available in general. This may trigger loading it, if currently unavailable.
@@ -73,10 +72,10 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         get
         {
-            if (_instance != null && !_instance.IsReleased)
+            if (_assetReference != null && !_assetReference.IsDestroyed)
                 return true;
-            RetrieveInstance();
-            return _instance != null;
+            RetrieveReference();
+            return _assetReference != null;
         }
     }
 
@@ -87,7 +86,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         get
         {
-            if (_instance != null && !_instance.IsReleased)
+            if (_assetReference != null && !_assetReference.IsDestroyed)
                 return true;
             return AssetManager.Contains(_assetID);
         }
@@ -96,14 +95,14 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <summary>
     /// Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
     /// </summary>
-    public bool IsRuntimeResource => _instance != null && _assetID == UUID.Empty;
+    public bool IsRuntimeResource => _assetReference != null && _assetID == UUID.Empty;
 
     public string Name
     {
         get
         {
-            if (_instance != null)
-                return _instance.IsReleased ? "DESTROYED_" + _instance.Name : _instance.Name;
+            if (_assetReference != null)
+                return _assetReference.IsDestroyed ? "DESTROYED_" + _assetReference.Name : _assetReference.Name;
             return "No Instance";
         }
     }
@@ -116,9 +115,9 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// the specified alias.
     /// </summary>
     /// <param name="id"></param>
-    public AssetRef(UUID id)
+    public ExternalAssetRef(UUID id)
     {
-        _instance = null;
+        _assetReference = null;
         _assetID = id;
     }
 
@@ -127,34 +126,34 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// Creates a AssetRef pointing to the specified <see cref="AssetInstance"/>.
     /// </summary>
     /// <param name="res">The Resource to reference.</param>
-    public AssetRef(T? res)
+    public ExternalAssetRef(T? res)
     {
-        _instance = res;
-        _assetID = res?.AssetID ?? UUID.Empty;
+        _assetReference = res;
+        _assetID = res?.ExternalAssetID ?? UUID.Empty;
     }
 
 
-    public object? GetInstance() => Res;
+    public object? GetInstance() => Asset;
 
 
     public void SetInstance(object? obj)
     {
         if (obj is T res)
-            Res = res;
+            Asset = res;
         else
-            Res = null;
+            Asset = null;
     }
 
 
     /// <summary>
     /// Loads the associated content as if it was accessed now.
     /// You don't usually need to call this method. It is invoked implicitly by trying to 
-    /// access the <see cref="AssetRef{T}"/>.
+    /// access the <see cref="ExternalAssetRef{T}"/>.
     /// </summary>
     public void EnsureLoaded()
     {
-        if (_instance == null || _instance.IsReleased)
-            RetrieveInstance();
+        if (_assetReference == null || _assetReference.IsDestroyed)
+            RetrieveReference();
     }
 
 
@@ -164,18 +163,18 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// </summary>
     public void Release()
     {
-        _instance = null;
+        _assetReference = null;
     }
 
 
-    private void RetrieveInstance()
+    private void RetrieveReference()
     {
         if (_assetID != UUID.Empty)
-            _instance = AssetManager.LoadAsset<T>(_assetID);
-        else if (_instance != null && _instance.AssetID != UUID.Empty)
-            _instance = AssetManager.LoadAsset<T>(_instance.AssetID);
+            _assetReference = AssetManager.LoadAsset<T>(_assetID);
+        else if (_assetReference != null && _assetReference.ExternalAssetID != UUID.Empty)
+            _assetReference = AssetManager.LoadAsset<T>(_assetReference.ExternalAssetID);
         else
-            _instance = null;
+            _assetReference = null;
     }
 
 
@@ -201,25 +200,25 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         if (_assetID != UUID.Empty)
             return _assetID.GetHashCode();
-        if (_instance != null)
-            return _instance.GetHashCode();
+        if (_assetReference != null)
+            return _assetReference.GetHashCode();
         return 0;
     }
 
 
     public override bool Equals(object? obj)
     {
-        if (obj is AssetRef<T> @ref)
+        if (obj is ExternalAssetRef<T> @ref)
             return this == @ref;
         return base.Equals(obj);
     }
 
 
-    public bool Equals(AssetRef<T> other) => this == other;
+    public bool Equals(ExternalAssetRef<T> other) => this == other;
 
-    public static implicit operator AssetRef<T>(T res) => new(res);
+    public static implicit operator ExternalAssetRef<T>(T res) => new(res);
 
-    public static explicit operator T(AssetRef<T> res) => res.Res!;
+    public static explicit operator T(ExternalAssetRef<T> res) => res.Asset!;
 
 
     /// <summary>
@@ -231,15 +230,15 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// This is a two-step comparison. First, their actual Resources references are compared.
     /// If they're both not null and equal, true is returned. Otherwise, their AssetID are compared to equality
     /// </remarks>
-    public static bool operator ==(AssetRef<T> first, AssetRef<T> second)
+    public static bool operator ==(ExternalAssetRef<T> first, ExternalAssetRef<T> second)
     {
         // Completely identical
-        if (first._instance == second._instance && first._assetID == second._assetID)
+        if (first._assetReference == second._assetReference && first._assetID == second._assetID)
             return true;
 
         // Same instances
-        if (first._instance != null && second._instance != null)
-            return first._instance == second._instance;
+        if (first._assetReference != null && second._assetReference != null)
+            return first._assetReference == second._assetReference;
 
         // Null checks
         if (first.IsExplicitNull)
@@ -248,8 +247,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
             return first.IsExplicitNull;
 
         // Path comparison
-        UUID? firstPath = first._instance?.AssetID ?? first._assetID;
-        UUID? secondPath = second._instance?.AssetID ?? second._assetID;
+        UUID? firstPath = first._assetReference?.ExternalAssetID ?? first._assetID;
+        UUID? secondPath = second._assetReference?.ExternalAssetID ?? second._assetID;
         return firstPath == secondPath;
     }
 
@@ -259,7 +258,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// </summary>
     /// <param name="first"></param>
     /// <param name="second"></param>
-    public static bool operator !=(AssetRef<T> first, AssetRef<T> second) => !(first == second);
+    public static bool operator !=(ExternalAssetRef<T> first, ExternalAssetRef<T> second) => !(first == second);
 
 
     public SerializedProperty Serialize(Serializer.SerializationContext ctx)
@@ -269,7 +268,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         if (_assetID != UUID.Empty)
             ctx.AddDependency(_assetID);
         if (IsRuntimeResource)
-            compoundTag.Add("Instance", Serializer.Serialize(_instance, ctx));
+            compoundTag.Add("Instance", Serializer.Serialize(_assetReference, ctx));
         return compoundTag;
     }
 
@@ -278,6 +277,6 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         _assetID = UUID.Parse(value["AssetID"].StringValue);
         if (_assetID == UUID.Empty && value.TryGet("Instance", out SerializedProperty? tag))
-            _instance = Serializer.Deserialize<T?>(tag!, ctx);
+            _assetReference = Serializer.Deserialize<T?>(tag!, ctx);
     }
 }

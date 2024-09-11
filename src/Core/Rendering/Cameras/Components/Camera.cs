@@ -55,7 +55,7 @@ public sealed class Camera : EntityComponent
     /// If set, the camera will render to this texture.
     /// If not set, the camera will render to the screen.
     /// </summary>
-    public AssetRef<RenderTexture> TargetTexture { get; set; }
+    public ExternalAssetRef<RenderTexture> TargetTexture { get; set; }
     
     /// <summary>
     /// The G-buffer of this camera.
@@ -102,8 +102,8 @@ public sealed class Camera : EntityComponent
         // Determine render target size
         if (TargetTexture.IsAvailable)
         {
-            width = TargetTexture.Res!.Width;
-            height = TargetTexture.Res!.Height;
+            width = TargetTexture.Asset!.Width;
+            height = TargetTexture.Asset!.Height;
         }
         else if (width == -1 || height == -1)
         {
@@ -154,8 +154,8 @@ public sealed class Camera : EntityComponent
         bool doClear = ClearType == CameraClearType.SolidColor;
         if (DebugDrawType == CameraDebugDrawType.OFF)
         {
-            Graphics.Blit(TargetTexture.Res ?? null, result.MainTexture, doClear);
-            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
+            Graphics.Blit(TargetTexture.Asset ?? null, result.MainTexture, doClear);
+            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Asset ?? null);
         }
         else
         {
@@ -171,7 +171,7 @@ public sealed class Camera : EntityComponent
             _debugMaterial.SetFloat("_CameraNearClip", NearClipPlane);
             _debugMaterial.SetFloat("_CameraFarClip", FarClipPlane);
             
-            Graphics.Blit(TargetTexture.Res ?? null, _debugMaterial, 0, doClear);
+            Graphics.Blit(TargetTexture.Asset ?? null, _debugMaterial, 0, doClear);
         }
         
         _oldView = Graphics.ViewMatrix;
@@ -234,7 +234,7 @@ public sealed class Camera : EntityComponent
     private Vector2 GetRenderTargetSize()
     {
         if (TargetTexture.IsAvailable)
-            return new Vector2(TargetTexture.Res!.Width, TargetTexture.Res!.Height);
+            return new Vector2(TargetTexture.Asset!.Width, TargetTexture.Asset!.Height);
         
         return new Vector2(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
     }
@@ -265,7 +265,7 @@ public sealed class Camera : EntityComponent
         // Clear the screen
         if (ClearType == CameraClearType.SolidColor)
         {
-            TargetTexture.Res?.Begin();
+            TargetTexture.Asset?.Begin();
             
             ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
             bool clearColor = ClearFlags.HasFlagFast(CameraClearFlags.Color);
@@ -273,7 +273,7 @@ public sealed class Camera : EntityComponent
             bool clearStencil = ClearFlags.HasFlagFast(CameraClearFlags.Stencil);
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
             
-            TargetTexture.Res?.End();
+            TargetTexture.Asset?.End();
         }
         
         RenderingCamera = null!;

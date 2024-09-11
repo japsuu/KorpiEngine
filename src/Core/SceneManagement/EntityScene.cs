@@ -304,7 +304,7 @@ internal sealed class EntityScene
         foreach (Entity entity in _entities)
         {
             // The entity may have been released during the update loop.
-            if (entity.IsReleased)
+            if (entity.IsDestroyed)
                 return;
 
             if (!entity.Enabled)

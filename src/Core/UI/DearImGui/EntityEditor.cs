@@ -10,7 +10,7 @@ namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private AssetRef<Entity> _target;
+    private ExternalAssetRef<Entity> _target;
 
     public override string Title => "Entity Editor";
 
@@ -37,7 +37,7 @@ public class EntityEditor() : ImGuiWindow(true)
 
     public void SetTarget(Entity? entity)
     {
-        _target = new AssetRef<Entity>(entity);
+        _target = new ExternalAssetRef<Entity>(entity);
     }
 
 
@@ -52,7 +52,7 @@ public class EntityEditor() : ImGuiWindow(true)
         ImGui.Text($"Entity: {_target.Name}");
         ImGui.Separator();
         
-        DrawEntityHierarchy(_target.Res!);
+        DrawEntityHierarchy(_target.Asset!);
     }
 
 

@@ -9,8 +9,8 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
-    public AssetRef<Mesh> Mesh { get; set; }
-    public AssetRef<Material> Material { get; set; }
+    public ExternalAssetRef<Mesh> Mesh { get; set; }
+    public ExternalAssetRef<Material> Material { get; set; }
 
     public Transform?[] Bones { get; set; } = [];
 
@@ -45,21 +45,21 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
         if (Mesh.IsAvailable && Material.IsAvailable)
         {
-            if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+            if (!Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
                 return;
 
             GetBoneMatrices();
-            Material.Res!.EnableKeyword("SKINNED");
-            Material.Res!.SetInt("_ObjectID", Entity.InstanceID);
-            Material.Res!.SetMatrices("_BindPoses", Mesh.Res!.BindPoses!);
-            Material.Res!.SetMatrices("_BoneTransforms", _boneTransforms!);
-            for (int i = 0; i < Material.Res!.PassCount; i++)
+            Material.Asset!.EnableKeyword("SKINNED");
+            Material.Asset!.SetInt("_ObjectID", Entity.InstanceID);
+            Material.Asset!.SetMatrices("_BindPoses", Mesh.Asset!.BindPoses!);
+            Material.Asset!.SetMatrices("_BoneTransforms", _boneTransforms!);
+            for (int i = 0; i < Material.Asset!.PassCount; i++)
             {
-                Material.Res!.SetPass(i);
-                Graphics.DrawMeshNow(Mesh.Res!, transform, Material.Res!, prevMat);
+                Material.Asset!.SetPass(i);
+                Graphics.DrawMeshNow(Mesh.Asset!, transform, Material.Asset!, prevMat);
             }
 
-            Material.Res!.DisableKeyword("SKINNED");
+            Material.Asset!.DisableKeyword("SKINNED");
         }
 
         _prevMats[camID] = transform;
@@ -72,24 +72,24 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
             return;
         
         GetBoneMatrices();
-        Material.Res!.EnableKeyword("SKINNED");
-        Material.Res!.SetMatrices("_BindPoses", Mesh.Res!.BindPoses!);
-        Material.Res!.SetMatrices("_BoneTransforms", _boneTransforms!);
+        Material.Asset!.EnableKeyword("SKINNED");
+        Material.Asset!.SetMatrices("_BindPoses", Mesh.Asset!.BindPoses!);
+        Material.Asset!.SetMatrices("_BoneTransforms", _boneTransforms!);
 
         Matrix4x4 mvp = Matrix4x4.Identity;
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
         
-        if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+        if (!Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
             return;
         
         mvp = Matrix4x4.Multiply(mvp, transform);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
-        Material.Res!.SetMatrix("_MatMVP", mvp);
-        Material.Res!.SetShadowPass(true);
-        Graphics.DrawMeshNowDirect(Mesh.Res!);
+        Material.Asset!.SetMatrix("_MatMVP", mvp);
+        Material.Asset!.SetShadowPass(true);
+        Graphics.DrawMeshNowDirect(Mesh.Asset!);
 
-        Material.Res!.DisableKeyword("SKINNED");
+        Material.Asset!.DisableKeyword("SKINNED");
     }
 
 
@@ -106,8 +106,8 @@ public class SkinnedMeshRenderer : EntityComponent, ISerializable
 
     public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
     {
-        Mesh = Serializer.Deserialize<AssetRef<Mesh>>(value["Mesh"], ctx);
-        Material = Serializer.Deserialize<AssetRef<Material>>(value["Material"], ctx);
+        Mesh = Serializer.Deserialize<ExternalAssetRef<Mesh>>(value["Mesh"], ctx);
+        Material = Serializer.Deserialize<ExternalAssetRef<Material>>(value["Material"], ctx);
         Bones = Serializer.Deserialize<Transform[]>(value["Bones"], ctx)!;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace KorpiEngine.AssetManagement;
 
+/// <summary>
+/// Manages the loading and unloading of external assets.
+/// </summary>
 public static partial class AssetManager
 {
     /// <summary>
@@ -9,7 +12,7 @@ public static partial class AssetManager
     /// The path is relative to the project root.
     /// </summary>
     private static readonly Dictionary<string, UUID> RelativePathToGuid = new();
-    private static readonly Dictionary<UUID, Asset> GuidToAsset = new();
+    private static readonly Dictionary<UUID, ExternalAsset> GuidToAsset = new();
 
 
     #region ASSET LOADING
@@ -52,10 +55,47 @@ public static partial class AssetManager
         if (assetGuid == UUID.Empty)
             throw new ArgumentException("Asset UUID cannot be empty", nameof(assetGuid));
 
-        if (GetAssetWithId(assetGuid)?.Instance is not T asset)
+        ExternalAsset? externalAsset = GetAssetWithId(assetGuid);
+        if (externalAsset?.Instance is not T asset)
             throw new AssetLoadException<T>(assetGuid.ToString(), "Asset not found");
         
+        externalAsset.ReferenceOnce();
+        
         return asset;
+    }
+
+
+    /// <summary>
+    /// Gets an asset of the specified type from the specified file path.
+    /// Use this when the asset GUID is not known, and if you temporarily need the asset without incrementing its reference count.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to get.</typeparam>
+    /// <param name="relativeAssetPath">The project-relative file path of the asset to get.</param>
+    /// <returns>The loaded asset, or null if the asset is not loaded.</returns>
+    public static T? GetAsset<T>(string relativeAssetPath) where T : AssetInstance
+    {
+        FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
+        
+        if (!TryGetGuidFromPath(fileInfo, out UUID guid))
+            return null;
+
+        return GetAsset<T>(guid);
+    }
+
+
+    /// <summary>
+    /// Gets an asset of the specified type with the specified known GUID.
+    /// Use this when the asset GUID is known, and if you temporarily need the asset without incrementing its reference count.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to get.</typeparam>
+    /// <param name="assetGuid">The GUID of the asset to get.</param>
+    /// <returns>The loaded asset, or null if the asset is not loaded.</returns>
+    public static T? GetAsset<T>(UUID assetGuid) where T : AssetInstance
+    {
+        if (assetGuid == UUID.Empty)
+            throw new ArgumentException("Asset UUID cannot be empty", nameof(assetGuid));
+
+        return GetAssetWithId(assetGuid)?.Instance as T;
     }
 
     #endregion
@@ -63,22 +103,42 @@ public static partial class AssetManager
 
     #region ASSET UNLOADING
 
-    public static void UnloadAsset(UUID guid)
+    internal static void UnloadAsset(AssetInstance asset)
     {
-        if (!GuidToAsset.TryGetValue(guid, out Asset? asset))
+        ArgumentNullException.ThrowIfNull(asset);
+        
+        if (!asset.IsExternal)
+            throw new InvalidOperationException("Cannot unload an asset that is not external. Did you mean to call AssetInstance.Release()?");
+        
+        if (asset.IsDestroyed)
+            throw new InvalidOperationException("Cannot unload an asset that has already been destroyed.");
+
+        UnloadAsset(asset.ExternalAssetID);
+    }
+
+    internal static void UnloadAsset(UUID guid)
+    {
+        if (!GuidToAsset.TryGetValue(guid, out ExternalAsset? asset))
             return;
 
         string relativePath = ToRelativePath(asset.AssetPath);
+
+        // Make sure the asset is not being referenced by any other objects
+        if (!asset.TryRelease())
+            return;
         
-        asset.Destroy();
+        asset.Instance.Dispose();
+        
         GuidToAsset.Remove(guid);
         RelativePathToGuid.Remove(relativePath);
+        
+        Application.Logger.Info($"Unloaded {asset.AssetPath.Name} ({asset.AssetID} - {asset.Instance.Name})");
     }
 
     #endregion
 
 
-    private static Asset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
+    private static ExternalAsset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
     {
         ArgumentNullException.ThrowIfNull(assetFile);
         
@@ -106,14 +166,15 @@ public static partial class AssetManager
             
         // Generate a new GUID for the asset
         UUID assetID = new();
-        instance.AssetID = assetID;
-        Asset asset = new(assetID, assetFile, instance);
+        instance.ExternalAssetID = assetID;
+        instance.IsExternal = true;
+        ExternalAsset externalAsset = new(assetID, assetFile, instance);
 
         RelativePathToGuid[relativePath] = assetID;
-        GuidToAsset[assetID] = asset;
+        GuidToAsset[assetID] = externalAsset;
             
         Application.Logger.Info($"Successfully imported {relativePath}");
-        return asset;
+        return externalAsset;
     }
 
 
@@ -152,5 +213,5 @@ public static partial class AssetManager
     /// <summary>
     /// Gets the asset with the specified GUID.
     /// </summary>
-    private static Asset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
+    private static ExternalAsset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
 }

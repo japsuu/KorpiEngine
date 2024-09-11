@@ -90,14 +90,14 @@ public class GBuffer
         if (FrameBuffer == null)
             return;
         
-        AlbedoAO.Dispose();
-        NormalMetallic.Dispose();
-        PositionRoughness.Dispose();
-        Emission.Dispose();
-        Velocity.Dispose();
-        ObjectIDs.Dispose();
-        Unlit.Dispose();
-        Depth?.Dispose();
+        AlbedoAO.Release();
+        NormalMetallic.Release();
+        PositionRoughness.Release();
+        Emission.Release();
+        Velocity.Release();
+        ObjectIDs.Release();
+        Unlit.Release();
+        Depth?.Release();
         FrameBuffer.Dispose();
     }
 }

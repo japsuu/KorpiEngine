@@ -98,9 +98,9 @@ public sealed class RenderTexture : AssetInstance
 #endif
 
         foreach (Texture2D texture in InternalTextures)
-            texture.Dispose();
+            texture.Release();
         
-        InternalDepth?.Dispose();
+        InternalDepth?.Release();
 
         FrameBuffer?.Dispose();
     }

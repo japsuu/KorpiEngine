@@ -8,8 +8,8 @@ public class MeshRenderer : EntityComponent
 {
     public override ComponentRenderOrder RenderOrder => ComponentRenderOrder.GeometryPass;
 
-    public AssetRef<Mesh> Mesh { get; set; }
-    public AssetRef<Material> Material { get; set; }
+    public ExternalAssetRef<Mesh> Mesh { get; set; }
+    public ExternalAssetRef<Material> Material { get; set; }
     public ColorHDR MainColor { get; set; } = ColorHDR.White;
     
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();
@@ -26,23 +26,23 @@ public class MeshRenderer : EntityComponent
         if (!Mesh.IsAvailable)
             return;
             
-        Material? material = Material.Res;
+        Material? material = Material.Asset;
         if (material == null)
         {
-            material = Rendering.Material.InvalidMaterial.Res!;
+            material = Rendering.Material.InvalidMaterial.Asset!;
 #if TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif
         }
         
-        if (Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+        if (Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
         {
             material.SetColor("_MainColor", MainColor);
             material.SetInt("_ObjectID", Entity.InstanceID);
             for (int i = 0; i < material.PassCount; i++)
             {
                 material.SetPass(i);
-                Graphics.DrawMeshNow(Mesh.Res!, transform, material, previousTransform);
+                Graphics.DrawMeshNow(Mesh.Asset!, transform, material, previousTransform);
             }
         }
 
@@ -57,16 +57,16 @@ public class MeshRenderer : EntityComponent
         
         Matrix4x4 transform = Entity.GlobalCameraRelativeTransform;
         
-        if (!Graphics.FrustumTest(Mesh.Res!.BoundingSphere, transform))
+        if (!Graphics.FrustumTest(Mesh.Asset!.BoundingSphere, transform))
             return;
 
         Matrix4x4 mvp = Matrix4x4.Identity;
         mvp = Matrix4x4.Multiply(mvp, transform);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthViewMatrix);
         mvp = Matrix4x4.Multiply(mvp, Graphics.DepthProjectionMatrix);
-        Material.Res!.SetMatrix("_MatMVP", mvp);
-        Material.Res!.SetShadowPass(true);
-        Graphics.DrawMeshNowDirect(Mesh.Res!);
+        Material.Asset!.SetMatrix("_MatMVP", mvp);
+        Material.Asset!.SetShadowPass(true);
+        Graphics.DrawMeshNowDirect(Mesh.Asset!);
     }
 
 

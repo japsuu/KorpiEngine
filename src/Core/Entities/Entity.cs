@@ -290,7 +290,7 @@ public sealed class Entity : AssetInstance
 
     public T AddComponent<T>() where T : EntityComponent, new()
     {
-        if (IsReleased)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         Type type = typeof(T);
@@ -567,7 +567,7 @@ public sealed class Entity : AssetInstance
 
     public void AddSystem<T>() where T : class, IEntitySystem, new()
     {
-        if (IsReleased)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         T system = new();
@@ -589,7 +589,7 @@ public sealed class Entity : AssetInstance
 
     public void RemoveSystem<T>() where T : class, IEntitySystem
     {
-        if (IsReleased)
+        if (IsDestroyed)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         ulong typeId = TypeID.Get<T>();

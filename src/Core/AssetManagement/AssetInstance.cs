@@ -3,7 +3,7 @@ using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
-public abstract class AssetInstance : SafeDisposable
+public abstract class AssetInstance
 {
     private static class AssetInstanceID
     {
@@ -22,33 +22,46 @@ public abstract class AssetInstance : SafeDisposable
         }
     }
     
-    private static readonly Stack<AssetInstance> ReleaseDeferredResources = new();
-    private static readonly Dictionary<int, WeakReference<AssetInstance>> AllResources = new();
+    private static readonly Stack<AssetInstance> DisposeDeferredAssets = new();
+    private static readonly Dictionary<int, WeakReference<AssetInstance>> AllAssets = new();
 
     /// <summary>
-    /// Unique identifier for this resource.
+    /// Unique identifier for this asset.
     /// </summary>
     public readonly int InstanceID;
-    public string Name { get; set; }
-    
-    // Asset path if we have one
-    public UUID AssetID { get; internal set; } = UUID.Empty;
     
     /// <summary>
-    /// Whether the object has been released (disposed or waiting for disposal).
+    /// The name of the asset.
     /// </summary>
-    public bool IsReleased => IsDisposed || IsWaitingDisposal;
-    public bool IsWaitingDisposal { get; private set; }
+    public string Name { get; set; }
+    
+    /// <summary>
+    /// The UUID of the external asset from which this asset was loaded.
+    /// Empty if the asset is not external.
+    /// </summary>
+    public UUID ExternalAssetID { get; internal set; } = UUID.Empty;
+    
+    /// <summary>
+    /// Whether the asset is external (loaded from a file).
+    /// If this property is true, the asset is managed by the AssetManager and should not be disposed of manually.
+    /// </summary>
+    public bool IsExternal { get; internal set; }
+    
+    /// <summary>
+    /// Whether the asset has been destroyed.
+    /// </summary>
+    public bool IsDestroyed { get; private set; }
+    private bool _isWaitingRelease;
 
 
     #region Creation, Destruction, and Disposal
 
-    protected AssetInstance(string? name = "New Resource")
+    protected AssetInstance(string? name = null)
     {
         InstanceID = AssetInstanceID.Generate();
-        AllResources.Add(InstanceID, new WeakReference<AssetInstance>(this));
+        AllAssets.Add(InstanceID, new WeakReference<AssetInstance>(this));
 
-        Name = name ?? $"New {GetType().Name}";
+        Name = name ?? $"New {GetType().Name} Asset";
     }
     
     
@@ -58,53 +71,81 @@ public abstract class AssetInstance : SafeDisposable
     }
 
 
-    protected sealed override void Dispose(bool manual)
+    internal void Dispose()
     {
-        if (IsDisposed)
+        Dispose(true);
+        // Take this object off the finalization queue to prevent the destructor from being called.
+        GC.SuppressFinalize(this);
+    }
+
+
+    private void Dispose(bool manual)
+    {
+        if (IsDestroyed)
             return;
-        base.Dispose(manual);
+        IsDestroyed = true;
         
+        if (IsExternal)
+        {
+            // This should never fail because of the reference counting system.
+            Debug.Assert(!manual, $"External asset {Name} ({GetType().FullName}) was released by the GC. This is a memory leak! Did you forget to call Release() or AssetManager.UnloadAsset()?");
+            throw new InvalidOperationException($"{Name} ({GetType().FullName}) is an external asset and cannot be released manually.");
+        }
+
         OnDispose(manual);
-        AllResources.Remove(InstanceID);
+        AllAssets.Remove(InstanceID);
     }
 
 
     /// <summary>
-    /// Queues this resource for disposal.
-    /// The resource will be released at the end of the frame.
+    /// Queues this asset for disposal.
+    /// The asset will be disposed of at the end of the frame.
     /// </summary>
-    /// <exception cref="AssetReleasedException">Thrown if the resource is already released.</exception>
+    /// <exception cref="AssetReleasedException">Thrown if the asset is already released.</exception>
     public void Release()
     {
-        if (IsReleased)
+        if (IsDestroyed)
             throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
         
-        IsWaitingDisposal = true;
-        ReleaseDeferredResources.Push(this);
+        _isWaitingRelease = true;
+        DisposeDeferredAssets.Push(this);
     }
 
 
     /// <summary>
-    /// Calls <see cref="Dispose"/> on this resource, releasing it immediately.
+    /// Disposes of this asset, releasing it immediately.
+    /// Should only be called if the asset is not external.
     /// </summary>
-    /// <exception cref="AssetReleasedException">Thrown if the resource is already released.</exception>
+    /// <exception cref="AssetReleasedException">Thrown if the asset is already released.</exception>
     public void ReleaseImmediate()
     {
-        if (IsReleased)
+        if (IsDestroyed)
             throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
         
-        Dispose();
+        HandleRelease();
+    }
+    
+    
+    private void HandleRelease()
+    {
+        _isWaitingRelease = false;
+
+        if (IsExternal)
+            // Decreases the reference count of the external asset, and call Dispose it if it reaches 0.
+            AssetManager.UnloadAsset(ExternalAssetID);
+        else
+            Dispose();
     }
 
 
     internal static void ProcessReleaseQueue()
     {
-        while (ReleaseDeferredResources.TryPop(out AssetInstance? obj))
+        while (DisposeDeferredAssets.TryPop(out AssetInstance? obj))
         {
-            if (obj.IsDisposed)
+            if (obj.IsDestroyed)
                 continue;
 
-            obj.Dispose();
+            obj.HandleRelease();
         }
     }
 
@@ -115,7 +156,7 @@ public abstract class AssetInstance : SafeDisposable
 
     public static T? FindObjectOfType<T>() where T : AssetInstance
     {
-        foreach (WeakReference<AssetInstance> obj in AllResources.Values)
+        foreach (WeakReference<AssetInstance> obj in AllAssets.Values)
             if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
                 return t;
         return null;
@@ -125,7 +166,7 @@ public abstract class AssetInstance : SafeDisposable
     public static T?[] FindObjectsOfType<T>() where T : AssetInstance
     {
         List<T> objects = [];
-        foreach (WeakReference<AssetInstance> obj in AllResources.Values)
+        foreach (WeakReference<AssetInstance> obj in AllAssets.Values)
             if (obj.TryGetTarget(out AssetInstance? target) && target is T t)
                 objects.Add(t);
         return objects.ToArray();
@@ -134,7 +175,7 @@ public abstract class AssetInstance : SafeDisposable
 
     public static T? FindObjectByID<T>(int id) where T : AssetInstance
     {
-        if (!AllResources.TryGetValue(id, out WeakReference<AssetInstance>? obj))
+        if (!AllAssets.TryGetValue(id, out WeakReference<AssetInstance>? obj))
             return null;
 
         if (!obj.TryGetTarget(out AssetInstance? target) || target is not T t)
@@ -146,10 +187,10 @@ public abstract class AssetInstance : SafeDisposable
     #endregion
 
 
-    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
+    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Release"/> or <see cref="ReleaseImmediate"/>.<br/>
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
-    /// False, if caused by the GC and therefore from another thread and the result of a resource leak.
+    /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void OnDispose(bool manual) { }
     public override string ToString() => Name;
