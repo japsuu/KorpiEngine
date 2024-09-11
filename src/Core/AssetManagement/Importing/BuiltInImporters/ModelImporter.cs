@@ -137,8 +137,8 @@ public class ModelImporter : AssetImporter
                 
         foreach ((Entity entity, Node node) pair in entitiesToRemove)
         {
-            if (!pair.entity.IsDestroyed)
-                pair.entity.DestroyImmediate();
+            if (!pair.entity.IsReleased)
+                pair.entity.ReleaseImmediate();
             entityHierarchy.Remove(pair);
         }
 

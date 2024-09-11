@@ -61,7 +61,7 @@ public class PointLight : EntityComponent
 
     protected override void OnDestroy()
     {
-        _lightMat?.Destroy();
-        _mesh?.Destroy();
+        _lightMat?.Release();
+        _mesh?.Release();
     }
 }

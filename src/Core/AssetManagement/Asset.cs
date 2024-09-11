@@ -22,6 +22,6 @@ internal class Asset
     
     public void Destroy()
     {
-        Instance.DestroyImmediate();
+        Instance.ReleaseImmediate();
     }
 }

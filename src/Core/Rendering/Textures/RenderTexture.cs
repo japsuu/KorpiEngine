@@ -197,7 +197,7 @@ public sealed class RenderTexture : AssetInstance
         }
 
         foreach (RenderTexture renderTexture in DisposableTextures)
-            renderTexture.Destroy();
+            renderTexture.Release();
     }
 
     #endregion

@@ -162,7 +162,7 @@ public sealed class Entity : AssetInstance
         Debug.Assert(manual, "Entity was not manually disposed of!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
-            _childList[0].DestroyImmediate();
+            _childList[0].ReleaseImmediate();
 
         RemoveAllSystems();
 
@@ -290,7 +290,7 @@ public sealed class Entity : AssetInstance
 
     public T AddComponent<T>() where T : EntityComponent, new()
     {
-        if (IsDestroyed)
+        if (IsReleased)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         Type type = typeof(T);
@@ -567,7 +567,7 @@ public sealed class Entity : AssetInstance
 
     public void AddSystem<T>() where T : class, IEntitySystem, new()
     {
-        if (IsDestroyed)
+        if (IsReleased)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         T system = new();
@@ -589,7 +589,7 @@ public sealed class Entity : AssetInstance
 
     public void RemoveSystem<T>() where T : class, IEntitySystem
     {
-        if (IsDestroyed)
+        if (IsReleased)
             throw new InvalidOperationException($"Entity {InstanceID} has been destroyed.");
 
         ulong typeId = TypeID.Get<T>();

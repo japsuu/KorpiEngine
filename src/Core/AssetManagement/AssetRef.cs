@@ -30,7 +30,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         get
         {
-            if (_instance == null || _instance.IsDestroyed)
+            if (_instance == null || _instance.IsReleased)
                 RetrieveInstance();
             return _instance;
         }
@@ -45,7 +45,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// Returns the current reference to the Resource that is stored locally. No attempt is made to load or reload
     /// the Resource if it is currently unavailable.
     /// </summary>
-    public T? ResWeak => _instance == null || _instance.IsDestroyed ? null : _instance;
+    public T? ResWeak => _instance == null || _instance.IsReleased ? null : _instance;
 
     /// <summary>
     /// The path where to look for the Resource, if it is currently unavailable.
@@ -73,7 +73,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         get
         {
-            if (_instance != null && !_instance.IsDestroyed)
+            if (_instance != null && !_instance.IsReleased)
                 return true;
             RetrieveInstance();
             return _instance != null;
@@ -87,7 +87,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         get
         {
-            if (_instance != null && !_instance.IsDestroyed)
+            if (_instance != null && !_instance.IsReleased)
                 return true;
             return AssetManager.Contains(_assetID);
         }
@@ -103,7 +103,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         get
         {
             if (_instance != null)
-                return _instance.IsDestroyed ? "DESTROYED_" + _instance.Name : _instance.Name;
+                return _instance.IsReleased ? "DESTROYED_" + _instance.Name : _instance.Name;
             return "No Instance";
         }
     }
@@ -153,7 +153,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// </summary>
     public void EnsureLoaded()
     {
-        if (_instance == null || _instance.IsDestroyed)
+        if (_instance == null || _instance.IsReleased)
             RetrieveInstance();
     }
 

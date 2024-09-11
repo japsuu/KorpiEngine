@@ -22,7 +22,7 @@ public abstract class AssetInstance : SafeDisposable
         }
     }
     
-    private static readonly Stack<AssetInstance> DestroyedResources = new();
+    private static readonly Stack<AssetInstance> ReleaseDeferredResources = new();
     private static readonly Dictionary<int, WeakReference<AssetInstance>> AllResources = new();
 
     /// <summary>
@@ -35,9 +35,9 @@ public abstract class AssetInstance : SafeDisposable
     public UUID AssetID { get; internal set; } = UUID.Empty;
     
     /// <summary>
-    /// Whether the underlying object has been destroyed (disposed or waiting for disposal).
+    /// Whether the object has been released (disposed or waiting for disposal).
     /// </summary>
-    public bool IsDestroyed => IsDisposed || IsWaitingDisposal;
+    public bool IsReleased => IsDisposed || IsWaitingDisposal;
     public bool IsWaitingDisposal { get; private set; }
 
 
@@ -71,35 +71,35 @@ public abstract class AssetInstance : SafeDisposable
 
     /// <summary>
     /// Queues this resource for disposal.
-    /// The resource will be destroyed at the end of the frame.
+    /// The resource will be released at the end of the frame.
     /// </summary>
-    /// <exception cref="AssetDestroyedException">Thrown if the resource is already destroyed.</exception>
-    public void Destroy()
+    /// <exception cref="AssetReleasedException">Thrown if the resource is already released.</exception>
+    public void Release()
     {
-        if (IsDestroyed)
-            throw new AssetDestroyedException($"{Name} is already destroyed.");
+        if (IsReleased)
+            throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
         
         IsWaitingDisposal = true;
-        DestroyedResources.Push(this);
+        ReleaseDeferredResources.Push(this);
     }
 
 
     /// <summary>
-    /// Calls <see cref="Dispose"/> on this resource, destroying it immediately.
+    /// Calls <see cref="Dispose"/> on this resource, releasing it immediately.
     /// </summary>
-    /// <exception cref="AssetDestroyedException">Thrown if the resource is already destroyed.</exception>
-    public void DestroyImmediate()
+    /// <exception cref="AssetReleasedException">Thrown if the resource is already released.</exception>
+    public void ReleaseImmediate()
     {
-        if (IsDestroyed)
-            throw new AssetDestroyedException($"{Name} is already destroyed.");
+        if (IsReleased)
+            throw new AssetReleasedException($"{Name} ({GetType().FullName}) has already been released.");
         
         Dispose();
     }
 
 
-    internal static void HandleDestroyed()
+    internal static void ProcessReleaseQueue()
     {
-        while (DestroyedResources.TryPop(out AssetInstance? obj))
+        while (ReleaseDeferredResources.TryPop(out AssetInstance? obj))
         {
             if (obj.IsDisposed)
                 continue;

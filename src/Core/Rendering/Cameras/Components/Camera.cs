@@ -315,11 +315,11 @@ public sealed class Camera : EntityComponent
 
         // Clear the Cached RenderTextures
         foreach (var (renderTexture, _) in _cachedRenderTextures.Values)
-            renderTexture.Destroy();
+            renderTexture.Release();
         
         _cachedRenderTextures.Clear();
         
-        _debugMaterial.DestroyImmediate();
+        _debugMaterial.ReleaseImmediate();
     }
 
 
@@ -351,7 +351,7 @@ public sealed class Camera : EntityComponent
         foreach ((RenderTexture, string) renderTexture in disposableTextures)
         {
             _cachedRenderTextures.Remove(renderTexture.Item2);
-            renderTexture.Item1.Destroy();
+            renderTexture.Item1.Release();
         }
     }
 

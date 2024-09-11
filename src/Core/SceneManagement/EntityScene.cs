@@ -124,12 +124,12 @@ internal sealed class EntityScene
     private void DestroyAllEntities()
     {
         while (_entitiesAwaitingRegistration.TryDequeue(out Entity? e))
-            e.DestroyImmediate();
+            e.ReleaseImmediate();
         
         foreach (Entity entity in _entities)
         {
             if (entity.IsRootEntity)
-                entity.DestroyImmediate();
+                entity.ReleaseImmediate();
         }
         
         _entities.Clear();
@@ -303,7 +303,7 @@ internal sealed class EntityScene
         _isIteratingEntities = true;
         foreach (Entity entity in _entities)
         {
-            if (entity.IsDestroyed)
+            if (entity.IsReleased)
                 throw new InvalidOperationException($"Entity {entity.InstanceID} has been destroyed.");
 
             if (!entity.Enabled)

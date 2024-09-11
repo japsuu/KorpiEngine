@@ -61,7 +61,7 @@ public class EntityEditor() : ImGuiWindow(true)
         // Inline destroy button
         if (ImGui.Button("Destroy"))
         {
-            entity.Destroy();
+            entity.Release();
             return;
         }
         ImGui.SameLine();
