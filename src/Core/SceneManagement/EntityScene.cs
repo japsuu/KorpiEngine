@@ -303,8 +303,9 @@ internal sealed class EntityScene
         _isIteratingEntities = true;
         foreach (Entity entity in _entities)
         {
+            // The entity may have been released during the update loop.
             if (entity.IsReleased)
-                throw new InvalidOperationException($"Entity {entity.InstanceID} has been destroyed.");
+                return;
 
             if (!entity.Enabled)
                 return;
