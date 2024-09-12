@@ -87,11 +87,6 @@ public struct AssetReference<T> : IEquatable<AssetReference<T>> where T : Asset
     /// </summary>
     public bool IsAssetExternal => Asset?.IsExternal ?? false;
 
-    /// <summary>
-    /// The type of the referenced asset.
-    /// </summary>
-    public Type InstanceType => typeof(T);
-
 
     /// <summary>
     /// Creates an AssetReference referencing the specified <see cref="AssetManagement.Asset"/>.
@@ -111,10 +106,10 @@ public struct AssetReference<T> : IEquatable<AssetReference<T>> where T : Asset
     /// Discards the resolved content reference cache, and releases the asset.
     /// Equivalent to calling Dispose().
     /// </summary>
-    public void Release() => Dispose();
+    public void Release() => ReleaseReference();
 
 
-    private void Dispose()
+    private void ReleaseReference()
     {
         if (HasBeenReleased)
             return;
@@ -150,9 +145,6 @@ public struct AssetReference<T> : IEquatable<AssetReference<T>> where T : Asset
 #endif
         return info;
     }
-
-    //public static implicit operator AssetReference<T>(T res) => new(res);
-    //public static explicit operator T(AssetReference<T> res) => res.Asset!;
 
 
     public override int GetHashCode()
