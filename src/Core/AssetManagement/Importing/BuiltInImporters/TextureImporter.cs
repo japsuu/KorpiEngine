@@ -13,7 +13,7 @@ internal class TextureImporter : AssetImporter
     public override Asset Import(FileInfo assetPath)
     {
         // Load the Texture into a TextureData Object and serialize to Asset Folder
-        Texture2D texture = Texture2DLoader.FromFile(assetPath.FullName);
+        Texture2D texture = Texture2DLoader.FromFile(assetPath.FullName, name:$"Imported_Texture2D_{assetPath.Name}");
 
         texture.SetTextureFilters(TextureMinFilter, TextureMagFilter);
         texture.SetWrapModes(TextureWrap, TextureWrap);

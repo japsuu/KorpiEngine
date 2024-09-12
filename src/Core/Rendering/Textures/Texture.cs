@@ -37,7 +37,7 @@ public abstract class Texture : Asset
     /// <param name="type">The type of texture (or texture target) the texture will be.</param>
     /// <param name="imageFormat">The type of image format this texture will store.</param>
     /// <param name="name">The name of the texture.</param>
-    private protected Texture(TextureType type, TextureImageFormat imageFormat, string name = "New Texture") : base(name)
+    private protected Texture(TextureType type, TextureImageFormat imageFormat, string? name = "New Texture") : base(name)
     {
         if (!Enum.IsDefined(typeof(TextureType), type))
             throw new FormatException("Invalid texture target");

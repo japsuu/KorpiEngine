@@ -12,7 +12,8 @@ public static class Texture2DLoader
     /// </summary>
     /// <param name="image">The image to create the <see cref="Texture2D"/> with.</param>
     /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture2D"/>.</param>
-    public static Texture2D FromImage(MagickImage image, bool generateMipmaps = false)
+    /// <param name="name">Name of the texture.</param>
+    public static Texture2D FromImage(MagickImage image, bool generateMipmaps = false, string? name = null)
     {
         ArgumentNullException.ThrowIfNull(image);
 
@@ -24,7 +25,7 @@ public static class Texture2DLoader
 
         IntPtr pixels = image.GetPixelsUnsafe().GetAreaPointer(0, 0, image.Width, image.Height);
 
-        Texture2D texture = new(image.Width, image.Height, false, format);
+        Texture2D texture = new(image.Width, image.Height, false, format, name);
         try
         {
             Graphics.Device.TexSubImage2D(texture.Handle, 0, 0, 0, image.Width, image.Height, pixels);
@@ -47,10 +48,11 @@ public static class Texture2DLoader
     /// </summary>
     /// <param name="stream">The stream from which to load an image.</param>
     /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture2D"/>.</param>
-    public static Texture2D FromStream(Stream stream, bool generateMipmaps = false)
+    /// <param name="name">Name of the texture.</param>
+    public static Texture2D FromStream(Stream stream, bool generateMipmaps = false, string? name = null)
     {
         MagickImage image = new(stream);
-        return FromImage(image, generateMipmaps);
+        return FromImage(image, generateMipmaps, name);
     }
 
 
@@ -59,10 +61,11 @@ public static class Texture2DLoader
     /// </summary>
     /// <param name="file">The file containing the image to create the <see cref="Texture2D"/> with.</param>
     /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture2D"/>.</param>
-    public static Texture2D FromFile(string file, bool generateMipmaps = false)
+    /// <param name="name">Name of the texture.</param>
+    public static Texture2D FromFile(string file, bool generateMipmaps = false, string? name = null)
     {
         MagickImage image = new(file);
-        return FromImage(image, generateMipmaps);
+        return FromImage(image, generateMipmaps, name);
     }
 
     #endregion

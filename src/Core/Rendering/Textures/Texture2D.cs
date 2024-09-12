@@ -29,7 +29,7 @@ public sealed class Texture2D : Texture, ISerializable
     /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture2D"/>.</param>
     /// <param name="imageFormat">The image format for this <see cref="Texture2D"/>.</param>
     /// <param name="name">The name of the <see cref="Texture2D"/>.</param>
-    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF, string name = "New Texture2D") : base(TextureType.Texture2D, imageFormat, name)
+    public Texture2D(int width, int height, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.RGBA_8_UF, string? name = "New Texture2D") : base(TextureType.Texture2D, imageFormat, name)
     {
         RecreateImage(width, height); //This also binds the texture
 

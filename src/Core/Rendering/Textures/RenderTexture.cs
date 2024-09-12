@@ -67,7 +67,7 @@ public sealed class RenderTexture : Asset
 
         if (hasDepthAttachment)
         {
-            Texture2D depthTexture = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24);
+            Texture2D depthTexture = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24, "RenderTexture Depth Attachment");
             attachments[numTextures] = new GraphicsFrameBuffer.Attachment
             {
                 Texture = depthTexture.Handle,
