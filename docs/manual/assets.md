@@ -49,6 +49,30 @@ Classes/Objects should never expose their owned `AssetReference` objects publicl
 This is done to prevent the outside world from accidentally calling `.Release()` on the `AssetReference` object, which would result in the asset being unloaded while it is still potentially in use by the original owner.
 This allows other classes to take the `Asset` and create their own `AssetReference` objects.
 
+Also, make sure to release the old `AssetReference` when overwriting it with a new one. The following pattern is recommended:
+```csharp
+
+// Private asset reference
+private AssetReference<RenderTexture>? _targetTexture;
+
+// Public property to access the asset
+public RenderTexture? TargetTexture
+{
+    get => _targetTexture?.Asset;
+    set
+    {
+        // Do nothing if the asset is the same
+        if (_targetTexture?.Asset == value)
+            return;
+        
+        // Release the old asset
+        _targetTexture?.Release();
+        // Set the new asset reference
+        _targetTexture = value?.CreateReference();
+    }
+}
+```
+
 ---------------------------------------------------------------------------
 
 Generally, the object that created/loaded an `AssetInstance` also owns it, and should be responsible for calling `.Release()` on it when it is no longer needed. This means that if the asset is passed to another object, the other object should not call `.Release()` on it.
