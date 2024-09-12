@@ -1,7 +1,7 @@
 ﻿namespace KorpiEngine.Utils;
 
 /// <summary>
-/// Base class for resources that require manual disposal.
+/// Base class for resources that support manual disposal.
 /// This class implements the <see cref="IDisposable"/> interface and provides a safe way to dispose of both managed and unmanaged resources.
 /// </summary>
 public abstract class SafeDisposable : IDisposable
@@ -13,7 +13,8 @@ public abstract class SafeDisposable : IDisposable
 
 
     /// <summary>
-    /// Called by the garbage collector and an indicator for a resource leak because the manual Dispose() prevents this destructor from being called.
+    /// Called by the garbage collector.
+    /// A call to <see cref="Dispose"/> prevents this destructor from being called.
     /// </summary>
     ~SafeDisposable()
     {
@@ -57,7 +58,7 @@ public abstract class SafeDisposable : IDisposable
     /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
-    /// False, if caused by the GC and therefore from another thread and the result of a resource leak.
+    /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void Dispose(bool manual)
     {
