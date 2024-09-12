@@ -66,7 +66,7 @@ internal partial class ShaderImporter : AssetImporter
             shadowPass = new Shader.ShaderPass(parsedShader.ShadowPass.State, shadowVertexDescriptor, shadowFragDescriptor);
         }
 
-        Shader shader = new(parsedShader.Name, parsedShader.Properties, passes, shadowPass);
+        Shader shader = new($"Shader ({parsedShader.Name})", parsedShader.Properties, passes, shadowPass);
         return shader;
     }
 
