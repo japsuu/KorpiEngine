@@ -1,14 +1,27 @@
 ﻿using KorpiEngine.Utils;
+#if DEBUG
+using System.Runtime.CompilerServices;
+#endif
 
 namespace KorpiEngine.AssetManagement;
 
 public static class AssetExtensions
 {
+#if DEBUG
+    public static AssetReference<T> CreateReference<T>(this T asset, [CallerMemberName] string callerName = "", [CallerFilePath] string file = "") where T : Asset
+    {
+        asset.IncreaseReferenceCount();
+        AssetReference<T> reference = AssetReference<T>.Create(asset);
+        reference.Owner = $"{callerName} @ {file}";
+        return reference;
+    }
+#else
     public static AssetReference<T> CreateReference<T>(this T asset) where T : Asset
     {
         asset.IncreaseReferenceCount();
         return AssetReference<T>.Create(asset);
     }
+#endif
     
     
     /// <summary>
@@ -56,6 +69,9 @@ public static class AssetExtensions
 /// <typeparam name="T">The type of the asset to reference.</typeparam>
 public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> where T : Asset
 {
+#if DEBUG
+    internal string Owner { get; set; } = string.Empty;
+#endif
     /// <summary>
     /// The referenced <see cref="AssetManagement.Asset"/>.
     /// Null, if the <see cref="AssetReference{T}"/> has been disposed.
@@ -106,7 +122,7 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
         
         // NOTE: This could also be a warning, since no memory is actually leaked.
         if (!manual)
-            throw new InvalidOperationException($"AssetReference<{typeof(T).Name}> for object '{Asset}' was not disposed of manually. Did you forget to call Release()?");
+            throw new InvalidOperationException($"{this} was not disposed of manually. Did you forget to call Release()?");
         
         if (this.TryRelease())
         {
@@ -133,7 +149,11 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
         else
             state = "Alive";
 
-        return $"[{state}] {type.Name}";
+        string info = $"[{state}] AssetReference<{type.Name}> for object '{Asset}'";
+#if DEBUG
+        info += $" (Owner: {Owner})";
+#endif
+        return info;
     }
 
     //public static implicit operator AssetReference<T>(T res) => new(res);
