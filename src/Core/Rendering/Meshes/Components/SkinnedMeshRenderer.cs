@@ -14,10 +14,11 @@ public class SkinnedMeshRenderer : EntityComponent
         get => _mesh?.Asset;
         set
         {
-            if (_mesh != null)
-                _mesh.Release();
+            if (_mesh?.Asset == value)
+                return;
             
-            _mesh = new AssetReference<Mesh>(value);
+            _mesh?.Release();
+            _mesh = value?.CreateReference();
         }
     }
 
@@ -26,10 +27,11 @@ public class SkinnedMeshRenderer : EntityComponent
         get => _material?.Asset;
         set
         {
-            if (_material != null)
-                _material.Release();
+            if (_material?.Asset == value)
+                return;
             
-            _material = new AssetReference<Material>(value);
+            _material?.Release();
+            _material = value?.CreateReference();
         }
     }
 

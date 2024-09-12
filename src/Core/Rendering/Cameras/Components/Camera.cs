@@ -59,9 +59,16 @@ public sealed class Camera : EntityComponent
     public RenderTexture? TargetTexture
     {
         get => _targetTexture?.Asset;
-        set => _targetTexture = value == null ? null : new AssetReference<RenderTexture>(value);
+        set
+        {
+            if (_targetTexture?.Asset == value)
+                return;
+
+            _targetTexture?.Release();
+            _targetTexture = value?.CreateReference();
+        }
     }
-    
+
     /// <summary>
     /// The G-buffer of this camera.
     /// </summary>

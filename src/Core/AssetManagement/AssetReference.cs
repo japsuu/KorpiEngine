@@ -7,7 +7,7 @@ public static class AssetExtensions
     public static AssetReference<T> CreateReference<T>(this T asset) where T : Asset
     {
         asset.IncreaseReferenceCount();
-        return new AssetReference<T>(asset);
+        return AssetReference<T>.Create(asset);
     }
     
     
@@ -54,7 +54,7 @@ public static class AssetExtensions
 /// When the reference count reaches 0, the asset is unloaded (external assets) or disposed (runtime assets).
 /// </summary>
 /// <typeparam name="T">The type of the asset to reference.</typeparam>
-public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> where T : Asset
+public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> where T : Asset
 {
     /// <summary>
     /// The referenced <see cref="AssetManagement.Asset"/>.
@@ -78,13 +78,17 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
 
 
     /// <summary>
-    /// Creates an AssetReferenceCounter referencing the specified <see cref="AssetManagement.Asset"/>.
+    /// Creates an AssetReference referencing the specified <see cref="AssetManagement.Asset"/>.
     /// </summary>
     /// <param name="asset">The asset to reference.</param>
-    internal AssetReference(T? asset)
-    {
-        Asset = asset;
-    }
+    private AssetReference(T? asset) => Asset = asset;
+
+
+    /// <summary>
+    /// Creates an AssetReference referencing the specified <see cref="AssetManagement.Asset"/>.
+    /// </summary>
+    /// <param name="asset">The asset to reference.</param>
+    internal static AssetReference<T> Create(T asset) => new(asset);
 
 
     /// <summary>
@@ -100,8 +104,11 @@ public class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> w
             return;
         base.Dispose(manual);
         
+        Console.WriteLine($"Dispose AssetReference<{typeof(T).Name}> for object '{Asset}'");
+        
+        // NOTE: This could also be a warning, since no memory is actually leaked.
         if (!manual)
-            throw new InvalidOperationException("AssetReference was not disposed of manually. Did you forget to call Release()?");
+            throw new InvalidOperationException($"AssetReference<{typeof(T).Name}> for object '{Asset}' was not disposed of manually. Did you forget to call Release()?");
         
         if (this.TryRelease())
         {

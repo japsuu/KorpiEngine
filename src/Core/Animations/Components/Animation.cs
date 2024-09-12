@@ -25,8 +25,8 @@ public class Animation : EntityComponent
     private readonly List<Transform> _transforms = [];
     
     
-    public void AddClip(AnimationClip clip) => _clips.Add(new AssetReference<AnimationClip>(clip));
-    public void SetDefaultClip(AnimationClip clip) => _defaultClip = new AssetReference<AnimationClip>(clip);
+    public void AddClip(AnimationClip clip) => _clips.Add(clip.CreateReference());
+    public void SetDefaultClip(AnimationClip clip) => _defaultClip = clip.CreateReference();
 
 
     protected override void OnEnable()

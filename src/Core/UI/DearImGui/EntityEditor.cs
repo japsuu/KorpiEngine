@@ -37,7 +37,11 @@ public class EntityEditor() : ImGuiWindow(true)
 
     public void SetTarget(Entity? entity)
     {
-        _target = new AssetReference<Entity>(entity);
+        if (_target?.Asset == entity)
+            return;
+        
+        _target?.Release();
+        _target = entity?.CreateReference();
     }
 
 

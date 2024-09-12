@@ -26,53 +26,41 @@ public sealed class MaterialPropertyBlock : IDisposable
         _textures.Count == 0;
 
     public void SetColor(string name, ColorHDR value) => _colors[name] = value;
-
     public ColorHDR GetColor(string name) => _colors.TryGetValue(name, out ColorHDR value) ? value : ColorHDR.White;
-    
     public bool HasColor(string name) => _colors.ContainsKey(name);
 
     public void SetVector2(string name, Vector2 value) => _vectors2[name] = value;
-
     public Vector2 GetVector2(string name) => _vectors2.TryGetValue(name, out Vector2 value) ? value : Vector2.Zero;
-    
     public bool HasVector2(string name) => _vectors2.ContainsKey(name);
 
     public void SetVector3(string name, Vector3 value) => _vectors3[name] = value;
-
     public Vector3 GetVector3(string name) => _vectors3.TryGetValue(name, out Vector3 value) ? value : Vector3.Zero;
-    
     public bool HasVector3(string name) => _vectors3.ContainsKey(name);
 
     public void SetVector4(string name, Vector4 value) => _vectors4[name] = value;
-
     public Vector4 GetVector4(string name) => _vectors4.TryGetValue(name, out Vector4 value) ? value : Vector4.Zero;
-    
     public bool HasVector4(string name) => _vectors4.ContainsKey(name);
 
     public void SetFloat(string name, float value) => _floats[name] = value;
-
     public float GetFloat(string name) => _floats.GetValueOrDefault(name, 0);
-    
     public bool HasFloat(string name) => _floats.ContainsKey(name);
 
     public void SetInt(string name, int value) => _integers[name] = value;
-
     public int GetInt(string name) => _integers.GetValueOrDefault(name, 0);
-    
     public bool HasInt(string name) => _integers.ContainsKey(name);
 
     public void SetMatrix(string name, Matrix4x4 value) => _matrices[name] = value;
-
     public void SetMatrices(string name, IEnumerable<Matrix4x4> value) => _matrixArrays[name] = value.ToArray();
-
     public Matrix4x4 GetMatrix(string name) => _matrices.TryGetValue(name, out Matrix4x4 value) ? value : Matrix4x4.Identity;
-    
     public bool HasMatrix(string name) => _matrices.ContainsKey(name);
     
     public void SetTexture(string name, Texture2D? value)
     {
         if (value == null)
-            _textures.Remove(name);
+        {
+            if (_textures.Remove(name, out AssetReference<Texture2D>? tex))
+                tex.Release();
+        }
         else
             _textures[name] = value.CreateReference();
     }
@@ -111,10 +99,8 @@ public sealed class MaterialPropertyBlock : IDisposable
     {
         foreach (KeyValuePair<string, float> item in propertyBlock._floats)
             Graphics.Device.SetUniformF(shader, item.Key, item.Value);
-
         foreach (KeyValuePair<string, int> item in propertyBlock._integers)
             Graphics.Device.SetUniformI(shader, item.Key, item.Value);
-
         foreach (KeyValuePair<string, Vector2> item in propertyBlock._vectors2)
             Graphics.Device.SetUniformV2(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, Vector3> item in propertyBlock._vectors3)
@@ -123,16 +109,10 @@ public sealed class MaterialPropertyBlock : IDisposable
             Graphics.Device.SetUniformV4(shader, item.Key, item.Value);
         foreach (KeyValuePair<string, ColorHDR> item in propertyBlock._colors)
             Graphics.Device.SetUniformV4(shader, item.Key, new Vector4(item.Value.R, item.Value.G, item.Value.B, item.Value.A));
-
         foreach ((string? key, Matrix4x4 mat) in propertyBlock._matrices)
-        {
             Graphics.Device.SetUniformMatrix(shader, key, 1, false, in mat.M11);
-        }
-
         foreach ((string? key, Matrix4x4[]? mats) in propertyBlock._matrixArrays)
-        {
             Graphics.Device.SetUniformMatrix(shader, key, mats.Length, false, in mats[0].M11);
-        }
 
         uint texSlot = 0;
         List<(string, AssetReference<Texture2D>)> keysToUpdate = [];
@@ -172,6 +152,8 @@ public sealed class MaterialPropertyBlock : IDisposable
         _integers.Clear();
         _matrices.Clear();
         _matrixArrays.Clear();
+        
+        Console.WriteLine("Dispose texes");
         
         foreach (AssetReference<Texture2D> tex in _textures.Values)
             tex.Release();
