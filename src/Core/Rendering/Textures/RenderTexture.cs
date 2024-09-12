@@ -16,8 +16,7 @@ public sealed class RenderTexture : Asset
 
     private readonly AssetReference<Texture2D>[] _internalTextures;
     private readonly AssetReference<Texture2D>? _internalDepth;
-    
-    internal GraphicsFrameBuffer? FrameBuffer { get; private init; }
+    internal readonly GraphicsFrameBuffer FrameBuffer;
     
     public Texture2D MainTexture => _internalTextures[0].Asset!;
     public Texture2D? InternalDepth => _internalDepth?.Asset;
@@ -83,8 +82,7 @@ public sealed class RenderTexture : Asset
 
     public void Begin()
     {
-        Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        Graphics.Device.BindFramebuffer(FrameBuffer!);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
         Graphics.UpdateViewport(Width, Height);
     }
 
@@ -109,7 +107,7 @@ public sealed class RenderTexture : Asset
         
         _internalDepth?.Release();
 
-        FrameBuffer?.Dispose();
+        FrameBuffer.Dispose();
     }
 
 
@@ -175,7 +173,7 @@ public sealed class RenderTexture : Asset
 
     public static void ReleaseTemporaryRT(RenderTexture renderTexture)
     {
-        RenderTextureKey key = new(renderTexture.Width, renderTexture.Height, renderTexture._internalTextures!.Select(t => t.Asset!.ImageFormat).ToArray());
+        RenderTextureKey key = new(renderTexture.Width, renderTexture.Height, renderTexture._internalTextures.Select(t => t.Asset!.ImageFormat).ToArray());
 
         if (!Pool.TryGetValue(key, out List<(RenderTexture, int frameCreated)>? list))
         {
