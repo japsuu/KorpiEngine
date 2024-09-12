@@ -17,7 +17,7 @@ public static class AssetExtensions
     /// <param name="asset">The asset to increase the reference count of.</param>
     /// <typeparam name="T">The type of the asset.</typeparam>
     /// <returns>The asset with the reference count increased.</returns>
-    public static T IncreaseReferenceCount<T>(this T asset) where T : Asset
+    private static T IncreaseReferenceCount<T>(this T asset) where T : Asset
     {
         asset.ReferenceCount++;
         return asset;
@@ -30,7 +30,7 @@ public static class AssetExtensions
     /// <param name="asset">The asset to decrease the reference count of.</param>
     /// <typeparam name="T">The type of the asset.</typeparam>
     /// <returns>The asset with the reference count decreased.</returns>
-    public static T DecreaseReferenceCount<T>(this T asset) where T : Asset
+    private static T DecreaseReferenceCount<T>(this T asset) where T : Asset
     {
         asset.ReferenceCount--;
         return asset;
@@ -103,8 +103,6 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
         if (IsDisposed)
             return;
         base.Dispose(manual);
-        
-        Console.WriteLine($"Dispose AssetReference<{typeof(T).Name}> for object '{Asset}'");
         
         // NOTE: This could also be a warning, since no memory is actually leaked.
         if (!manual)

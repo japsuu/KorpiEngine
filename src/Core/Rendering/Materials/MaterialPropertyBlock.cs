@@ -56,11 +56,16 @@ public sealed class MaterialPropertyBlock : IDisposable
     
     public void SetTexture(string name, Texture2D? value)
     {
-        if (value == null)
+        if (_textures.TryGetValue(name, out AssetReference<Texture2D>? tex))
         {
-            if (_textures.Remove(name, out AssetReference<Texture2D>? tex))
-                tex.Release();
+            if (tex.Asset == value)
+                return;
+            
+            tex.Release();
         }
+        
+        if (value == null)
+            _textures.Remove(name);
         else
             _textures[name] = value.CreateReference();
     }
@@ -78,6 +83,8 @@ public sealed class MaterialPropertyBlock : IDisposable
 
     public void Clear()
     {
+        foreach (AssetReference<Texture2D> tex in _textures.Values)
+            tex.Release();
         _textures.Clear();
         _matrices.Clear();
         _integers.Clear();
@@ -137,8 +144,8 @@ public sealed class MaterialPropertyBlock : IDisposable
             keysToUpdate.Add((key, tex));
         }
 
-        foreach ((string, AssetReference<Texture2D>) item in keysToUpdate)
-            propertyBlock._textures[item.Item1] = item.Item2;
+        foreach ((string? key, AssetReference<Texture2D>? tex) in keysToUpdate)
+            propertyBlock._textures[key] = tex;
     }
 
 
@@ -152,8 +159,6 @@ public sealed class MaterialPropertyBlock : IDisposable
         _integers.Clear();
         _matrices.Clear();
         _matrixArrays.Clear();
-        
-        Console.WriteLine("Dispose texes");
         
         foreach (AssetReference<Texture2D> tex in _textures.Values)
             tex.Release();

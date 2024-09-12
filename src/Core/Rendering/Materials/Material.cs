@@ -13,35 +13,41 @@ namespace KorpiEngine.Rendering;
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 public sealed class Material : Asset
 {
+    private static AssetReference<Texture2D> defaultAlbedoTex = null!;
+    private static AssetReference<Texture2D> defaultNormalTex = null!;
+    private static AssetReference<Texture2D> defaultSurfaceTex = null!;
+    private static AssetReference<Texture2D> defaultEmissionTex = null!;
+    private static AssetReference<Material> invalidMaterial = null!;
+    
     public const string MAIN_TEX = "_MainTex";
     public const string NORMAL_TEX = "_NormalTex";
     public const string SURFACE_TEX = "_SurfaceTex";
     public const string EMISSION_TEX = "_EmissionTex";
     
-    public static Texture2D DefaultAlbedoTex { get; private set; } = null!;
-    public static Texture2D DefaultNormalTex { get; private set; } = null!;
-    public static Texture2D DefaultSurfaceTex { get; private set; } = null!;
-    public static Texture2D DefaultEmissionTex { get; private set; } = null!;
-    public static Material InvalidMaterial { get; private set; } = null!;
+    public static Texture2D DefaultAlbedoTex => defaultAlbedoTex.Asset!;
+    public static Texture2D DefaultNormalTex => defaultNormalTex.Asset!;
+    public static Texture2D DefaultSurfaceTex => defaultSurfaceTex.Asset!;
+    public static Texture2D DefaultEmissionTex => defaultEmissionTex.Asset!;
+    public static Material InvalidMaterial => invalidMaterial.Asset!;
     
     
     internal static void LoadDefaults()
     {
-        DefaultAlbedoTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_albedo.png").IncreaseReferenceCount();
-        DefaultNormalTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_normal.png").IncreaseReferenceCount();
-        DefaultSurfaceTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_surface.png").IncreaseReferenceCount();
-        DefaultEmissionTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_emission.png").IncreaseReferenceCount();
-        InvalidMaterial = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Invalid.kshader"), "invalid material", false).IncreaseReferenceCount();
+        defaultAlbedoTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_albedo.png").CreateReference();
+        defaultNormalTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_normal.png").CreateReference();
+        defaultSurfaceTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_surface.png").CreateReference();
+        defaultEmissionTex = AssetManager.LoadAssetFile<Texture2D>("Assets/Defaults/default_emission.png").CreateReference();
+        invalidMaterial = new Material(AssetManager.LoadAssetFile<Shader>("Assets/Defaults/Invalid.kshader"), "invalid material", false).CreateReference();
     }
     
     
     internal static void UnloadDefaults()
     {
-        DefaultAlbedoTex.DecreaseReferenceCount();
-        DefaultNormalTex.DecreaseReferenceCount();
-        DefaultSurfaceTex.DecreaseReferenceCount();
-        DefaultEmissionTex.DecreaseReferenceCount();
-        InvalidMaterial.DecreaseReferenceCount();
+        defaultAlbedoTex.Release();
+        defaultNormalTex.Release();
+        defaultSurfaceTex.Release();
+        defaultEmissionTex.Release();
+        invalidMaterial.Release();
     }
     
     

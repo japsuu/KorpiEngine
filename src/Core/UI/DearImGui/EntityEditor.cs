@@ -90,7 +90,7 @@ public class EntityEditor() : ImGuiWindow(true)
 
     protected override void OnDestroy()
     {
-        _target.Release();
+        _target?.Release();
     }
 }
 #endif

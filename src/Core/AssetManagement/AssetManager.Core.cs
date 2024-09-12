@@ -121,7 +121,7 @@ public static partial class AssetManager
         GuidToAsset.Remove(guid);
         RelativePathToGuid.Remove(relativePath);
         
-        Application.Logger.Info($"Unloaded {asset.AssetPath.Name} ({asset.AssetID} - {asset.Instance.Name})");
+        Application.Logger.Info($"Unloaded {asset.Instance} ({relativePath})");
     }
 
     #endregion
@@ -132,7 +132,6 @@ public static partial class AssetManager
         ArgumentNullException.ThrowIfNull(assetFile);
         
         string relativePath = ToRelativePath(assetFile);
-        Application.Logger.Info($"Attempting to Import {relativePath}...");
         
         // Make sure the path exists
         if (!File.Exists(assetFile.FullName))
@@ -162,7 +161,7 @@ public static partial class AssetManager
         RelativePathToGuid[relativePath] = assetID;
         GuidToAsset[assetID] = externalAsset;
             
-        Application.Logger.Info($"Successfully imported {relativePath}");
+        Application.Logger.Info($"Successfully imported {relativePath} as {instance}");
         return externalAsset;
     }
 

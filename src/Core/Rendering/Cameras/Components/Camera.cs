@@ -335,7 +335,13 @@ public sealed class Camera : EntityComponent
     }
 
 
-    #region RT Cache
+    protected override void OnDestroy()
+    {
+        _targetTexture?.Release();
+    }
+
+
+#region RT Cache
     
     public RenderTexture GetCachedRT(string name, int width, int height, TextureImageFormat[] format)
     {

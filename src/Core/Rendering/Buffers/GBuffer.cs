@@ -9,18 +9,20 @@ namespace KorpiEngine.Rendering;
 
 public sealed class GBuffer : IDisposable
 {
-    internal readonly RenderTexture Buffer;
-    internal GraphicsFrameBuffer? FrameBuffer => Buffer.FrameBuffer;
+    private readonly AssetReference<RenderTexture> _buffer;
+    
+    internal RenderTexture Buffer => _buffer.Asset!;
+    internal GraphicsFrameBuffer? FrameBuffer => _buffer.Asset!.FrameBuffer;
 
     public int Width => Buffer.Width;
     public int Height => Buffer.Height;
-    public Texture2D AlbedoAO => Buffer.InternalTextures[0];
-    public Texture2D NormalMetallic => Buffer.InternalTextures[1];
-    public Texture2D PositionRoughness => Buffer.InternalTextures[2];
-    public Texture2D Emission => Buffer.InternalTextures[3];
-    public Texture2D Velocity => Buffer.InternalTextures[4];
-    public Texture2D ObjectIDs => Buffer.InternalTextures[5];
-    public Texture2D Unlit => Buffer.InternalTextures[6];
+    public Texture2D AlbedoAO => Buffer.GetInternalTexture(0);
+    public Texture2D NormalMetallic => Buffer.GetInternalTexture(1);
+    public Texture2D PositionRoughness => Buffer.GetInternalTexture(2);
+    public Texture2D Emission => Buffer.GetInternalTexture(3);
+    public Texture2D Velocity => Buffer.GetInternalTexture(4);
+    public Texture2D ObjectIDs => Buffer.GetInternalTexture(5);
+    public Texture2D Unlit => Buffer.GetInternalTexture(6);
     public Texture2D? Depth => Buffer.InternalDepth;
 
 
@@ -36,7 +38,7 @@ public sealed class GBuffer : IDisposable
             TextureImageFormat.R_32_F,      // ObjectIDs
             TextureImageFormat.RGBA_16_F    // Unlit objects
         ];
-        Buffer = new RenderTexture(width, height, 7, true, formats).IncreaseReferenceCount();
+        _buffer = new RenderTexture(width, height, 7, true, formats).CreateReference();
     }
 
 
@@ -44,7 +46,7 @@ public sealed class GBuffer : IDisposable
     {
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Device.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer!);
 
         Graphics.UpdateViewport(Width, Height);
 
@@ -67,7 +69,7 @@ public sealed class GBuffer : IDisposable
 
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Device.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer!);
         float result = Graphics.Device.ReadPixels<float>(5, x, y, TextureImageFormat.R_32_F);
         return (int)result;
     }
@@ -80,7 +82,7 @@ public sealed class GBuffer : IDisposable
         
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
-        Graphics.Device.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer!);
         Vector3 result = Graphics.Device.ReadPixels<Vector3>(2, x, y, TextureImageFormat.RGB_16_F);
         return result;
     }
@@ -88,18 +90,6 @@ public sealed class GBuffer : IDisposable
 
     public void Dispose()
     {
-        if (FrameBuffer == null)
-            return;
-        
-        // Might need to decrease reference count
-        AlbedoAO.DisposeDeferred();
-        NormalMetallic.DisposeDeferred();
-        PositionRoughness.DisposeDeferred();
-        Emission.DisposeDeferred();
-        Velocity.DisposeDeferred();
-        ObjectIDs.DisposeDeferred();
-        Unlit.DisposeDeferred();
-        Depth?.DisposeDeferred();
-        FrameBuffer.Dispose();
+        _buffer.Release();
     }
 }

@@ -13,15 +13,19 @@ public sealed class RenderTexture : Asset
     private const int MAX_UNUSED_FRAMES = 10;
     private static readonly Dictionary<RenderTextureKey, List<(RenderTexture, int frameCreated)>> Pool = [];
     private static readonly List<RenderTexture> DisposableTextures = [];
+
+    private readonly AssetReference<Texture2D>[] _internalTextures;
+    private readonly AssetReference<Texture2D>? _internalDepth;
     
     internal GraphicsFrameBuffer? FrameBuffer { get; private init; }
     
-    public Texture2D MainTexture => InternalTextures[0];
-    public Texture2D[] InternalTextures { get; private set; }
-    public Texture2D? InternalDepth { get; private set; }
+    public Texture2D MainTexture => _internalTextures[0].Asset!;
+    public Texture2D? InternalDepth => _internalDepth?.Asset;
 
     public int Width { get; private set; }
     public int Height { get; private set; }
+    
+    public Texture2D GetInternalTexture(int index) => _internalTextures[index].Asset!;
 
 
     public RenderTexture(int width, int height, int numTextures = 1, bool hasDepthAttachment = true, TextureImageFormat[]? formats = null) : base("RenderTexture")
@@ -47,27 +51,30 @@ public sealed class RenderTexture : Asset
         }
 
         GraphicsFrameBuffer.Attachment[] attachments = new GraphicsFrameBuffer.Attachment[numTextures + (hasDepthAttachment ? 1 : 0)];
-        InternalTextures = new Texture2D[numTextures];
+        _internalTextures = new AssetReference<Texture2D>[numTextures];
         for (int i = 0; i < numTextures; i++)
         {
-            InternalTextures[i] = new Texture2D(width, height, false, textureFormats[i]).IncreaseReferenceCount();
-            InternalTextures[i].SetTextureFilters(TextureMin.Linear, TextureMag.Linear);
-            InternalTextures[i].SetWrapModes(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
+            TextureImageFormat format = textureFormats[i];
+            Texture2D texture = new Texture2D(width, height, false, format, $"RenderTexture Attachment {i} ({format})");
+            texture.SetTextureFilters(TextureMin.Linear, TextureMag.Linear);
+            texture.SetWrapModes(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
             attachments[i] = new GraphicsFrameBuffer.Attachment
             {
-                Texture = InternalTextures[i].Handle,
+                Texture = texture.Handle,
                 IsDepth = false
             };
+            _internalTextures[i] = texture.CreateReference();
         }
 
         if (hasDepthAttachment)
         {
-            InternalDepth = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24).IncreaseReferenceCount();
+            Texture2D depthTexture = new Texture2D(width, height, false, TextureImageFormat.DEPTH_24);
             attachments[numTextures] = new GraphicsFrameBuffer.Attachment
             {
-                Texture = InternalDepth.Handle,
+                Texture = depthTexture.Handle,
                 IsDepth = true
             };
+            _internalDepth = depthTexture.CreateReference();
         }
 
         FrameBuffer = Graphics.Device.CreateFramebuffer(attachments);
@@ -77,7 +84,7 @@ public sealed class RenderTexture : Asset
     public void Begin()
     {
         Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        Graphics.Device.BindFramebuffer(FrameBuffer);
+        Graphics.Device.BindFramebuffer(FrameBuffer!);
         Graphics.UpdateViewport(Width, Height);
     }
 
@@ -94,13 +101,13 @@ public sealed class RenderTexture : Asset
         
 #if TOOLS
         if (!manual)
-            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+            throw new ResourceLeakException($"RenderTexture '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
 #endif
 
-        foreach (Texture2D texture in InternalTextures)
-            texture.DisposeDeferred();
+        foreach (AssetReference<Texture2D> texture in _internalTextures)
+            texture.Release();
         
-        InternalDepth?.DisposeDeferred();
+        _internalDepth?.Release();
 
         FrameBuffer?.Dispose();
     }
@@ -108,7 +115,7 @@ public sealed class RenderTexture : Asset
 
     #region Pool
 
-    private readonly struct RenderTextureKey(int width, int height, TextureImageFormat[] format)
+    private readonly struct RenderTextureKey(int width, int height, TextureImageFormat[] format) : IEquatable<RenderTextureKey>
     {
         private readonly int _width = width;
         private readonly int _height = height;
@@ -131,6 +138,9 @@ public sealed class RenderTexture : Asset
             
             return true;
         }
+
+
+        public bool Equals(RenderTextureKey other) => _width == other._width && _height == other._height && _format.Equals(other._format);
 
 
         public override int GetHashCode()
@@ -165,8 +175,7 @@ public sealed class RenderTexture : Asset
 
     public static void ReleaseTemporaryRT(RenderTexture renderTexture)
     {
-        Debug.Assert(renderTexture.InternalTextures != null, "renderTexture.InternalTextures != null");
-        RenderTextureKey key = new(renderTexture.Width, renderTexture.Height, renderTexture.InternalTextures.Select(t => t.ImageFormat).ToArray());
+        RenderTextureKey key = new(renderTexture.Width, renderTexture.Height, renderTexture._internalTextures!.Select(t => t.Asset!.ImageFormat).ToArray());
 
         if (!Pool.TryGetValue(key, out List<(RenderTexture, int frameCreated)>? list))
         {

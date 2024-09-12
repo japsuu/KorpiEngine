@@ -170,5 +170,5 @@ public abstract class Asset : SafeDisposable
     /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void OnDispose(bool manual) { }
-    public override string ToString() => $"{Name} ({GetType().FullName}) [{InstanceID}]";
+    public override string ToString() => $"{Name} ({GetType().FullName}) [{InstanceID} - {ExternalAssetID}]";
 }

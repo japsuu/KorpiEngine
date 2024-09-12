@@ -26,7 +26,14 @@ public class Animation : EntityComponent
     
     
     public void AddClip(AnimationClip clip) => _clips.Add(clip.CreateReference());
-    public void SetDefaultClip(AnimationClip clip) => _defaultClip = clip.CreateReference();
+    public void SetDefaultClip(AnimationClip clip)
+    {
+        if (clip == _defaultClip.Asset)
+            return;
+        
+        _defaultClip?.Release();
+        _defaultClip = clip.CreateReference();
+    }
 
 
     protected override void OnEnable()

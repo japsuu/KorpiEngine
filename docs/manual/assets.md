@@ -45,6 +45,19 @@ You can think of it as a smart reference that knows what it should contain and t
 
 ---------------------------------------------------------------------------
 
+When your class contains an asset, ask yourself the following questions:
+- Does the object own the asset?
+  - Yes (the class creates the asset):
+    - Does the asset need to be publicly accessible or passed down to other classes?
+      - Yes:
+        - Store the asset in a private `AssetReference` and expose the `Asset` as a property.
+      - No:
+        - No need to use `AssetReference`, store the asset directly. Dispose of it when the class is disposed.
+  - No (the class borrows the asset or loads it from AssetManager):
+    - Store the asset in a private `AssetReference`. Expose the `Asset` as a property if needed.
+
+Remember to dispose of the `AssetReference` when the class is disposed!
+
 Classes/Objects should never expose their owned `AssetReference` objects publicly. Instead, they should expose the `Asset` objects themselves.
 This is done to prevent the outside world from accidentally calling `.Release()` on the `AssetReference` object, which would result in the asset being unloaded while it is still potentially in use by the original owner.
 This allows other classes to take the `Asset` and create their own `AssetReference` objects.
