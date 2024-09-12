@@ -106,7 +106,8 @@ public static partial class AssetManager
             
         // Generate a new GUID for the asset
         UUID assetID = new();
-        instance.AssetID = assetID;
+        instance.ExternalAssetID = assetID;
+        instance.IsExternal = true;
         ImportedAsset importedAsset = new(assetID, assetFile, instance);
 
         RelativePathToGuid[relativePath] = assetID;

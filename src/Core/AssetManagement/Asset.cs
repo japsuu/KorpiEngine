@@ -1,8 +1,13 @@
-﻿using KorpiEngine.Tools;
+﻿using System.Text;
+using KorpiEngine.Tools;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
+/// <summary>
+/// Base class for "resource types", serving primarily as data containers.
+/// Assets can be manually disposed, but are also automatically collected by the GC.
+/// </summary>
 public abstract class Asset : SafeDisposable
 {
     private static class AssetInstanceID
@@ -22,17 +27,30 @@ public abstract class Asset : SafeDisposable
         }
     }
     
-    private static readonly Stack<Asset> DestroyedResources = new();
+    private static readonly Stack<Asset> DisposalDelayedResources = new();
     private static readonly Dictionary<int, WeakReference<Asset>> AllResources = new();
 
     /// <summary>
     /// Unique identifier for this resource.
     /// </summary>
     public readonly int InstanceID;
+    
+    /// <summary>
+    /// The name of the asset.
+    /// </summary>
     public string Name { get; set; }
     
-    // Asset path if we have one
-    public UUID AssetID { get; internal set; } = UUID.Empty;
+    /// <summary>
+    /// The ID of the asset in the asset database.
+    /// None, if the asset is a runtime asset.
+    /// </summary>
+    public UUID ExternalAssetID { get; internal set; } = UUID.Empty;
+    
+    /// <summary>
+    /// Whether the asset has been loaded from an external source.
+    /// If true, <see cref="ExternalAssetID"/> will be set.
+    /// </summary>
+    public bool IsExternal { get; internal set; }
     
     /// <summary>
     /// Whether the underlying object has been destroyed (disposed or waiting for disposal).
@@ -80,7 +98,7 @@ public abstract class Asset : SafeDisposable
             throw new AssetDestroyedException($"{Name} is already destroyed.");
         
         IsWaitingDisposal = true;
-        DestroyedResources.Push(this);
+        DisposalDelayedResources.Push(this);
     }
 
 
@@ -99,7 +117,7 @@ public abstract class Asset : SafeDisposable
 
     internal static void HandleDestroyed()
     {
-        while (DestroyedResources.TryPop(out Asset? obj))
+        while (DisposalDelayedResources.TryPop(out Asset? obj))
         {
             if (obj.IsDisposed)
                 continue;
@@ -146,11 +164,46 @@ public abstract class Asset : SafeDisposable
     #endregion
 
 
+    /// <summary>
+    /// Releases all owned resources.
+    /// Guaranteed to be called only once.<br/><br/>
+    /// 
+    /// Example implementation:
+    /// <code>
+    /// protected override void OnDispose(bool manual)
+    /// {
+    ///     if (manual)
+    ///     {
+    ///         // Dispose managed resources
+    ///     }
+    ///     
+    ///     // Dispose unmanaged resources
+    /// }
+    /// </code>
+    /// </summary>
     /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
-    /// False, if caused by the GC and therefore from another thread and the result of a resource leak.
+    /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void OnDispose(bool manual) { }
-    public override string ToString() => Name;
+    
+    
+    public override string ToString()
+    {
+        StringBuilder sb = new();
+        sb.Append(Name);
+        sb.Append(" (");
+        sb.Append(GetType().Name);
+        sb.Append(") [");
+        sb.Append(InstanceID);
+        if (IsExternal)
+        {
+            sb.Append(" - ");
+            sb.Append(ExternalAssetID);
+        }
+        sb.Append(']');
+        
+        return sb.ToString();
+    }
 }

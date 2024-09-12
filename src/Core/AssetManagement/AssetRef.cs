@@ -36,7 +36,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         }
         private set
         {
-            _assetID = value?.AssetID ?? UUID.Empty;
+            _assetID = value?.ExternalAssetID ?? UUID.Empty;
             _instance = value;
         }
     }
@@ -56,7 +56,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
         set
         {
             _assetID = value;
-            if (_instance != null && _instance.AssetID != value)
+            if (_instance != null && _instance.ExternalAssetID != value)
                 _instance = null;
         }
     }
@@ -130,7 +130,7 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     public AssetRef(T? res)
     {
         _instance = res;
-        _assetID = res?.AssetID ?? UUID.Empty;
+        _assetID = res?.ExternalAssetID ?? UUID.Empty;
     }
 
 
@@ -172,8 +172,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         if (_assetID != UUID.Empty)
             _instance = AssetManager.LoadAsset<T>(_assetID);
-        else if (_instance != null && _instance.AssetID != UUID.Empty)
-            _instance = AssetManager.LoadAsset<T>(_instance.AssetID);
+        else if (_instance != null && _instance.ExternalAssetID != UUID.Empty)
+            _instance = AssetManager.LoadAsset<T>(_instance.ExternalAssetID);
         else
             _instance = null;
     }
@@ -248,8 +248,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
             return first.IsExplicitNull;
 
         // Path comparison
-        UUID? firstPath = first._instance?.AssetID ?? first._assetID;
-        UUID? secondPath = second._instance?.AssetID ?? second._assetID;
+        UUID? firstPath = first._instance?.ExternalAssetID ?? first._assetID;
+        UUID? secondPath = second._instance?.ExternalAssetID ?? second._assetID;
         return firstPath == secondPath;
     }
 
