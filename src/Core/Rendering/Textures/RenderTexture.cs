@@ -8,7 +8,7 @@ namespace KorpiEngine.Rendering;
 // Taken and modified from Prowl's RenderTexture.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/RenderTexture.cs.
 
-public sealed class RenderTexture : AssetInstance
+public sealed class RenderTexture : Asset
 {
     private const int MAX_UNUSED_FRAMES = 10;
     private static readonly Dictionary<RenderTextureKey, List<(RenderTexture, int frameCreated)>> Pool = [];

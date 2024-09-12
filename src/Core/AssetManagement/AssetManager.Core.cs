@@ -24,7 +24,7 @@ public static partial class AssetManager
     /// If the asset has previously been imported with a different importer,
     /// the EXISTING asset instance will be returned.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAssetFile<T>(string relativeAssetPath, AssetImporter? customImporter = null) where T : AssetInstance
+    public static T LoadAssetFile<T>(string relativeAssetPath, AssetImporter? customImporter = null) where T : Asset
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
@@ -47,7 +47,7 @@ public static partial class AssetManager
     /// <typeparam name="T">The type of the asset to load.</typeparam>
     /// <param name="assetGuid">The GUID of the asset to load.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAsset<T>(UUID assetGuid) where T : AssetInstance
+    public static T LoadAsset<T>(UUID assetGuid) where T : Asset
     {
         if (assetGuid == UUID.Empty)
             throw new ArgumentException("Asset UUID cannot be empty", nameof(assetGuid));
@@ -90,7 +90,7 @@ public static partial class AssetManager
             throw new AssetImportException(relativePath, "File does not exist.");
         
         importer ??= GetImporter(assetFile.Extension);
-        AssetInstance? instance;
+        Asset? instance;
 
         try
         {
