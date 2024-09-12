@@ -9,7 +9,7 @@ public static partial class AssetManager
     /// The path is relative to the project root.
     /// </summary>
     private static readonly Dictionary<string, UUID> RelativePathToGuid = new();
-    private static readonly Dictionary<UUID, Asset> GuidToAsset = new();
+    private static readonly Dictionary<UUID, ImportedAsset> GuidToAsset = new();
 
 
     #region ASSET LOADING
@@ -65,7 +65,7 @@ public static partial class AssetManager
 
     public static void UnloadAsset(UUID guid)
     {
-        if (!GuidToAsset.TryGetValue(guid, out Asset? asset))
+        if (!GuidToAsset.TryGetValue(guid, out ImportedAsset? asset))
             return;
 
         string relativePath = ToRelativePath(asset.AssetPath);
@@ -78,7 +78,7 @@ public static partial class AssetManager
     #endregion
 
 
-    private static Asset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
+    private static ImportedAsset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
     {
         ArgumentNullException.ThrowIfNull(assetFile);
         
@@ -107,13 +107,13 @@ public static partial class AssetManager
         // Generate a new GUID for the asset
         UUID assetID = new();
         instance.AssetID = assetID;
-        Asset asset = new(assetID, assetFile, instance);
+        ImportedAsset importedAsset = new(assetID, assetFile, instance);
 
         RelativePathToGuid[relativePath] = assetID;
-        GuidToAsset[assetID] = asset;
+        GuidToAsset[assetID] = importedAsset;
             
         Application.Logger.Info($"Successfully imported {relativePath}");
-        return asset;
+        return importedAsset;
     }
 
 
@@ -152,5 +152,5 @@ public static partial class AssetManager
     /// <summary>
     /// Gets the asset with the specified GUID.
     /// </summary>
-    private static Asset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
+    private static ImportedAsset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
 }
