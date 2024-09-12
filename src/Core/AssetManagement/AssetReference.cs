@@ -8,17 +8,17 @@ namespace KorpiEngine.AssetManagement;
 public static class AssetExtensions
 {
 #if DEBUG
-    public static AssetReference<T> CreateReference<T>(this T asset, [CallerMemberName] string callerName = "", [CallerFilePath] string file = "") where T : Asset
+    public static AssetReference<T> CreateReference<T>(this T? asset, [CallerMemberName] string callerName = "", [CallerFilePath] string file = "") where T : Asset
     {
-        asset.IncreaseReferenceCount();
+        asset?.IncreaseReferenceCount();
         AssetReference<T> reference = AssetReference<T>.Create(asset);
         reference.Owner = $"{callerName} @ {file}";
         return reference;
     }
 #else
-    public static AssetReference<T> CreateReference<T>(this T asset) where T : Asset
+    public static AssetReference<T> CreateReference<T>(this T? asset) where T : Asset
     {
-        asset.IncreaseReferenceCount();
+        asset?.IncreaseReferenceCount();
         return AssetReference<T>.Create(asset);
     }
 #endif
@@ -67,7 +67,7 @@ public static class AssetExtensions
 /// When the reference count reaches 0, the asset is unloaded (external assets) or disposed (runtime assets).
 /// </summary>
 /// <typeparam name="T">The type of the asset to reference.</typeparam>
-public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReference<T>> where T : Asset
+public struct AssetReference<T> : IEquatable<AssetReference<T>> where T : Asset
 {
 #if DEBUG
     internal string Owner { get; set; } = string.Empty;
@@ -104,7 +104,7 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
     /// Creates an AssetReference referencing the specified <see cref="AssetManagement.Asset"/>.
     /// </summary>
     /// <param name="asset">The asset to reference.</param>
-    internal static AssetReference<T> Create(T asset) => new(asset);
+    internal static AssetReference<T> Create(T? asset) => new(asset);
 
 
     /// <summary>
@@ -114,15 +114,10 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
     public void Release() => Dispose();
 
 
-    protected override void Dispose(bool manual)
+    private void Dispose()
     {
-        if (IsDisposed)
+        if (HasBeenReleased)
             return;
-        base.Dispose(manual);
-        
-        // NOTE: This could also be a warning, since no memory is actually leaked.
-        if (!manual)
-            throw new InvalidOperationException($"{this} was not disposed of manually. Did you forget to call Release()?");
         
         if (this.TryRelease())
         {
@@ -180,6 +175,9 @@ public sealed class AssetReference<T> : SafeDisposable, IEquatable<AssetReferenc
     /// Compares if the two AssetReferences reference the same asset.
     /// </summary>
     public bool Equals(AssetReference<T>? other) => this == other;
+
+
+    public bool Equals(AssetReference<T> other) => EqualityComparer<T?>.Default.Equals(Asset, other.Asset);
 
 
     /// <summary>

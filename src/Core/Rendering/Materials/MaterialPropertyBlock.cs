@@ -56,7 +56,7 @@ public sealed class MaterialPropertyBlock : IDisposable
     
     public void SetTexture(string name, Texture2D? value)
     {
-        if (_textures.TryGetValue(name, out AssetReference<Texture2D>? tex))
+        if (_textures.TryGetValue(name, out AssetReference<Texture2D> tex))
         {
             if (tex.Asset == value)
                 return;
@@ -73,7 +73,7 @@ public sealed class MaterialPropertyBlock : IDisposable
 
     public Texture2D? GetTexture(string name)
     {
-        if (_textures.TryGetValue(name, out AssetReference<Texture2D>? tex))
+        if (_textures.TryGetValue(name, out AssetReference<Texture2D> tex))
             return tex.Asset;
         return null;
     }
@@ -123,7 +123,7 @@ public sealed class MaterialPropertyBlock : IDisposable
 
         uint texSlot = 0;
         List<(string, AssetReference<Texture2D>)> keysToUpdate = [];
-        foreach ((string? key, AssetReference<Texture2D>? tex) in propertyBlock._textures)
+        foreach ((string? key, AssetReference<Texture2D> tex) in propertyBlock._textures)
         {
             if (!tex.IsAlive)
             {
@@ -144,7 +144,7 @@ public sealed class MaterialPropertyBlock : IDisposable
             keysToUpdate.Add((key, tex));
         }
 
-        foreach ((string? key, AssetReference<Texture2D>? tex) in keysToUpdate)
+        foreach ((string? key, AssetReference<Texture2D> tex) in keysToUpdate)
             propertyBlock._textures[key] = tex;
     }
 

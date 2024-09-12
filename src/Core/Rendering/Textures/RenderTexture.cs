@@ -15,11 +15,11 @@ public sealed class RenderTexture : Asset
     private static readonly List<RenderTexture> DisposableTextures = [];
 
     private readonly AssetReference<Texture2D>[] _internalTextures;
-    private readonly AssetReference<Texture2D>? _internalDepth;
+    private AssetReference<Texture2D> _internalDepth;
     internal readonly GraphicsFrameBuffer FrameBuffer;
     
     public Texture2D MainTexture => _internalTextures[0].Asset!;
-    public Texture2D? InternalDepth => _internalDepth?.Asset;
+    public Texture2D? InternalDepth => _internalDepth.Asset;
 
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -105,7 +105,7 @@ public sealed class RenderTexture : Asset
         foreach (AssetReference<Texture2D> texture in _internalTextures)
             texture.Release();
         
-        _internalDepth?.Release();
+        _internalDepth.Release();
 
         FrameBuffer.Dispose();
     }

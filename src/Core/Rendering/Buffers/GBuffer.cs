@@ -9,10 +9,10 @@ namespace KorpiEngine.Rendering;
 
 public sealed class GBuffer : IDisposable
 {
-    private readonly AssetReference<RenderTexture> _buffer;
+    private AssetReference<RenderTexture> _buffer;
     
     internal RenderTexture Buffer => _buffer.Asset!;
-    internal GraphicsFrameBuffer? FrameBuffer => _buffer.Asset!.FrameBuffer;
+    internal GraphicsFrameBuffer FrameBuffer => _buffer.Asset!.FrameBuffer;
 
     public int Width => Buffer.Width;
     public int Height => Buffer.Height;
@@ -44,9 +44,7 @@ public sealed class GBuffer : IDisposable
 
     public void Begin(bool clear = true)
     {
-        Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        
-        Graphics.Device.BindFramebuffer(FrameBuffer!);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
 
         Graphics.UpdateViewport(Width, Height);
 
@@ -67,9 +65,7 @@ public sealed class GBuffer : IDisposable
         int x = (int)(uv.X * Width);
         int y = (int)(uv.Y * Height);
 
-        Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
-        
-        Graphics.Device.BindFramebuffer(FrameBuffer!);
+        Graphics.Device.BindFramebuffer(FrameBuffer);
         float result = Graphics.Device.ReadPixels<float>(5, x, y, TextureImageFormat.R_32_F);
         return (int)result;
     }
@@ -79,8 +75,6 @@ public sealed class GBuffer : IDisposable
     {
         int x = (int)(uv.X * Width);
         int y = (int)(uv.Y * Height);
-        
-        Debug.Assert(FrameBuffer != null, nameof(FrameBuffer) + " != null");
         
         Graphics.Device.BindFramebuffer(FrameBuffer!);
         Vector3 result = Graphics.Device.ReadPixels<Vector3>(2, x, y, TextureImageFormat.RGB_16_F);

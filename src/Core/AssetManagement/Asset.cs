@@ -77,7 +77,7 @@ public abstract class Asset : SafeDisposable
         InstanceID = AssetID.Generate();
         AllAssets.Add(InstanceID, new WeakReference<Asset>(this));
 
-        Name = name ?? $"New {GetType().Name} Asset";
+        Name = name ?? $"New_{GetType().Name}_Asset";
     }
 
 

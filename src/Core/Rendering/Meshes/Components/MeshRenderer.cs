@@ -11,33 +11,33 @@ public class MeshRenderer : EntityComponent
     public ColorHDR MainColor { get; set; } = ColorHDR.White;
     public Mesh? Mesh
     {
-        get => _mesh?.Asset;
+        get => _mesh.Asset;
         set
         {
-            if (_mesh?.Asset == value)
+            if (_mesh.Asset == value)
                 return;
             
-            _mesh?.Release();
-            _mesh = value?.CreateReference();
+            _mesh.Release();
+            _mesh = value.CreateReference();
         }
     }
 
     public Material? Material
     {
-        get => _material?.Asset;
+        get => _material.Asset;
         set
         {
-            if (_material?.Asset == value)
+            if (_material.Asset == value)
                 return;
             
-            _material?.Release();
-            _material = value?.CreateReference();
+            _material.Release();
+            _material = value.CreateReference();
         }
     }
 
     private readonly Dictionary<int, Matrix4x4> _previousTransforms = new();
-    private AssetReference<Mesh>? _mesh;
-    private AssetReference<Material>? _material;
+    private AssetReference<Mesh> _mesh;
+    private AssetReference<Material> _material;
 
     
     protected override void OnRenderObject()
@@ -97,7 +97,7 @@ public class MeshRenderer : EntityComponent
 
     protected override void OnDestroy()
     {
-        _mesh?.Release();
-        _material?.Release();
+        _mesh.Release();
+        _material.Release();
     }
 }

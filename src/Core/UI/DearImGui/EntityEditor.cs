@@ -10,7 +10,7 @@ namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private AssetReference<Entity>? _target;
+    private AssetReference<Entity> _target;
 
     public override string Title => "Entity Editor";
 
@@ -37,11 +37,11 @@ public class EntityEditor() : ImGuiWindow(true)
 
     public void SetTarget(Entity? entity)
     {
-        if (_target?.Asset == entity)
+        if (_target.Asset == entity)
             return;
         
-        _target?.Release();
-        _target = entity?.CreateReference();
+        _target.Release();
+        _target = entity.CreateReference();
     }
 
 
@@ -90,7 +90,7 @@ public class EntityEditor() : ImGuiWindow(true)
 
     protected override void OnDestroy()
     {
-        _target?.Release();
+        _target.Release();
     }
 }
 #endif

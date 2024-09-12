@@ -17,7 +17,7 @@ public class Animation : EntityComponent
     public AnimationClip DefaultClip => _defaultClip.Asset!;
     
     // AssetReferences keep the clips alive until the component is destroyed
-    private List<AssetReference<AnimationClip>> _clips = [];
+    private readonly List<AssetReference<AnimationClip>> _clips = [];
     private AssetReference<AnimationClip> _defaultClip;
 
     private readonly List<AnimationState> _states = [];
@@ -31,7 +31,7 @@ public class Animation : EntityComponent
         if (clip == _defaultClip.Asset)
             return;
         
-        _defaultClip?.Release();
+        _defaultClip.Release();
         _defaultClip = clip.CreateReference();
     }
 
@@ -113,11 +113,11 @@ public class Animation : EntityComponent
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation = Mathematics.MathOps.Slerp(rotation, rot.Value, (float)normalizedWeight);
+                rotation = MathOps.Slerp(rotation, rot.Value, (float)normalizedWeight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = Mathematics.MathOps.Lerp(scale, scl.Value, (float)normalizedWeight);
+                scale = MathOps.Lerp(scale, scl.Value, (float)normalizedWeight);
         }
     }
 
@@ -128,15 +128,15 @@ public class Animation : EntityComponent
         {
             Vector3? pos = state.EvaluatePosition(transform, state.Time);
             if (pos.HasValue)
-                position += pos.Value * (float)state.Weight;
+                position += pos.Value * state.Weight;
 
             Quaternion? rot = state.EvaluateRotation(transform, state.Time);
             if (rot.HasValue)
-                rotation *= Mathematics.MathOps.Slerp(Quaternion.Identity, rot.Value, (float)state.Weight);
+                rotation *= MathOps.Slerp(Quaternion.Identity, rot.Value, state.Weight);
 
             Vector3? scl = state.EvaluateScale(transform, state.Time);
             if (scl.HasValue)
-                scale = Mathematics.MathOps.Lerp(scale, scale * scl.Value, (float)state.Weight);
+                scale = MathOps.Lerp(scale, scale * scl.Value, state.Weight);
         }
     }
 

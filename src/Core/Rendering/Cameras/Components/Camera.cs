@@ -35,7 +35,7 @@ public sealed class Camera : EntityComponent
 
     private readonly RenderPipeline _pipeline = new();
     private readonly Dictionary<string, (RenderTexture, long frameCreated)> _cachedRenderTextures = [];
-    private AssetReference<RenderTexture>? _targetTexture;
+    private AssetReference<RenderTexture> _targetTexture;
     private Material _debugMaterial = null!;
     private Matrix4x4? _oldView;
     private Matrix4x4? _oldProjection;
@@ -44,7 +44,7 @@ public sealed class Camera : EntityComponent
     /// The render priority of this camera.
     /// The Camera with the highest render priority will be rendered last.
     /// </summary>
-    public short RenderPriority { get; set; } = 0;
+    public short RenderPriority { get; set; }
     
     /// <summary>
     /// The render resolution multiplier of this camera.
@@ -58,14 +58,14 @@ public sealed class Camera : EntityComponent
     /// </summary>
     public RenderTexture? TargetTexture
     {
-        get => _targetTexture?.Asset;
+        get => _targetTexture.Asset;
         set
         {
-            if (_targetTexture?.Asset == value)
+            if (_targetTexture.Asset == value)
                 return;
 
-            _targetTexture?.Release();
-            _targetTexture = value?.CreateReference();
+            _targetTexture.Release();
+            _targetTexture = value.CreateReference();
         }
     }
 
@@ -112,7 +112,7 @@ public sealed class Camera : EntityComponent
             throw new InvalidOperationException("Camera must be attached to an Entity in a Scene to render!");
         
         // Determine render target size
-        if (_targetTexture != null && _targetTexture.IsAlive)
+        if (_targetTexture.IsAlive)
         {
             width = TargetTexture!.Width;
             height = TargetTexture!.Height;
@@ -245,7 +245,7 @@ public sealed class Camera : EntityComponent
     
     private Vector2 GetRenderTargetSize()
     {
-        if (_targetTexture != null && _targetTexture.IsAlive)
+        if (_targetTexture.IsAlive)
             return new Vector2(TargetTexture!.Width, TargetTexture!.Height);
         
         return new Vector2(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
@@ -337,7 +337,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnDestroy()
     {
-        _targetTexture?.Release();
+        _targetTexture.Release();
     }
 
 

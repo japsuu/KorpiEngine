@@ -13,11 +13,11 @@ namespace KorpiEngine.Rendering;
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
 public sealed class Material : Asset
 {
-    private static AssetReference<Texture2D> defaultAlbedoTex = null!;
-    private static AssetReference<Texture2D> defaultNormalTex = null!;
-    private static AssetReference<Texture2D> defaultSurfaceTex = null!;
-    private static AssetReference<Texture2D> defaultEmissionTex = null!;
-    private static AssetReference<Material> invalidMaterial = null!;
+    private static AssetReference<Texture2D> defaultAlbedoTex;
+    private static AssetReference<Texture2D> defaultNormalTex;
+    private static AssetReference<Texture2D> defaultSurfaceTex;
+    private static AssetReference<Texture2D> defaultEmissionTex;
+    private static AssetReference<Material> invalidMaterial;
     
     public const string MAIN_TEX = "_MainTex";
     public const string NORMAL_TEX = "_NormalTex";
@@ -55,7 +55,7 @@ public sealed class Material : Asset
     private static readonly Dictionary<string, Shader.CompiledShader> PassVariants = new();
     private readonly SortedSet<string> _materialKeywords = [];
     private readonly MaterialPropertyBlock _propertyBlock;
-    private readonly AssetReference<Shader> _shader;
+    private AssetReference<Shader> _shader;
     private int _lastHash = -1;
     private int _lastGlobalKeywordsVersion = -1;
     private string _allKeywordsString = "";
