@@ -341,7 +341,7 @@ public class ModelImporter : AssetImporter
 
     private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
     {
-        if (AssetManager.TryGetGuidFromPath(file, out UUID guid))
+        if (AssetManager.TryGetAssetIDFromPath(file, out UUID guid))
         {
             // We have this texture as an asset, use the asset, we don't need to load it
             mat.SetTexture(name, new AssetRef<Texture2D>(guid));

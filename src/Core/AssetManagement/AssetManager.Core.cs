@@ -5,7 +5,7 @@ namespace KorpiEngine.AssetManagement;
 public static partial class AssetManager
 {
     /// <summary>
-    /// Relative path of an asset to its GUID.
+    /// Relative path of an asset to its AssetID.
     /// The path is relative to the project root.
     /// </summary>
     private static readonly Dictionary<string, UUID> RelativePathToAssetId = new();
@@ -16,24 +16,42 @@ public static partial class AssetManager
 
     /// <summary>
     /// Loads an asset of the specified type from the specified file path.
-    /// Use this when the asset GUID is not known.
+    /// Use this when the AssetID is not known.
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
-    /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
+    /// <param name="assetPath">The file path of the asset to load.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
     /// <param name="customImporter">An optional custom importer to use for importing the asset.
     /// If the asset has previously been imported with a different importer,
     /// the EXISTING asset instance will be returned.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAssetFile<T>(string relativeAssetPath, AssetImporter? customImporter = null) where T : Asset
+    public static T LoadAssetFile<T>(FileInfo assetPath, ushort subID, AssetImporter? customImporter = null) where T : Asset
+    {
+        string relativeAssetPath = ToRelativePath(assetPath);
+        return LoadAssetFile<T>(relativeAssetPath, subID, customImporter);
+    }
+
+    /// <summary>
+    /// Loads an asset of the specified type from the specified file path.
+    /// Use this when the AssetID is not known.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to load.</typeparam>
+    /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
+    /// <param name="customImporter">An optional custom importer to use for importing the asset.
+    /// If the asset has previously been imported with a different importer,
+    /// the EXISTING asset instance will be returned.</param>
+    /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
+    public static T LoadAssetFile<T>(string relativeAssetPath, ushort subID, AssetImporter? customImporter = null) where T : Asset
     {
         FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
         
         // Check if the asset at the specified path has been loaded before
-        if (TryGetGuidFromPath(fileInfo, out UUID guid))
-            return LoadAsset<T>(guid);
+        if (TryGetAssetIDFromPath(fileInfo, out UUID assetID))
+            return LoadAsset<T>(assetID, subID);
 
         // The path hasn't been accessed before, so we need to import the asset
-        if (ImportFile(fileInfo, customImporter).Instance is not T asset)
+        if (ImportFile(fileInfo, customImporter).GetAsset(subID) is not T asset)
             throw new AssetLoadException<T>(relativeAssetPath, $"The asset is not of expected type {typeof(T).Name}");
         
         return asset;
@@ -41,21 +59,28 @@ public static partial class AssetManager
 
 
     /// <summary>
-    /// Loads an asset of the specified type with the specified known GUID.
-    /// Use this when the asset GUID is known.
+    /// Loads an asset of the specified type with the specified known AssetID.
+    /// Use this when the asset AssetID is known.
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
-    /// <param name="assetGuid">The GUID of the asset to load.</param>
+    /// <param name="assetID">The AssetID of the asset to load.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public static T LoadAsset<T>(UUID assetGuid) where T : Asset
+    public static T LoadAsset<T>(UUID assetID, ushort subID) where T : Asset
     {
-        if (assetGuid == UUID.Empty)
-            throw new ArgumentException("Asset UUID cannot be empty", nameof(assetGuid));
+        if (assetID == UUID.Empty)
+            throw new ArgumentException("Asset UUID cannot be empty", nameof(assetID));
 
-        if (GetAssetWithId(assetGuid)?.Instance is not T asset)
-            throw new AssetLoadException<T>(assetGuid.ToString(), "Asset not found");
+        ImportedAsset? importedAsset = GetAssetWithId(assetID);
         
-        return asset;
+        if (importedAsset == null)
+            throw new AssetLoadException<T>(assetID, subID, "Asset with the specified ID not found.");
+
+        Asset asset = importedAsset.GetAsset(subID);
+        if (asset is not T typedAsset)
+            throw new AssetLoadException<T>(assetID, subID, $"The asset is not of expected type {typeof(T).Name}, but {asset.GetType().Name}");
+        
+        return typedAsset;
     }
 
     #endregion
@@ -63,13 +88,17 @@ public static partial class AssetManager
 
     #region ASSET UNLOADING
 
-    public static void UnloadAsset(UUID guid)
+    /// <summary>
+    /// Unloads the asset with the specified AssetID, along with all its sub-assets.
+    /// </summary>
+    /// <param name="assetID">The AssetID of the asset to unload.</param>
+    public static void UnloadAsset(UUID assetID)
     {
-        if (!AssetIdToAsset.TryGetValue(guid, out ImportedAsset? asset))
+        if (!AssetIdToAsset.TryGetValue(assetID, out ImportedAsset? asset))
             return;
 
-        if (asset.AssetID != guid)
-            throw new InvalidOperationException("Asset GUID does not match the GUID of the asset instance.");
+        if (asset.AssetID != assetID)
+            throw new InvalidOperationException("Provided AssetID does not match the AssetID of the asset instance.");
         
         DestroyAsset(asset);
     }
@@ -100,28 +129,24 @@ public static partial class AssetManager
             throw new AssetImportException(relativePath, "File does not exist.");
         
         importer ??= GetImporter(assetFile.Extension);
-        Asset? instance;
+        AssetImportContext context = new(assetFile, new UUID());
 
         try
         {
-            instance = importer.Import(assetFile);
+            importer.Import(context);
         }
         catch (Exception e)
         {
             throw new AssetImportException(relativePath, "The importer failed.", e);
         }
             
-        if (instance == null)
+        if (context.MainAsset == null)
             throw new AssetImportException(relativePath, "The importer failed.");
             
-        // Generate a new GUID for the asset
-        UUID assetID = new();
-        instance.ExternalAssetID = assetID;
-        instance.IsExternal = true;
-        ImportedAsset importedAsset = new(assetID, assetFile, instance);
+        ImportedAsset importedAsset = new(context);
 
-        RelativePathToAssetId[relativePath] = assetID;
-        AssetIdToAsset[assetID] = importedAsset;
+        RelativePathToAssetId[relativePath] = importedAsset.AssetID;
+        AssetIdToAsset[importedAsset.AssetID] = importedAsset;
             
         Application.Logger.Info($"Successfully imported {relativePath}");
         return importedAsset;
@@ -160,7 +185,7 @@ public static partial class AssetManager
 
 
     /// <summary>
-    /// Gets the asset with the specified GUID.
+    /// Gets the asset with the specified AssetID.
     /// </summary>
-    private static ImportedAsset? GetAssetWithId(UUID assetGuid) => AssetIdToAsset.GetValueOrDefault(assetGuid);
+    private static ImportedAsset? GetAssetWithId(UUID assetID) => AssetIdToAsset.GetValueOrDefault(assetID);
 }

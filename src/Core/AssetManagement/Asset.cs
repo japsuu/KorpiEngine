@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using KorpiEngine.Tools;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
@@ -11,18 +10,17 @@ namespace KorpiEngine.AssetManagement;
 public abstract class Asset : EngineObject
 {
     /// <summary>
-    /// The ID of the asset in the asset database.<br/>
-    /// None, if the asset is a runtime asset.
-    /// </summary>
-    public UUID ExternalAssetID { get; internal set; } = UUID.Empty;
-    
-    /// <summary>
     /// Whether the asset has been loaded from an external source.<br/>
-    /// If true, <see cref="ExternalAssetID"/> will also be set.<br/>
+    /// If true, <see cref="ExternalInfo"/> will also be set.<br/>
     /// If <see cref="EngineObject.Destroy"/> is called on an external asset,
     /// the asset will be removed from the asset database.
     /// </summary>
-    public bool IsExternal { get; internal set; }
+    public bool IsExternal { get; private set; }
+    
+    /// <summary>
+    /// If the asset is external, this will contain the information about the external source.
+    /// </summary>
+    public ExternalAssetInfo? ExternalInfo { get; private set; }
 
 
     #region Creation & Destruction
@@ -35,14 +33,23 @@ public abstract class Asset : EngineObject
     #endregion
     
     
+    internal void SetExternalInfo(UUID assetID, ushort subID)
+    {
+        IsExternal = true;
+        ExternalInfo = new ExternalAssetInfo(assetID, subID);
+    }
+    
+    
     public override string ToString()
     {
         StringBuilder sb = new();
         sb.Append(base.ToString());
-        sb.Append(" [ExternalAssetID: ");
-        sb.Append(ExternalAssetID == UUID.Empty ? "None" : ExternalAssetID.ToString());
-        sb.Append(']');
         
+        if (ExternalInfo != null)
+            sb.Append($" {ExternalInfo.ToString()}");
+        else
+            sb.Append(" [Runtime Asset]");
+
         return sb.ToString();
     }
 }
