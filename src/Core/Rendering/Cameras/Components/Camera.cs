@@ -320,6 +320,7 @@ public sealed class Camera : EntityComponent
         _cachedRenderTextures.Clear();
         
         _debugMaterial.DestroyImmediate();
+        _debugMaterial = null!;
     }
 
 
