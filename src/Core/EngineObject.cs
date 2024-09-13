@@ -28,7 +28,7 @@ public class EngineObject : SafeDisposable
         }
     }
     
-    private static readonly Dictionary<int, WeakReference<EngineObject>> AllResources = new();
+    private static readonly List<WeakReference<EngineObject>> AllObjects = [];
     private static readonly Stack<EngineObject> DisposalDelayedResources = new();
 
     /// <summary>
@@ -42,10 +42,10 @@ public class EngineObject : SafeDisposable
     public string Name { get; set; }
     
     /// <summary>
-    /// Whether the underlying object has been destroyed (disposed or waiting for disposal).
+    /// Whether the object has been destroyed (disposed or is waiting for disposal).
+    /// Use <see cref="SafeDisposable.IsDisposed"/> if you need to check if the dispose process has been completed.
     /// </summary>
-    public bool IsDestroyed => IsDisposed || IsWaitingDisposal;
-    public bool IsWaitingDisposal { get; private set; }
+    public bool IsDestroyed { get; private set; }
 
 
 #region Creation, Destruction, and Disposal
@@ -53,9 +53,9 @@ public class EngineObject : SafeDisposable
     protected EngineObject(string name)
     {
         InstanceID = ObjectInstanceID.Generate();
-        AllResources.Add(InstanceID, new WeakReference<EngineObject>(this));
-
         Name = string.IsNullOrEmpty(name) ? $"New {GetType().Name} Object" : name;
+        
+        AllObjects.Add(new WeakReference<EngineObject>(this));
     }
     
     
@@ -74,8 +74,8 @@ public class EngineObject : SafeDisposable
     {
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
+        IsDestroyed = true;
         
-        IsWaitingDisposal = true;
         DisposalDelayedResources.Push(this);
     }
 
@@ -88,6 +88,7 @@ public class EngineObject : SafeDisposable
     {
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
+        IsDestroyed = true;
         
         Dispose();
     }
@@ -100,7 +101,6 @@ public class EngineObject : SafeDisposable
         base.Dispose(manual);
         
         OnDispose(manual);
-        AllResources.Remove(InstanceID);
     }
 
 
@@ -113,6 +113,14 @@ public class EngineObject : SafeDisposable
 
             obj.Dispose();
         }
+        
+        CleanupWeakReferences();
+    }
+
+
+    private static void CleanupWeakReferences()
+    {
+        AllObjects.RemoveAll(wr => !wr.TryGetTarget(out _));
     }
 
 #endregion
@@ -122,9 +130,10 @@ public class EngineObject : SafeDisposable
 
     public static T? FindObjectOfType<T>() where T : EngineObject
     {
-        foreach (WeakReference<EngineObject> obj in AllResources.Values)
+        foreach (WeakReference<EngineObject> obj in AllObjects)
             if (obj.TryGetTarget(out EngineObject? target) && target is T t)
                 return t;
+        
         return null;
     }
 
@@ -132,22 +141,21 @@ public class EngineObject : SafeDisposable
     public static T?[] FindObjectsOfType<T>() where T : EngineObject
     {
         List<T> objects = [];
-        foreach (WeakReference<EngineObject> obj in AllResources.Values)
+        foreach (WeakReference<EngineObject> obj in AllObjects)
             if (obj.TryGetTarget(out EngineObject? target) && target is T t)
                 objects.Add(t);
+        
         return objects.ToArray();
     }
 
 
     public static T? FindObjectByID<T>(int id) where T : EngineObject
     {
-        if (!AllResources.TryGetValue(id, out WeakReference<EngineObject>? obj))
-            return null;
-
-        if (!obj.TryGetTarget(out EngineObject? target) || target is not T t)
-            return null;
-
-        return t;
+        foreach (WeakReference<EngineObject> obj in AllObjects)
+            if (obj.TryGetTarget(out EngineObject? target) && target is T t && t.InstanceID == id)
+                return t;
+        
+        return null;
     }
 
 #endregion
