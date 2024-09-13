@@ -39,7 +39,7 @@ public abstract class Asset : EngineObject
     {
         StringBuilder sb = new();
         sb.Append(base.ToString());
-        sb.Append("[ExternalAssetID: ");
+        sb.Append(" [ExternalAssetID: ");
         sb.Append(ExternalAssetID == UUID.Empty ? "None" : ExternalAssetID.ToString());
         sb.Append(']');
         
