@@ -37,7 +37,7 @@ public static partial class AssetManager
     /// </summary>
     /// <param name="assetID">The GUID of the file.</param>
     /// <returns>True if the file exists in the AssetDatabase, false otherwise.</returns>
-    public static bool Contains(UUID assetID) => GuidToAsset.ContainsKey(assetID);
+    public static bool Contains(UUID assetID) => AssetIdToAsset.ContainsKey(assetID);
 
 
     /// <summary>
@@ -53,6 +53,6 @@ public static partial class AssetManager
             return false;
         
         string relativePath = ToRelativePath(file);
-        return RelativePathToGuid.TryGetValue(relativePath, out guid);
+        return RelativePathToAssetId.TryGetValue(relativePath, out guid);
     }
 }

@@ -8,8 +8,8 @@ public static partial class AssetManager
     /// Relative path of an asset to its GUID.
     /// The path is relative to the project root.
     /// </summary>
-    private static readonly Dictionary<string, UUID> RelativePathToGuid = new();
-    private static readonly Dictionary<UUID, ImportedAsset> GuidToAsset = new();
+    private static readonly Dictionary<string, UUID> RelativePathToAssetId = new();
+    private static readonly Dictionary<UUID, ImportedAsset> AssetIdToAsset = new();
 
 
     #region ASSET LOADING
@@ -65,17 +65,27 @@ public static partial class AssetManager
 
     public static void UnloadAsset(UUID guid)
     {
-        if (!GuidToAsset.TryGetValue(guid, out ImportedAsset? asset))
+        if (!AssetIdToAsset.TryGetValue(guid, out ImportedAsset? asset))
             return;
 
-        string relativePath = ToRelativePath(asset.AssetPath);
+        if (asset.AssetID != guid)
+            throw new InvalidOperationException("Asset GUID does not match the GUID of the asset instance.");
         
-        asset.Destroy();
-        GuidToAsset.Remove(guid);
-        RelativePathToGuid.Remove(relativePath);
+        DestroyAsset(asset);
     }
 
-    #endregion
+#endregion
+
+
+    private static void DestroyAsset(ImportedAsset asset)
+    {
+        string relativePath = ToRelativePath(asset.AssetPath);
+        
+        AssetIdToAsset.Remove(asset.AssetID);
+        RelativePathToAssetId.Remove(relativePath);
+        
+        asset.Destroy();
+    }
 
 
     private static ImportedAsset ImportFile(FileInfo assetFile, AssetImporter? importer = null)
@@ -110,8 +120,8 @@ public static partial class AssetManager
         instance.IsExternal = true;
         ImportedAsset importedAsset = new(assetID, assetFile, instance);
 
-        RelativePathToGuid[relativePath] = assetID;
-        GuidToAsset[assetID] = importedAsset;
+        RelativePathToAssetId[relativePath] = assetID;
+        AssetIdToAsset[assetID] = importedAsset;
             
         Application.Logger.Info($"Successfully imported {relativePath}");
         return importedAsset;
@@ -119,11 +129,10 @@ public static partial class AssetManager
 
 
     /// <summary>
-    /// 
+    /// Gets the importer for the specified file extension.
     /// </summary>
     /// <param name="fileExtension">The file extension to get an importer for, including the leading dot.</param>
-    /// <returns></returns>
-    /// <exception cref="AssetImportException"></exception>
+    /// <returns>The importer for the specified file extension.</returns>
     public static AssetImporter GetImporter(string fileExtension)
     {
         // Ensure the file extension is valid
@@ -153,5 +162,5 @@ public static partial class AssetManager
     /// <summary>
     /// Gets the asset with the specified GUID.
     /// </summary>
-    private static ImportedAsset? GetAssetWithId(UUID assetGuid) => GuidToAsset.GetValueOrDefault(assetGuid);
+    private static ImportedAsset? GetAssetWithId(UUID assetGuid) => AssetIdToAsset.GetValueOrDefault(assetGuid);
 }
