@@ -162,7 +162,7 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
     {
 #if TOOLS
         if (!manual)
-            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+            Application.Logger.Warn($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC.");
 #endif
 
         DeleteGPUBuffers();

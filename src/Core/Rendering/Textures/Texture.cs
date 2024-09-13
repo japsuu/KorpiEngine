@@ -89,9 +89,9 @@ public abstract class Texture : Asset
     {
 #if TOOLS
         if (!manual)
-            throw new ResourceLeakException($"Texture '{Name}' of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
+            Application.Logger.Warn($"Texture '{this}' was not disposed of explicitly, and is now being disposed by the GC.");
 #endif
-        
+
         Handle.Dispose();
     }
 
