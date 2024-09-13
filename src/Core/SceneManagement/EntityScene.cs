@@ -124,7 +124,10 @@ internal sealed class EntityScene
     private void DestroyAllEntities()
     {
         while (_entitiesAwaitingRegistration.TryDequeue(out Entity? e))
-            e.DestroyImmediate();
+        {
+            if (e.IsRootEntity)
+                e.DestroyImmediate();
+        }
         
         foreach (Entity entity in _entities)
         {
@@ -132,6 +135,7 @@ internal sealed class EntityScene
                 entity.DestroyImmediate();
         }
         
+        _entitiesAwaitingRegistration.Clear();
         _entities.Clear();
         _components.Clear();
     }
