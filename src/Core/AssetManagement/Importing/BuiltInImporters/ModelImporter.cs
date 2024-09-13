@@ -379,8 +379,7 @@ public class ModelImporter : AssetImporter
     private static AnimationClip LoadAssimpAnimation(Scene scene, float scale, Assimp.Animation sourceAnim)
     {
         // Create Animation
-        AnimationClip destinationAnim = new();
-        destinationAnim.Name = sourceAnim.Name;
+        AnimationClip destinationAnim = new($"{sourceAnim.Name} Animation");
         destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (Mathematics.MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
         destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
         destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
@@ -493,8 +492,7 @@ public class ModelImporter : AssetImporter
 
     private Mesh LoadAssimpMesh(double scale, Assimp.Mesh assimpMesh)
     {
-        Mesh engineMesh = new();
-        engineMesh.Name = assimpMesh.Name;
+        Mesh engineMesh = new($"{assimpMesh.Name} Mesh");
         int vertexCount = assimpMesh.VertexCount;
         engineMesh.IndexFormat = vertexCount >= ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16;
 

@@ -65,9 +65,8 @@ public sealed class Shader : Asset
     private readonly ShaderPass? _shadowPass;
 
 
-    internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null)
+    internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null) : base(name)
     {
-        Name = name;
         _properties = properties;
         _passes = passes;
         _shadowPass = shadowPass;

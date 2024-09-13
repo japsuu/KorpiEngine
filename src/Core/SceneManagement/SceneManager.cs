@@ -105,7 +105,7 @@ public static class SceneManager
     
     internal static void Update()
     {
-        Asset.HandleDestroyed();
+        Asset.ProcessDisposeQueue();
         
         while (OperationQueue.Count > 0)
         {
@@ -138,7 +138,7 @@ public static class SceneManager
             loadedScene.Destroy();
         
         // Handle all objects that were just destroyed.
-        Asset.HandleDestroyed();
+        Asset.ProcessDisposeQueue();
         
         LoadedScenes.Clear();
         currentScene = null;

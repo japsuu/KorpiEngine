@@ -152,6 +152,12 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
     private byte[]? _boneIndices;
 
 
+    public Mesh(string name) : base(name)
+    {
+        
+    }
+
+
     protected override void OnDispose(bool manual)
     {
 #if TOOLS
@@ -716,7 +722,7 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
 
                 int[] indices = [0, 1, 2, 2, 3, 0];
 
-                Mesh mesh = new();
+                Mesh mesh = new("Quad Mesh");
                 mesh.SetVertexPositions(positions);
                 mesh.SetVertexUVs(uvs, 0);
                 mesh.SetIndices(indices);
@@ -811,7 +817,7 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
             indices[i * 6 + 5] = i * 4 + 0;
         }
 
-        Mesh mesh = new();
+        Mesh mesh = new("Cube Mesh");
         mesh.SetVertexPositions(positions);
         mesh.SetVertexUVs(uvs, 0);
         mesh.SetIndices(indices);
@@ -839,11 +845,10 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
         int[] triangles = CreateSphereTriangles(rings, slices, vertices);
         Vector3[] tangents = CreateSphereTangents(vertices);
 
-        Mesh mesh = new();
+        Mesh mesh = new("UV Sphere Mesh");
         if (vertices.Length > 65535)
             mesh.IndexFormat = IndexFormat.UInt32;
         
-        mesh.Name = "UV Sphere";
         mesh.SetVertexPositions(vertices);
         mesh.SetVertexNormals(normals);
         mesh.SetVertexUVs(uvs, 0);
@@ -962,7 +967,7 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
         if (fullScreenQuadCached != null)
             return fullScreenQuadCached;
         
-        Mesh mesh = new();
+        Mesh mesh = new("Fullscreen Quad Mesh");
         Vector3[] positions = new Vector3[4];
         positions[0] = new Vector3(-1, -1, 0);
         positions[1] = new Vector3(1, -1, 0);

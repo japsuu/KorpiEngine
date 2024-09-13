@@ -25,6 +25,12 @@ public sealed class AnimationClip : Asset, ISerializable
     private Dictionary<string, AnimBone> _boneMap = new();
 
 
+    public AnimationClip(string name) : base(name)
+    {
+        
+    }
+
+
     public void AddBone(AnimBone bone)
     {
         Bones.Add(bone);
