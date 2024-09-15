@@ -13,36 +13,68 @@ internal partial class ShaderImporter : AssetImporter
         public ShaderParseException(string? message) : base(message) { }
         public ShaderParseException(string? message, Exception? innerException) : base(message, innerException) { }
     }
+
+
+    public class ParsedShader(string name, List<Shader.Property> properties, ParsedShaderPass[] passes, ParsedShaderShadowPass? shadowPass)
+    {
+        public readonly string Name = name;
+        public readonly List<Shader.Property> Properties = properties;
+        public ParsedShaderPass[] Passes = passes;
+        public readonly ParsedShaderShadowPass? ShadowPass = shadowPass;
+    }
+
+    
+    public class ParsedShaderPass(RasterizerState state, int order, string vertex, string fragment)
+    {
+        public readonly RasterizerState State = state;
+        public readonly int Order = order;
+        public string Vertex = vertex;
+        public string Fragment = fragment;
+    }
+
+    
+    public class ParsedShaderShadowPass(RasterizerState state, string vertex, string fragment)
+    {
+        public readonly RasterizerState State = state;
+        public readonly string Vertex = vertex;
+        public readonly string Fragment = fragment;
+    }
     
     
     private static readonly Regex PreprocessorIncludeRegex = GenerateRegex();
     private static readonly List<string> ImportErrors = [];
-    private static FileInfo? currentAssetPath { get; set; }
+    private static FileInfo? CurrentAssetPath { get; set; }
 
     [GeneratedRegex("""^\s*#include\s*["<](.+?)[">]\s*$""", RegexOptions.Multiline)]
     private static partial Regex GenerateRegex();
     
     
-    public override Asset? Import(FileInfo assetPath)
+    public override void Import(AssetImportContext context)
     {
-        currentAssetPath = assetPath;
-        ImportErrors.Clear();
-        string shaderScript = File.ReadAllText(assetPath.FullName);
+        string shaderScript = File.ReadAllText(context.FilePath.FullName);
 
-        // Strip out comments and Multi-like Comments
+        // Strip out all comments.
         shaderScript = ClearAllComments(shaderScript);
 
-        // Parse the shader
+        // Parse the shader.
+        ImportErrors.Clear();
+        CurrentAssetPath = context.FilePath;
         ParsedShader parsedShader = ParseShader(shaderScript);
+        List<string> errors = ImportErrors;
+        CurrentAssetPath = null;
+        ImportErrors.Clear();
         
-        if (ImportErrors.Count > 0)
+        // If there were errors, log them and return.
+        if (errors.Count > 0)
         {
             StringBuilder sb = new();
+            
             sb.AppendLine("Shader importing failed because of the following errors:");
-            foreach (string error in ImportErrors)
+            foreach (string error in errors)
                 sb.AppendLine(error);
+            
             Application.Logger.Error(sb.ToString());
-            return null;
+            return;
         }
 
         // Sort passes to be in order
@@ -67,11 +99,14 @@ internal partial class ShaderImporter : AssetImporter
         }
 
         Shader shader = new(parsedShader.Name, parsedShader.Properties, passes, shadowPass);
-        return shader;
+        
+        context.SetMainAsset(shader);
     }
 
 
-    public static ParsedShader ParseShader(string input)
+#region Shader Parsing
+
+    private static ParsedShader ParseShader(string input)
     {
         ParsedShader shader = new(
             ParseShaderName(input),
@@ -143,8 +178,8 @@ internal partial class ShaderImporter : AssetImporter
                 ParseBlockContent(passContent, "Vertex"),
                 ParseBlockContent(passContent, "Fragment"));
 
-            shaderPass.Vertex = PreprocessorIncludeRegex.Replace(shaderPass.Vertex, ImportReplacer);
-            shaderPass.Fragment = PreprocessorIncludeRegex.Replace(shaderPass.Fragment, ImportReplacer);
+            shaderPass.Vertex = PreprocessorIncludeRegex.Replace(shaderPass.Vertex, RegexImportReplacer);
+            shaderPass.Fragment = PreprocessorIncludeRegex.Replace(shaderPass.Fragment, RegexImportReplacer);
 
             passesList.Add(shaderPass);
         }
@@ -185,7 +220,6 @@ internal partial class ShaderImporter : AssetImporter
 
         // Strip off the enclosing braces and return
         return content.Substring(1, content.Length - 2).Trim();
-
     }
 
 
@@ -226,6 +260,10 @@ internal partial class ShaderImporter : AssetImporter
         return rasterState;
     }
 
+#endregion
+
+
+#region Utility Methods
 
     private static bool GetStateValue(string passContent, string name, out string value)
     {
@@ -240,7 +278,7 @@ internal partial class ShaderImporter : AssetImporter
     }
 
 
-    // Convert string ("false", "0", "off", "no") or ("true", "1", "on", "yes") to boolean
+    // Converts string ("false", "0", "off", "no") or ("true", "1", "on", "yes") to boolean
     private static bool ConvertToBoolean(string input)
     {
         input = input.Trim();
@@ -252,7 +290,7 @@ internal partial class ShaderImporter : AssetImporter
     }
 
 
-    public static string ClearAllComments(string input)
+    private static string ClearAllComments(string input)
     {
         // Remove single-line comments
         string noSingleLineComments = Regex.Replace(input, "//.*", "");
@@ -264,14 +302,14 @@ internal partial class ShaderImporter : AssetImporter
     }
 
 
-    private static string ImportReplacer(Match match)
+    private static string RegexImportReplacer(Match match)
     {
-        string relativePath = match.Groups[1].Value + ".glsl";
+        string relativePath = $"{match.Groups[1].Value}.glsl";
 
         // First check the Defaults path
         FileInfo file = new(Path.Combine(Application.DefaultsDirectory, relativePath));
         if (!file.Exists)
-            file = new FileInfo(Path.Combine(currentAssetPath!.Directory!.FullName, relativePath));
+            file = new FileInfo(Path.Combine(CurrentAssetPath!.Directory!.FullName, relativePath));
 
         if (!file.Exists)
         {
@@ -280,60 +318,12 @@ internal partial class ShaderImporter : AssetImporter
         }
 
         // Recursively handle Imports
-        string includeScript = PreprocessorIncludeRegex.Replace(File.ReadAllText(file.FullName), ImportReplacer);
+        string includeScript = PreprocessorIncludeRegex.Replace(File.ReadAllText(file.FullName), RegexImportReplacer);
 
         // Strip out comments and Multi-like Comments
         includeScript = ClearAllComments(includeScript);
         return includeScript;
     }
 
-
-    public class ParsedShader
-    {
-        public readonly string Name;
-        public readonly List<Shader.Property> Properties;
-        public ParsedShaderPass[] Passes;
-        public readonly ParsedShaderShadowPass? ShadowPass;
-
-
-        public ParsedShader(string name, List<Shader.Property> properties, ParsedShaderPass[] passes, ParsedShaderShadowPass? shadowPass)
-        {
-            Name = name;
-            Properties = properties;
-            Passes = passes;
-            ShadowPass = shadowPass;
-        }
-    }
-
-    public class ParsedShaderPass
-    {
-        public readonly RasterizerState State;
-        public readonly int Order;
-        public string Vertex;
-        public string Fragment;
-
-
-        public ParsedShaderPass(RasterizerState state, int order, string vertex, string fragment)
-        {
-            State = state;
-            Order = order;
-            Vertex = vertex;
-            Fragment = fragment;
-        }
-    }
-
-    public class ParsedShaderShadowPass
-    {
-        public readonly RasterizerState State;
-        public readonly string Vertex;
-        public readonly string Fragment;
-
-
-        public ParsedShaderShadowPass(RasterizerState state, string vertex, string fragment)
-        {
-            State = state;
-            Vertex = vertex;
-            Fragment = fragment;
-        }
-    }
+#endregion
 }
