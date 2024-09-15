@@ -34,16 +34,17 @@ public class ModelImporter : AssetImporter
     public float UnitScale { get; set; } = 1.0f;
 
 
-    public override Asset Import(FileInfo assetPath)
+    public override void Import(AssetImportContext context)
     {
         using AssimpContext importer = new();
         
-        Entity entity = ImportAssimpEntity(assetPath, importer);
-        return entity;
+        Entity entity = ImportAssimpEntity(context, context.FilePath, importer);
+        
+        context.SetMainAsset(entity);
     }
 
 
-    private Entity ImportAssimpEntity(FileInfo assetPath, AssimpContext importer)
+    private Entity ImportAssimpEntity(AssetImportContext context, FileInfo assetPath, AssimpContext importer)
     {
         DirectoryInfo? parentDir = assetPath.Directory;
         
@@ -72,17 +73,17 @@ public class ModelImporter : AssetImporter
         // Materials
         List<AssetRef<Material>> materials = [];
         if (scene.HasMaterials)
-            LoadMaterials(scene, parentDir, materials);
+            LoadMaterials(context, scene, parentDir, materials);
 
         // Animations
         List<AssetRef<AnimationClip>> animations = [];
         if (scene.HasAnimations)
-            animations = LoadAnimations(scene, scale);
+            animations = LoadAnimations(context, scene, scale);
 
         // Meshes. Also bind materials to meshes
         List<MeshMaterialBinding> meshMaterialBindings = [];
         if (scene.HasMeshes)
-            LoadMeshes(assetPath, scene, scale, materials, meshMaterialBindings);
+            LoadMeshes(context, assetPath, scene, scale, materials, meshMaterialBindings);
 
         // Create child entities for each mesh in hierarchy.
         foreach ((Entity? entity, Node? node) in entityHierarchy)
@@ -112,7 +113,7 @@ public class ModelImporter : AssetImporter
         }
 
         Entity rootEntity = entityHierarchy[0].entity;
-        if (!Mathematics.MathOps.AlmostEquals(UnitScale, 1.0f))
+        if (!UnitScale.AlmostEquals(1.0f))
             rootEntity.Transform.LocalScale = Vector3.One * UnitScale;
 
         // Add Animation Component to root, with all the animations assigned to it.
@@ -220,7 +221,7 @@ public class ModelImporter : AssetImporter
 
     #region Material loading
 
-    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<AssetRef<Material>> mats)
+    private static void LoadMaterials(AssetImportContext context, Scene scene, DirectoryInfo parentDir, List<AssetRef<Material>> mats)
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
@@ -245,7 +246,7 @@ public class ModelImporter : AssetImporter
             // Emissive
             LoadAssimpEmissive(parentDir, sourceMat, targetMat);
 
-            mats.Add(targetMat);
+            mats.Add(context.AddSubAsset(targetMat));
         }
     }
 
@@ -363,13 +364,13 @@ public class ModelImporter : AssetImporter
 
     #region Animation loading
 
-    private static List<AssetRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
+    private static List<AssetRef<AnimationClip>> LoadAnimations(AssetImportContext context, Scene scene, float scale)
     {
         List<AssetRef<AnimationClip>> anims = [];
         foreach (Assimp.Animation? anim in scene.Animations)
         {
             AnimationClip animation = LoadAssimpAnimation(scene, scale, anim);
-            anims.Add(animation);
+            anims.Add(context.AddSubAsset(animation));
         }
 
         return anims;
@@ -380,7 +381,7 @@ public class ModelImporter : AssetImporter
     {
         // Create Animation
         AnimationClip destinationAnim = new($"{sourceAnim.Name} Animation");
-        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (Mathematics.MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
+        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
         destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
         destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
 
@@ -474,7 +475,7 @@ public class ModelImporter : AssetImporter
 
     #region Mesh loading
 
-    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
+    private void LoadMeshes(AssetImportContext context, FileInfo assetPath, Scene scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
     {
         foreach (Assimp.Mesh? assimpMesh in scene.Meshes)
         {
@@ -485,7 +486,7 @@ public class ModelImporter : AssetImporter
             }
 
             Mesh engineMesh = LoadAssimpMesh(scale, assimpMesh);
-            meshMats.Add(new MeshMaterialBinding(assimpMesh.Name, assimpMesh, engineMesh, mats[assimpMesh.MaterialIndex]));
+            meshMats.Add(new MeshMaterialBinding(assimpMesh.Name, assimpMesh, context.AddSubAsset(engineMesh), mats[assimpMesh.MaterialIndex]));
         }
     }
 
@@ -612,7 +613,7 @@ public class ModelImporter : AssetImporter
             Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
-            if (Mathematics.MathOps.AlmostZero(totalWeight))
+            if (MathOps.AlmostZero(totalWeight))
                 continue;
                     
             w /= totalWeight;
