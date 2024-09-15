@@ -34,7 +34,7 @@ public class AssetImportContext(FileInfo filePath, UUID assetID)
     }
     
     
-    public void AddSubAsset(Asset asset)
+    public AssetRef<T> AddSubAsset<T>(T asset) where T : Asset
     {
         ArgumentNullException.ThrowIfNull(asset);
 
@@ -48,5 +48,7 @@ public class AssetImportContext(FileInfo filePath, UUID assetID)
         asset.SetExternalInfo(AssetID, subID);
         
         _subAssets.Add(asset);
+        
+        return new AssetRef<T>(asset, subID);
     }
 }
