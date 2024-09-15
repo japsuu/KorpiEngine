@@ -10,10 +10,11 @@ internal class TextureImporter : AssetImporter
     public TextureMin TextureMinFilter { get; set; } = TextureMin.LinearMipmapLinear;
     public TextureMag TextureMagFilter { get; set; } = TextureMag.Linear;
 
-    public override Asset Import(FileInfo assetPath)
+    
+    public override void Import(AssetImportContext context)
     {
         // Load the Texture into a TextureData Object and serialize to Asset Folder
-        Texture2D texture = Texture2DLoader.FromFile(assetPath.FullName);
+        Texture2D texture = Texture2DLoader.FromFile(context.FilePath.FullName);
 
         texture.SetTextureFilters(TextureMinFilter, TextureMagFilter);
         texture.SetWrapModes(TextureWrap, TextureWrap);
@@ -21,6 +22,6 @@ internal class TextureImporter : AssetImporter
         if (GenerateMipmaps)
             texture.GenerateMipmaps();
 
-        return texture;
+        context.SetMainAsset(texture);
     }
 }
