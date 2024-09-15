@@ -49,6 +49,6 @@ public class AssetImportContext(FileInfo filePath, UUID assetID)
         
         _subAssets.Add(asset);
         
-        return new AssetRef<T>(asset, subID);
+        return new AssetRef<T>(asset);
     }
 }

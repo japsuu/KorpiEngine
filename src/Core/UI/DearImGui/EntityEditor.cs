@@ -52,7 +52,7 @@ public class EntityEditor() : ImGuiWindow(true)
         ImGui.Text($"Entity: {_target.Name}");
         ImGui.Separator();
         
-        DrawEntityHierarchy(_target.Res!);
+        DrawEntityHierarchy(_target.Asset!);
     }
 
 

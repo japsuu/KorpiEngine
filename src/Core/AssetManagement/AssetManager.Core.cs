@@ -54,6 +54,9 @@ public static partial class AssetManager
         if (ImportFile(fileInfo, customImporter).GetAsset(subID) is not T asset)
             throw new AssetLoadException<T>(relativeAssetPath, $"The asset is not of expected type {typeof(T).Name}");
         
+        if (asset.IsDestroyed)
+            throw new AssetLoadException<T>(relativeAssetPath, "The asset has been destroyed.");
+        
         return asset;
     }
 
@@ -79,6 +82,9 @@ public static partial class AssetManager
         Asset asset = importedAsset.GetAsset(subID);
         if (asset is not T typedAsset)
             throw new AssetLoadException<T>(assetID, subID, $"The asset is not of expected type {typeof(T).Name}, but {asset.GetType().Name}");
+        
+        if (typedAsset.IsDestroyed)
+            throw new AssetLoadException<T>(assetID, subID, "The asset has been destroyed.");
         
         return typedAsset;
     }

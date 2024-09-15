@@ -135,7 +135,7 @@ public sealed class Shader : Asset
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
                     AssetRef<Shader> fallback = Find(fallbackShader);
-                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!._passes[0], defines);
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Asset!._passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
                 }
             }
@@ -156,7 +156,7 @@ public sealed class Shader : Asset
             else
             {
                 AssetRef<Shader> depth = Find("Assets/Defaults/Depth.kshader");
-                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!._passes[0], defines);
+                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Asset!._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
             }
 

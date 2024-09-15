@@ -51,7 +51,7 @@ public sealed class Material : Asset
 
     public Material(AssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
-        if (shader.AssetID == UUID.Empty)
+        if (shader.IsRuntime)   // IDK if this is necessary
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
         _propertyBlock = new MaterialPropertyBlock();
@@ -170,7 +170,7 @@ public sealed class Material : Asset
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
             string materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
+            _allKeywordsString = $"{Shader.Asset!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
             _lastGlobalKeywordsVersion = Rendering.Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
@@ -198,7 +198,7 @@ public sealed class Material : Asset
 
         // Compile Each Pass
         Application.Logger.Debug($"Compiling Shader Variant: {_allKeywordsString}");
-        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords.ToArray());
+        Shader.CompiledShader compiledPasses = Shader.Asset!.Compile(allKeywords.ToArray());
 
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
@@ -301,5 +301,5 @@ public sealed class Material : Asset
     #endregion
     
     
-    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Res!.HasVariable(name);
+    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Asset!.HasVariable(name);
 }

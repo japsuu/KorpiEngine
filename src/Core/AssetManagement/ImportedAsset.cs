@@ -38,9 +38,13 @@ internal class ImportedAsset
     
     public void Destroy()
     {
+        Asset.AllowManualExternalDestroy = true;
+        
         _mainAsset.DestroyImmediate();
         
         foreach (Asset asset in _subAssets)
             asset.DestroyImmediate();
+        
+        Asset.AllowManualExternalDestroy = false;
     }
 }
