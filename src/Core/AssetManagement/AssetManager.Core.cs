@@ -100,20 +100,43 @@ public static partial class AssetManager
         if (asset.AssetID != assetID)
             throw new InvalidOperationException("Provided AssetID does not match the AssetID of the asset instance.");
         
-        DestroyAsset(asset);
+        UnloadAndDestroyAsset(asset);
+        Application.Logger.Info($"Asset with ID {assetID} has been unloaded.");
+    }
+
+    /// <summary>
+    /// Unloads the asset with the specified AssetID, along with all its sub-assets.
+    /// </summary>
+    /// <param name="assetID">The AssetID of the asset that was destroyed.</param>
+    public static void NotifyDestroy(UUID assetID)
+    {
+        if (!AssetIdToAsset.TryGetValue(assetID, out ImportedAsset? asset))
+            return;
+
+        if (asset.AssetID != assetID)
+            throw new InvalidOperationException("Provided AssetID does not match the AssetID of the asset instance.");
+        
+        UnloadAsset(asset);
+        Application.Logger.Info($"Asset with ID {assetID} has been unloaded.");
     }
 
 #endregion
 
 
-    private static void DestroyAsset(ImportedAsset asset)
+    private static void UnloadAndDestroyAsset(ImportedAsset asset)
+    {
+        UnloadAsset(asset);
+
+        asset.Destroy();
+    }
+
+
+    private static void UnloadAsset(ImportedAsset asset)
     {
         string relativePath = ToRelativePath(asset.AssetPath);
         
         AssetIdToAsset.Remove(asset.AssetID);
         RelativePathToAssetId.Remove(relativePath);
-        
-        asset.Destroy();
     }
 
 

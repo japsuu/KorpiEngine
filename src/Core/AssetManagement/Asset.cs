@@ -38,8 +38,52 @@ public abstract class Asset : EngineObject
         IsExternal = true;
         ExternalInfo = new ExternalAssetInfo(assetID, subID);
     }
+
+
+    protected sealed override void OnDispose(bool manual)
+    {
+        if (IsExternal)
+        {
+            if (!manual)
+                throw new InvalidOperationException($"External asset '{this}' disposed by GC. This is an engine bug.");
+            
+            // This may be unsafe if 'manual' is false
+            AssetManager.NotifyDestroy(ExternalInfo!.AssetID);
+            ExternalInfo = null;
+        }
+        
+        OnDestroy(manual);
+    }
     
     
+    /// <summary>
+    /// Releases all owned resources.
+    /// Guaranteed to be called only once.<br/><br/>
+    /// 
+    /// Example implementation:
+    /// <code>
+    /// protected override void OnDestroy(bool manual)
+    /// {
+    ///     if (manual)
+    ///     {
+    ///         // Dispose managed resources
+    ///     }
+    ///     
+    ///     // Dispose unmanaged resources
+    /// }
+    /// </code>
+    /// </summary>
+    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
+    /// Managed and unmanaged resources can be disposed.<br/>
+    /// 
+    /// False, if caused by the GC and therefore from another thread.
+    /// Only unmanaged resources can be disposed.</param>
+    protected virtual void OnDestroy(bool manual)
+    {
+        
+    }
+
+
     public override string ToString()
     {
         StringBuilder sb = new();
