@@ -16,8 +16,8 @@ public sealed class ExternalAssetInfo(UUID assetID, ushort subID)
     public readonly UUID AssetID = assetID;
     
     /// <summary>
-    /// The ID of the asset in the asset database.<br/>
-    /// None, if the asset is a runtime asset.
+    /// The subID of the asset in the asset database.<br/>
+    /// 0 if the asset is the main asset of the external source.
     /// </summary>
     public readonly ushort SubID = subID;
     
