@@ -74,6 +74,10 @@ public class EngineObject : SafeDisposable
     {
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
+        
+        if (!AllowDestroy())
+            return;
+        
         IsDestroyed = true;
         
         DisposalDelayedResources.Push(this);
@@ -88,6 +92,10 @@ public class EngineObject : SafeDisposable
     {
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
+        
+        if (!AllowDestroy())
+            return;
+
         IsDestroyed = true;
         
         Dispose();
@@ -186,6 +194,9 @@ public class EngineObject : SafeDisposable
     /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void OnDispose(bool manual) { }
+
+
+    protected internal virtual bool AllowDestroy() => true;
 
 #endregion
     

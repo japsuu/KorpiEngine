@@ -5,10 +5,17 @@ namespace KorpiEngine.AssetManagement;
 
 /// <summary>
 /// Base class for "resource types", serving primarily as data containers.<br/>
-/// Assets can be manually disposed, but are also automatically collected by the GC.
+/// Assets can be manually disposed, but are also automatically collected by the GC.<br/><br/>
+///
+/// External assets cannot be manually destroyed, but can be unloaded from the AssetManager.
 /// </summary>
 public abstract class Asset : EngineObject
 {
+    /// <summary>
+    /// Whether assets can be manually destroyed if they are external.
+    /// </summary>
+    internal static bool AllowManualExternalDestroy { private get; set; } = false;
+    
     /// <summary>
     /// Whether the asset has been loaded from an external source.<br/>
     /// If true, <see cref="ExternalInfo"/> will also be set.<br/>
@@ -47,15 +54,25 @@ public abstract class Asset : EngineObject
             if (!manual)
                 throw new InvalidOperationException($"External asset '{this}' disposed by GC. This is an engine bug.");
             
-            // This may be unsafe if 'manual' is false
-            AssetManager.NotifyDestroy(ExternalInfo!.AssetID);
+            IsExternal = false;
             ExternalInfo = null;
         }
         
         OnDestroy(manual);
     }
-    
-    
+
+
+    protected internal override bool AllowDestroy()
+    {
+        bool allowed = !IsExternal || AllowManualExternalDestroy;
+        
+        if (!allowed)
+            Application.Logger.Warn($"External asset '{this}' destroyed without permission. This may cause issues.");
+        
+        return allowed;
+    }
+
+
     /// <summary>
     /// Releases all owned resources.
     /// Guaranteed to be called only once.<br/><br/>
@@ -73,7 +90,7 @@ public abstract class Asset : EngineObject
     /// }
     /// </code>
     /// </summary>
-    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
+    /// <param name="manual">True, if the call is performed explicitly by calling a destroy method.
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
     /// False, if caused by the GC and therefore from another thread.
