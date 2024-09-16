@@ -28,7 +28,10 @@ public class EntityEditor() : ImGuiWindow(true)
         
         int instanceID = gBuffer.GetObjectIDAt(mouseUV);
         if (instanceID == 0)
+        {
+            SetTarget(null);
             return;
+        }
         
         Entity? e = EngineObject.FindObjectByID<Entity>(instanceID);
         SetTarget(e);
