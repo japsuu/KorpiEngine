@@ -235,16 +235,16 @@ public class ModelImporter : AssetImporter
             LoadAssimpEmission(sourceMat, targetMat);
 
             // Diffuse
-            LoadAssimpDiffuse(parentDir, sourceMat, targetMat);
+            LoadAssimpDiffuse(context, parentDir, sourceMat, targetMat);
 
             // Normal
-            LoadAssimpNormal(parentDir, sourceMat, targetMat);
+            LoadAssimpNormal(context, parentDir, sourceMat, targetMat);
 
             // AO, Roughness, Metallic
-            LoadAssimpSurface(parentDir, sourceMat, targetMat);
+            LoadAssimpSurface(context, parentDir, sourceMat, targetMat);
 
             // Emissive
-            LoadAssimpEmissive(parentDir, sourceMat, targetMat);
+            LoadAssimpEmissive(context, parentDir, sourceMat, targetMat);
 
             mats.Add(context.AddSubAsset(targetMat));
         }
@@ -273,37 +273,37 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadAssimpDiffuse(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpDiffuse(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureDiffuse)
             return;
         
         if (TryFindTextureFromPath(sourceMat.TextureDiffuse.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.MAIN_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.MAIN_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpNormal(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpNormal(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureNormal)
             return;
         
         if (TryFindTextureFromPath(sourceMat.TextureNormal.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.NORMAL_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.NORMAL_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpSurface(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpSurface(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.GetMaterialTexture(TextureType.Unknown, 0, out TextureSlot surface))
             return;
         
         if (TryFindTextureFromPath(surface.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.SURFACE_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.SURFACE_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpEmissive(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpEmissive(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureEmissive)
             return;
@@ -312,7 +312,7 @@ public class ModelImporter : AssetImporter
             return;
         
         targetMat.SetFloat("_EmissionIntensity", 1f);
-        LoadTextureIntoMesh(Material.EMISSION_TEX, file, targetMat);
+        LoadTextureIntoMesh(context, Material.EMISSION_TEX, file, targetMat);
     }
     
     
@@ -340,23 +340,27 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
+    private static void LoadTextureIntoMesh(AssetImportContext context, string name, FileInfo file, Material mat)
     {
-        if (AssetManager.TryGetAssetIDFromPath(file, out UUID guid))
-        {
-            // We have this texture as an asset, use the asset, we don't need to load it
-            mat.SetTexture(name, new AssetRef<Texture2D>(guid));
-        }
-        else
+        if (!AssetManager.TryGet(file, 0, out Texture2D? tex))
         {
             // Import external textures
             string relativePath = AssetManager.ToRelativePath(file);
-            
+
             if (!file.Exists)
                 Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
-            
-            mat.SetTexture(name, AssetManager.LoadAssetFile<Texture2D>(relativePath));
+
+            tex = AssetManager.LoadAssetFile<Texture2D>(relativePath, 0);
         }
+        
+        if (tex == null)
+        {
+            Application.Logger.Error($"Failed to load texture '{name}' from '{file.FullName}', skipping...");
+            return;
+        }
+
+        context.AddDependency(tex);
+        mat.SetTexture(name, tex);
     }
 
     #endregion
