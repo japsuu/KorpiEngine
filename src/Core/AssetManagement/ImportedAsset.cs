@@ -9,6 +9,7 @@ internal class ImportedAsset
 {
     private readonly Asset _mainAsset;
     private readonly IReadOnlyList<Asset> _subAssets;
+    private readonly IReadOnlyList<AssetRef<Asset>> _dependencies;
     
     public readonly UUID AssetID;
     public readonly FileInfo AssetPath;
@@ -18,6 +19,7 @@ internal class ImportedAsset
     {
         _mainAsset = context.MainAsset ?? throw new InvalidOperationException("Main asset not set in import context.");
         _subAssets = context.SubAssets;
+        _dependencies = context.Dependencies;
         
         AssetID = context.AssetID;
         AssetPath = context.FilePath;
@@ -40,11 +42,17 @@ internal class ImportedAsset
     {
         Asset.AllowManualExternalDestroy = true;
         
+        // Destroy the main asset
         _mainAsset.DestroyImmediate();
         
+        // Destroy sub-assets
         foreach (Asset asset in _subAssets)
             asset.DestroyImmediate();
         
         Asset.AllowManualExternalDestroy = false;
+        
+        // Release dependencies
+        foreach (AssetRef<Asset> dependency in _dependencies)
+            dependency.Release();
     }
 }
