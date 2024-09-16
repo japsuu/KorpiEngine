@@ -50,7 +50,7 @@ public sealed partial class Entity
         _components.Add(comp);
         _componentCache.Add(type, comp);
 
-        if (EnabledInHierarchy)
+        if (_isEnabledInHierarchy)
             comp.InternalAwake();
 
         RegisterComponentWithSystems(comp);
@@ -175,7 +175,7 @@ public sealed partial class Entity
 
         // First check the current Object
         EntityComponent? component;
-        if (includeSelf && EnabledInHierarchy)
+        if (includeSelf && _isEnabledInHierarchy)
         {
             component = GetComponent(type);
             if (component != null)
@@ -184,8 +184,8 @@ public sealed partial class Entity
 
         // Now check all parents
         Entity? parent = this;
-        while ((parent = parent.Parent) != null)
-            if (parent.EnabledInHierarchy || includeInactive)
+        while ((parent = parent._parent) != null)
+            if (parent._isEnabledInHierarchy || includeInactive)
             {
                 component = parent.GetComponent(type);
                 if (component != null)
@@ -199,14 +199,14 @@ public sealed partial class Entity
     public IEnumerable<T> GetComponentsInParent<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent
     {
         // First check the current Object
-        if (includeSelf && EnabledInHierarchy)
+        if (includeSelf && _isEnabledInHierarchy)
             foreach (T component in GetComponents<T>())
                 yield return component;
 
         // Now check all parents
         Entity? parent = this;
-        while ((parent = parent.Parent) != null)
-            if (parent.EnabledInHierarchy || includeInactive)
+        while ((parent = parent._parent) != null)
+            if (parent._isEnabledInHierarchy || includeInactive)
                 foreach (T component in parent.GetComponents<T>())
                     yield return component;
     }
@@ -224,7 +224,7 @@ public sealed partial class Entity
 
         // First check the current Object
         EntityComponent? component;
-        if (includeSelf && EnabledInHierarchy)
+        if (includeSelf && _isEnabledInHierarchy)
         {
             component = GetComponent(componentType);
             if (component != null)
@@ -233,7 +233,7 @@ public sealed partial class Entity
 
         // Now check all children
         foreach (Entity child in _childList)
-            if (EnabledInHierarchy || includeInactive)
+            if (_isEnabledInHierarchy || includeInactive)
             {
                 component = child.GetComponent(componentType) ?? child.GetComponentInChildren(componentType);
                 if (component != null)
@@ -247,13 +247,13 @@ public sealed partial class Entity
     public IEnumerable<T> GetComponentsInChildren<T>(bool includeSelf = true, bool includeInactive = false) where T : EntityComponent
     {
         // First check the current Object
-        if (includeSelf && EnabledInHierarchy)
+        if (includeSelf && _isEnabledInHierarchy)
             foreach (T component in GetComponents<T>())
                 yield return component;
 
         // Now check all children
         foreach (Entity child in _childList)
-            if (EnabledInHierarchy || includeInactive)
+            if (_isEnabledInHierarchy || includeInactive)
                 foreach (T component in child.GetComponentsInChildren<T>())
                     yield return component;
     }

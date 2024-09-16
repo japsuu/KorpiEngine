@@ -12,7 +12,7 @@ public sealed partial class Entity
         {
             if (child == testParent)
                 return true;
-            child = child.Parent;
+            child = child._parent;
         }
 
         return false;
@@ -30,7 +30,7 @@ public sealed partial class Entity
 
     public bool SetParent(Entity? newParent, bool worldPositionStays = true)
     {
-        if (newParent == Parent)
+        if (newParent == _parent)
             return true;
 
         // Make sure that the new father is not a child of this transform.
@@ -49,22 +49,22 @@ public sealed partial class Entity
             worldScale = Transform.GetWorldRotationAndScale();
         }
 
-        if (newParent != Parent)
+        if (newParent != _parent)
         {
-            Parent?._childList.Remove(this);
+            _parent?._childList.Remove(this);
 
             if (newParent != null)
                 newParent._childList.Add(this);
 
-            Parent = newParent;
+            _parent = newParent;
         }
 
         if (worldPositionStays)
         {
-            if (Parent != null)
+            if (_parent != null)
             {
-                Transform.LocalPosition = Parent.Transform.InverseTransformPoint(worldPosition);
-                Transform.LocalRotation = (Parent.Transform.Rotation.Inverse() * worldRotation).NormalizeSafe();
+                Transform.LocalPosition = _parent.Transform.InverseTransformPoint(worldPosition);
+                Transform.LocalRotation = (_parent.Transform.Rotation.Inverse() * worldRotation).NormalizeSafe();
             }
             else
             {
@@ -86,9 +86,9 @@ public sealed partial class Entity
     private void HierarchyStateChanged()
     {
         bool newState = _isEnabled && IsParentEnabled;
-        if (EnabledInHierarchy != newState)
+        if (_isEnabledInHierarchy != newState)
         {
-            EnabledInHierarchy = newState;
+            _isEnabledInHierarchy = newState;
             foreach (EntityComponent component in GetComponents<EntityComponent>())
                 component.HierarchyStateChanged();
         }

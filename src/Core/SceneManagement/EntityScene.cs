@@ -35,11 +35,8 @@ internal sealed class EntityScene
             return;
         }
 
-        if (entity.ComponentCount > 0)
-        {
-            foreach (EntityComponent component in entity.Components)
-                RegisterComponent(component);
-        }
+        foreach (EntityComponent component in entity.Components)
+            RegisterComponent(component);
         
         _entities.Add(entity);
     }
@@ -296,7 +293,7 @@ internal sealed class EntityScene
         
         _isIteratingEntities = true;
         foreach (Entity e in _entities)
-            if (e.EnabledInHierarchy)
+            if (e.IsEnabledInHierarchy)
                 e.EnsureComponentInitialization();
         _isIteratingEntities = false;
     }

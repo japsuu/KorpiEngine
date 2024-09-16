@@ -12,7 +12,10 @@ namespace KorpiEngine.Entities;
 public sealed partial class Entity : EngineObject
 {
     private bool _isEnabled = true;
+    private bool _isEnabledInHierarchy = true;
+    private Scene? _scene;
     private EntityScene? _entityScene;
+    private Entity? _parent;
     private readonly List<Entity> _childList = [];
     private readonly Transform _transform = new();
     private readonly List<EntityComponent> _components = [];
@@ -20,39 +23,9 @@ public sealed partial class Entity : EngineObject
     private readonly Dictionary<ulong, IEntitySystem> _systems = [];
     private readonly SystemBucketCollection _systemBuckets = new();
     
-    private bool IsParentEnabled => Parent == null || Parent.EnabledInHierarchy;
+    private bool IsParentEnabled => _parent == null || _parent._isEnabledInHierarchy;
 
-    internal int ComponentCount => _components.Count;
-    internal int SystemCount => _systems.Count;
     internal IReadOnlyCollection<EntityComponent> Components => _components;
-    
-    /// <summary>
-    /// The scene this entity is in.
-    /// If null, the entity has not been spawned in a scene.
-    /// </summary>
-    public Scene? Scene { get; private set; }
-
-    /// <summary>
-    /// The transform of this entity.
-    /// </summary>
-    public Transform Transform
-    {
-        get
-        {
-            _transform.Entity = this;
-            return _transform;
-        }
-    }
-
-    /// <summary>
-    /// True if this entity has no parent, false otherwise.
-    /// </summary>
-    public bool IsRootEntity => Parent == null;
-    
-    /// <summary>
-    /// True if the entity is spawned in a scene, false otherwise.
-    /// </summary>
-    public bool IsSpawned => Scene != null;
 
     /// <summary>
     /// True if the entity is enabled explicitly, false otherwise.
@@ -68,6 +41,54 @@ public sealed partial class Entity : EngineObject
         }
     }
 
+    /// <summary>
+    /// True if the entity is enabled and all of its parents are enabled, false otherwise.
+    /// </summary>
+    public bool IsEnabledInHierarchy => _isEnabledInHierarchy;
+
+    /// <summary>
+    /// True if this entity has no parent, false otherwise.
+    /// </summary>
+    public bool IsRootEntity => _parent == null;
+    
+    /// <summary>
+    /// True if the entity is spawned in a scene, false otherwise.
+    /// </summary>
+    public bool IsSpawned => _scene != null;
+    
+    /// <summary>
+    /// True if this entity has children, false otherwise.
+    /// </summary>
+    public bool HasChildren => _childList.Count > 0;
+    
+    /// <summary>
+    /// The scene this entity is in.
+    /// If null, the entity has not been spawned in a scene.
+    /// </summary>
+    public Scene? Scene => _scene;
+
+    /// <summary>
+    /// The transform of this entity.
+    /// </summary>
+    public Transform Transform
+    {
+        get
+        {
+            _transform.Entity = this;
+            return _transform;
+        }
+    }
+    
+    /// <summary>
+    /// The hierarchical parent of this entity, or null if it is a root entity.
+    /// </summary>
+    public Entity? Parent => _parent;
+
+    /// <summary>
+    /// The entities parented to this entity.
+    /// </summary>
+    public IReadOnlyList<Entity> Children => _childList;
+
     public Matrix4x4 GlobalCameraRelativeTransform
     {
         get
@@ -76,26 +97,6 @@ public sealed partial class Entity : EngineObject
             return t.SetTranslation(t.Translation - Camera.RenderingCamera.Transform.Position);
         }
     }
-
-    /// <summary>
-    /// True if the entity is enabled and all of its parents are enabled, false otherwise.
-    /// </summary>
-    public bool EnabledInHierarchy { get; private set; } = true;
-    
-    /// <summary>
-    /// The hierarchical parent of this entity, or null if it is a root entity.
-    /// </summary>
-    public Entity? Parent { get; private set; }
-    
-    /// <summary>
-    /// True if this entity has children, false otherwise.
-    /// </summary>
-    public bool HasChildren => _childList.Count > 0;
-
-    /// <summary>
-    /// The entities parented to this entity.
-    /// </summary>
-    public IReadOnlyList<Entity> Children => _childList;
 
 
     #region Creation and destruction
@@ -130,7 +131,7 @@ public sealed partial class Entity : EngineObject
     /// <param name="scene">The new scene to move the entity to. Null to remove the entity from the current scene.</param>
     internal void SetScene(Scene? scene)
     {
-        if (Scene == scene)
+        if (_scene == scene)
             return;
         
         SetParent(null);
@@ -141,8 +142,8 @@ public sealed partial class Entity : EngineObject
     
     private void PropagateSceneChange(Scene? scene)
     {
-        Scene? oldScene = Scene;
-        Scene = scene;
+        Scene? oldScene = _scene;
+        _scene = scene;
         _entityScene = scene?.EntityScene;
 
         oldScene?.EntityScene.UnregisterEntity(this);
@@ -169,7 +170,7 @@ public sealed partial class Entity : EngineObject
         _componentCache.Clear();
 
         _entityScene?.UnregisterEntity(this);
-        Parent?._childList.Remove(this);
+        _parent?._childList.Remove(this);
     }
 
     #endregion
