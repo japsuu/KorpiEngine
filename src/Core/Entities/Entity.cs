@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using KorpiEngine.AssetManagement;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
@@ -12,7 +11,7 @@ namespace KorpiEngine.Entities;
 /// Container for components and systems.
 /// </summary>
 #warning TODO: Split Entity.cs to partial classes
-public sealed class Entity : Asset
+public sealed class Entity : EngineObject
 {
     /// <summary>
     /// The scene this entity is in.
@@ -157,9 +156,9 @@ public sealed class Entity : Asset
     }
 
 
-    protected override void OnDestroy(bool manual)
+    protected override void OnDispose(bool manual)
     {
-        Debug.Assert(manual, "Entity was not manually destroyed!");
+        Debug.Assert(manual, "Entity was not manually disposed of!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
             _childList[0].DestroyImmediate();
