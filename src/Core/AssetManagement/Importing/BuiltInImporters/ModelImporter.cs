@@ -3,7 +3,6 @@ using KorpiEngine.Animations;
 using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using Animation = KorpiEngine.Animations.Animation;
 using Material = KorpiEngine.Rendering.Material;
 using Matrix4x4 = KorpiEngine.Mathematics.Matrix4x4;
 using Mesh = KorpiEngine.Rendering.Mesh;

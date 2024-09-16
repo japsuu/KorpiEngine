@@ -1,6 +1,5 @@
 ﻿#if TOOLS
 using ImGuiNET;
-using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
 using KorpiEngine.Input;
 using KorpiEngine.Mathematics;
