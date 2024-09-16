@@ -5,10 +5,12 @@ namespace KorpiEngine.AssetManagement;
 
 /// <summary>
 /// Base class for "resource types", serving primarily as data containers.<br/>
-/// Assets can be manually disposed, but are also automatically collected by the GC.<br/><br/>
-///
-/// External assets cannot be manually destroyed, but can be unloaded from the AssetManager.
 /// </summary>
+///
+/// <remarks>
+/// Runtime assets can be manually destroyed, but are also automatically collected by the GC.<br/><br/>
+/// External assets cannot be manually destroyed, but can be unloaded from the AssetManager.
+/// </remarks>
 public abstract class Asset : EngineObject
 {
     /// <summary>
