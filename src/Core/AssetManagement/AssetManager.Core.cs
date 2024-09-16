@@ -89,6 +89,79 @@ public static partial class AssetManager
         return typedAsset;
     }
 
+
+    /// <summary>
+    /// Gets an asset of the specified type with the specified known AssetID,
+    /// without loading it if it is not already loaded.
+    /// Never returns a destroyed asset.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to get.</typeparam>
+    /// <param name="relativeAssetPath">The project-relative file path of the asset to load.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
+    /// <param name="foundAsset">The asset that was found or null if the asset could not be found.</param>
+    /// <returns>True if the asset was found, false otherwise.</returns>
+    public static bool TryGet<T>(string relativeAssetPath, ushort subID, out T? foundAsset) where T : Asset
+    {
+        foundAsset = null;
+        
+        FileInfo fileInfo = GetFileInfoFromRelativePath(relativeAssetPath);
+        
+        return TryGet(fileInfo, subID, out foundAsset);
+    }
+
+
+    /// <summary>
+    /// Gets an asset of the specified type with the specified known AssetID,
+    /// without loading it if it is not already loaded.
+    /// Never returns a destroyed asset.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to get.</typeparam>
+    /// <param name="path">The path of the asset to load.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
+    /// <param name="foundAsset">The asset that was found or null if the asset could not be found.</param>
+    /// <returns>True if the asset was found, false otherwise.</returns>
+    public static bool TryGet<T>(FileInfo path, ushort subID, out T? foundAsset) where T : Asset
+    {
+        foundAsset = null;
+
+        // Check if the asset at the specified path has been loaded before
+        return TryGetAssetIDFromPath(path, out UUID assetID) && TryGet(assetID, subID, out foundAsset);
+    }
+
+
+    /// <summary>
+    /// Gets an asset of the specified type with the specified known AssetID,
+    /// without loading it if it is not already loaded.
+    /// Never returns a destroyed asset.
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to get.</typeparam>
+    /// <param name="assetID">The AssetID of the asset to get.</param>
+    /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
+    /// <param name="foundAsset">The asset that was found or null if the asset could not be found.</param>
+    /// <returns>True if the asset was found, false otherwise.</returns>
+    public static bool TryGet<T>(UUID assetID, ushort subID, out T? foundAsset) where T : Asset
+    {
+        foundAsset = null;
+        
+        if (assetID == UUID.Empty)
+            throw new ArgumentException("Asset UUID cannot be empty", nameof(assetID));
+
+        ImportedAsset? importedAsset = GetAssetWithId(assetID);
+        
+        if (importedAsset == null)
+            return false;
+
+        Asset asset = importedAsset.GetAsset(subID);
+        if (asset is not T typedAsset)
+            throw new AssetLoadException<T>(assetID, subID, $"The asset is not of expected type {typeof(T).Name}, but {asset.GetType().Name}");
+        
+        if (typedAsset.IsDestroyed)
+            return false;
+        
+        foundAsset = typedAsset;
+        return true;
+    }
+
     #endregion
 
 
