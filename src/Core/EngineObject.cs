@@ -50,10 +50,10 @@ public class EngineObject : SafeDisposable
 
 #region Creation, Destruction, and Disposal
 
-    protected EngineObject(string name)
+    protected EngineObject(string? name)
     {
         InstanceID = ObjectInstanceID.Generate();
-        Name = string.IsNullOrEmpty(name) ? $"New {GetType().Name} Object" : name;
+        Name = string.IsNullOrEmpty(name) ? $"New {GetType().Name} Object [InstanceID: {InstanceID}]" : name;
         
         AllObjects.Add(new WeakReference<EngineObject>(this));
     }
