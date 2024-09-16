@@ -69,7 +69,7 @@ public abstract class Asset : EngineObject
         bool allowed = !IsExternal || AllowManualExternalDestroy;
         
         if (!allowed)
-            Application.Logger.Warn($"External asset '{this}' destroyed without permission. This may cause issues.");
+            Application.Logger.Warn($"Tried to unexpectedly destroy external asset '{this}' without permission. This is not allowed.");
         
         return allowed;
     }
