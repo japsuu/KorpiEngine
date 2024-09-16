@@ -157,9 +157,9 @@ public sealed class Entity : Asset
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDestroy(bool manual)
     {
-        Debug.Assert(manual, "Entity was not manually disposed of!");
+        Debug.Assert(manual, "Entity was not manually destroyed!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
             _childList[0].DestroyImmediate();

@@ -89,7 +89,7 @@ public sealed class RenderTexture : Asset
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDestroy(bool manual)
     {
 #if TOOLS
         if (!manual)

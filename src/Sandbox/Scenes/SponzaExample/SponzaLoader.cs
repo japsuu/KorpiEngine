@@ -91,7 +91,7 @@ internal class SponzaLoader : EntityComponent
         importer.UnitScale = 0.1f;
         
         // Load the Sponza model from disk
-        Entity asset = AssetManager.LoadAssetFile<Entity>(path, importer);
+        Entity asset = AssetManager.LoadAssetFile<Entity>(path, 0, importer);
         
         // Spawn the Sponza model in the scene
         asset.Spawn(Entity.Scene!);

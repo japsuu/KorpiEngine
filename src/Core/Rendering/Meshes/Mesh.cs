@@ -158,7 +158,7 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDestroy(bool manual)
     {
 #if TOOLS
         if (!manual)
