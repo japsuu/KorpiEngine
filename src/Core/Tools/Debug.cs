@@ -9,6 +9,6 @@ internal static class Debug
     public static void Assert(bool condition, string message)
     {
         if (!condition)
-            throw new KorpiException(message);
+            throw new KorpiException($"Engine bug: {message}");
     }
 }
