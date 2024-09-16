@@ -130,6 +130,9 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
     }
 
     public Type InstanceType => typeof(T);
+    
+    
+    public static AssetRef<T> Empty => new();
 
 
     /// <summary>
