@@ -1,4 +1,6 @@
-﻿using KorpiEngine.AssetManagement;
+﻿using KorpiEngine.Animations;
+using KorpiEngine.AssetManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 
@@ -6,37 +8,58 @@ namespace KorpiEngine.Entities;
 
 public class ModelPart
 {
-    public readonly string Name;
-    public readonly Mesh? Mesh;
-    public readonly Material? Material;
-    public readonly Transform Transform = new();
+    public Vector3 LocalPosition { get; set; } = Vector3.Zero;
+    public Vector3 LocalScale { get; set; } = Vector3.One;
+    public Quaternion LocalRotation { get; set; } = Quaternion.Identity;
+    
+    public string Name { get; internal set; }
+    public AssetRef<Material> Material { get; internal set; }
+    public AssetRef<Mesh> Mesh { get; internal set; }
+    public ModelPart[]? Bones { get; internal set; }
     
     public ModelPart? Parent { get; private set; }
     public List<ModelPart> Children { get; } = [];
+    
+    public bool IsEmpty => !HasMesh && !HasSkinnedMesh;
+    public bool HasMesh => !Mesh.ReferencesNothing;
+    public bool HasSkinnedMesh => HasMesh && Bones != null;
 
-    public ModelPart(string name, Mesh? mesh, Material? material)
+    
+    public ModelPart(string name)
     {
         Name = name;
-        Mesh = mesh;
-        Material = material;
     }
 
-    public void AddChild(ModelPart child)
+    
+    public void SetParent(ModelPart parent)
     {
-        if (child.Parent != null)
-            throw new InvalidOperationException("The child already has a parent.");
+        Parent?.Children.Remove(this);
 
-        Children.Add(child);
-        child.Parent = this;
+        Parent = parent;
+        parent.Children.Add(this);
     }
-
-    public void RemoveChild(ModelPart child)
+    
+    
+    public ModelPart? DeepFind(string name)
     {
-        if (child.Parent != this)
-            throw new InvalidOperationException("The child is not a child of this model part.");
+        if (Name == name)
+            return this;
 
-        Children.Remove(child);
-        child.Parent = null;
+        foreach (ModelPart child in Children)
+        {
+            ModelPart? found = child.DeepFind(name);
+            if (found != null)
+                return found;
+        }
+
+        return null;
+    }
+    
+    
+    public void Destroy()
+    {
+        Parent?.Children.Remove(this);
+        Parent = null;
     }
 }
 
@@ -47,8 +70,14 @@ public class ModelPart
 /// </summary>
 public class Model : Asset
 {
-    public Model(string name) : base(name)
+    private readonly ModelPart _rootPart;
+    private readonly List<AssetRef<AnimationClip>>? _animations;
+    
+    
+    public Model(string name, ModelPart rootPart, List<AssetRef<AnimationClip>>? animations) : base(name)
     {
+        _rootPart = rootPart;
+        _animations = animations;
     }
 
 
@@ -59,6 +88,68 @@ public class Model : Asset
     /// <returns>The root entity of the created entity hierarchy.</returns>
     public Entity CreateEntity(Scene scene)
     {
+        List<(Entity entity, ModelPart modelPart)> modelHierarchy = [];
+        Entity rootEntity = CreateEntityHierarchy(scene, _rootPart, modelHierarchy);
         
+        SetupComponents(rootEntity, modelHierarchy);
+
+        return rootEntity;
+    }
+
+
+    private void SetupComponents(Entity rootEntity, List<(Entity entity, ModelPart modelPart)> modelHierarchy)
+    {
+        // Add mesh renderer if the model part has a mesh
+        foreach ((Entity entity, ModelPart modelPart) in modelHierarchy)
+        {
+            if (modelPart.HasMesh)
+            {
+                if (modelPart.HasSkinnedMesh)
+                {
+                    SkinnedMeshRenderer skinnedRenderer = entity.AddComponent<SkinnedMeshRenderer>();
+                    skinnedRenderer.Mesh = new AssetRef<Mesh>(modelPart.Mesh.Asset!);
+                    skinnedRenderer.Material = new AssetRef<Material>(modelPart.Material.Asset!);
+                    
+                    // Find and assign bones in the hierarchy
+                    skinnedRenderer.Bones = new Transform[modelPart.Bones!.Length];
+                    for (int i = 0; i < modelPart.Bones.Length; i++)
+                        skinnedRenderer.Bones[i] = modelHierarchy[0].entity.Transform.DeepFind(modelPart.Bones[i].Name)!;
+                }
+                else
+                {
+                    MeshRenderer renderer = entity.AddComponent<MeshRenderer>();
+                    renderer.Mesh = new AssetRef<Mesh>(modelPart.Mesh.Asset!);
+                    renderer.Material = new AssetRef<Material>(modelPart.Material.Asset!);
+                }
+            }
+        }
+        
+        // Add Animation Component to root, with all the animations assigned to it.
+        if (_animations != null && _animations.Count > 0)
+        {
+            Animation anim = rootEntity.AddComponent<Animation>();
+            foreach (AssetRef<AnimationClip> a in _animations)
+                anim.Clips.Add(a);
+            anim.DefaultClip = _animations[0];
+        }
+    }
+
+
+    private static Entity CreateEntityHierarchy(Scene scene, ModelPart modelPart, List<(Entity entity, ModelPart modelPart)> modelHierarchy)
+    {
+        Entity entity = scene.CreateEntity(modelPart.Name);
+        modelHierarchy.Add((entity, modelPart));
+
+        foreach (ModelPart child in modelPart.Children)
+        {
+            Entity childEntity = CreateEntityHierarchy(scene, child, modelHierarchy);
+            childEntity.SetParent(entity, false);
+        }
+        
+        entity.Transform.LocalPosition = modelPart.LocalPosition;
+        entity.Transform.LocalRotation = modelPart.LocalRotation;
+        entity.Transform.LocalScale = modelPart.LocalScale;
+
+        return entity;
     }
 }
