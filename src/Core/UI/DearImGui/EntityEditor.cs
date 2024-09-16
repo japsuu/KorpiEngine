@@ -10,7 +10,7 @@ namespace KorpiEngine.UI.DearImGui;
 
 public class EntityEditor() : ImGuiWindow(true)
 {
-    private AssetRef<Entity> _target;
+    private Entity? _target;
 
     public override string Title => "Entity Editor";
 
@@ -30,20 +30,20 @@ public class EntityEditor() : ImGuiWindow(true)
         if (instanceID == 0)
             return;
         
-        Entity? e = Asset.FindObjectByID<Entity>(instanceID);
+        Entity? e = EngineObject.FindObjectByID<Entity>(instanceID);
         SetTarget(e);
     }
 
 
     public void SetTarget(Entity? entity)
     {
-        _target = new AssetRef<Entity>(entity);
+        _target = entity;
     }
 
 
     protected override void DrawContent()
     {
-        if (!_target.IsAvailable)
+        if (_target == null || _target.IsDestroyed)
         {
             ImGui.Text("No entity selected.");
             return;
@@ -52,7 +52,7 @@ public class EntityEditor() : ImGuiWindow(true)
         ImGui.Text($"Entity: {_target.Name}");
         ImGui.Separator();
         
-        DrawEntityHierarchy(_target.Asset!);
+        DrawEntityHierarchy(_target);
     }
 
 
