@@ -11,7 +11,7 @@ namespace KorpiEngine.Entities;
 /// </summary>
 public sealed partial class Entity : EngineObject
 {
-    private bool _enabled = true;
+    private bool _isEnabled = true;
     private EntityScene? _entityScene;
     private readonly List<Entity> _childList = [];
     private readonly Transform _transform = new();
@@ -58,12 +58,12 @@ public sealed partial class Entity : EngineObject
     /// True if the entity is enabled explicitly, false otherwise.
     /// This value is unaffected by the entity's parent hierarchy.
     /// </summary>
-    public bool Enabled
+    public bool IsEnabled
     {
-        get => _enabled;
+        get => _isEnabled;
         set
         {
-            if (value != _enabled)
+            if (value != _isEnabled)
                 SetEnabled(value);
         }
     }

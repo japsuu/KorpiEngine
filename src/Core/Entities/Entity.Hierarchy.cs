@@ -85,7 +85,7 @@ public sealed partial class Entity
 
     private void HierarchyStateChanged()
     {
-        bool newState = _enabled && IsParentEnabled;
+        bool newState = _isEnabled && IsParentEnabled;
         if (EnabledInHierarchy != newState)
         {
             EnabledInHierarchy = newState;
@@ -100,7 +100,7 @@ public sealed partial class Entity
 
     private void SetEnabled(bool state)
     {
-        _enabled = state;
+        _isEnabled = state;
         HierarchyStateChanged();
     }
 }

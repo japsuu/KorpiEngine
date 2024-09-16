@@ -311,7 +311,7 @@ internal sealed class EntityScene
             if (entity.IsDestroyed)
                 return;
 
-            if (!entity.Enabled)
+            if (!entity.IsEnabled)
                 return;
             
             // Child entities are updated recursively by their parents.
