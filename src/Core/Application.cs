@@ -77,20 +77,17 @@ public static class Application
 
     private static void OnLoad()
     {
-        SceneManager.Initialize();
-        GlobalJobPool.Initialize();
-        
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
         imGuiController = new ImGuiController(window);
         
-        SceneManager.LoadScene(initialSceneType, SceneLoadMode.Single);
-        
         GUI.Initialize();
 #if TOOLS
         EditorGUI.Initialize();
 #endif
+        GlobalJobPool.Initialize();
+        SceneManager.Initialize(initialSceneType);
         OnApplicationLoadAttribute.Invoke();
     }
 

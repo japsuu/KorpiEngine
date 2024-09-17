@@ -1,13 +1,12 @@
 ﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// Manages in-game scenes.
-/// More info: https://rivermanmedia.com/object-oriented-game-programming-the-scene-system/
 /// </summary>
-public static class SceneManager
+// More info: https://rivermanmedia.com/object-oriented-game-programming-the-scene-system/
+public class SceneManager
 {
     private readonly struct SceneLoadOperation(Scene scene, SceneLoadMode mode)
     {
@@ -16,7 +15,6 @@ public static class SceneManager
     }
     
     
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(SceneManager));
     private static readonly List<Scene> LoadedScenes = [];
     private static readonly Queue<SceneLoadOperation> OperationQueue = [];
     private static Scene? currentScene;
@@ -32,18 +30,21 @@ public static class SceneManager
     public static IEnumerable<Scene> CurrentlyLoadedScenes => LoadedScenes;
     
 
-    public static void Initialize()
+    /// <summary>
+    /// Initializes the scene manager with the given scene.
+    /// </summary>
+    internal static void Initialize(Type type)
     {
-        LoadScene<EmptyScene>(SceneLoadMode.Single);
+        LoadScene(type, SceneLoadMode.Single);
     }
 
     
     /// <summary>
-    /// Loads the specified scene.
+    /// Loads a new scene of the specified type.
     /// The scene loading will be deferred until the next frame.
     /// </summary>
+    /// <typeparam name="T">The type of the scene to load.</typeparam>
     /// <param name="mode">The mode in which to load the scene.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the scene is null.</exception>
     public static void LoadScene<T>(SceneLoadMode mode) where T : Scene, new()
     {
         Scene scene = new T();
@@ -51,6 +52,13 @@ public static class SceneManager
     }
     
     
+    /// <summary>
+    /// Loads a new scene of the specified type.
+    /// The scene loading will be deferred until the next frame.
+    /// </summary>
+    /// <param name="type">The type of the scene to load.</param>
+    /// <param name="mode">The mode in which to load the scene.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the scene could not be created.</exception>
     public static void LoadScene(Type type, SceneLoadMode mode)
     {
         Scene? scene = (Scene?)Activator.CreateInstance(type);
@@ -80,7 +88,7 @@ public static class SceneManager
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
         }
 
-        Logger.Debug($"Loaded scene '{scene.GetType().Name}' as {mode}.");
+        Application.Logger.Debug($"Loaded scene '{scene.GetType().Name}' as {mode}.");
     }
 
 
@@ -114,7 +122,7 @@ public static class SceneManager
     
     internal static void Update()
     {
-        Asset.ProcessDisposeQueue();
+        EngineObject.ProcessDisposeQueue();
         
         while (OperationQueue.Count > 0)
         {
