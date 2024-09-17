@@ -21,6 +21,9 @@ public static class Application
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
     
+    [ThreadStatic]
+    internal static bool IsMainThread;
+    
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
@@ -44,6 +47,8 @@ public static class Application
     /// </summary>
     public static void Run(WindowingSettings settings, Scene scene)
     {
+        IsMainThread = true;
+        
         InitializeLog4Net();
         
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
