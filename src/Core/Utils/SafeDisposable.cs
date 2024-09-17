@@ -29,8 +29,6 @@ public abstract class SafeDisposable : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Debug.AssertMainThread(true);
-        
         Dispose(true);
         // Take this object off the finalization queue to prevent the destructor from being called.
         GC.SuppressFinalize(this);
@@ -66,6 +64,8 @@ public abstract class SafeDisposable : IDisposable
     /// Only unmanaged resources can be disposed.</param>
     protected virtual void Dispose(bool manual)
     {
+        Debug.AssertMainThread(manual);
+
         // Safely handle multiple calls to dispose
         if (IsDisposed)
             return;

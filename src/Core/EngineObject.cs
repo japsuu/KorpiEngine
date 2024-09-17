@@ -108,7 +108,8 @@ public class EngineObject : SafeDisposable
             return;
         base.Dispose(manual);
         
-        Debug.Assert(_isAwaitingDisposal && !manual, $"Object '{Name}' was disposed by GC while queued for disposal. This is an engine bug.");
+        if (!manual)
+            Debug.Assert(!_isAwaitingDisposal, $"Object '{Name}' was disposed by GC while queued for disposal.");
         
         OnDispose(manual);
     }
