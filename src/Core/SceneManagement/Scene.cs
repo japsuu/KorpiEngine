@@ -12,8 +12,6 @@ namespace KorpiEngine.SceneManagement;
 public abstract class Scene
 {
     internal readonly EntityScene EntityScene = new();
-    
-    protected Camera SceneCamera { get; private set; } = null!;
 
 
     #region Creation and destruction
@@ -84,9 +82,6 @@ public abstract class Scene
         Entity cameraEntity = CreateEntity("Scene Camera");
         Camera camera = cameraEntity.AddComponent<Camera>();
         
-        camera.RenderPriority = 0;
-        camera.ClearFlags = CameraClearFlags.Color | CameraClearFlags.Depth;
-        
         return camera;
     }
 
@@ -121,7 +116,7 @@ public abstract class Scene
     internal void InternalLoad()
     {
         CreateLights();
-        SceneCamera = CreateSceneCamera();
+        CreateSceneCamera();
         
         OnLoad();
     }
