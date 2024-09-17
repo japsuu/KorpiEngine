@@ -182,20 +182,20 @@ public sealed class Camera : EntityComponent
     }
     
     
-    internal void RenderLights() => Entity.Scene!.EntityScene.InvokeRenderLighting();
-    internal void RenderDepthGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometryDepth();
-    private void RenderGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometry();
+    internal void RenderLights() => Entity.Scene!.InvokeRenderLighting();
+    internal void RenderDepthGeometry() => Entity.Scene!.InvokeRenderGeometryDepth();
+    private void RenderGeometry() => Entity.Scene!.InvokeRenderGeometry();
 
 
     private void RenderGizmos()
     {
         // if (Graphics.UseJitter)
         //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter
-        Entity.Scene!.EntityScene.InvokeDrawDepthGizmos();
+        Entity.Scene!.InvokeDrawDepthGizmos();
         Gizmos.Render(true);
         Gizmos.Clear();
         
-        Entity.Scene.EntityScene.InvokeDrawGizmos();
+        Entity.Scene.InvokeDrawGizmos();
         Gizmos.Render(false);
         Gizmos.Clear();
     }
@@ -203,7 +203,7 @@ public sealed class Camera : EntityComponent
 
     private void GeometryPass()
     {
-        Entity.Scene!.EntityScene.InvokePreRender();
+        Entity.Scene!.InvokePreRender();
         
         GBuffer!.Begin();
         
@@ -214,7 +214,7 @@ public sealed class Camera : EntityComponent
         
         GBuffer.End();
         
-        Entity.Scene.EntityScene.InvokePostRender();
+        Entity.Scene.InvokePostRender();
     }
     
     

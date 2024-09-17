@@ -14,7 +14,6 @@ public sealed partial class Entity : EngineObject
     private bool _isEnabled = true;
     private bool _isEnabledInHierarchy = true;
     private Scene? _scene;
-    private EntityScene? _entityScene;
     private Entity? _parent;
     private readonly List<Entity> _childList = [];
     private readonly Transform _transform = new();
@@ -144,10 +143,9 @@ public sealed partial class Entity : EngineObject
     {
         Scene? oldScene = _scene;
         _scene = scene;
-        _entityScene = scene?.EntityScene;
 
-        oldScene?.EntityScene.UnregisterEntity(this);
-        scene?.EntityScene.RegisterEntity(this);
+        oldScene?.UnregisterEntity(this);
+        scene?.RegisterEntity(this);
 
         foreach (Entity child in _childList)
             child.PropagateSceneChange(scene);
@@ -169,8 +167,8 @@ public sealed partial class Entity : EngineObject
         _components.Clear();
         _componentCache.Clear();
 
-        _entityScene?.UnregisterEntity(this);
         _parent?._childList.Remove(this);
+        _scene?.UnregisterEntity(this);
     }
 
     #endregion

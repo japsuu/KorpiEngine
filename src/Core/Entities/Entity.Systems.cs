@@ -57,7 +57,7 @@ public sealed partial class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryRegisterComponent(component);
 
-        _entityScene?.RegisterComponent(component);
+        _scene?.RegisterComponent(component);
     }
 
 
@@ -66,6 +66,6 @@ public sealed partial class Entity
         foreach (IEntitySystem system in _systems.Values)
             system.TryUnregisterComponent(component);
 
-        _entityScene?.UnregisterComponent(component);
+        _scene?.UnregisterComponent(component);
     }
 }

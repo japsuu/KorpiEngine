@@ -22,6 +22,23 @@ internal class FullExampleScene : ExampleScene
     {
         base.OnLoad();
 
+        // Create a camera entity with our custom free camera component.
+        Entity cameraEntity = CreateEntity("Scene Camera");
+        cameraEntity.AddComponent<Camera>();
+        cameraEntity.AddComponent<DemoFreeCam>();
+        cameraEntity.Transform.Position = new Vector3(0f, 5f, -5f);
+        
+        // Create a directional light to illuminate the scene.
+        Entity dlEntity = CreateEntity("Directional Light");
+        DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
+        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
+        
+        // Create an ambient light to provide some base illumination.
+        Entity alEntity = CreateEntity("Ambient Light");
+        AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
+
         // ----------------------------------------
         // Creating spheres in random positions that oscillate up and down
 
@@ -59,19 +76,5 @@ internal class FullExampleScene : ExampleScene
             root.Transform.Position = new Vector3(randomPos.X, 0, randomPos.Y);
             root.Transform.Rotation = Random.Rotation;
         }
-    }
-
-
-    // ----------------------------------------
-    // Creating a camera entity
-    
-    protected override Camera CreateSceneCamera()
-    {
-        // We override the CreateSceneCamera method to add our custom camera component to the scene camera entity
-        Camera component = base.CreateSceneCamera();
-        component.Entity.AddComponent<DemoFreeCam>();
-        component.Entity.Transform.Position = new Vector3(0f, 5f, -5f);
-        
-        return component;
     }
 }

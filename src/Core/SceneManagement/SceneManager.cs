@@ -46,7 +46,7 @@ public sealed class SceneManager
 #warning TODO: Implement DontDestroyOnLoad
         // Unload all scenes and destroy all objects in them.
         foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.InternalDispose();
+            loadedScene.InternalUnload();
         
         // Handle all objects that were just destroyed.
         EngineObject.ProcessDisposeQueue();
@@ -110,7 +110,7 @@ public sealed class SceneManager
     {
         // Unload the old scenes.
         foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.InternalDispose();
+            loadedScene.InternalUnload();
         
         _loadedScenes.Clear();
 

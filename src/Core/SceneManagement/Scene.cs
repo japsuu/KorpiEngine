@@ -11,22 +11,16 @@ namespace KorpiEngine.SceneManagement;
 /// </summary>
 public abstract class Scene
 {
-    internal readonly EntityScene EntityScene = new();
+    private readonly EntityScene _entityScene;
 
 
-    #region Creation and destruction
-
-    internal void InternalDispose()
+    protected Scene()
     {
-        OnUnload();
-        
-        EntityScene.Destroy();
+        _entityScene = new EntityScene();
     }
 
-    #endregion
 
-
-    #region Public API
+#region Public API
     
     public Entity CreateEntity(string name)
     {
@@ -39,7 +33,7 @@ public abstract class Scene
     {
         Entity e = CreateEntity(name);
         MeshRenderer c = e.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
+        Material mat = new(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
         
         c.Mesh = Mesh.CreatePrimitive(primitiveType);
         c.Material = mat;
@@ -53,50 +47,44 @@ public abstract class Scene
     
     public T? FindObjectOfType<T>() where T : EntityComponent
     {
-        return EntityScene.FindObjectOfType<T>();
+        return _entityScene.FindObjectOfType<T>();
     }
 
-    #endregion
+#endregion
 
 
-    #region Protected API
+#region Protected API
 
-    protected void RegisterSceneSystem<T>() where T : SceneSystem, new()
+    protected void RegisterSceneSystem<T>() where T : SceneSystem, new() => _entityScene.RegisterSceneSystem<T>();
+    protected void UnregisterSceneSystem<T>() where T : SceneSystem => _entityScene.UnregisterSceneSystem<T>();
+
+#endregion
+
+
+#region Internal API
+
+    // Lifecycle methods
+    internal void InternalLoad() => OnLoad();
+    internal void InternalUpdate() => _entityScene.Update();
+    internal void InternalFixedUpdate() => _entityScene.FixedUpdate();
+    internal void InternalRender() => _entityScene.Render();
+    internal void InternalUnload()
     {
-        EntityScene.RegisterSceneSystem<T>();
-    }
-    
-    
-    protected void UnregisterSceneSystem<T>() where T : SceneSystem
-    {
-        EntityScene.UnregisterSceneSystem<T>();
-    }
-
-    #endregion
-
-
-    #region Protected overridable methods
-
-    protected virtual Camera CreateSceneCamera()
-    {
-        Entity cameraEntity = CreateEntity("Scene Camera");
-        Camera camera = cameraEntity.AddComponent<Camera>();
+        OnUnload();
         
-        return camera;
-    }
-
-    protected virtual void CreateLights()
-    {
-        Entity dlEntity = CreateEntity("Directional Light");
-        DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
-        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
-        
-        Entity alEntity = CreateEntity("Ambient Light");
-        AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
-        alComp.SkyIntensity = 0.4f;
-        alComp.GroundIntensity = 0.1f;
+        _entityScene.Destroy();
     }
     
+    // Entity and component management
+    internal void RegisterEntity(Entity entity) => _entityScene.RegisterEntity(entity);
+    internal void UnregisterEntity(Entity entity) => _entityScene.UnregisterEntity(entity);
+    internal void RegisterComponent(EntityComponent component) => _entityScene.RegisterComponent(component);
+    internal void UnregisterComponent(EntityComponent component) => _entityScene.UnregisterComponent(component);
+
+#endregion
+
+
+#region Protected overridable methods
     
     /// <summary>
     /// Called when the scene is loaded.
@@ -108,36 +96,5 @@ public abstract class Scene
     /// </summary>
     protected virtual void OnUnload() { }
 
-    #endregion
-
-
-    #region Internal calls
-
-    internal void InternalLoad()
-    {
-        CreateLights();
-        CreateSceneCamera();
-        
-        OnLoad();
-    }
-    
-    
-    internal void InternalUpdate()
-    {
-        EntityScene.Update();
-    }
-    
-    
-    internal void InternalFixedUpdate()
-    {
-        EntityScene.FixedUpdate();
-    }
-    
-    
-    internal void InternalRender()
-    {
-        EntityScene.Render();
-    }
-
-    #endregion
+#endregion
 }
