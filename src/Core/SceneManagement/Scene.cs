@@ -16,7 +16,7 @@ public abstract class Scene
 
     #region Creation and destruction
 
-    internal void Destroy()
+    internal void InternalDispose()
     {
         OnUnload();
         

@@ -4,11 +4,11 @@
 /// Manages in-game scenes.
 /// </summary>
 // More info: https://rivermanmedia.com/object-oriented-game-programming-the-scene-system/
-public class SceneManager
+public sealed class SceneManager
 {
-    private readonly struct SceneLoadOperation(Scene scene, SceneLoadMode mode)
+    private readonly struct SceneLoadOperation(Type sceneType, SceneLoadMode mode)
     {
-        public readonly Scene Scene = scene;
+        public readonly Type SceneType = sceneType;
         public readonly SceneLoadMode Mode = mode;
     }
     
@@ -26,15 +26,37 @@ public class SceneManager
     /// All scenes that are currently loaded.
     /// </summary>
     public IEnumerable<Scene> CurrentlyLoadedScenes => _loadedScenes;
-    
+
+
+#region Creation and Destruction
 
     /// <summary>
-    /// Initializes the scene manager with the given scene.
+    /// Creates a new scene manager.
+    /// Initializes the scene manager with a new scene of the given type.
     /// </summary>
-    internal void Initialize(Type type)
+    public SceneManager(Type type)
     {
         LoadScene(type, SceneLoadMode.Single);
     }
+    
+    
+    // I would like to implement IDisposable, but we need the Dispose method to be internal.
+    internal void InternalDispose()
+    {
+#warning TODO: Implement DontDestroyOnLoad
+        // Unload all scenes and destroy all objects in them.
+        foreach (Scene loadedScene in _loadedScenes)
+            loadedScene.InternalDispose();
+        
+        // Handle all objects that were just destroyed.
+        EngineObject.ProcessDisposeQueue();
+        
+        _loadedScenes.Clear();
+        _operationQueue.Clear();
+        _currentScene = null;
+    }
+
+#endregion
 
     
     /// <summary>
@@ -45,8 +67,7 @@ public class SceneManager
     /// <param name="mode">The mode in which to load the scene.</param>
     public void LoadScene<T>(SceneLoadMode mode) where T : Scene, new()
     {
-        Scene scene = new T();
-        _operationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+        _operationQueue.Enqueue(new SceneLoadOperation(typeof(T), mode));
     }
     
     
@@ -59,12 +80,7 @@ public class SceneManager
     /// <exception cref="InvalidOperationException">Thrown if the scene could not be created.</exception>
     public void LoadScene(Type type, SceneLoadMode mode)
     {
-        Scene? scene = (Scene?)Activator.CreateInstance(type);
-        
-        if (scene == null)
-            throw new InvalidOperationException($"Failed to create an instance of the scene '{type.Name}'.");
-        
-        _operationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+        _operationQueue.Enqueue(new SceneLoadOperation(type, mode));
     }
 
 
@@ -94,7 +110,7 @@ public class SceneManager
     {
         // Unload the old scenes.
         foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.Destroy();
+            loadedScene.InternalDispose();
         
         _loadedScenes.Clear();
 
@@ -116,8 +132,10 @@ public class SceneManager
         // Load the new scene.
         scene.InternalLoad();
     }
-    
-    
+
+
+#region Internal Calls
+
     internal void Update()
     {
         EngineObject.ProcessDisposeQueue();
@@ -125,7 +143,13 @@ public class SceneManager
         while (_operationQueue.Count > 0)
         {
             SceneLoadOperation operation = _operationQueue.Dequeue();
-            LoadSceneInternal(operation.Scene, operation.Mode);
+            
+            Scene? scene = (Scene?)Activator.CreateInstance(operation.SceneType);
+        
+            if (scene == null)
+                throw new InvalidOperationException($"Failed to create an instance of the scene '{operation.SceneType.Name}'.");
+            
+            LoadSceneInternal(scene, operation.Mode);
         }
         
         CurrentScene.InternalUpdate();
@@ -142,20 +166,6 @@ public class SceneManager
     {
         CurrentScene.InternalRender();
     }
-    
-    
-    internal void Shutdown()
-    {
-#warning TODO: Implement DontDestroyOnLoad
-        
-        // Unload all scenes and destroy all objects in them.
-        foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.Destroy();
-        
-        // Handle all objects that were just destroyed.
-        EngineObject.ProcessDisposeQueue();
-        
-        _loadedScenes.Clear();
-        _currentScene = null;
-    }
+
+#endregion
 }

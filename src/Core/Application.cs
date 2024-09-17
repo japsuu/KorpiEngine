@@ -90,7 +90,7 @@ public static class Application
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
-        sceneManager = new SceneManager();
+        sceneManager = new SceneManager(initialSceneType);
         imGuiController = new ImGuiController(window);
         
         GUI.Initialize();
@@ -98,7 +98,6 @@ public static class Application
         EditorGUI.Initialize();
 #endif
         GlobalJobPool.Initialize();
-        SceneManager.Initialize(initialSceneType);
         OnApplicationLoadAttribute.Invoke();
     }
 
@@ -111,7 +110,8 @@ public static class Application
 #endif
         GUI.Deinitialize();
         
-        sceneManager?.Shutdown();
+        sceneManager?.InternalDispose();
+        sceneManager = null;
         GlobalJobPool.Shutdown();
         AssetImporterAttribute.ClearLookUp();
         
