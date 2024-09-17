@@ -18,7 +18,7 @@ public static class Application
 {
     private static ImGuiController imGuiController = null!;
     private static KorpiWindow window = null!;
-    private static Scene initialScene = null!;
+    private static Type initialSceneType = null!;
     private static double fixedFrameAccumulator;
     
     [ThreadStatic]
@@ -45,19 +45,23 @@ public static class Application
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run(WindowingSettings settings, Scene scene)
+    public static void Run<T>(WindowingSettings settings) where T : Scene
     {
         IsMainThread = true;
         
         InitializeLog4Net();
         
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        initialScene = scene;
+        initialSceneType = typeof(T);
         
         window.Load += OnLoad;
         window.UpdateFrame += OnUpdateFrame;
         window.RenderFrame += OnRenderFrame;
         window.Unload += OnUnload;
+        
+        // These need to be executed before Window.OnLoad() (called right after Window.Run()).
+        AssemblyManager.Initialize();
+        OnApplicationLoadAttribute.Invoke();
         
         window.Run();
     }
@@ -71,8 +75,6 @@ public static class Application
 
     private static void OnLoad()
     {
-        AssemblyManager.Initialize();
-        OnApplicationLoadAttribute.Invoke();
         
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
@@ -82,7 +84,7 @@ public static class Application
         window.IsVisible = true;
         imGuiController = new ImGuiController(window);
         
-        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
+        SceneManager.LoadScene(initialSceneType, SceneLoadMode.Single);
         
         GUI.Initialize();
 #if TOOLS

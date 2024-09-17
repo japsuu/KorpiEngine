@@ -34,7 +34,7 @@ public static class SceneManager
 
     public static void Initialize()
     {
-        LoadScene(new EmptyScene(), SceneLoadMode.Single);
+        LoadScene<EmptyScene>(SceneLoadMode.Single);
     }
 
     
@@ -42,13 +42,22 @@ public static class SceneManager
     /// Loads the specified scene.
     /// The scene loading will be deferred until the next frame.
     /// </summary>
-    /// <param name="scene">The scene to load.</param>
     /// <param name="mode">The mode in which to load the scene.</param>
     /// <exception cref="ArgumentNullException">Thrown if the scene is null.</exception>
-    public static void LoadScene(Scene scene, SceneLoadMode mode)
+    public static void LoadScene<T>(SceneLoadMode mode) where T : Scene, new()
     {
-        ArgumentNullException.ThrowIfNull(scene);
-
+        Scene scene = new T();
+        OperationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+    }
+    
+    
+    public static void LoadScene(Type type, SceneLoadMode mode)
+    {
+        Scene? scene = (Scene?)Activator.CreateInstance(type);
+        
+        if (scene == null)
+            throw new InvalidOperationException($"Failed to create an instance of the scene '{type.Name}'.");
+        
         OperationQueue.Enqueue(new SceneLoadOperation(scene, mode));
     }
 

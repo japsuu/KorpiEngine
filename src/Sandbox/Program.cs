@@ -10,8 +10,7 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        Application.Run(
-            new WindowingSettings(new Int2(1920, 1080), "KorpiEngine Sandbox"),
-            new PrimitiveExampleScene());
+        Application.Run<PrimitiveExampleScene>(
+            new WindowingSettings(new Int2(1920, 1080), "KorpiEngine Sandbox"));
     }
 }

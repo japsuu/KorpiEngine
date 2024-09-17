@@ -43,12 +43,12 @@ public class HelpWindow(string title, string text) : ImGuiWindow(true)
         ImGui.Separator();
 
         if (ImGui.Button("Sponza Example Scene"))
-            SceneManager.LoadScene(new SponzaExampleScene(), SceneLoadMode.Single);
+            SceneManager.LoadScene<SponzaExampleScene>(SceneLoadMode.Single);
         
         if (ImGui.Button("Full Example Scene"))
-            SceneManager.LoadScene(new FullExampleScene(), SceneLoadMode.Single);
+            SceneManager.LoadScene<FullExampleScene>(SceneLoadMode.Single);
         
         if (ImGui.Button("Primitive Example Scene"))
-            SceneManager.LoadScene(new PrimitiveExampleScene(), SceneLoadMode.Single);
+            SceneManager.LoadScene<PrimitiveExampleScene>(SceneLoadMode.Single);
     }
 }
