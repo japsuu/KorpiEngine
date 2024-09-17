@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using KorpiEngine.AssetManagement;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
@@ -47,16 +48,6 @@ public static class Application
     }
 
 
-    private static void InitializeLog4Net()
-    {
-        // Add support for additional encodings (code pages), required by Log4Net.
-        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        
-        // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
-    }
-
-
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
@@ -83,11 +74,16 @@ public static class Application
     }
     
     
+    /// <summary>
+    /// Quits the application.
+    /// </summary>
     public static void Quit()
     {
         window.Close();
     }
 
+
+#region Loading and Unloading
 
     private static void OnLoad()
     {
@@ -123,6 +119,8 @@ public static class Application
         imGuiController.Dispose();
         window.Dispose();
     }
+
+#endregion
 
 
 #region Frame Updating and Rendering
@@ -190,6 +188,20 @@ public static class Application
     {
         SceneManager.Render();
         imGuiController.Render();
+    }
+
+#endregion
+
+
+#region Utility
+
+    private static void InitializeLog4Net()
+    {
+        // Add support for additional encodings (code pages), required by Log4Net.
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        
+        // Initialize the Log4Net configuration.
+        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
     }
 
 #endregion
