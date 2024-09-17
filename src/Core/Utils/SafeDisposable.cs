@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.Utils;
+﻿using KorpiEngine.Tools;
+
+namespace KorpiEngine.Utils;
 
 /// <summary>
 /// Base class for resources that support manual disposal.
@@ -27,6 +29,8 @@ public abstract class SafeDisposable : IDisposable
     /// </summary>
     public void Dispose()
     {
+        Debug.AssertMainThread(true);
+        
         Dispose(true);
         // Take this object off the finalization queue to prevent the destructor from being called.
         GC.SuppressFinalize(this);

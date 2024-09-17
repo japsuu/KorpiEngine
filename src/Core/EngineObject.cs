@@ -40,12 +40,14 @@ public class EngineObject : SafeDisposable
     /// The name of the object.
     /// </summary>
     public string Name { get; set; }
-    
+
     /// <summary>
-    /// Whether the object has been destroyed (disposed or is waiting for disposal).
-    /// Use <see cref="SafeDisposable.IsDisposed"/> if you need to check if the dispose process has been completed.
+    /// Whether the destruction (dispose) process has been completed.
+    /// If true, the object is considered destroyed and should not be used.
+    /// If false, the object is still valid, but might be queued for destruction.
     /// </summary>
-    public bool IsDestroyed { get; private set; }
+    public bool IsDestroyed => IsDisposed;
+    private bool _isAwaitingDisposal;
 
 
 #region Creation, Destruction, and Disposal
@@ -78,7 +80,7 @@ public class EngineObject : SafeDisposable
         if (!AllowDestroy())
             return;
         
-        IsDestroyed = true;
+        _isAwaitingDisposal = true;
         
         DisposalDelayedResources.Push(this);
     }
@@ -96,8 +98,6 @@ public class EngineObject : SafeDisposable
         if (!AllowDestroy())
             return;
 
-        IsDestroyed = true;
-        
         Dispose();
     }
 
@@ -107,6 +107,8 @@ public class EngineObject : SafeDisposable
         if (IsDisposed)
             return;
         base.Dispose(manual);
+        
+        Debug.Assert(_isAwaitingDisposal && !manual, $"Object '{Name}' was disposed by GC while queued for disposal. This is an engine bug.");
         
         OnDispose(manual);
     }
@@ -196,7 +198,7 @@ public class EngineObject : SafeDisposable
     protected virtual void OnDispose(bool manual) { }
 
 
-    protected internal virtual bool AllowDestroy() => true;
+    protected virtual bool AllowDestroy() => true;
 
 #endregion
     

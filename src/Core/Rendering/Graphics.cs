@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using KorpiEngine.Mathematics;
+using KorpiEngine.Tools;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;
@@ -46,6 +47,8 @@ public static class Graphics
 
     internal static void UpdateViewport(int width, int height)
     {
+        Debug.AssertMainThread(true);
+
         Device.UpdateViewport(0, 0, width, height);
         ViewportResolution = new Vector2(width, height);
     }
@@ -53,6 +56,8 @@ public static class Graphics
 
     internal static void Clear(float r = 0, float g = 0, float b = 0, float a = 1, bool color = true, bool depth = true, bool stencil = true)
     {
+        Debug.AssertMainThread(true);
+
         ClearFlags flags = 0;
         if (color) flags |= ClearFlags.Color;
         if (depth) flags |= ClearFlags.Depth;
@@ -67,6 +72,8 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame()
     {
+        Debug.AssertMainThread(true);
+
         RenderTexture.UpdatePool();
         
         Clear();
@@ -85,6 +92,8 @@ public static class Graphics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {
+        Debug.AssertMainThread(true);
+
         // Additional functionality before the frame ends
     }
 
@@ -99,6 +108,8 @@ public static class Graphics
     /// <exception cref="Exception">Thrown when DrawMeshNow is called outside a rendering context.</exception>
     public static void DrawMeshNow(Mesh mesh, Matrix4x4 camRelativeTransform, Material material, Matrix4x4? oldCamRelativeTransform = null)
     {
+        Debug.AssertMainThread(true);
+
         if (Camera.RenderingCamera == null)
             throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
@@ -170,6 +181,8 @@ public static class Graphics
 
     public static void DrawMeshNowDirect(Mesh mesh)
     {
+        Debug.AssertMainThread(true);
+
         if (Camera.RenderingCamera == null)
             throw new RenderStateException("DrawMeshNow must be called during a rendering context!");
         
@@ -186,6 +199,8 @@ public static class Graphics
     
     public static bool FrustumTest(Sphere boundingSphere, Matrix4x4 transform)
     {
+        Debug.AssertMainThread(true);
+
         if (Camera.RenderingCamera == null)
             throw new RenderStateException("FrustumTest must be called during a rendering context!");
         
@@ -201,6 +216,8 @@ public static class Graphics
     /// </summary>
     public static void Blit(Material mat, int pass = 0)
     {
+        Debug.AssertMainThread(true);
+
         mat.SetPass(pass);
         DrawMeshNow(Mesh.GetFullscreenQuad(), Matrix4x4.Identity, mat);
     }
@@ -210,6 +227,8 @@ public static class Graphics
     /// </summary>
     public static void Blit(RenderTexture? renderTexture, Material mat, int pass = 0, bool clear = true)
     {
+        Debug.AssertMainThread(true);
+
         renderTexture?.Begin();
         
         if (clear)
@@ -226,6 +245,8 @@ public static class Graphics
     /// </summary>
     public static void Blit(RenderTexture? renderTexture, Texture2D texture, bool clear = true)
     {
+        Debug.AssertMainThread(true);
+
         defaultBlitMaterial.SetTexture("_Texture0", texture);
         defaultBlitMaterial.SetPass(0);
 
@@ -247,6 +268,8 @@ public static class Graphics
     /// <param name="destination">The destination render texture.</param>
     internal static void BlitDepth(RenderTexture source, RenderTexture? destination)
     {
+        Debug.AssertMainThread(true);
+
         Device.BindFramebuffer(source.FrameBuffer!, FBOTarget.ReadFramebuffer);
         
         if(destination != null)
