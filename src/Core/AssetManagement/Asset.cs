@@ -64,7 +64,7 @@ public abstract class Asset : EngineObject
     }
 
 
-    protected internal override bool AllowDestroy()
+    protected override bool AllowDestroy()
     {
         bool allowed = !IsExternal || AllowManualExternalDestroy;
         
