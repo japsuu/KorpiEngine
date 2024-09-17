@@ -17,9 +17,9 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
-    private static double fixedFrameAccumulator;
     private static KorpiWindow window = null!;
     private static Scene initialScene = null!;
+    private static double fixedFrameAccumulator;
     
     [ThreadStatic]
     internal static bool IsMainThread;
@@ -59,9 +59,6 @@ public static class Application
         window.RenderFrame += OnRenderFrame;
         window.Unload += OnUnload;
         
-        AssemblyManager.Initialize();
-        OnApplicationLoadAttribute.Invoke();
-        
         window.Run();
     }
     
@@ -74,6 +71,9 @@ public static class Application
 
     private static void OnLoad()
     {
+        AssemblyManager.Initialize();
+        OnApplicationLoadAttribute.Invoke();
+        
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
         
@@ -90,6 +90,25 @@ public static class Application
 #endif
     }
 
+
+    private static void OnUnload()
+    {
+#if TOOLS
+        EditorGUI.Deinitialize();
+#endif
+        GUI.Deinitialize();
+        
+        OnApplicationUnloadAttribute.Invoke();
+        SceneManager.Shutdown();
+        GlobalJobPool.Shutdown();
+        
+        ImGuiWindowManager.Shutdown();
+        imGuiController.Dispose();
+        window.Dispose();
+    }
+
+
+#region Frame Updating and Rendering
 
     private static void OnUpdateFrame(FrameEventArgs args)
     {
@@ -156,20 +175,5 @@ public static class Application
         imGuiController.Render();
     }
 
-
-    private static void OnUnload()
-    {
-#if TOOLS
-        EditorGUI.Deinitialize();
-#endif
-        GUI.Deinitialize();
-        
-        OnApplicationUnloadAttribute.Invoke();
-        SceneManager.Shutdown();
-        GlobalJobPool.Shutdown();
-        
-        ImGuiWindowManager.Shutdown();
-        imGuiController.Dispose();
-        window.Dispose();
-    }
+#endregion
 }
