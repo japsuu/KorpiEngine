@@ -18,19 +18,33 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
+    private static SceneManager? sceneManager;
     private static KorpiWindow window = null!;
     private static Type initialSceneType = null!;
     private static double fixedFrameAccumulator;
     
     [ThreadStatic]
     internal static bool IsMainThread;
-    
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);
     public static string DefaultsDirectory => Path.Combine(AssetsDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
     public static string WebAssetsDirectory => Path.Combine(Directory, EngineConstants.WEB_ASSETS_FOLDER_NAME);
+
+    /// <summary>
+    /// The currently active scene manager.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the scene manager has not been initialized yet.</exception>
+    public static SceneManager SceneManager
+    {
+        get
+        {
+            if (sceneManager == null)
+                throw new InvalidOperationException("The scene manager has not been initialized yet!");
+            return sceneManager;
+        }
+    }
 
 
     private static void InitializeLog4Net()
@@ -80,6 +94,7 @@ public static class Application
         // Queue window visibility after all internal resources are loaded.
         window.CenterWindow();
         window.IsVisible = true;
+        sceneManager = new SceneManager();
         imGuiController = new ImGuiController(window);
         
         GUI.Initialize();
@@ -100,7 +115,7 @@ public static class Application
 #endif
         GUI.Deinitialize();
         
-        SceneManager.Shutdown();
+        sceneManager?.Shutdown();
         GlobalJobPool.Shutdown();
         AssetImporterAttribute.ClearLookUp();
         

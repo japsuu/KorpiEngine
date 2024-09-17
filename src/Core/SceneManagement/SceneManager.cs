@@ -1,6 +1,4 @@
-﻿using KorpiEngine.AssetManagement;
-
-namespace KorpiEngine.SceneManagement;
+﻿namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// Manages in-game scenes.
@@ -15,25 +13,25 @@ public class SceneManager
     }
     
     
-    private static readonly List<Scene> LoadedScenes = [];
-    private static readonly Queue<SceneLoadOperation> OperationQueue = [];
-    private static Scene? currentScene;
+    private readonly List<Scene> _loadedScenes = [];
+    private readonly Queue<SceneLoadOperation> _operationQueue = [];
+    private Scene? _currentScene;
 
     /// <summary>
     /// The scene that was last loaded.
     /// </summary>
-    public static Scene CurrentScene => currentScene ?? throw new InvalidOperationException("No scene is currently loaded!");
+    public Scene CurrentScene => _currentScene ?? throw new InvalidOperationException("No scene is currently loaded!");
 
     /// <summary>
     /// All scenes that are currently loaded.
     /// </summary>
-    public static IEnumerable<Scene> CurrentlyLoadedScenes => LoadedScenes;
+    public IEnumerable<Scene> CurrentlyLoadedScenes => _loadedScenes;
     
 
     /// <summary>
     /// Initializes the scene manager with the given scene.
     /// </summary>
-    internal static void Initialize(Type type)
+    internal void Initialize(Type type)
     {
         LoadScene(type, SceneLoadMode.Single);
     }
@@ -45,10 +43,10 @@ public class SceneManager
     /// </summary>
     /// <typeparam name="T">The type of the scene to load.</typeparam>
     /// <param name="mode">The mode in which to load the scene.</param>
-    public static void LoadScene<T>(SceneLoadMode mode) where T : Scene, new()
+    public void LoadScene<T>(SceneLoadMode mode) where T : Scene, new()
     {
         Scene scene = new T();
-        OperationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+        _operationQueue.Enqueue(new SceneLoadOperation(scene, mode));
     }
     
     
@@ -59,18 +57,18 @@ public class SceneManager
     /// <param name="type">The type of the scene to load.</param>
     /// <param name="mode">The mode in which to load the scene.</param>
     /// <exception cref="InvalidOperationException">Thrown if the scene could not be created.</exception>
-    public static void LoadScene(Type type, SceneLoadMode mode)
+    public void LoadScene(Type type, SceneLoadMode mode)
     {
         Scene? scene = (Scene?)Activator.CreateInstance(type);
         
         if (scene == null)
             throw new InvalidOperationException($"Failed to create an instance of the scene '{type.Name}'.");
         
-        OperationQueue.Enqueue(new SceneLoadOperation(scene, mode));
+        _operationQueue.Enqueue(new SceneLoadOperation(scene, mode));
     }
 
 
-    private static void LoadSceneInternal(Scene scene, SceneLoadMode mode)
+    private void LoadSceneInternal(Scene scene, SceneLoadMode mode)
     {
         switch (mode)
         {
@@ -92,41 +90,41 @@ public class SceneManager
     }
 
 
-    private static void LoadSceneSingle(Scene scene)
+    private void LoadSceneSingle(Scene scene)
     {
         // Unload the old scenes.
-        foreach (Scene loadedScene in LoadedScenes)
+        foreach (Scene loadedScene in _loadedScenes)
             loadedScene.Destroy();
         
-        LoadedScenes.Clear();
+        _loadedScenes.Clear();
 
         // Set the new scene as the current scene.
-        currentScene = scene;
-        LoadedScenes.Add(CurrentScene);
+        _currentScene = scene;
+        _loadedScenes.Add(CurrentScene);
 
         // Load the new scene.
         scene.InternalLoad();
     }
 
 
-    private static void LoadSceneAdditive(Scene scene)
+    private void LoadSceneAdditive(Scene scene)
     {
         // Set the new scene as the current scene.
-        currentScene = scene;
-        LoadedScenes.Add(CurrentScene);
+        _currentScene = scene;
+        _loadedScenes.Add(CurrentScene);
 
         // Load the new scene.
         scene.InternalLoad();
     }
     
     
-    internal static void Update()
+    internal void Update()
     {
         EngineObject.ProcessDisposeQueue();
         
-        while (OperationQueue.Count > 0)
+        while (_operationQueue.Count > 0)
         {
-            SceneLoadOperation operation = OperationQueue.Dequeue();
+            SceneLoadOperation operation = _operationQueue.Dequeue();
             LoadSceneInternal(operation.Scene, operation.Mode);
         }
         
@@ -134,30 +132,30 @@ public class SceneManager
     }
     
     
-    internal static void FixedUpdate()
+    internal void FixedUpdate()
     {
         CurrentScene.InternalFixedUpdate();
     }
     
     
-    internal static void Render()
+    internal void Render()
     {
         CurrentScene.InternalRender();
     }
     
     
-    internal static void Shutdown()
+    internal void Shutdown()
     {
 #warning TODO: Implement DontDestroyOnLoad
         
         // Unload all scenes and destroy all objects in them.
-        foreach (Scene loadedScene in LoadedScenes)
+        foreach (Scene loadedScene in _loadedScenes)
             loadedScene.Destroy();
         
         // Handle all objects that were just destroyed.
-        Asset.ProcessDisposeQueue();
+        EngineObject.ProcessDisposeQueue();
         
-        LoadedScenes.Clear();
-        currentScene = null;
+        _loadedScenes.Clear();
+        _currentScene = null;
     }
 }
