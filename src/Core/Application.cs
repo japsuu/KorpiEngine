@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using KorpiEngine.AssetManagement;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Threading;
@@ -50,6 +51,11 @@ public static class Application
         IsMainThread = true;
         
         InitializeLog4Net();
+        AssemblyManager.Initialize();
+        
+        // Needs to be executed before Window.OnLoad() (called right after Window.Run())
+        // to provide access to asset loading.
+        AssetImporterAttribute.GenerateLookUp();
         
         window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         initialSceneType = typeof(T);
@@ -58,10 +64,6 @@ public static class Application
         window.UpdateFrame += OnUpdateFrame;
         window.RenderFrame += OnRenderFrame;
         window.Unload += OnUnload;
-        
-        // These need to be executed before Window.OnLoad() (called right after Window.Run()).
-        AssemblyManager.Initialize();
-        OnApplicationLoadAttribute.Invoke();
         
         window.Run();
     }
@@ -75,7 +77,6 @@ public static class Application
 
     private static void OnLoad()
     {
-        
         SceneManager.Initialize();
         GlobalJobPool.Initialize();
         
@@ -90,19 +91,21 @@ public static class Application
 #if TOOLS
         EditorGUI.Initialize();
 #endif
+        OnApplicationLoadAttribute.Invoke();
     }
 
 
     private static void OnUnload()
     {
+        OnApplicationUnloadAttribute.Invoke();
 #if TOOLS
         EditorGUI.Deinitialize();
 #endif
         GUI.Deinitialize();
         
-        OnApplicationUnloadAttribute.Invoke();
         SceneManager.Shutdown();
         GlobalJobPool.Shutdown();
+        AssetImporterAttribute.ClearLookUp();
         
         ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
