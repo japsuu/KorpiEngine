@@ -46,7 +46,7 @@ public sealed class SceneManager
 #warning TODO: Implement DontDestroyOnLoad
         // Unload all scenes and destroy all objects in them.
         foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.InternalUnload();
+            loadedScene.Unload();
         
         // Handle all objects that were just destroyed.
         EngineObject.ProcessDisposeQueue();
@@ -110,7 +110,7 @@ public sealed class SceneManager
     {
         // Unload the old scenes.
         foreach (Scene loadedScene in _loadedScenes)
-            loadedScene.InternalUnload();
+            loadedScene.Unload();
         
         _loadedScenes.Clear();
 
@@ -119,7 +119,7 @@ public sealed class SceneManager
         _loadedScenes.Add(CurrentScene);
 
         // Load the new scene.
-        scene.InternalLoad();
+        scene.Load();
     }
 
 
@@ -130,7 +130,7 @@ public sealed class SceneManager
         _loadedScenes.Add(CurrentScene);
 
         // Load the new scene.
-        scene.InternalLoad();
+        scene.Load();
     }
 
 
@@ -152,19 +152,19 @@ public sealed class SceneManager
             LoadSceneInternal(scene, operation.Mode);
         }
         
-        CurrentScene.InternalUpdate();
+        CurrentScene.Update();
     }
     
     
     internal void FixedUpdate()
     {
-        CurrentScene.InternalFixedUpdate();
+        CurrentScene.FixedUpdate();
     }
     
     
     internal void Render()
     {
-        CurrentScene.InternalRender();
+        CurrentScene.Render();
     }
 
 #endregion
