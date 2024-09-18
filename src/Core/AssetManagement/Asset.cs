@@ -32,6 +32,9 @@ public abstract class Asset : EngineObject
     public ExternalAssetInfo? ExternalInfo { get; private set; }
 
 
+    public static AssetRef<T> Load<T>(string path) where T : Asset => Application.AssetProvider.LoadAsset<T>(path);
+
+
     #region Creation & Destruction
 
     protected Asset(string name) : base(name)

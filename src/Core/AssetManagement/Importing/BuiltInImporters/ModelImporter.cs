@@ -214,7 +214,7 @@ public class ModelImporter : AssetImporter
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
-            Material targetMat = new(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
+            Material targetMat = new(Asset.Load<Shader>("Assets/Defaults/Standard.kshader"), "standard material");
             targetMat.Name = sourceMat.HasName ? sourceMat.Name : "Standard Material";
 
             // Diffuse color (main color)

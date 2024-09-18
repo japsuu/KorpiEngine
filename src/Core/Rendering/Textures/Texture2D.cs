@@ -1,5 +1,4 @@
-﻿using KorpiEngine.AssetManagement;
-using KorpiEngine.Tools.Serialization;
+﻿using KorpiEngine.Tools.Serialization;
 using KorpiEngine.Utils;
 
 namespace KorpiEngine.Rendering;
@@ -39,9 +38,6 @@ public sealed class Texture2D : Texture, ISerializable
         MinFilter = IsMipmapped ? DEFAULT_MIPMAP_MIN_FILTER : DEFAULT_MIN_FILTER;
         MagFilter = DEFAULT_MAG_FILTER;
     }
-
-
-    public static AssetRef<Texture2D> Find(string path) => Application.AssetProvider.LoadAsset<Texture2D>(path);
 
 
     /// <summary>

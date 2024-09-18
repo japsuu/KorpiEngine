@@ -2,7 +2,6 @@
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Utils;
-using Debug = KorpiEngine.Tools.Debug;
 
 namespace KorpiEngine.Entities;
 

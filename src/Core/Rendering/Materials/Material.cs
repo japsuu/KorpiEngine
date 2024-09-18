@@ -27,12 +27,12 @@ public sealed class Material : Asset
     
     internal static void LoadDefaults()
     {
-        DefaultAlbedoTex = Texture2D.Find("Assets/Defaults/default_albedo.png");
-        DefaultNormalTex = Texture2D.Find("Assets/Defaults/default_normal.png");
-        DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
-        DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
+        DefaultAlbedoTex = Load<Texture2D>("Assets/Defaults/default_albedo.png");
+        DefaultNormalTex = Load<Texture2D>("Assets/Defaults/default_normal.png");
+        DefaultSurfaceTex = Load<Texture2D>("Assets/Defaults/default_surface.png");
+        DefaultEmissionTex = Load<Texture2D>("Assets/Defaults/default_emission.png");
 
-        InvalidMaterial = new Material(Rendering.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
+        InvalidMaterial = new Material(Load<Shader>("Assets/Defaults/Invalid.kshader"), "invalid material", false);
     }
     
     

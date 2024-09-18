@@ -15,6 +15,7 @@ public abstract class AssetProvider
         OnShutdown();
     }
     
+    //TODO: Add LoadAsync variants.
     public AssetRef<T> LoadAsset<T>(string relativeAssetPath, ushort subID = 0, AssetImporter? customImporter = null) where T : Asset => new(InternalLoadAsset<T>(relativeAssetPath, subID, customImporter));
     public AssetRef<T> LoadAsset<T>(UUID assetID, ushort subID = 0) where T : Asset => new(InternalLoadAsset<T>(assetID, subID));
 
