@@ -100,7 +100,7 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
             if (_reference != null && !_reference.IsDestroyed)
                 return true;
             
-            return _assetID != UUID.Empty && AssetManager.Contains(_assetID);
+            return _assetID != UUID.Empty && AssetDatabase.Contains(_assetID);
         }
     }
     
@@ -151,10 +151,10 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
     /// <summary>
     /// Creates a AssetRef pointing to the specified <see cref="AssetManagement.Asset"/>.
     /// </summary>
-    /// <param name="res">The Asset to reference.</param>
-    public AssetRef(T? res)
+    /// <param name="asset">The Asset to reference.</param>
+    public AssetRef(T? asset)
     {
-        Asset = res;
+        Asset = asset;
     }
 
 
@@ -171,10 +171,10 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
     private void RetrieveReference()
     {
         if (_assetID != UUID.Empty)
-            Asset = AssetManager.LoadAsset<T>(_assetID, _subID);
+            Asset = AssetDatabase.LoadAsset<T>(_assetID, _subID);
         // Can potentially happen if the AssetRef was created with a runtime Asset that was later set to external
         else if (_reference != null && _reference.ExternalInfo != null && _reference.ExternalInfo.AssetID != UUID.Empty)
-            Asset = AssetManager.LoadAsset<T>(_reference.ExternalInfo.AssetID, _reference.ExternalInfo.SubID);
+            Asset = AssetDatabase.LoadAsset<T>(_reference.ExternalInfo.AssetID, _reference.ExternalInfo.SubID);
         else
             Asset = null;
     }
@@ -182,7 +182,7 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
 
     public override string ToString()
     {
-        Type resType = typeof(T);
+        Type type = typeof(T);
 
         char stateChar;
         if (IsRuntime)
@@ -194,7 +194,7 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
         else
             stateChar = '_';
 
-        return $"[{stateChar}] {resType.Name}";
+        return $"[{stateChar}] {type.Name}";
     }
 
 
@@ -218,8 +218,8 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
 
     public bool Equals(AssetRef<T> other) => this == other;
 
-    public static implicit operator AssetRef<T>(T res) => new(res);
-    public static explicit operator T(AssetRef<T> res) => res.Asset!;
+    public static implicit operator AssetRef<T>(T asset) => new(asset);
+    public static explicit operator T(AssetRef<T> asset) => asset.Asset!;
 
 
     /// <summary>

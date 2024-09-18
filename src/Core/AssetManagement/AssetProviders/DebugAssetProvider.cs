@@ -9,7 +9,7 @@ public class DebugAssetProvider : IAssetProvider
     /// </summary>
     /// <param name="assetID">The AssetID of the file.</param>
     /// <returns>True if the file exists in the AssetDatabase, false otherwise.</returns>
-    public bool HasAsset(UUID assetID) => AssetManager.Contains(assetID);
+    public bool HasAsset(UUID assetID) => AssetDatabase.Contains(assetID);
 
 
     /// <summary>
@@ -25,7 +25,7 @@ public class DebugAssetProvider : IAssetProvider
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
     public AssetRef<T> LoadAsset<T>(string relativeAssetPath, ushort subID = 0, AssetImporter? customImporter = null) where T : Asset
     {
-        return new AssetRef<T>(AssetManager.LoadAssetFile<T>(relativeAssetPath, subID, customImporter));
+        return new AssetRef<T>(AssetDatabase.LoadAssetFile<T>(relativeAssetPath, subID, customImporter));
     }
 
 
@@ -39,6 +39,6 @@ public class DebugAssetProvider : IAssetProvider
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
     public AssetRef<T> LoadAsset<T>(UUID assetID, ushort subID = 0) where T : Asset
     {
-        return new AssetRef<T>(AssetManager.LoadAsset<T>(assetID, subID));
+        return new AssetRef<T>(AssetDatabase.LoadAsset<T>(assetID, subID));
     }
 }
