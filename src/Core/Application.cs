@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text;
+using KorpiEngine.AssetManagement;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Threading;
@@ -17,10 +19,14 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
+    private static AssetProvider? assetProviderInstance;
+    private static SceneManager? sceneManagerInstance;
+    private static KorpiWindow windowInstance = null!;
+    private static Type initialSceneType = null!;
     private static double fixedFrameAccumulator;
-    private static KorpiWindow window = null!;
-    private static Scene initialScene = null!;
     
+    [ThreadStatic]
+    internal static bool IsMainThread;
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
@@ -28,63 +34,118 @@ public static class Application
     public static string DefaultsDirectory => Path.Combine(AssetsDirectory, EngineConstants.DEFAULTS_FOLDER_NAME);
     public static string WebAssetsDirectory => Path.Combine(Directory, EngineConstants.WEB_ASSETS_FOLDER_NAME);
 
-
-    private static void InitializeLog4Net()
+    /// <summary>
+    /// The currently active scene manager.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the scene manager has not been initialized yet.</exception>
+    public static SceneManager SceneManager
     {
-        // Add support for additional encodings (code pages), required by Log4Net.
-        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        
-        // Initialize the Log4Net configuration.
-        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
+        get
+        {
+            if (sceneManagerInstance == null)
+                throw new InvalidOperationException("The scene manager has not been initialized yet!");
+            return sceneManagerInstance;
+        }
+    }
+    
+    
+    /// <summary>
+    /// The currently active asset provider.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the asset provider has not been initialized yet.</exception>
+    public static AssetProvider AssetProvider
+    {
+        get
+        {
+            if (assetProviderInstance == null)
+                throw new InvalidOperationException("The asset provider has not been initialized yet!");
+            return assetProviderInstance;
+        }
     }
 
 
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run(WindowingSettings settings, Scene scene)
+    /// <typeparam name="T">The type of the initial scene to load.</typeparam>
+    /// <param name="settings">The settings for the game window.</param>
+    /// <param name="assetProvider">The asset provider to use for loading assets.</param>
+    public static void Run<T>(WindowingSettings settings, AssetProvider assetProvider) where T : Scene
     {
+        IsMainThread = true;
+        MemoryReleaseSystem.Initialize();
+        
         InitializeLog4Net();
-        
-        window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        initialScene = scene;
-        
-        window.Load += OnLoad;
-        window.UpdateFrame += OnUpdateFrame;
-        window.RenderFrame += OnRenderFrame;
-        window.Unload += OnUnload;
-        
         AssemblyManager.Initialize();
-        OnApplicationLoadAttribute.Invoke();
         
-        window.Run();
+        // Needs to be executed before Window.OnLoad() (called right after Window.Run())
+        // to provide access to asset loading.
+        assetProviderInstance = assetProvider;
+        assetProviderInstance.Initialize();
+        
+        initialSceneType = typeof(T);
+        
+        windowInstance = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
+        windowInstance.Load += OnLoad;
+        windowInstance.UpdateFrame += OnUpdateFrame;
+        windowInstance.RenderFrame += OnRenderFrame;
+        windowInstance.Unload += OnUnload;
+        
+        windowInstance.Run();
     }
     
     
+    /// <summary>
+    /// Quits the application.
+    /// </summary>
     public static void Quit()
     {
-        window.Close();
+        windowInstance.Close();
     }
 
+
+#region Loading and Unloading
 
     private static void OnLoad()
     {
-        SceneManager.Initialize();
-        GlobalJobPool.Initialize();
-        
         // Queue window visibility after all internal resources are loaded.
-        window.CenterWindow();
-        window.IsVisible = true;
-        imGuiController = new ImGuiController(window);
-        
-        SceneManager.LoadScene(initialScene, SceneLoadMode.Single);
+        windowInstance.CenterWindow();
+        windowInstance.IsVisible = true;
+        sceneManagerInstance = new SceneManager(initialSceneType);
+        imGuiController = new ImGuiController(windowInstance);
         
         GUI.Initialize();
 #if TOOLS
         EditorGUI.Initialize();
 #endif
+        GlobalJobPool.Initialize();
+        OnApplicationLoadAttribute.Invoke();
     }
 
+
+    private static void OnUnload()
+    {
+        OnApplicationUnloadAttribute.Invoke();
+#if TOOLS
+        EditorGUI.Deinitialize();
+#endif
+        GUI.Deinitialize();
+        
+        sceneManagerInstance?.InternalDispose();
+        sceneManagerInstance = null;
+        GlobalJobPool.Shutdown();
+        assetProviderInstance?.Shutdown();
+        
+        ImGuiWindowManager.Shutdown();
+        imGuiController.Dispose();
+        MemoryReleaseSystem.Shutdown();
+        windowInstance.Dispose();
+    }
+
+#endregion
+
+
+#region Frame Updating and Rendering
 
     private static void OnUpdateFrame(FrameEventArgs args)
     {
@@ -133,15 +194,17 @@ public static class Application
     private static void InternalUpdate(double deltaTime, double fixedAlpha)
     {
         Time.Update(deltaTime, fixedAlpha);
-        Input.Input.Update(window.KeyboardState, window.MouseState);
-        
-        imGuiController.Update();
-        ImGuiWindowManager.Update();
+        Input.Input.Update(windowInstance.KeyboardState, windowInstance.MouseState);
         
         SceneManager.Update();
         
         // Instantly execute jobs.
         GlobalJobPool.Update();
+        
+        imGuiController.Update();
+        ImGuiWindowManager.Update();
+        
+        MemoryReleaseSystem.ProcessDisposeQueue();
     }
 
 
@@ -151,20 +214,19 @@ public static class Application
         imGuiController.Render();
     }
 
+#endregion
 
-    private static void OnUnload()
+
+#region Utility
+
+    private static void InitializeLog4Net()
     {
-#if TOOLS
-        EditorGUI.Deinitialize();
-#endif
-        GUI.Deinitialize();
+        // Add support for additional encodings (code pages), required by Log4Net.
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         
-        OnApplicationUnloadAttribute.Invoke();
-        SceneManager.Shutdown();
-        GlobalJobPool.Shutdown();
-        
-        ImGuiWindowManager.Shutdown();
-        imGuiController.Dispose();
-        window.Dispose();
+        // Initialize the Log4Net configuration.
+        LogFactory.Initialize(Path.Combine(AssetsDirectory, "log4net.config"));
     }
+
+#endregion
 }

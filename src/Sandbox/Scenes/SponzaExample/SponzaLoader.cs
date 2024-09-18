@@ -71,6 +71,8 @@ internal class SponzaLoader : EntityComponent
     
     private IEnumerator LoadSponzaWeb()
     {
+        yield return new WaitForSecondsRealtime(1f);
+        
         // Create a web request to load the Sponza model and all its assets,
         // and save them to disk next to the executable in "WebAssets/sponza" subfolder.
         WebAssetLoadOperation operation = new("sponza", SPONZA_WEB_URL, false, SponzaAssets);
@@ -86,13 +88,13 @@ internal class SponzaLoader : EntityComponent
     private void LoadSponzaDisk(string path)
     {
         // Create a custom importer to scale the model down
-        ModelImporter importer = (ModelImporter)AssetManager.GetImporter(".obj");
+        ModelImporter importer = (ModelImporter)Application.AssetProvider.GetImporter(".obj");
         importer.UnitScale = 0.1f;
         
         // Load the Sponza model from disk
-        Entity asset = AssetManager.LoadAssetFile<Entity>(path, importer);
+        AssetRef<Model> asset = Application.AssetProvider.LoadAsset<Model>(path, 0, importer);
         
         // Spawn the Sponza model in the scene
-        asset.Spawn(Entity.Scene!);
+        asset.Asset!.CreateEntity(Entity.Scene!);
     }
 }

@@ -88,9 +88,9 @@ public class MeshDebugGizmoDrawer : EntityComponent
             return;
 
         Gizmos.Color = ColorHDR.Yellow;
-        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Res!.Bounds.Center, _renderer.Mesh.Res!.Bounds.Extent);
+        Gizmos.DrawCube(Transform.Position + _renderer.Mesh.Asset!.Bounds.Center, _renderer.Mesh.Asset!.Bounds.Extent);
         Gizmos.Color = ColorHDR.Red;
-        Gizmos.DrawSphere(Transform.Position + _renderer.Mesh.Res!.BoundingSphere.Center, _renderer.Mesh.Res!.BoundingSphere.Radius);
+        Gizmos.DrawSphere(Transform.Position + _renderer.Mesh.Asset!.BoundingSphere.Center, _renderer.Mesh.Asset!.BoundingSphere.Radius);
     }
 
 
@@ -99,7 +99,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
         
-        return _renderer.Mesh.Res!.GetVertexPositions();
+        return _renderer.Mesh.Asset!.GetVertexPositions();
     }
     
     
@@ -108,7 +108,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
         
-        return _renderer.Mesh.Res!.GetVertexNormals();
+        return _renderer.Mesh.Asset!.GetVertexNormals();
     }
     
     
@@ -117,7 +117,7 @@ public class MeshDebugGizmoDrawer : EntityComponent
         if (_renderer == null || !_renderer.Mesh.IsAvailable)
             return null;
         
-        return _renderer.Mesh.Res!.GetVertexTangents();
+        return _renderer.Mesh.Asset!.GetVertexTangents();
     }
 
 

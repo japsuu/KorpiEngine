@@ -3,7 +3,7 @@
 /// <summary>
 /// A universally unique 128-bit identifier.
 /// </summary>
-public readonly struct UUID
+public readonly struct UUID : IEquatable<UUID>
 {
     public static readonly UUID Empty = Guid.Empty;
     
@@ -34,6 +34,7 @@ public readonly struct UUID
     public static implicit operator UUID(Guid value) => new(value);
     public static bool operator ==(UUID a, UUID b) => a._value == b._value;
     public static bool operator !=(UUID a, UUID b) => a._value != b._value;
+    public bool Equals(UUID other) => _value.Equals(other._value);
     public override bool Equals(object? obj) => obj is UUID other && other._value == _value;
     public override int GetHashCode() => _value.GetHashCode();
     public override string ToString() => _value.ToString();

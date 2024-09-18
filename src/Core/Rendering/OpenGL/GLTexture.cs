@@ -255,13 +255,9 @@ internal sealed class GLTexture : GraphicsTexture
     }
 
 
-    protected override void Dispose(bool manual)
+    protected override void DisposeResources()
     {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-
-        if (manual && CurrentlyBoundHandle == Handle)
+        if (CurrentlyBoundHandle == Handle)
             CurrentlyBoundHandle = null;
 
         GL.DeleteTexture(Handle);

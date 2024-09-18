@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.Rendering;
 
-public abstract class Texture : AssetInstance
+public abstract class Texture : Asset
 {
     private protected const TextureMin DEFAULT_MIN_FILTER = TextureMin.Nearest;
     private protected const TextureMin DEFAULT_MIPMAP_MIN_FILTER = TextureMin.NearestMipmapNearest;
@@ -85,13 +85,8 @@ public abstract class Texture : AssetInstance
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDestroy()
     {
-#if TOOLS
-        if (!manual)
-            throw new ResourceLeakException($"Texture '{Name}' of type {GetType().Name} was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
-#endif
-        
         Handle.Dispose();
     }
 

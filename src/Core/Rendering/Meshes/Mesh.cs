@@ -32,7 +32,7 @@ namespace KorpiEngine.Rendering;
 /// mesh.SetIndexBufferData(...);
 /// </code>
 /// </summary>
-public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hide some fields
+public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some fields
 {
     /// <summary>
     /// The format of the mesh index buffer data.
@@ -152,13 +152,14 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
     private byte[]? _boneIndices;
 
 
-    protected override void OnDispose(bool manual)
+    public Mesh(string name) : base(name)
     {
-#if TOOLS
-        if (!manual)
-            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
-#endif
+        
+    }
 
+
+    protected override void OnDestroy()
+    {
         DeleteGPUBuffers();
     }
 
@@ -716,7 +717,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
 
                 int[] indices = [0, 1, 2, 2, 3, 0];
 
-                Mesh mesh = new();
+                Mesh mesh = new("Quad Mesh");
                 mesh.SetVertexPositions(positions);
                 mesh.SetVertexUVs(uvs, 0);
                 mesh.SetIndices(indices);
@@ -811,7 +812,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
             indices[i * 6 + 5] = i * 4 + 0;
         }
 
-        Mesh mesh = new();
+        Mesh mesh = new("Cube Mesh");
         mesh.SetVertexPositions(positions);
         mesh.SetVertexUVs(uvs, 0);
         mesh.SetIndices(indices);
@@ -839,11 +840,10 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
         int[] triangles = CreateSphereTriangles(rings, slices, vertices);
         Vector3[] tangents = CreateSphereTangents(vertices);
 
-        Mesh mesh = new();
+        Mesh mesh = new("UV Sphere Mesh");
         if (vertices.Length > 65535)
             mesh.IndexFormat = IndexFormat.UInt32;
         
-        mesh.Name = "UV Sphere";
         mesh.SetVertexPositions(vertices);
         mesh.SetVertexNormals(normals);
         mesh.SetVertexUVs(uvs, 0);
@@ -962,7 +962,7 @@ public sealed class Mesh : AssetInstance //TODO: Implement MeshData class to hid
         if (fullScreenQuadCached != null)
             return fullScreenQuadCached;
         
-        Mesh mesh = new();
+        Mesh mesh = new("Fullscreen Quad Mesh");
         Vector3[] positions = new Vector3[4];
         positions[0] = new Vector3(-1, -1, 0);
         positions[1] = new Vector3(1, -1, 0);

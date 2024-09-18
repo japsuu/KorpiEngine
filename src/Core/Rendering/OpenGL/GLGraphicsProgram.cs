@@ -18,13 +18,9 @@ internal class GLGraphicsProgram : GraphicsProgram
     }
 
 
-    protected override void Dispose(bool manual)
+    protected override void DisposeResources()
     {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-
-        if (manual && CurrentProgram != null && CurrentProgram.Handle == Handle)
+        if (CurrentProgram != null && CurrentProgram.Handle == Handle)
             CurrentProgram = null;
         
         GL.DeleteProgram(Handle);

@@ -71,7 +71,7 @@ public abstract class EntityComponent
     {
         Entity = entity;
 
-        bool isEnabled = _enabled && entity.EnabledInHierarchy;
+        bool isEnabled = _enabled && entity.IsEnabledInHierarchy;
         _enabledInHierarchy = isEnabled;
     }
 
@@ -162,7 +162,7 @@ public abstract class EntityComponent
 
     internal void HierarchyStateChanged()
     {
-        bool newState = _enabled && Entity.EnabledInHierarchy;
+        bool newState = _enabled && Entity.IsEnabledInHierarchy;
         if (newState == _enabledInHierarchy)
             return;
 
@@ -289,7 +289,7 @@ public abstract class EntityComponent
         }
         catch (Exception e)
         {
-            Application.Logger.Error("Caught exception:\n", e);
+            Application.Logger.Error("\nCaught exception:", e);
         }
     }
 

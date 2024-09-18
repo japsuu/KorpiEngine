@@ -1,18 +1,41 @@
-﻿using KorpiEngine;
-using KorpiEngine.Entities;
+﻿using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using KorpiEngine.SceneManagement;
 
 namespace Sandbox.Scenes.PrimitiveExample;
 
 /// <summary>
 /// This scene is a simplified example of basic primitive shape rendering.
 /// </summary>
-internal class PrimitiveExampleScene : Scene
+internal class PrimitiveExampleScene : ExampleScene
 {
+    protected override string HelpTitle => "Primitive Example Scene";
+    protected override string HelpText =>
+        "This scene is a simplified example of basic primitive shape rendering.\n" +
+        "Use the WASD keys to move the camera, and the mouse to look around.\n";
+
+
     protected override void OnLoad()
     {
+        base.OnLoad();
+        
+        // Create a camera entity with our custom free camera component.
+        Entity cameraEntity = CreateEntity("Scene Camera");
+        cameraEntity.AddComponent<Camera>();
+        cameraEntity.AddComponent<DemoFreeCam>();
+        cameraEntity.Transform.Position = new Vector3(0, 5, 5);
+        
+        // Create a directional light to illuminate the scene.
+        Entity dlEntity = CreateEntity("Directional Light");
+        DirectionalLight dlComp = dlEntity.AddComponent<DirectionalLight>();
+        dlComp.Transform.LocalEulerAngles = new Vector3(130, 45, 0);
+        
+        // Create an ambient light to provide some base illumination.
+        Entity alEntity = CreateEntity("Ambient Light");
+        AmbientLight alComp = alEntity.AddComponent<AmbientLight>();
+        alComp.SkyIntensity = 0.4f;
+        alComp.GroundIntensity = 0.1f;
+        
         Entity e;
         Entity m;
         
@@ -47,16 +70,5 @@ internal class PrimitiveExampleScene : Scene
         m.AddComponent<MeshDebugGizmoDrawer>().DrawNormals = true;
         m.SetParent(e);
         e.Transform.Position = new Vector3(0, -1, 2);
-    }
-    
-    
-    protected override Camera CreateSceneCamera()
-    {
-        // We override the CreateSceneCamera method to add our custom camera component to the scene camera entity
-        Camera component = base.CreateSceneCamera();
-        component.Entity.AddComponent<DemoFreeCam>();
-        
-        component.Transform.Position = new Vector3(0, 5, 5);
-        return component;
     }
 }

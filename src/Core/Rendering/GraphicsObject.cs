@@ -1,8 +1,7 @@
 ﻿namespace KorpiEngine.Rendering;
 
 /// <summary>
-/// Represents a graphics resource handle.<br/>
-/// Must be disposed explicitly, otherwise there will be a memory leak that will be logged as a warning.
+/// Represents a graphics resource handle.
 /// </summary>
 internal abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
 {

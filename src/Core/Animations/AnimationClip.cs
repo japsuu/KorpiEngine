@@ -12,7 +12,7 @@ public enum WrapMode
     ClampForever
 }
 
-public sealed class AnimationClip : AssetInstance, ISerializable
+public sealed class AnimationClip : Asset, ISerializable
 {
     public float Duration { get; set; }
     public float TicksPerSecond { get; set; }
@@ -23,6 +23,12 @@ public sealed class AnimationClip : AssetInstance, ISerializable
     public List<AnimBone> Bones { get; private set; } = [];
 
     private Dictionary<string, AnimBone> _boneMap = new();
+
+
+    public AnimationClip(string name) : base(name)
+    {
+        
+    }
 
 
     public void AddBone(AnimBone bone)

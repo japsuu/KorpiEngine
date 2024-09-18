@@ -1,5 +1,4 @@
-﻿using KorpiEngine.Tools.Serialization;
-using KorpiEngine.Utils;
+﻿using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
@@ -9,191 +8,193 @@ namespace KorpiEngine.AssetManagement;
 // https://github.com/AdamsLair/duality/blob/master/Source/Core/Duality/ContentRef.cs
 
 /// <summary>
-/// This lightweight struct references an <see cref="AssetInstance"/> in an abstract way.
+/// This lightweight struct references an <see cref="AssetManagement.Asset"/> in an abstract way.<br/>
 /// It is tightly connected to the AssetDatabase, and takes care of keeping or making 
-/// the referenced content available when needed. Never store actual Resource references permanently,
-/// instead use a ResourceRef to it. However, you may retrieve and store a direct Resource reference
-/// temporarily, although this is only recommended at method-local scope.
+/// the referenced content available when needed.<br/>
+/// Avoid storing actual Asset references permanently, instead use a AssetRef to it.<br/>
+/// However, you may retrieve and store a direct Asset reference temporarily,
+/// although this is only recommended at method-local scope.
 /// </summary>
-public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : AssetInstance
+public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
 {
-    private T? _instance;
+    private T? _reference;
+    
+    /// <summary>
+    /// The ID of the asset in the asset database.<br/>
+    /// None, if the asset is a runtime asset.
+    /// </summary>
     private UUID _assetID = UUID.Empty;
 
     /// <summary>
-    /// The actual <see cref="AssetInstance"/>.
-    /// If currently unavailable, it is loaded and then returned.
-    /// Because of that, this Property is only null if the referenced Resource is missing, invalid, or
-    /// this content reference has been explicitly set to null. Never returns disposed Resources.
+    /// The subID of the asset in the asset database.<br/>
+    /// 0 if the asset is the main asset of the external source.
     /// </summary>
-    public T? Res
+    private ushort _subID = 0;
+
+    /// <summary>
+    /// The actual <see cref="AssetManagement.Asset"/>.
+    /// If currently unavailable, it is loaded and then returned.
+    /// Because of that, this Property is only null if the referenced Asset is missing, invalid, or
+    /// this content reference has been explicitly set to null.
+    /// Never returns destroyed Assets.
+    /// </summary>
+    public T? Asset
     {
         get
         {
-            if (_instance == null || _instance.IsDestroyed)
-                RetrieveInstance();
-            return _instance;
+            if (_reference == null || _reference.IsDestroyed)
+                RetrieveReference();
+            return _reference;
         }
-        private set
-        {
-            _assetID = value?.AssetID ?? UUID.Empty;
-            _instance = value;
-        }
-    }
-
-    /// <summary>
-    /// Returns the current reference to the Resource that is stored locally. No attempt is made to load or reload
-    /// the Resource if it is currently unavailable.
-    /// </summary>
-    public T? ResWeak => _instance == null || _instance.IsDestroyed ? null : _instance;
-
-    /// <summary>
-    /// The path where to look for the Resource, if it is currently unavailable.
-    /// </summary>
-    public UUID AssetID
-    {
-        get => _assetID;
         set
         {
-            _assetID = value;
-            if (_instance != null && _instance.AssetID != value)
-                _instance = null;
+            if (value == null)
+            {
+                _reference = null;
+                _assetID = UUID.Empty;
+                _subID = 0;
+            }
+            else
+            {
+                _reference = value;
+                ExternalAssetInfo? info = value.ExternalInfo;
+                _assetID = info?.AssetID ?? UUID.Empty;
+                _subID = info?.SubID ?? 0;
+            }
         }
     }
+
+    /// <summary>
+    /// Returns the current reference to the Asset that is stored locally.
+    /// No attempt is made to load or reload the Asset if it is currently unavailable.
+    /// </summary>
+    public T? AssetWeak => _reference == null || _reference.IsDestroyed ? null : _reference;
 
     /// <summary>
     /// Returns whether this content reference has been explicitly set to null.
     /// </summary>
-    public bool IsExplicitNull => _instance == null && _assetID == UUID.Empty;
+    public bool ReferencesNothing => _reference == null && _assetID == UUID.Empty;
 
     /// <summary>
-    /// Returns whether this content reference is available in general. This may trigger loading it, if currently unavailable.
+    /// Returns whether this content reference is available in general.
+    /// This may trigger loading it, if currently unavailable.
     /// </summary>
     public bool IsAvailable
     {
         get
         {
-            if (_instance != null && !_instance.IsDestroyed)
+            if (_reference != null && !_reference.IsDestroyed)
                 return true;
-            RetrieveInstance();
-            return _instance != null;
+            RetrieveReference();
+            return _reference != null;
         }
     }
 
     /// <summary>
-    /// Returns whether the referenced Resource is currently loaded.
+    /// Returns whether the referenced Asset is currently loaded.
     /// </summary>
     public bool IsLoaded
     {
         get
         {
-            if (_instance != null && !_instance.IsDestroyed)
+            if (_reference != null && !_reference.IsDestroyed)
                 return true;
-            return AssetManager.Contains(_assetID);
+            
+            return _assetID != UUID.Empty && Application.AssetProvider.HasAsset(_assetID);
         }
     }
+    
+    /// <summary>
+    /// Whether the Asset is managed by the AssetManager.
+    /// </summary>
+    public bool IsExternal => _assetID != UUID.Empty;
+    
+    /// <summary>
+    /// Whether the Asset is a sub-asset of another Asset.
+    /// </summary>
+    public bool IsSub => _subID != 0;
 
     /// <summary>
-    /// Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
+    /// Returns whether the Asset has been generated at runtime and cannot be retrieved via an AssetID.
     /// </summary>
-    public bool IsRuntimeResource => _instance != null && _assetID == UUID.Empty;
+    public bool IsRuntime => _reference != null && _assetID == UUID.Empty;
 
     public string Name
     {
         get
         {
-            if (_instance != null)
-                return _instance.IsDestroyed ? "DESTROYED_" + _instance.Name : _instance.Name;
-            return "No Instance";
+            if (_reference != null)
+                return _reference.IsDestroyed ? $"DESTROYED_{_reference.Name}" : _reference.Name;
+            return "No Reference";
         }
     }
 
     public Type InstanceType => typeof(T);
+    
+    
+    public static AssetRef<T> Empty => new();
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the <see cref="AssetInstance"/> at the specified id / using 
-    /// the specified alias.
+    /// Creates a AssetRef pointing to the <see cref="AssetManagement.Asset"/> with the specified AssetID.
     /// </summary>
-    /// <param name="id"></param>
-    public AssetRef(UUID id)
+    /// <param name="id">The AssetID of the Asset to reference.</param>
+    /// <param name="subID">The sub-ID of the Asset to reference. 0 for the main asset, 1+ for sub-assets.</param>
+    public AssetRef(UUID id, ushort subID = 0)
     {
-        _instance = null;
+        _reference = null;
         _assetID = id;
+        _subID = subID;
     }
 
 
     /// <summary>
-    /// Creates a AssetRef pointing to the specified <see cref="AssetInstance"/>.
+    /// Creates a AssetRef pointing to the specified <see cref="AssetManagement.Asset"/>.
     /// </summary>
-    /// <param name="res">The Resource to reference.</param>
-    public AssetRef(T? res)
+    /// <param name="asset">The Asset to reference.</param>
+    public AssetRef(T? asset)
     {
-        _instance = res;
-        _assetID = res?.AssetID ?? UUID.Empty;
-    }
-
-
-    public object? GetInstance() => Res;
-
-
-    public void SetInstance(object? obj)
-    {
-        if (obj is T res)
-            Res = res;
-        else
-            Res = null;
+        Asset = asset;
     }
 
 
     /// <summary>
-    /// Loads the associated content as if it was accessed now.
-    /// You don't usually need to call this method. It is invoked implicitly by trying to 
-    /// access the <see cref="AssetRef{T}"/>.
+    /// Discards the resolved content reference cache.<br/>
+    /// If the referenced Asset is not external, the reference CANNOT be restored.
     /// </summary>
-    public void EnsureLoaded()
+    public void Release()
     {
-        if (_instance == null || _instance.IsDestroyed)
-            RetrieveInstance();
+        _reference = null;
     }
 
 
-    /// <summary>
-    /// Discards the resolved content reference cache to allow garbage-collecting the Resource
-    /// without losing its reference. Accessing it will result in reloading the Resource.
-    /// </summary>
-    public void Detach()
-    {
-        _instance = null;
-    }
-
-
-    private void RetrieveInstance()
+    private void RetrieveReference()
     {
         if (_assetID != UUID.Empty)
-            _instance = AssetManager.LoadAsset<T>(_assetID);
-        else if (_instance != null && _instance.AssetID != UUID.Empty)
-            _instance = AssetManager.LoadAsset<T>(_instance.AssetID);
+            Asset = Application.AssetProvider.InternalLoadAsset<T>(_assetID, _subID);
+        // Can potentially happen if the AssetRef was created with a runtime Asset that was later set to external
+        else if (_reference != null && _reference.ExternalInfo != null && _reference.ExternalInfo.AssetID != UUID.Empty)
+            Asset = Application.AssetProvider.InternalLoadAsset<T>(_reference.ExternalInfo.AssetID, _reference.ExternalInfo.SubID);
         else
-            _instance = null;
+            Asset = null;
     }
 
 
     public override string ToString()
     {
-        Type resType = typeof(T);
+        Type type = typeof(T);
 
         char stateChar;
-        if (IsRuntimeResource)
+        if (IsRuntime)
             stateChar = 'R';
-        else if (IsExplicitNull)
+        else if (ReferencesNothing)
             stateChar = 'N';
         else if (IsLoaded)
             stateChar = 'L';
         else
             stateChar = '_';
 
-        return $"[{stateChar}] {resType.Name}";
+        return $"[{stateChar}] {type.Name}";
     }
 
 
@@ -201,8 +202,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     {
         if (_assetID != UUID.Empty)
             return _assetID.GetHashCode();
-        if (_instance != null)
-            return _instance.GetHashCode();
+        if (_reference != null)
+            return _reference.GetHashCode();
         return 0;
     }
 
@@ -217,9 +218,8 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
 
     public bool Equals(AssetRef<T> other) => this == other;
 
-    public static implicit operator AssetRef<T>(T res) => new(res);
-
-    public static explicit operator T(AssetRef<T> res) => res.Res!;
+    public static implicit operator AssetRef<T>(T asset) => new(asset);
+    public static explicit operator T(AssetRef<T> asset) => asset.Asset!;
 
 
     /// <summary>
@@ -228,28 +228,28 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <param name="first"></param>
     /// <param name="second"></param>
     /// <remarks>
-    /// This is a two-step comparison. First, their actual Resources references are compared.
+    /// This is a two-step comparison. First, their actual Assets references are compared.
     /// If they're both not null and equal, true is returned. Otherwise, their AssetID are compared to equality
     /// </remarks>
     public static bool operator ==(AssetRef<T> first, AssetRef<T> second)
     {
         // Completely identical
-        if (first._instance == second._instance && first._assetID == second._assetID)
+        if (first._reference == second._reference && first._assetID == second._assetID)
             return true;
 
         // Same instances
-        if (first._instance != null && second._instance != null)
-            return first._instance == second._instance;
+        if (first._reference != null && second._reference != null)
+            return first._reference == second._reference;
 
         // Null checks
-        if (first.IsExplicitNull)
-            return second.IsExplicitNull;
-        if (second.IsExplicitNull)
-            return first.IsExplicitNull;
+        if (first.ReferencesNothing)
+            return second.ReferencesNothing;
+        if (second.ReferencesNothing)
+            return first.ReferencesNothing;
 
         // Path comparison
-        UUID? firstPath = first._instance?.AssetID ?? first._assetID;
-        UUID? secondPath = second._instance?.AssetID ?? second._assetID;
+        UUID? firstPath = first._reference?.ExternalInfo?.AssetID ?? first._assetID;
+        UUID? secondPath = second._reference?.ExternalInfo?.AssetID ?? second._assetID;
         return firstPath == secondPath;
     }
 
@@ -260,24 +260,4 @@ public struct AssetRef<T> : ISerializable, IEquatable<AssetRef<T>> where T : Ass
     /// <param name="first"></param>
     /// <param name="second"></param>
     public static bool operator !=(AssetRef<T> first, AssetRef<T> second) => !(first == second);
-
-
-    public SerializedProperty Serialize(Serializer.SerializationContext ctx)
-    {
-        SerializedProperty compoundTag = SerializedProperty.NewCompound();
-        compoundTag.Add("AssetID", new SerializedProperty(_assetID.ToString()));
-        if (_assetID != UUID.Empty)
-            ctx.AddDependency(_assetID);
-        if (IsRuntimeResource)
-            compoundTag.Add("Instance", Serializer.Serialize(_instance, ctx));
-        return compoundTag;
-    }
-
-
-    public void Deserialize(SerializedProperty value, Serializer.SerializationContext ctx)
-    {
-        _assetID = UUID.Parse(value["AssetID"].StringValue);
-        if (_assetID == UUID.Empty && value.TryGet("Instance", out SerializedProperty? tag))
-            _instance = Serializer.Deserialize<T?>(tag!, ctx);
-    }
 }

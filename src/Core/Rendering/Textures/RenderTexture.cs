@@ -8,7 +8,7 @@ namespace KorpiEngine.Rendering;
 // Taken and modified from Prowl's RenderTexture.cs
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/RenderTexture.cs.
 
-public sealed class RenderTexture : AssetInstance
+public sealed class RenderTexture : Asset
 {
     private const int MAX_UNUSED_FRAMES = 10;
     private static readonly Dictionary<RenderTextureKey, List<(RenderTexture, int frameCreated)>> Pool = [];
@@ -89,14 +89,8 @@ public sealed class RenderTexture : AssetInstance
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDestroy()
     {
-        
-#if TOOLS
-        if (!manual)
-            throw new ResourceLeakException($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC. This is a memory leak!");
-#endif
-
         foreach (Texture2D texture in InternalTextures)
             texture.Dispose();
         
