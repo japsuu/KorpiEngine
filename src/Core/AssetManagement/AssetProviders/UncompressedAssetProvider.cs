@@ -16,6 +16,9 @@ public class UncompressedAssetProvider : AssetProvider
     }
 
 
+    public override AssetImporter GetImporter(string fileExtension) => UncompressedAssetDatabase.GetImporter(fileExtension);
+
+
     /// <summary>
     /// Checks if an asset with the specified AssetID exists in the AssetDatabase.
     /// </summary>

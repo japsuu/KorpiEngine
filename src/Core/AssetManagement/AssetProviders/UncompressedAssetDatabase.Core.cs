@@ -212,10 +212,8 @@ internal static partial class UncompressedAssetDatabase
 
     private static void UnloadAsset(ImportedAsset asset)
     {
-        string relativePath = ToRelativePath(asset.AssetPath);
-        
         AssetIdToAsset.Remove(asset.AssetID);
-        RelativePathToAssetId.Remove(relativePath);
+        RelativePathToAssetId.Remove(asset.RelativeAssetPath);
     }
 
 
@@ -231,7 +229,7 @@ internal static partial class UncompressedAssetDatabase
             throw new AssetImportException(relativePath, "File does not exist.");
         
         importer ??= GetImporter(assetFile.Extension);
-        AssetImportContext context = new(assetFile, new UUID());
+        AssetImportContext context = new(relativePath, new UUID());
 
         try
         {

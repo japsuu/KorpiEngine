@@ -12,7 +12,7 @@ internal class ImportedAsset
     private readonly IReadOnlyList<AssetRef<Asset>> _dependencies;
     
     public readonly UUID AssetID;
-    public readonly FileInfo AssetPath;
+    public readonly string RelativeAssetPath;
 
 
     public ImportedAsset(AssetImportContext context)
@@ -22,7 +22,7 @@ internal class ImportedAsset
         _dependencies = context.Dependencies;
         
         AssetID = context.AssetID;
-        AssetPath = context.FilePath;
+        RelativeAssetPath = context.RelativeAssetPath;
     }
     
     

@@ -73,7 +73,7 @@ public sealed class Shader : Asset
     }
 
 
-    public static AssetRef<Shader> Find(string path) => new(AssetManager.LoadAssetFile<Shader>(path, 0));
+    public static AssetRef<Shader> Find(string path) => Application.AssetProvider.LoadAsset<Shader>(path);
 
 
     public bool HasVariable(string name)

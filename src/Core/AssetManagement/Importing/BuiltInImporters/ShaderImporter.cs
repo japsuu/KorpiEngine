@@ -51,14 +51,15 @@ internal partial class ShaderImporter : AssetImporter
     
     public override void Import(AssetImportContext context)
     {
-        string shaderScript = File.ReadAllText(context.FilePath.FullName);
+        FileInfo filePath = UncompressedAssetDatabase.GetFileInfoFromRelativePath(context.RelativeAssetPath);
+        string shaderScript = File.ReadAllText(filePath.FullName);
 
         // Strip out all comments.
         shaderScript = ClearAllComments(shaderScript);
 
         // Parse the shader.
         ImportErrors.Clear();
-        CurrentAssetPath = context.FilePath;
+        CurrentAssetPath = filePath;
         ParsedShader parsedShader = ParseShader(shaderScript);
         List<string> errors = ImportErrors;
         CurrentAssetPath = null;

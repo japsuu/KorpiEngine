@@ -36,7 +36,9 @@ public class ModelImporter : AssetImporter
     {
         using AssimpContext importer = new();
         
-        Model model = ImportAssimpContext(context, context.FilePath, importer);
+        FileInfo filePath = UncompressedAssetDatabase.GetFileInfoFromRelativePath(context.RelativeAssetPath);
+        
+        Model model = ImportAssimpContext(context, filePath, importer);
         
         context.SetMainAsset(model);
     }
@@ -329,15 +331,15 @@ public class ModelImporter : AssetImporter
 
     private static void LoadTextureIntoMesh(AssetImportContext context, string name, FileInfo file, Material mat)
     {
-        if (!AssetManager.TryGet(file, 0, out Texture2D? tex))
+        if (!UncompressedAssetDatabase.TryGet(file, 0, out Texture2D? tex))
         {
             // Import external textures
-            string relativePath = AssetManager.ToRelativePath(file);
+            string relativePath = UncompressedAssetDatabase.ToRelativePath(file);
 
             if (!file.Exists)
                 Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
 
-            tex = AssetManager.LoadAssetFile<Texture2D>(relativePath, 0);
+            tex = UncompressedAssetDatabase.LoadAssetFile<Texture2D>(relativePath, 0);
         }
         
         if (tex == null)

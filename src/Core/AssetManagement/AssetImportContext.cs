@@ -5,7 +5,7 @@ namespace KorpiEngine.AssetManagement;
 /// <summary>
 /// Represents a fully imported asset.
 /// </summary>
-public class AssetImportContext(FileInfo filePath, UUID assetID)
+public class AssetImportContext(string relativeAssetPath, UUID assetID)
 {
     private readonly List<AssetRef<Asset>> _dependencies = [];
     private readonly List<Asset> _subAssets = [];
@@ -15,7 +15,7 @@ public class AssetImportContext(FileInfo filePath, UUID assetID)
     internal IReadOnlyList<Asset> SubAssets => _subAssets;
     internal Asset? MainAsset => _mainAsset;
     
-    public readonly FileInfo FilePath = filePath;
+    public readonly string RelativeAssetPath = relativeAssetPath;
     public readonly UUID AssetID = assetID;
 
 
