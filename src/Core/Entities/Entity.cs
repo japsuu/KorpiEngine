@@ -160,11 +160,7 @@ public sealed partial class Entity : EngineObject
 
         RemoveAllSystems();
 
-        foreach (EntityComponent component in _components)
-            component.Destroy();
-
-        _components.Clear();
-        _componentCache.Clear();
+        RemoveAllComponents();
 
         _parent?._childList.Remove(this);
         _scene?.UnregisterEntity(this);

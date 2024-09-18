@@ -103,15 +103,33 @@ public sealed partial class Entity
         if (!component.CanBeDestroyed())
             return;
 
-        _components.Remove(component);
         _componentCache.Remove(type, component);
+        RemoveComponent(component);
+    }
+    
+    
+    private void RemoveAllComponents()
+    {
+        foreach (EntityComponent component in _components)
+            RemoveComponentFast(component);
+        
+        _components.Clear();
+        _componentCache.Clear();
+    }
 
+
+    /// <summary>
+    /// Destroys the specified component and unregister it from all systems,
+    /// without removing it from the component cache or list.
+    /// </summary>
+    private void RemoveComponentFast(EntityComponent component)
+    {
         component.Destroy();
 
         UnregisterComponentWithSystems(component);
     }
 
-    #endregion
+#endregion
 
 
     #region GetComponent API
