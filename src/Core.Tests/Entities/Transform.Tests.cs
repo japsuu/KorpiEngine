@@ -50,6 +50,13 @@ public class TransformTest
             return obj.GetHashCode();
         }
     }
+
+
+    [SetUp]
+    public void Init()
+    {
+        Application.IsMainThread = true;
+    }
     
     
 #region POSITION
