@@ -53,6 +53,8 @@ public abstract class Asset : EngineObject
     {
         if (IsExternal)
         {
+            //TODO: Notify AssetManager to remove this asset.
+            throw new NotImplementedException("External asset manual destruction not yet supported.");
             IsExternal = false;
             ExternalInfo = null;
         }

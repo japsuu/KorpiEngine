@@ -19,8 +19,9 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
-    private static SceneManager? sceneManager;
-    private static KorpiWindow window = null!;
+    private static IAssetProvider? assetProviderInstance;
+    private static SceneManager? sceneManagerInstance;
+    private static KorpiWindow windowInstance = null!;
     private static Type initialSceneType = null!;
     private static double fixedFrameAccumulator;
     
@@ -41,9 +42,24 @@ public static class Application
     {
         get
         {
-            if (sceneManager == null)
+            if (sceneManagerInstance == null)
                 throw new InvalidOperationException("The scene manager has not been initialized yet!");
-            return sceneManager;
+            return sceneManagerInstance;
+        }
+    }
+    
+    
+    /// <summary>
+    /// The currently active asset provider.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the asset provider has not been initialized yet.</exception>
+    public static IAssetProvider AssetProvider
+    {
+        get
+        {
+            if (assetProviderInstance == null)
+                throw new InvalidOperationException("The asset provider has not been initialized yet!");
+            return assetProviderInstance;
         }
     }
 
@@ -51,7 +67,10 @@ public static class Application
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
-    public static void Run<T>(WindowingSettings settings) where T : Scene
+    /// <typeparam name="T">The type of the initial scene to load.</typeparam>
+    /// <param name="settings">The settings for the game window.</param>
+    /// <param name="assetProvider">The asset provider to use for loading assets.</param>
+    public static void Run<T>(WindowingSettings settings, IAssetProvider assetProvider) where T : Scene
     {
         IsMainThread = true;
         MemoryReleaseSystem.Initialize();
@@ -61,17 +80,18 @@ public static class Application
         
         // Needs to be executed before Window.OnLoad() (called right after Window.Run())
         // to provide access to asset loading.
+        assetProviderInstance = assetProvider;
         AssetImporterAttribute.GenerateLookUp();
         
-        window = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
         initialSceneType = typeof(T);
         
-        window.Load += OnLoad;
-        window.UpdateFrame += OnUpdateFrame;
-        window.RenderFrame += OnRenderFrame;
-        window.Unload += OnUnload;
+        windowInstance = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
+        windowInstance.Load += OnLoad;
+        windowInstance.UpdateFrame += OnUpdateFrame;
+        windowInstance.RenderFrame += OnRenderFrame;
+        windowInstance.Unload += OnUnload;
         
-        window.Run();
+        windowInstance.Run();
     }
     
     
@@ -80,7 +100,7 @@ public static class Application
     /// </summary>
     public static void Quit()
     {
-        window.Close();
+        windowInstance.Close();
     }
 
 
@@ -89,10 +109,10 @@ public static class Application
     private static void OnLoad()
     {
         // Queue window visibility after all internal resources are loaded.
-        window.CenterWindow();
-        window.IsVisible = true;
-        sceneManager = new SceneManager(initialSceneType);
-        imGuiController = new ImGuiController(window);
+        windowInstance.CenterWindow();
+        windowInstance.IsVisible = true;
+        sceneManagerInstance = new SceneManager(initialSceneType);
+        imGuiController = new ImGuiController(windowInstance);
         
         GUI.Initialize();
 #if TOOLS
@@ -111,15 +131,15 @@ public static class Application
 #endif
         GUI.Deinitialize();
         
-        sceneManager?.InternalDispose();
-        sceneManager = null;
+        sceneManagerInstance?.InternalDispose();
+        sceneManagerInstance = null;
         GlobalJobPool.Shutdown();
         AssetImporterAttribute.ClearLookUp();
         
         ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
         MemoryReleaseSystem.Shutdown();
-        window.Dispose();
+        windowInstance.Dispose();
     }
 
 #endregion
@@ -174,7 +194,7 @@ public static class Application
     private static void InternalUpdate(double deltaTime, double fixedAlpha)
     {
         Time.Update(deltaTime, fixedAlpha);
-        Input.Input.Update(window.KeyboardState, window.MouseState);
+        Input.Input.Update(windowInstance.KeyboardState, windowInstance.MouseState);
         
         SceneManager.Update();
         
