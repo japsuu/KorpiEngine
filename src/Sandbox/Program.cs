@@ -13,6 +13,6 @@ internal static class Program
     {
         Application.Run<PrimitiveExampleScene>(
             new WindowingSettings(new Int2(1920, 1080), "KorpiEngine Sandbox"),
-            new DebugAssetProvider());
+            new UncompressedAssetProvider());
     }
 }

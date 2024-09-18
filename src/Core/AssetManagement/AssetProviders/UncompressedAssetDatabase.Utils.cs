@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.AssetManagement;
 
-internal static partial class AssetDatabase
+internal static partial class UncompressedAssetDatabase
 {
     /// <summary>
     /// Converts a file path to a relative path within the project.

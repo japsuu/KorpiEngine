@@ -2,7 +2,7 @@
 
 namespace KorpiEngine.AssetManagement;
 
-internal static partial class AssetDatabase
+internal static partial class UncompressedAssetDatabase
 {
     /// <summary>
     /// Relative path of an asset to its AssetID.

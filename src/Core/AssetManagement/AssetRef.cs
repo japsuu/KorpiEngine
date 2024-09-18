@@ -100,7 +100,7 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
             if (_reference != null && !_reference.IsDestroyed)
                 return true;
             
-            return _assetID != UUID.Empty && AssetDatabase.Contains(_assetID);
+            return _assetID != UUID.Empty && Application.AssetProvider.HasAsset(_assetID);
         }
     }
     
@@ -171,10 +171,10 @@ public struct AssetRef<T> : IEquatable<AssetRef<T>> where T : Asset
     private void RetrieveReference()
     {
         if (_assetID != UUID.Empty)
-            Asset = AssetDatabase.LoadAsset<T>(_assetID, _subID);
+            Asset = Application.AssetProvider.InternalLoadAsset<T>(_assetID, _subID);
         // Can potentially happen if the AssetRef was created with a runtime Asset that was later set to external
         else if (_reference != null && _reference.ExternalInfo != null && _reference.ExternalInfo.AssetID != UUID.Empty)
-            Asset = AssetDatabase.LoadAsset<T>(_reference.ExternalInfo.AssetID, _reference.ExternalInfo.SubID);
+            Asset = Application.AssetProvider.InternalLoadAsset<T>(_reference.ExternalInfo.AssetID, _reference.ExternalInfo.SubID);
         else
             Asset = null;
     }

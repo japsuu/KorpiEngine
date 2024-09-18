@@ -19,7 +19,7 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
-    private static IAssetProvider? assetProviderInstance;
+    private static AssetProvider? assetProviderInstance;
     private static SceneManager? sceneManagerInstance;
     private static KorpiWindow windowInstance = null!;
     private static Type initialSceneType = null!;
@@ -53,7 +53,7 @@ public static class Application
     /// The currently active asset provider.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown if the asset provider has not been initialized yet.</exception>
-    public static IAssetProvider AssetProvider
+    public static AssetProvider AssetProvider
     {
         get
         {
@@ -70,7 +70,7 @@ public static class Application
     /// <typeparam name="T">The type of the initial scene to load.</typeparam>
     /// <param name="settings">The settings for the game window.</param>
     /// <param name="assetProvider">The asset provider to use for loading assets.</param>
-    public static void Run<T>(WindowingSettings settings, IAssetProvider assetProvider) where T : Scene
+    public static void Run<T>(WindowingSettings settings, AssetProvider assetProvider) where T : Scene
     {
         IsMainThread = true;
         MemoryReleaseSystem.Initialize();
@@ -81,7 +81,7 @@ public static class Application
         // Needs to be executed before Window.OnLoad() (called right after Window.Run())
         // to provide access to asset loading.
         assetProviderInstance = assetProvider;
-        AssetImporterAttribute.GenerateLookUp();
+        assetProviderInstance.Initialize();
         
         initialSceneType = typeof(T);
         
@@ -134,7 +134,7 @@ public static class Application
         sceneManagerInstance?.InternalDispose();
         sceneManagerInstance = null;
         GlobalJobPool.Shutdown();
-        AssetImporterAttribute.ClearLookUp();
+        assetProviderInstance?.Shutdown();
         
         ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();

@@ -2,14 +2,26 @@ using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
-public class DebugAssetProvider : IAssetProvider
+public class UncompressedAssetProvider : AssetProvider
 {
+    protected override void OnInitialize()
+    {
+        AssetImporterAttribute.GenerateLookUp();
+    }
+
+
+    protected override void OnShutdown()
+    {
+        AssetImporterAttribute.ClearLookUp();
+    }
+
+
     /// <summary>
     /// Checks if an asset with the specified AssetID exists in the AssetDatabase.
     /// </summary>
     /// <param name="assetID">The AssetID of the file.</param>
     /// <returns>True if the file exists in the AssetDatabase, false otherwise.</returns>
-    public bool HasAsset(UUID assetID) => AssetDatabase.Contains(assetID);
+    public override bool HasAsset(UUID assetID) => UncompressedAssetDatabase.Contains(assetID);
 
 
     /// <summary>
@@ -23,9 +35,9 @@ public class DebugAssetProvider : IAssetProvider
     /// If the asset has previously been imported with a different importer,
     /// the EXISTING asset instance will be returned.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public AssetRef<T> LoadAsset<T>(string relativeAssetPath, ushort subID = 0, AssetImporter? customImporter = null) where T : Asset
+    protected internal override T InternalLoadAsset<T>(string relativeAssetPath, ushort subID = 0, AssetImporter? customImporter = null)
     {
-        return new AssetRef<T>(AssetDatabase.LoadAssetFile<T>(relativeAssetPath, subID, customImporter));
+        return UncompressedAssetDatabase.LoadAssetFile<T>(relativeAssetPath, subID, customImporter);
     }
 
 
@@ -37,8 +49,8 @@ public class DebugAssetProvider : IAssetProvider
     /// <param name="assetID">The AssetID of the asset to load.</param>
     /// <param name="subID">The sub-ID of the asset to load. 0 for the main asset, 1+ for sub-assets.</param>
     /// <returns>The loaded asset, or null if the asset could not be loaded.</returns>
-    public AssetRef<T> LoadAsset<T>(UUID assetID, ushort subID = 0) where T : Asset
+    protected internal override T InternalLoadAsset<T>(UUID assetID, ushort subID = 0)
     {
-        return new AssetRef<T>(AssetDatabase.LoadAsset<T>(assetID, subID));
+        return UncompressedAssetDatabase.LoadAsset<T>(assetID, subID);
     }
 }
