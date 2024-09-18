@@ -54,6 +54,7 @@ public static class Application
     public static void Run<T>(WindowingSettings settings) where T : Scene
     {
         IsMainThread = true;
+        MemoryReleaseSystem.Initialize();
         
         InitializeLog4Net();
         AssemblyManager.Initialize();
@@ -117,6 +118,7 @@ public static class Application
         
         ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
+        MemoryReleaseSystem.Shutdown();
         window.Dispose();
     }
 
@@ -181,6 +183,8 @@ public static class Application
         
         imGuiController.Update();
         ImGuiWindowManager.Update();
+        
+        MemoryReleaseSystem.ProcessDisposeQueue();
     }
 
 
