@@ -582,21 +582,6 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    protected override void Dispose(bool manual)
-    {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-        
-        GL.DeleteVertexArray(_vertexArray);
-        GL.DeleteBuffer(_vertexBuffer);
-        GL.DeleteBuffer(_indexBuffer);
-
-        GL.DeleteTexture(_fontTexture);
-        GL.DeleteProgram(_shader);
-    }
-
-
     private static void LabelObject(ObjectLabelIdentifier objLabelIdent, int glObject, string name)
     {
         if (KhrDebugAvailable)
@@ -618,13 +603,13 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    private static int CreateProgram(string name, string vertexSource, string fragmentSoruce)
+    private static int CreateProgram(string name, string vertexSource, string fragmentSource)
     {
         int program = GL.CreateProgram();
         LabelObject(ObjectLabelIdentifier.Program, program, $"Program: {name}");
 
         int vertex = CompileShader(name, ShaderType.VertexShader, vertexSource);
-        int fragment = CompileShader(name, ShaderType.FragmentShader, fragmentSoruce);
+        int fragment = CompileShader(name, ShaderType.FragmentShader, fragmentSource);
 
         GL.AttachShader(program, vertex);
         GL.AttachShader(program, fragment);
@@ -673,5 +658,16 @@ internal class ImGuiController : GraphicsResource
         int i = 1;
         while ((error = GL.GetError()) != ErrorCode.NoError)
             System.Diagnostics.Debug.Print($"{title} ({i++}): {error}");
+    }
+
+
+    protected override void DisposeResources()
+    {
+        GL.DeleteVertexArray(_vertexArray);
+        GL.DeleteBuffer(_vertexBuffer);
+        GL.DeleteBuffer(_indexBuffer);
+
+        GL.DeleteTexture(_fontTexture);
+        GL.DeleteProgram(_shader);
     }
 }

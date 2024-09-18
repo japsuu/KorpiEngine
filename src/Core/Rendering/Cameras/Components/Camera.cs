@@ -102,8 +102,8 @@ public sealed class Camera : EntityComponent
         // Determine render target size
         if (TargetTexture.IsAvailable)
         {
-            width = TargetTexture.Res!.Width;
-            height = TargetTexture.Res!.Height;
+            width = TargetTexture.Asset!.Width;
+            height = TargetTexture.Asset!.Height;
         }
         else if (width == -1 || height == -1)
         {
@@ -154,8 +154,8 @@ public sealed class Camera : EntityComponent
         bool doClear = ClearType == CameraClearType.SolidColor;
         if (DebugDrawType == CameraDebugDrawType.OFF)
         {
-            Graphics.Blit(TargetTexture.Res ?? null, result.MainTexture, doClear);
-            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Res ?? null);
+            Graphics.Blit(TargetTexture.Asset ?? null, result.MainTexture, doClear);
+            Graphics.BlitDepth(GBuffer!.Buffer, TargetTexture.Asset ?? null);
         }
         else
         {
@@ -171,7 +171,7 @@ public sealed class Camera : EntityComponent
             _debugMaterial.SetFloat("_CameraNearClip", NearClipPlane);
             _debugMaterial.SetFloat("_CameraFarClip", FarClipPlane);
             
-            Graphics.Blit(TargetTexture.Res ?? null, _debugMaterial, 0, doClear);
+            Graphics.Blit(TargetTexture.Asset ?? null, _debugMaterial, 0, doClear);
         }
         
         _oldView = Graphics.ViewMatrix;
@@ -182,20 +182,20 @@ public sealed class Camera : EntityComponent
     }
     
     
-    internal void RenderLights() => Entity.Scene!.EntityScene.InvokeRenderLighting();
-    internal void RenderDepthGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometryDepth();
-    private void RenderGeometry() => Entity.Scene!.EntityScene.InvokeRenderGeometry();
+    internal void RenderLights() => Entity.Scene!.InvokeRenderLighting();
+    internal void RenderDepthGeometry() => Entity.Scene!.InvokeRenderGeometryDepth();
+    private void RenderGeometry() => Entity.Scene!.InvokeRenderGeometry();
 
 
     private void RenderGizmos()
     {
         // if (Graphics.UseJitter)
         //     Graphics.ProjectionMatrix = RenderingCamera.GetProjectionMatrix(width, height); // Cancel out jitter
-        Entity.Scene!.EntityScene.InvokeDrawDepthGizmos();
+        Entity.Scene!.InvokeDrawDepthGizmos();
         Gizmos.Render(true);
         Gizmos.Clear();
         
-        Entity.Scene.EntityScene.InvokeDrawGizmos();
+        Entity.Scene.InvokeDrawGizmos();
         Gizmos.Render(false);
         Gizmos.Clear();
     }
@@ -203,7 +203,7 @@ public sealed class Camera : EntityComponent
 
     private void GeometryPass()
     {
-        Entity.Scene!.EntityScene.InvokePreRender();
+        Entity.Scene!.InvokePreRender();
         
         GBuffer!.Begin();
         
@@ -214,7 +214,7 @@ public sealed class Camera : EntityComponent
         
         GBuffer.End();
         
-        Entity.Scene.EntityScene.InvokePostRender();
+        Entity.Scene.InvokePostRender();
     }
     
     
@@ -234,7 +234,7 @@ public sealed class Camera : EntityComponent
     private Vector2 GetRenderTargetSize()
     {
         if (TargetTexture.IsAvailable)
-            return new Vector2(TargetTexture.Res!.Width, TargetTexture.Res!.Height);
+            return new Vector2(TargetTexture.Asset!.Width, TargetTexture.Asset!.Height);
         
         return new Vector2(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y);
     }
@@ -265,7 +265,7 @@ public sealed class Camera : EntityComponent
         // Clear the screen
         if (ClearType == CameraClearType.SolidColor)
         {
-            TargetTexture.Res?.Begin();
+            TargetTexture.Asset?.Begin();
             
             ClearColor.Deconstruct(out float r, out float g, out float b, out float a);
             bool clearColor = ClearFlags.HasFlagFast(CameraClearFlags.Color);
@@ -273,7 +273,7 @@ public sealed class Camera : EntityComponent
             bool clearStencil = ClearFlags.HasFlagFast(CameraClearFlags.Stencil);
             Graphics.Clear(r, g, b, a, clearColor, clearDepth, clearStencil);
             
-            TargetTexture.Res?.End();
+            TargetTexture.Asset?.End();
         }
         
         RenderingCamera = null!;
@@ -282,7 +282,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnEnable()
     {
-        _debugMaterial = new Material(Shader.Find("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
+        _debugMaterial = new Material(Asset.Load<Shader>("Assets/Defaults/GBufferDebug.kshader"), "g buffer debug material", false);
     }
     
     
@@ -320,6 +320,7 @@ public sealed class Camera : EntityComponent
         _cachedRenderTextures.Clear();
         
         _debugMaterial.DestroyImmediate();
+        _debugMaterial = null!;
     }
 
 

@@ -1,27 +1,98 @@
-﻿using KorpiEngine.Utils;
+﻿using System.Text;
+using KorpiEngine.Utils;
 
 namespace KorpiEngine.AssetManagement;
 
 /// <summary>
-/// Represents a fully imported asset.
+/// Base class for "resource types", serving primarily as data containers.
 /// </summary>
-internal class Asset
+///
+/// <remarks>
+/// Runtime assets can be manually destroyed, but are also automatically collected by the GC.<br/><br/>
+/// External assets cannot be manually destroyed, but can be unloaded from the AssetManager.
+/// </remarks>
+public abstract class Asset : EngineObject
 {
-    public readonly UUID AssetID;
-    public readonly FileInfo AssetPath;
-    public readonly AssetInstance Instance;
+    /// <summary>
+    /// Whether assets can be manually destroyed if they are external.
+    /// </summary>
+    internal static bool AllowManualExternalDestroy { private get; set; } = false;
+    
+    /// <summary>
+    /// Whether the asset has been loaded from an external source.<br/>
+    /// If true, <see cref="ExternalInfo"/> will also be set.<br/>
+    /// If <see cref="EngineObject.Destroy"/> is called on an external asset,
+    /// the asset will be removed from the asset database.
+    /// </summary>
+    public bool IsExternal { get; private set; }
+    
+    /// <summary>
+    /// If the asset is external, this will contain the information about the external source.
+    /// </summary>
+    public ExternalAssetInfo? ExternalInfo { get; private set; }
 
 
-    public Asset(UUID assetID, FileInfo assetPath, AssetInstance instance)
+    public static AssetRef<T> Load<T>(string path) where T : Asset => Application.AssetProvider.LoadAsset<T>(path);
+
+
+    #region Creation & Destruction
+
+    protected Asset(string name) : base(name)
     {
-        AssetID = assetID;
-        AssetPath = assetPath;
-        Instance = instance;
+        
     }
+
+    #endregion
     
     
-    public void Destroy()
+    internal void SetExternalInfo(UUID assetID, ushort subID)
     {
-        Instance.DestroyImmediate();
+        IsExternal = true;
+        ExternalInfo = new ExternalAssetInfo(assetID, subID);
+    }
+
+
+    protected sealed override void OnDispose()
+    {
+        if (IsExternal)
+        {
+            //TODO: Notify AssetManager to remove this asset.
+            throw new NotImplementedException("External asset manual destruction not yet supported.");
+            IsExternal = false;
+            ExternalInfo = null;
+        }
+        
+        OnDestroy();
+    }
+
+
+    protected override bool AllowDestroy()
+    {
+        bool allowed = !IsExternal || AllowManualExternalDestroy;
+        
+        if (!allowed)
+            Application.Logger.Warn($"Tried to unexpectedly destroy external asset '{this}' without permission. This is not allowed.");
+        
+        return allowed;
+    }
+
+
+    protected virtual void OnDestroy()
+    {
+        
+    }
+
+
+    public override string ToString()
+    {
+        StringBuilder sb = new();
+        sb.Append(base.ToString());
+        
+        if (ExternalInfo != null)
+            sb.Append($" {ExternalInfo.ToString()}");
+        else
+            sb.Append(" [Runtime Asset]");
+
+        return sb.ToString();
     }
 }

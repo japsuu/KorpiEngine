@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using KorpiEngine;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.UI.DearImGui;
 using Sandbox.Scenes.FullExample;
@@ -43,12 +44,12 @@ public class HelpWindow(string title, string text) : ImGuiWindow(true)
         ImGui.Separator();
 
         if (ImGui.Button("Sponza Example Scene"))
-            SceneManager.LoadScene(new SponzaExampleScene(), SceneLoadMode.Single);
+            Application.SceneManager.LoadScene<SponzaExampleScene>(SceneLoadMode.Single);
         
         if (ImGui.Button("Full Example Scene"))
-            SceneManager.LoadScene(new FullExampleScene(), SceneLoadMode.Single);
+            Application.SceneManager.LoadScene<FullExampleScene>(SceneLoadMode.Single);
         
         if (ImGui.Button("Primitive Example Scene"))
-            SceneManager.LoadScene(new PrimitiveExampleScene(), SceneLoadMode.Single);
+            Application.SceneManager.LoadScene<PrimitiveExampleScene>(SceneLoadMode.Single);
     }
 }

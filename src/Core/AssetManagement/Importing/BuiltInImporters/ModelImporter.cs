@@ -3,8 +3,6 @@ using KorpiEngine.Animations;
 using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
-using KorpiEngine.Utils;
-using Animation = KorpiEngine.Animations.Animation;
 using Material = KorpiEngine.Rendering.Material;
 using Matrix4x4 = KorpiEngine.Mathematics.Matrix4x4;
 using Mesh = KorpiEngine.Rendering.Mesh;
@@ -34,16 +32,19 @@ public class ModelImporter : AssetImporter
     public float UnitScale { get; set; } = 1.0f;
 
 
-    public override AssetInstance Import(FileInfo assetPath)
+    public override void Import(AssetImportContext context)
     {
         using AssimpContext importer = new();
         
-        Entity entity = ImportAssimpEntity(assetPath, importer);
-        return entity;
+        FileInfo filePath = UncompressedAssetDatabase.GetFileInfoFromRelativePath(context.RelativeAssetPath);
+        
+        Model model = ImportAssimpContext(context, filePath, importer);
+        
+        context.SetMainAsset(model);
     }
 
 
-    private Entity ImportAssimpEntity(FileInfo assetPath, AssimpContext importer)
+    private Model ImportAssimpContext(AssetImportContext context, FileInfo assetPath, AssimpContext importer)
     {
         DirectoryInfo? parentDir = assetPath.Directory;
         
@@ -64,28 +65,28 @@ public class ModelImporter : AssetImporter
             scale *= 0.01f;
 
         // Replicate the Assimp node hierarchy.
-        // This creates an empty entity hierarchy with the same structure as the assimp scene.
-        List<(Entity entity, Node node)> entityHierarchy = [];  //WARN: Replace with an actual tree structure
-        string rootEntityName = $"{Path.GetFileNameWithoutExtension(assetPath.Name)} model";
-        CreateEntityHierarchy(rootEntityName, scene.RootNode, ref entityHierarchy, scale);
+        // This creates an empty model hierarchy with the same structure as the assimp scene.
+        List<(ModelPart model, Node node)> entityHierarchy = [];
+        ReplicateAssimpHierarchy(scene.RootNode, ref entityHierarchy, scale);
+        // At this point, the ModelPart hierarchy represents the hierarchy of the model in the scene.
 
         // Materials
         List<AssetRef<Material>> materials = [];
         if (scene.HasMaterials)
-            LoadMaterials(scene, parentDir, materials);
+            LoadMaterials(context, scene, parentDir, materials);
 
         // Animations
         List<AssetRef<AnimationClip>> animations = [];
         if (scene.HasAnimations)
-            animations = LoadAnimations(scene, scale);
+            animations = LoadAnimations(context, scene, scale);
 
         // Meshes. Also bind materials to meshes
         List<MeshMaterialBinding> meshMaterialBindings = [];
         if (scene.HasMeshes)
-            LoadMeshes(assetPath, scene, scale, materials, meshMaterialBindings);
-
-        // Create child entities for each mesh in hierarchy.
-        foreach ((Entity? entity, Node? node) in entityHierarchy)
+            LoadMeshes(context, assetPath, scene, scale, materials, meshMaterialBindings);
+        
+        // Create a child ModelPart for each part of the model that has a mesh.
+        foreach ((ModelPart? modelPart, Node? node) in entityHierarchy)
         {
             if (!node.HasMeshes)
                 continue;
@@ -95,7 +96,7 @@ public class ModelImporter : AssetImporter
                 // Just a single mesh, we can use the node "root". No need to create children.
                 int meshIndex = node.MeshIndices[0];
                 MeshMaterialBinding meshMatBinding = meshMaterialBindings[meshIndex];
-                AddMeshComponent(entityHierarchy, entity, meshMatBinding);
+                AddMeshComponent(entityHierarchy, modelPart, meshMatBinding);
             }
             else
             {
@@ -103,46 +104,38 @@ public class ModelImporter : AssetImporter
                 foreach (int meshIndex in node.MeshIndices)
                 {
                     MeshMaterialBinding meshMatBinding = meshMaterialBindings[meshIndex];
-                    Entity child = new(null, meshMatBinding.MeshName);
+                    ModelPart child = new(meshMatBinding.MeshName);
                     
                     AddMeshComponent(entityHierarchy, child, meshMatBinding);
-                    child.SetParent(entity, false);
+                    child.SetParent(modelPart);
                 }
             }
         }
 
-        Entity rootEntity = entityHierarchy[0].entity;
-        if (!Mathematics.MathOps.AlmostEquals(UnitScale, 1.0f))
-            rootEntity.Transform.LocalScale = Vector3.One * UnitScale;
+        // Apply the unit scale to the root part
+        ModelPart rootPart = entityHierarchy[0].model;
+        if (!UnitScale.AlmostEquals(1.0f))
+            rootPart.LocalScale = Vector3.One * UnitScale;
 
-        // Add Animation Component to root, with all the animations assigned to it.
-        if (animations.Count > 0)
+        if (RemoveEmptyEntities)
         {
-            Animation anim = rootEntity.AddComponent<Animation>();
-            foreach (AssetRef<AnimationClip> a in animations)
-                anim.Clips.Add(a);
-            anim.DefaultClip = animations[0];
+            List<(ModelPart model, Node node)> entitiesToRemove = [];
+
+            foreach ((ModelPart model, Node node) pair in entityHierarchy)
+            {
+                if (pair.model.IsEmpty)
+                    entitiesToRemove.Add(pair);
+            }
+
+            foreach ((ModelPart model, Node node) pair in entitiesToRemove)
+            {
+                pair.model.Destroy();
+                entityHierarchy.Remove(pair);
+            }
         }
 
-        if (!RemoveEmptyEntities)
-            return rootEntity;
-
-        List<(Entity entity, Node node)> entitiesToRemove = [];
-                
-        foreach ((Entity entity, Node node) pair in entityHierarchy)
-        {
-            if (!pair.entity.GetComponentsInChildren<EntityComponent>().Any())
-                entitiesToRemove.Add(pair);
-        }
-                
-        foreach ((Entity entity, Node node) pair in entitiesToRemove)
-        {
-            if (!pair.entity.IsDestroyed)
-                pair.entity.DestroyImmediate();
-            entityHierarchy.Remove(pair);
-        }
-
-        return rootEntity;
+        string modelName = $"{Path.GetFileNameWithoutExtension(assetPath.Name)} Model";
+        return new Model(modelName, rootPart, animations);
     }
 
 
@@ -191,40 +184,37 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static Entity CreateEntityHierarchy(string? name, Node assimpNode, ref List<(Entity entity, Node node)> hierarchy, float scaleFactor, int i = 0)
+    private static ModelPart ReplicateAssimpHierarchy(Node assimpNode, ref List<(ModelPart model, Node node)> hierarchy, float scaleFactor)
     {
-        Entity entity = new(null, name ?? assimpNode.Name);
-        hierarchy.Add((entity, assimpNode));
-        entity.Name = name ?? assimpNode.Name;
+        ModelPart modelPart = new(assimpNode.Name);
+        hierarchy.Add((modelPart, assimpNode));
 
-        if (assimpNode.HasChildren)
+        if (!assimpNode.HasChildren)
+            return modelPart;
+        
+        foreach (Node? childAssimpNode in assimpNode.Children)
         {
-            foreach (Node? cn in assimpNode.Children)
-            {
-                Entity go = CreateEntityHierarchy(null, cn, ref hierarchy, scaleFactor, i + 1);
-                go.SetParent(entity, false);
-            }
+            ModelPart childModelPart = ReplicateAssimpHierarchy(childAssimpNode, ref hierarchy, scaleFactor);
+            childModelPart.SetParent(modelPart);
         }
-
-        // Transform
+        
         Assimp.Matrix4x4 t = assimpNode.Transform;
         t.Decompose(out Vector3D aSca, out Assimp.Quaternion aRot, out Vector3D aPos);
+        modelPart.LocalPosition = new Vector3(aPos.X, aPos.Y, aPos.Z) * scaleFactor;
+        modelPart.LocalRotation = new Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
+        modelPart.LocalScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
 
-        entity.Transform.LocalPosition = new Vector3(aPos.X, aPos.Y + i, aPos.Z) * scaleFactor;
-        entity.Transform.LocalRotation = new Quaternion(aRot.X, aRot.Y, aRot.Z, aRot.W);
-        entity.Transform.LocalScale = new Vector3(aSca.X, aSca.Y, aSca.Z);
-
-        return entity;
+        return modelPart;
     }
 
 
     #region Material loading
 
-    private static void LoadMaterials(Scene scene, DirectoryInfo parentDir, List<AssetRef<Material>> mats)
+    private static void LoadMaterials(AssetImportContext context, Scene scene, DirectoryInfo parentDir, List<AssetRef<Material>> mats)
     {
         foreach (Assimp.Material? sourceMat in scene.Materials)
         {
-            Material targetMat = new(Shader.Find("Assets/Defaults/Standard.kshader"), "standard material");
+            Material targetMat = new(Asset.Load<Shader>("Assets/Defaults/Standard.kshader"), "standard material");
             targetMat.Name = sourceMat.HasName ? sourceMat.Name : "Standard Material";
 
             // Diffuse color (main color)
@@ -234,18 +224,18 @@ public class ModelImporter : AssetImporter
             LoadAssimpEmission(sourceMat, targetMat);
 
             // Diffuse
-            LoadAssimpDiffuse(parentDir, sourceMat, targetMat);
+            LoadAssimpDiffuse(context, parentDir, sourceMat, targetMat);
 
             // Normal
-            LoadAssimpNormal(parentDir, sourceMat, targetMat);
+            LoadAssimpNormal(context, parentDir, sourceMat, targetMat);
 
             // AO, Roughness, Metallic
-            LoadAssimpSurface(parentDir, sourceMat, targetMat);
+            LoadAssimpSurface(context, parentDir, sourceMat, targetMat);
 
             // Emissive
-            LoadAssimpEmissive(parentDir, sourceMat, targetMat);
+            LoadAssimpEmissive(context, parentDir, sourceMat, targetMat);
 
-            mats.Add(targetMat);
+            mats.Add(context.AddSubAsset(targetMat));
         }
     }
 
@@ -272,37 +262,37 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadAssimpDiffuse(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpDiffuse(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureDiffuse)
             return;
         
         if (TryFindTextureFromPath(sourceMat.TextureDiffuse.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.MAIN_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.MAIN_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpNormal(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpNormal(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureNormal)
             return;
         
         if (TryFindTextureFromPath(sourceMat.TextureNormal.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.NORMAL_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.NORMAL_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpSurface(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpSurface(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.GetMaterialTexture(TextureType.Unknown, 0, out TextureSlot surface))
             return;
         
         if (TryFindTextureFromPath(surface.FilePath, parentDir, out FileInfo? file))
-            LoadTextureIntoMesh(Material.SURFACE_TEX, file, targetMat);
+            LoadTextureIntoMesh(context, Material.SURFACE_TEX, file, targetMat);
     }
 
 
-    private static void LoadAssimpEmissive(DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
+    private static void LoadAssimpEmissive(AssetImportContext context, DirectoryInfo parentDir, Assimp.Material sourceMat, Material targetMat)
     {
         if (!sourceMat.HasTextureEmissive)
             return;
@@ -311,7 +301,7 @@ public class ModelImporter : AssetImporter
             return;
         
         targetMat.SetFloat("_EmissionIntensity", 1f);
-        LoadTextureIntoMesh(Material.EMISSION_TEX, file, targetMat);
+        LoadTextureIntoMesh(context, Material.EMISSION_TEX, file, targetMat);
     }
     
     
@@ -339,23 +329,27 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private static void LoadTextureIntoMesh(string name, FileInfo file, Material mat)
+    private static void LoadTextureIntoMesh(AssetImportContext context, string name, FileInfo file, Material mat)
     {
-        if (AssetManager.TryGetGuidFromPath(file, out UUID guid))
-        {
-            // We have this texture as an asset, use the asset, we don't need to load it
-            mat.SetTexture(name, new AssetRef<Texture2D>(guid));
-        }
-        else
+        if (!UncompressedAssetDatabase.TryGet(file, 0, out Texture2D? tex))
         {
             // Import external textures
-            string relativePath = AssetManager.ToRelativePath(file);
-            
+            string relativePath = UncompressedAssetDatabase.ToRelativePath(file);
+
             if (!file.Exists)
                 Application.Logger.Error($"Texture file '{file.FullName}' missing, skipping...");
-            
-            mat.SetTexture(name, AssetManager.LoadAssetFile<Texture2D>(relativePath));
+
+            tex = UncompressedAssetDatabase.LoadAssetFile<Texture2D>(relativePath, 0);
         }
+        
+        if (tex == null)
+        {
+            Application.Logger.Error($"Failed to load texture '{name}' from '{file.FullName}', skipping...");
+            return;
+        }
+
+        context.AddDependency(tex);
+        mat.SetTexture(name, tex);
     }
 
     #endregion
@@ -363,13 +357,13 @@ public class ModelImporter : AssetImporter
 
     #region Animation loading
 
-    private static List<AssetRef<AnimationClip>> LoadAnimations(Scene scene, float scale)
+    private static List<AssetRef<AnimationClip>> LoadAnimations(AssetImportContext context, Scene scene, float scale)
     {
         List<AssetRef<AnimationClip>> anims = [];
         foreach (Assimp.Animation? anim in scene.Animations)
         {
             AnimationClip animation = LoadAssimpAnimation(scene, scale, anim);
-            anims.Add(animation);
+            anims.Add(context.AddSubAsset(animation));
         }
 
         return anims;
@@ -379,9 +373,8 @@ public class ModelImporter : AssetImporter
     private static AnimationClip LoadAssimpAnimation(Scene scene, float scale, Assimp.Animation sourceAnim)
     {
         // Create Animation
-        AnimationClip destinationAnim = new();
-        destinationAnim.Name = sourceAnim.Name;
-        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (Mathematics.MathOps.AlmostEquals((float)sourceAnim.TicksPerSecond, 0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
+        AnimationClip destinationAnim = new($"{sourceAnim.Name} Animation");
+        destinationAnim.Duration = (float)sourceAnim.DurationInTicks / (((float)sourceAnim.TicksPerSecond).AlmostEquals(0f) ? 25.0f : (float)sourceAnim.TicksPerSecond);
         destinationAnim.TicksPerSecond = (float)sourceAnim.TicksPerSecond;
         destinationAnim.DurationInTicks = (float)sourceAnim.DurationInTicks;
 
@@ -475,7 +468,7 @@ public class ModelImporter : AssetImporter
 
     #region Mesh loading
 
-    private void LoadMeshes(FileInfo assetPath, Scene scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
+    private void LoadMeshes(AssetImportContext context, FileInfo assetPath, Scene scene, double scale, List<AssetRef<Material>> mats, List<MeshMaterialBinding> meshMats)
     {
         foreach (Assimp.Mesh? assimpMesh in scene.Meshes)
         {
@@ -486,15 +479,14 @@ public class ModelImporter : AssetImporter
             }
 
             Mesh engineMesh = LoadAssimpMesh(scale, assimpMesh);
-            meshMats.Add(new MeshMaterialBinding(assimpMesh.Name, assimpMesh, engineMesh, mats[assimpMesh.MaterialIndex]));
+            meshMats.Add(new MeshMaterialBinding(assimpMesh.Name, assimpMesh, context.AddSubAsset(engineMesh), mats[assimpMesh.MaterialIndex]));
         }
     }
 
 
     private Mesh LoadAssimpMesh(double scale, Assimp.Mesh assimpMesh)
     {
-        Mesh engineMesh = new();
-        engineMesh.Name = assimpMesh.Name;
+        Mesh engineMesh = new($"{assimpMesh.Name} Mesh");
         int vertexCount = assimpMesh.VertexCount;
         engineMesh.IndexFormat = vertexCount >= ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16;
 
@@ -614,7 +606,7 @@ public class ModelImporter : AssetImporter
             Vector4 w = boneWeights[i];
             float totalWeight = w.X + w.Y + w.Z + w.W;
                     
-            if (Mathematics.MathOps.AlmostZero(totalWeight))
+            if (MathOps.AlmostZero(totalWeight))
                 continue;
                     
             w /= totalWeight;
@@ -686,27 +678,20 @@ public class ModelImporter : AssetImporter
     }
 
 
-    private void AddMeshComponent(List<(Entity entity, Node node)> entityHierarchy, Entity entity, MeshMaterialBinding meshMaterialBinding)
+    private void AddMeshComponent(List<(ModelPart model, Node node)> modelHierarchy, ModelPart modelPart, MeshMaterialBinding meshMaterialBinding)
     {
+        // Mesh renderer specific data
+        modelPart.Mesh = meshMaterialBinding.EngineMesh;
+        modelPart.Material = meshMaterialBinding.EngineMaterial;
+
+        // Skinned mesh renderer specific data
         if (meshMaterialBinding.AssimpMesh.HasBones)
         {
-            // Add a skinned mesh renderer
-            SkinnedMeshRenderer mr = entity.AddComponent<SkinnedMeshRenderer>();
-            mr.Mesh = meshMaterialBinding.EngineMesh;
-            mr.Material = meshMaterialBinding.EngineMaterial;
-            
             // Find all bones in the hierarchy and assign them to the skinned mesh renderer
             List<Bone> assimpMeshBones = meshMaterialBinding.AssimpMesh.Bones;
-            mr.Bones = new Transform[assimpMeshBones.Count];
+            modelPart.Bones = new ModelPart[assimpMeshBones.Count];
             for (int i = 0; i < assimpMeshBones.Count; i++)
-                mr.Bones[i] = entityHierarchy[0].entity.Transform.DeepFind(assimpMeshBones[i].Name)!.Entity.Transform;
-        }
-        else
-        {
-            // Add a mesh renderer
-            MeshRenderer mr = entity.AddComponent<MeshRenderer>();
-            mr.Mesh = meshMaterialBinding.EngineMesh;
-            mr.Material = meshMaterialBinding.EngineMaterial;
+                modelPart.Bones[i] = modelHierarchy[0].model.DeepFind(assimpMeshBones[i].Name)!;
         }
 
         if (GenerateColliders)

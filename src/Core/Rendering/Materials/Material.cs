@@ -11,7 +11,7 @@ namespace KorpiEngine.Rendering;
 /// </summary>
 // https://www.reddit.com/r/GraphicsProgramming/comments/7llloo/comment/drnyosg/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 // https://github.com/michaelsakharov/Prowl/blob/main/Prowl.Runtime/Resources/Material.cs#L140
-public sealed class Material : AssetInstance
+public sealed class Material : Asset
 {
     public const string MAIN_TEX = "_MainTex";
     public const string NORMAL_TEX = "_NormalTex";
@@ -27,12 +27,12 @@ public sealed class Material : AssetInstance
     
     internal static void LoadDefaults()
     {
-        DefaultAlbedoTex = Texture2D.Find("Assets/Defaults/default_albedo.png");
-        DefaultNormalTex = Texture2D.Find("Assets/Defaults/default_normal.png");
-        DefaultSurfaceTex = Texture2D.Find("Assets/Defaults/default_surface.png");
-        DefaultEmissionTex = Texture2D.Find("Assets/Defaults/default_emission.png");
+        DefaultAlbedoTex = Load<Texture2D>("Assets/Defaults/default_albedo.png");
+        DefaultNormalTex = Load<Texture2D>("Assets/Defaults/default_normal.png");
+        DefaultSurfaceTex = Load<Texture2D>("Assets/Defaults/default_surface.png");
+        DefaultEmissionTex = Load<Texture2D>("Assets/Defaults/default_emission.png");
 
-        InvalidMaterial = new Material(Rendering.Shader.Find("Assets/Defaults/Invalid.kshader"), "invalid material", false);
+        InvalidMaterial = new Material(Load<Shader>("Assets/Defaults/Invalid.kshader"), "invalid material", false);
     }
     
     
@@ -51,7 +51,7 @@ public sealed class Material : AssetInstance
 
     public Material(AssetRef<Shader> shader, string name, bool setDefaultTextures = true) : base(name)
     {
-        if (shader.AssetID == UUID.Empty)
+        if (shader.IsRuntime)   // IDK if this is necessary
             throw new ArgumentNullException(nameof(shader));
         Shader = shader;
         _propertyBlock = new MaterialPropertyBlock();
@@ -170,7 +170,7 @@ public sealed class Material : AssetInstance
         if (globalKeywordsChanged || materialKeywordsChanged)
         {
             string materialKeywordsString = string.Join("-", _materialKeywords);
-            _allKeywordsString = $"{Shader.Res!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
+            _allKeywordsString = $"{Shader.Asset!.InstanceID}-{materialKeywordsString}-{Rendering.Shader.GlobalKeywordsString}";
             _lastGlobalKeywordsVersion = Rendering.Shader.GlobalKeywordsVersion;
             _lastHash = currentHash;
         }
@@ -198,7 +198,7 @@ public sealed class Material : AssetInstance
 
         // Compile Each Pass
         Application.Logger.Debug($"Compiling Shader Variant: {_allKeywordsString}");
-        Shader.CompiledShader compiledPasses = Shader.Res!.Compile(allKeywords.ToArray());
+        Shader.CompiledShader compiledPasses = Shader.Asset!.Compile(allKeywords.ToArray());
 
         PassVariants[_allKeywordsString] = compiledPasses;
         return compiledPasses;
@@ -301,5 +301,5 @@ public sealed class Material : AssetInstance
     #endregion
     
     
-    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Res!.HasVariable(name);
+    private bool HasVariable(string name) => Shader.IsAvailable && Shader.Asset!.HasVariable(name);
 }

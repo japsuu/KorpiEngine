@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Utils;
 
-public static class AssemblyManager
+internal static class AssemblyManager
 {
     public static void Initialize()
     {

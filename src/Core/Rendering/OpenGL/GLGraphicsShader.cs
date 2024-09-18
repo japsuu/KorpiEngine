@@ -34,16 +34,12 @@ internal class GLGraphicsShader : GraphicsObject
     public GLGraphicsShader(ShaderType type) : base(GL.CreateShader((OpenTK.Graphics.OpenGL4.ShaderType)type))
     {
         Type = type;
-        SourceFiles = new List<string>();
+        SourceFiles = [];
     }
 
 
-    protected override void Dispose(bool manual)
+    protected override void DisposeResources()
     {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-
         GL.DeleteShader(Handle);
     }
 

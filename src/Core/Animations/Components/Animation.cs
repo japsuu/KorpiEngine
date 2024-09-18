@@ -28,12 +28,12 @@ public class Animation : EntityComponent
 
         foreach (AssetRef<AnimationClip> clip in Clips)
             if (clip.IsAvailable)
-                AddClip(clip.Res!);
+                AddClip(clip.Asset!);
         if (DefaultClip.IsAvailable)
         {
-            AddClip(DefaultClip.Res!);
+            AddClip(DefaultClip.Asset!);
             if (PlayAutomatically)
-                Play(DefaultClip.Res!.Name);
+                Play(DefaultClip.Asset!.Name);
         }
     }
 

@@ -167,7 +167,7 @@ public class MaterialPropertyBlock
             }
             
             texSlot++;
-            Graphics.Device.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Res!.Handle);
+            Graphics.Device.SetUniformTexture(shader, item.Key, (int)texSlot, tex.Asset!.Handle);
 
             keysToUpdate.Add((item.Key, tex));
         }

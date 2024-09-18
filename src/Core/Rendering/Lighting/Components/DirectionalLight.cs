@@ -1,4 +1,5 @@
-﻿using KorpiEngine.Entities;
+﻿using KorpiEngine.AssetManagement;
+using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Gizmos;
 using KorpiEngine.UI.DearImGui;
@@ -61,7 +62,7 @@ public sealed class DirectionalLight : EntityComponent
 
     protected override void OnRenderObject()
     {
-        _lightMat ??= new Material(Shader.Find("Assets/Defaults/DirectionalLight.kshader"), "directional light material", false);
+        _lightMat ??= new Material(Asset.Load<Shader>("Assets/Defaults/DirectionalLight.kshader"), "directional light material", false);
         _lightMat.SetVector("_LightDirection", Mathematics.MathOps.TransformNormal(Entity.Transform.Forward, Graphics.ViewMatrix));
         _lightMat.SetColor("_LightColor", Color);
         _lightMat.SetFloat("_LightIntensity", Intensity);

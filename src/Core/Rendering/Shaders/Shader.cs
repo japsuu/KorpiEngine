@@ -6,7 +6,7 @@ namespace KorpiEngine.Rendering;
 /// The Shader class itself doesn't do much, It stores the properties of the shader and the shader code and Keywords.
 /// This is used in conjunction with the Material class to create shader variants with the correct keywords and to render things
 /// </summary>
-public sealed class Shader : AssetInstance
+public sealed class Shader : Asset
 {
     /// <summary>
     /// Represents a property of a shader, used to set values in the shader.
@@ -65,16 +65,12 @@ public sealed class Shader : AssetInstance
     private readonly ShaderPass? _shadowPass;
 
 
-    internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null)
+    internal Shader(string name, List<Property> properties, List<ShaderPass> passes, ShaderPass? shadowPass = null) : base(name)
     {
-        Name = name;
         _properties = properties;
         _passes = passes;
         _shadowPass = shadowPass;
     }
-
-
-    public static AssetRef<Shader> Find(string path) => new(AssetManager.LoadAssetFile<Shader>(path));
 
 
     public bool HasVariable(string name)
@@ -135,8 +131,8 @@ public sealed class Shader : AssetInstance
                     const string fallbackShader = "Assets/Defaults/Invalid.kshader";
                     Application.Logger.Error($"Shader compilation of '{Name}' failed, using fallback shader '{fallbackShader}'. Reason: {e.Message}");
 
-                    AssetRef<Shader> fallback = Find(fallbackShader);
-                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Res!._passes[0], defines);
+                    AssetRef<Shader> fallback = Load<Shader>(fallbackShader);
+                    List<ShaderSourceDescriptor> sources = PrepareShaderPass(fallback.Asset!._passes[0], defines);
                     compiledPasses[i] = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
                 }
             }
@@ -156,8 +152,8 @@ public sealed class Shader : AssetInstance
             }
             else
             {
-                AssetRef<Shader> depth = Find("Assets/Defaults/Depth.kshader");
-                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Res!._passes[0], defines);
+                AssetRef<Shader> depth = Load<Shader>("Assets/Defaults/Depth.kshader");
+                List<ShaderSourceDescriptor> sources = PrepareShaderPass(depth.Asset!._passes[0], defines);
                 compiledShadowPass = new CompiledShader.Pass(new RasterizerState(), Graphics.Device.CompileProgram(sources));
             }
 
