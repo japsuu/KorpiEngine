@@ -73,7 +73,7 @@ public abstract class SafeDisposable : IDisposable
     /// 
     /// False, if caused by the GC and therefore from another thread.
     /// Only unmanaged thread-safe resources can be disposed.</param>
-    protected void Dispose(bool manual)
+    private void Dispose(bool manual)
     {
         // Safely handle multiple calls to dispose
         if (IsDisposed)
