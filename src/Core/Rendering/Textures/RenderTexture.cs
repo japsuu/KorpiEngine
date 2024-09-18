@@ -89,13 +89,8 @@ public sealed class RenderTexture : Asset
     }
 
 
-    protected override void OnDestroy(bool manual)
+    protected override void OnDestroy()
     {
-#if TOOLS
-        if (!manual)
-            Application.Logger.Warn($"RenderTexture '{this}' was not disposed of explicitly, and is now being disposed by the GC.");
-#endif
-
         foreach (Texture2D texture in InternalTextures)
             texture.Dispose();
         

@@ -56,12 +56,8 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
     }
 
 
-    protected override void Dispose(bool manual)
+    protected override void DisposeResources()
     {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-
         GL.DeleteFramebuffer(Handle);
     }
 }

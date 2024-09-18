@@ -9,7 +9,7 @@ namespace KorpiEngine;
 /// Base class for most engine types.<br/>
 /// Please avoid calling <see cref="SafeDisposable.Dispose"/> manually, use <see cref="Destroy"/> instead.
 /// </summary>
-public class EngineObject : SafeDisposable
+public abstract class EngineObject : SafeDisposable
 {
     private static class ObjectInstanceID
     {
@@ -30,6 +30,8 @@ public class EngineObject : SafeDisposable
     
     private static readonly List<WeakReference<EngineObject>> AllObjects = [];
     private static readonly Stack<EngineObject> DisposalDelayedResources = new();
+    
+    private bool _isAwaitingDisposal;
 
     /// <summary>
     /// Unique identifier for this resource.
@@ -47,7 +49,8 @@ public class EngineObject : SafeDisposable
     /// If false, the object is still valid, but might be queued for destruction.
     /// </summary>
     public bool IsDestroyed => IsDisposed;
-    private bool _isAwaitingDisposal;
+    
+    protected override bool RequiresMainThreadDispose => true;
 
 
 #region Creation, Destruction, and Disposal
@@ -59,11 +62,12 @@ public class EngineObject : SafeDisposable
         
         AllObjects.Add(new WeakReference<EngineObject>(this));
     }
-    
-    
-    ~EngineObject()
+
+
+    protected sealed override void DisposeResources()
     {
-        Dispose(false);
+        _isAwaitingDisposal = false;
+        OnDispose();
     }
 
 
@@ -74,6 +78,11 @@ public class EngineObject : SafeDisposable
     /// <exception cref="ObjectDestroyedException">Thrown if the object is already destroyed.</exception>
     public void Destroy()
     {
+        Debug.AssertMainThread(true);
+        
+        if (_isAwaitingDisposal)
+            throw new InvalidOperationException($"Destroy() has already been called on {Name}.");
+
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
         
@@ -87,11 +96,16 @@ public class EngineObject : SafeDisposable
 
 
     /// <summary>
-    /// Calls <see cref="Dispose"/> on this object, destroying it immediately.
+    /// Calls <see cref="SafeDisposable.Dispose"/> on this object, destroying it immediately.
     /// </summary>
     /// <exception cref="ObjectDestroyedException">Thrown if the object is already destroyed.</exception>
     public void DestroyImmediate()
     {
+        Debug.AssertMainThread(true);
+        
+        if (_isAwaitingDisposal)
+            throw new InvalidOperationException($"Destroy() has already been called on {Name}.");
+        
         if (IsDestroyed)
             throw new ObjectDestroyedException($"{Name} is already destroyed.");
         
@@ -99,19 +113,6 @@ public class EngineObject : SafeDisposable
             return;
 
         Dispose();
-    }
-
-
-    protected sealed override void Dispose(bool manual)
-    {
-        if (IsDisposed)
-            return;
-        base.Dispose(manual);
-        
-        if (!manual)
-            Debug.Assert(!_isAwaitingDisposal, $"Object '{Name}' was disposed by GC while queued for disposal.");
-        
-        OnDispose(manual);
     }
 
 
@@ -175,28 +176,11 @@ public class EngineObject : SafeDisposable
 #region Protected Virtual Methods
 
     /// <summary>
-    /// Releases all owned resources.
-    /// Guaranteed to be called only once.<br/><br/>
-    /// 
-    /// Example implementation:
-    /// <code>
-    /// protected override void OnDispose(bool manual)
-    /// {
-    ///     if (manual)
-    ///     {
-    ///         // Dispose managed resources
-    ///     }
-    ///     
-    ///     // Dispose unmanaged resources
-    /// }
-    /// </code>
+    /// Releases all resources owned by this object.
+    /// Guaranteed to be called on the main thread.
+    /// Guaranteed to be called only once.
     /// </summary>
-    /// <param name="manual">True, if the call is performed explicitly by calling <see cref="Dispose"/>.
-    /// Managed and unmanaged resources can be disposed.<br/>
-    /// 
-    /// False, if caused by the GC and therefore from another thread.
-    /// Only unmanaged resources can be disposed.</param>
-    protected virtual void OnDispose(bool manual) { }
+    protected virtual void OnDispose() { }
 
 
     protected virtual bool AllowDestroy() => true;

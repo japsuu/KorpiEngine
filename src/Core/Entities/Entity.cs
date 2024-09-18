@@ -152,9 +152,8 @@ public sealed partial class Entity : EngineObject
     }
 
 
-    protected override void OnDispose(bool manual)
+    protected override void OnDispose()
     {
-        Debug.Assert(manual, "Entity was not manually disposed of!");
         // We can safely do a while loop here because the recursive call to Destroy() will remove the child from the list.
         while (_childList.Count > 0)
             _childList[0].DestroyImmediate();

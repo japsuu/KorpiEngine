@@ -4,7 +4,7 @@ using KorpiEngine.Utils;
 namespace KorpiEngine.AssetManagement;
 
 /// <summary>
-/// Base class for "resource types", serving primarily as data containers.<br/>
+/// Base class for "resource types", serving primarily as data containers.
 /// </summary>
 ///
 /// <remarks>
@@ -49,18 +49,15 @@ public abstract class Asset : EngineObject
     }
 
 
-    protected sealed override void OnDispose(bool manual)
+    protected sealed override void OnDispose()
     {
         if (IsExternal)
         {
-            if (!manual)
-                throw new InvalidOperationException($"External asset '{this}' disposed by GC. This is an engine bug.");
-            
             IsExternal = false;
             ExternalInfo = null;
         }
         
-        OnDestroy(manual);
+        OnDestroy();
     }
 
 
@@ -75,29 +72,7 @@ public abstract class Asset : EngineObject
     }
 
 
-    /// <summary>
-    /// Releases all owned resources.
-    /// Guaranteed to be called only once.<br/><br/>
-    /// 
-    /// Example implementation:
-    /// <code>
-    /// protected override void OnDestroy(bool manual)
-    /// {
-    ///     if (manual)
-    ///     {
-    ///         // Dispose managed resources
-    ///     }
-    ///     
-    ///     // Dispose unmanaged resources
-    /// }
-    /// </code>
-    /// </summary>
-    /// <param name="manual">True, if the call is performed explicitly by calling a destroy method.
-    /// Managed and unmanaged resources can be disposed.<br/>
-    /// 
-    /// False, if caused by the GC and therefore from another thread.
-    /// Only unmanaged resources can be disposed.</param>
-    protected virtual void OnDestroy(bool manual)
+    protected virtual void OnDestroy()
     {
         
     }

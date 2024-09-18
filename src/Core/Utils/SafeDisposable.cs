@@ -1,6 +1,4 @@
-﻿using KorpiEngine.Tools;
-
-namespace KorpiEngine.Utils;
+﻿namespace KorpiEngine.Utils;
 
 /// <summary>
 /// Base class for resources that support manual disposal.
@@ -9,9 +7,17 @@ namespace KorpiEngine.Utils;
 public abstract class SafeDisposable : IDisposable
 {
     /// <summary>
+    /// True if this resource requires the main thread to dispose of it.
+    /// False if it can be disposed of from any thread.
+    /// </summary>
+    protected abstract bool RequiresMainThreadDispose { get; }
+    
+    /// <summary>
     /// True if this resource has already been disposed of.
     /// </summary>
     protected bool IsDisposed { get; private set; }
+    
+    private bool _inDisposeQueue;
 
 
     /// <summary>
@@ -36,7 +42,12 @@ public abstract class SafeDisposable : IDisposable
 
 
     /// <summary>
-    /// Releases all owned resources.
+    /// Calls <see cref="DisposeResources"/> on the main thread,
+    /// to release all resources owned by this object in a thread-safe manner.<br/><br/>
+    /// 
+    /// Can be overridden, but not recommended.
+    /// Instead, override <see cref="DisposeResources"/>.<br/><br/>
+    /// 
     /// Overriding implementations should call this base method to ensure proper disposal,
     /// and properly handle multiple calls to dispose (see <see cref="IsDisposed"/>).<br/><br/>
     ///
@@ -61,14 +72,33 @@ public abstract class SafeDisposable : IDisposable
     /// Managed and unmanaged resources can be disposed.<br/>
     /// 
     /// False, if caused by the GC and therefore from another thread.
-    /// Only unmanaged resources can be disposed.</param>
-    protected virtual void Dispose(bool manual)
+    /// Only unmanaged thread-safe resources can be disposed.</param>
+    protected void Dispose(bool manual)
     {
-        Debug.AssertMainThread(manual);
-
         // Safely handle multiple calls to dispose
         if (IsDisposed)
             return;
+
+        if (!manual && RequiresMainThreadDispose)
+        {
+            if (_inDisposeQueue)
+                throw new InvalidOperationException("Dispose called from GC twice.");
+
+            MemoryReleaseSystem.AddToDisposeQueue(this);
+            _inDisposeQueue = true;
+            return;
+        }
+
         IsDisposed = true;
+        _inDisposeQueue = false;
+        DisposeResources();
     }
+
+
+    /// <summary>
+    /// Releases all resources owned by this object.
+    /// Guaranteed to be called on the main thread.
+    /// Guaranteed to be called only once.
+    /// </summary>
+    protected abstract void DisposeResources();
 }

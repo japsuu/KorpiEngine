@@ -158,13 +158,8 @@ public sealed class Mesh : Asset //TODO: Implement MeshData class to hide some f
     }
 
 
-    protected override void OnDestroy(bool manual)
+    protected override void OnDestroy()
     {
-#if TOOLS
-        if (!manual)
-            Application.Logger.Warn($"Mesh '{Name}' was not disposed of explicitly, and is now being disposed by the GC.");
-#endif
-
         DeleteGPUBuffers();
     }
 
