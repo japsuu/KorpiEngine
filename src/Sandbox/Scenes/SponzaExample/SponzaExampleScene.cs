@@ -19,6 +19,8 @@ internal class SponzaExampleScene : ExampleScene
 
     protected override void OnLoad()
     {
+        base.OnLoad();
+        
         // Create a camera entity with our custom free camera component.
         Entity cameraEntity = CreateEntity("Scene Camera");
         cameraEntity.AddComponent<Camera>();
