@@ -1,7 +1,8 @@
-﻿using KorpiEngine.Utils;
+﻿using KorpiEngine.Rendering;
+using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Rendering.OpenGL;
+namespace KorpiEngine.OpenGL;
 
 internal sealed class GLFrameBuffer : GraphicsFrameBuffer
 {

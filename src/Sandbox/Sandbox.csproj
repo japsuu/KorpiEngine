@@ -30,6 +30,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj"/>
         <ProjectReference Include="..\Networking\Networking.csproj"/>
+        <ProjectReference Include="..\OpenGL\OpenGL.csproj" />
     </ItemGroup>
 
     <ItemGroup>

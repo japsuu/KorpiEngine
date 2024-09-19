@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using KorpiEngine.Rendering;
 
 namespace KorpiEngine.Utils;
 
@@ -16,30 +17,42 @@ public static class SystemInfo
     /// <summary>
     /// Gets the number of processors available to the current process.
     /// </summary>
-    public static int ProcessorCount { get; internal set; }
+    public static int ProcessorCount { get; private set; }
 
     /// <summary>
-    /// Id of the thread updating the main window.
+    /// ID of the thread updating the main window.
     /// </summary>
-    public static int MainThreadId { get; internal set; }
+    public static int MainThreadId { get; private set; }
     
     /// <summary>
     /// Maximum supported texture size of the current graphics driver.
     /// </summary>
-    public static int MaxTextureSize { get; internal set; }
+    public static int MaxTextureSize { get; private set; }
     
     /// <summary>
     /// Maximum supported cube map texture size of the current graphics driver.
     /// </summary>
-    public static int MaxCubeMapTextureSize { get; internal set; }
+    public static int MaxCubeMapTextureSize { get; private set; }
     
     /// <summary>
     /// Maximum supported array texture layers of the current graphics driver.
     /// </summary>
-    public static int MaxArrayTextureLayers { get; internal set; }
+    public static int MaxArrayTextureLayers { get; private set; }
     
     /// <summary>
     /// Maximum supported framebuffer color attachments of the current graphics driver.
     /// </summary>
-    public static int MaxFramebufferColorAttachments { get; internal set; }
+    public static int MaxFramebufferColorAttachments { get; private set; }
+    
+    
+    public static void Initialize(GraphicsContext context)
+    {
+        ProcessorCount = Environment.ProcessorCount;
+        MainThreadId = Environment.CurrentManagedThreadId;
+
+        MaxTextureSize = context.Device.MaxTextureSize;
+        MaxCubeMapTextureSize = context.Device.MaxCubeMapTextureSize;
+        MaxArrayTextureLayers = context.Device.MaxArrayTextureLayers;
+        MaxFramebufferColorAttachments = context.Device.MaxFramebufferColorAttachments;
+    }
 }

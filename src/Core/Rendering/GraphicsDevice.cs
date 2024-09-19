@@ -3,7 +3,7 @@ using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Rendering;
 
-internal abstract class GraphicsDevice
+public abstract class GraphicsDevice
 {
     protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDevice));
 
@@ -20,6 +20,11 @@ internal abstract class GraphicsDevice
     public ulong TextureSwaps { get; internal set; }
     public ulong Clears { get; private set; }
 #endif
+    
+    public abstract int MaxTextureSize { get; protected set; }
+    public abstract int MaxCubeMapTextureSize { get; protected set; }
+    public abstract int MaxArrayTextureLayers { get; protected set; }
+    public abstract int MaxFramebufferColorAttachments { get; protected set; }
 
 
     #region Initialization and Shutdown

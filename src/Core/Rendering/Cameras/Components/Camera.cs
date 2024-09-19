@@ -1,6 +1,6 @@
 ﻿using KorpiEngine.AssetManagement;
 using KorpiEngine.Entities;
-using KorpiEngine.Input;
+using KorpiEngine.InputManagement;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Tools.Gizmos;
 using KorpiEngine.UI.DearImGui;
@@ -296,7 +296,7 @@ public sealed class Camera : EntityComponent
 
     protected override void OnUpdate()
     {
-        if (!Input.Input.GetKeyDown(KeyCode.F1))
+        if (!Input.GetKeyDown(KeyCode.F1))
             return;
 
         SetDebugDrawType(DebugDrawType.Next());

@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.Mathematics;
-using OpenTK.Windowing.Desktop;
+using KorpiEngine.Rendering;
 
 namespace KorpiEngine.Utils;
 
@@ -15,7 +15,7 @@ public static class WindowInfo
     /// <summary>
     /// Called when the client window has resized.
     /// </summary>
-    public static event Action<WindowResizeEventArgs>? ClientResized;
+    public static event Action<WindowResizeEventArgs>? WindowResized;
     
     /// <summary>
     /// Size of the client window.
@@ -36,19 +36,12 @@ public static class WindowInfo
     /// Aspect ratio of the client window.
     /// </summary>
     public static float ClientAspectRatio { get; private set; }
-    
-    
-    public static void Initialize(NativeWindow window)
-    {
-        UpdateSize(window.ClientSize.X, window.ClientSize.Y);
-        window.Resize += args => UpdateSize(args.Width, args.Height);
-    }
 
 
-    private static void UpdateSize(int width, int height)
+    internal static void Update(GraphicsContext context)
     {
-        ClientSize = new Int2(width, height);
+        ClientSize = context.Window.WindowSize;
         ClientAspectRatio = ClientWidth / (float)ClientHeight;
-        ClientResized?.Invoke(new WindowResizeEventArgs(ClientWidth, ClientHeight, ClientAspectRatio));
+        WindowResized?.Invoke(new WindowResizeEventArgs(ClientWidth, ClientHeight, ClientAspectRatio));
     }
 }

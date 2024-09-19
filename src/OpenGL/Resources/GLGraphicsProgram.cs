@@ -1,7 +1,8 @@
-﻿using KorpiEngine.Tools.Logging;
+﻿using KorpiEngine.Rendering;
+using KorpiEngine.Tools.Logging;
 using OpenTK.Graphics.OpenGL4;
 
-namespace KorpiEngine.Rendering.OpenGL;
+namespace KorpiEngine.OpenGL;
 
 internal class GLGraphicsProgram : GraphicsProgram
 {

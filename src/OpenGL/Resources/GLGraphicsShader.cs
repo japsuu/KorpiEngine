@@ -1,8 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using KorpiEngine.Rendering;
 using KorpiEngine.Tools.Logging;
 using OpenTK.Graphics.OpenGL4;
+using ShaderType = KorpiEngine.Rendering.ShaderType;
 
-namespace KorpiEngine.Rendering.OpenGL;
+namespace KorpiEngine.OpenGL;
 
 /// <summary>
 /// Represents an OpenGL shader object.

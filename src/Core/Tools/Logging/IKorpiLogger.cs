@@ -31,6 +31,4 @@ public interface IKorpiLogger
     public void Warn(object message, Exception? exception = null);
     public void WarnFormat(IFormatProvider provider, string format, params object[] args);
     public void WarnFormat(string format, params object[] args);
-
-    public void OpenGl(string message);
 }

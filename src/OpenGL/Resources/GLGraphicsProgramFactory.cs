@@ -1,4 +1,6 @@
-namespace KorpiEngine.Rendering.OpenGL;
+using KorpiEngine.Rendering;
+
+namespace KorpiEngine.OpenGL;
 
 /// <summary>
 /// Contains methods to automatically initialize shader shaderProgram objects.

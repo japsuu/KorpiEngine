@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System.Text;
 using KorpiEngine.AssetManagement;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Threading;
@@ -8,7 +10,6 @@ using KorpiEngine.Tools.Logging;
 using KorpiEngine.UI;
 using KorpiEngine.UI.DearImGui;
 using KorpiEngine.Utils;
-using OpenTK.Windowing.Common;
 
 namespace KorpiEngine;
 
@@ -19,12 +20,12 @@ namespace KorpiEngine;
 public static class Application
 {
     private static ImGuiController imGuiController = null!;
-    private static AssetProvider? assetProviderInstance;
-    private static SceneManager? sceneManagerInstance;
-    private static KorpiWindow windowInstance = null!;
+    private static GraphicsContext? graphicsContext;
+    private static AssetProvider? assetProvider;
+    private static SceneManager? sceneManager;
     private static Type initialSceneType = null!;
     private static double fixedFrameAccumulator;
-    
+
     [ThreadStatic]
     internal static bool IsMainThread;
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
@@ -42,9 +43,9 @@ public static class Application
     {
         get
         {
-            if (sceneManagerInstance == null)
+            if (sceneManager == null)
                 throw new InvalidOperationException("The scene manager has not been initialized yet!");
-            return sceneManagerInstance;
+            return sceneManager;
         }
     }
     
@@ -57,9 +58,9 @@ public static class Application
     {
         get
         {
-            if (assetProviderInstance == null)
+            if (assetProvider == null)
                 throw new InvalidOperationException("The asset provider has not been initialized yet!");
-            return assetProviderInstance;
+            return assetProvider;
         }
     }
 
@@ -69,8 +70,9 @@ public static class Application
     /// </summary>
     /// <typeparam name="T">The type of the initial scene to load.</typeparam>
     /// <param name="settings">The settings for the game window.</param>
-    /// <param name="assetProvider">The asset provider to use for loading assets.</param>
-    public static void Run<T>(WindowingSettings settings, AssetProvider assetProvider) where T : Scene
+    /// <param name="provider">The asset provider to use for loading assets.</param>
+    /// <param name="context">The graphics context to use for rendering.</param>
+    public static void Run<T>(WindowingSettings settings, AssetProvider provider, GraphicsContext context) where T : Scene
     {
         IsMainThread = true;
         MemoryReleaseSystem.Initialize();
@@ -80,27 +82,35 @@ public static class Application
         
         // Needs to be executed before Window.OnLoad() (called right after Window.Run())
         // to provide access to asset loading.
-        assetProviderInstance = assetProvider;
-        assetProviderInstance.Initialize();
+        assetProvider = provider;
+        assetProvider.Initialize();
         
         initialSceneType = typeof(T);
         
-        windowInstance = new KorpiWindow(settings.GameWindowSettings, settings.NativeWindowSettings);
-        windowInstance.Load += OnLoad;
-        windowInstance.UpdateFrame += OnUpdateFrame;
-        windowInstance.RenderFrame += OnRenderFrame;
-        windowInstance.Unload += OnUnload;
-        
-        windowInstance.Run();
+        graphicsContext = context;
+        graphicsContext.Window.OnResize += OnWindowResize;
+        graphicsContext.Run(settings, OnLoad, OnUpdate, OnRender, OnUnload);
+        graphicsContext = null;
     }
-    
-    
+
+
+    private static void OnWindowResize(Int2 newSize)
+    {
+        Graphics.UpdateViewport(newSize.X, newSize.Y);
+        
+        WindowInfo.Update(graphicsContext!);
+    }
+
+
     /// <summary>
     /// Quits the application.
     /// </summary>
     public static void Quit()
     {
-        windowInstance.Close();
+        if (graphicsContext == null)
+            throw new InvalidOperationException("The graphics context has not been initialized yet!");
+        
+        graphicsContext.Shutdown();
     }
 
 
@@ -108,11 +118,13 @@ public static class Application
 
     private static void OnLoad()
     {
+        Graphics.Initialize(graphicsContext!);
+        
         // Queue window visibility after all internal resources are loaded.
-        windowInstance.CenterWindow();
-        windowInstance.IsVisible = true;
-        sceneManagerInstance = new SceneManager(initialSceneType);
-        imGuiController = new ImGuiController(windowInstance);
+        graphicsContext!.Window.SetCentered();
+        graphicsContext.Window.IsVisible = true;
+        sceneManager = new SceneManager(initialSceneType);
+        imGuiController = new ImGuiController(graphicsContext);
         
         GUI.Initialize();
 #if TOOLS
@@ -131,15 +143,16 @@ public static class Application
 #endif
         GUI.Deinitialize();
         
-        sceneManagerInstance?.InternalDispose();
-        sceneManagerInstance = null;
+        sceneManager?.InternalDispose();
+        sceneManager = null;
         GlobalJobPool.Shutdown();
-        assetProviderInstance?.Shutdown();
+        assetProvider?.Shutdown();
         
         ImGuiWindowManager.Shutdown();
         imGuiController.Dispose();
         MemoryReleaseSystem.Shutdown();
-        windowInstance.Dispose();
+        
+        Graphics.Shutdown();
     }
 
 #endregion
@@ -147,19 +160,8 @@ public static class Application
 
 #region Frame Updating and Rendering
 
-    private static void OnUpdateFrame(FrameEventArgs args)
+    private static void OnUpdate(double deltaTime)
     {
-        double deltaTime = args.Time;
-        fixedFrameAccumulator += deltaTime;
-        
-        while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
-        {
-            InternalFixedUpdate();
-            fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
-        }
- 
-        double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
-        
         if (deltaTime > EngineConstants.MAX_DELTA_TIME)
         {
             Logger.Warn($"Detected large frame hitch ({1f/deltaTime:F2}fps, {deltaTime:F2}s)! Delta time was clamped to {EngineConstants.MAX_DELTA_TIME:F2} seconds.");
@@ -170,13 +172,27 @@ public static class Application
             Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
         }
         
-        InternalUpdate(deltaTime, fixedAlpha);
+        InternalPreUpdate(deltaTime);
+        
+        fixedFrameAccumulator += deltaTime;
+        
+        while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
+        {
+            InternalFixedUpdate();
+            fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
+        }
+ 
+        double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
+        
+        InternalUpdate(fixedAlpha);
     }
 
 
-    private static void OnRenderFrame(FrameEventArgs args)
+    private static void OnRender()
     {
+        Graphics.StartFrame();
         InternalRender();
+        Graphics.EndFrame();
     }
 
 
@@ -191,10 +207,18 @@ public static class Application
     }
 
 
-    private static void InternalUpdate(double deltaTime, double fixedAlpha)
+    private static void InternalPreUpdate(double deltaTime)
     {
-        Time.Update(deltaTime, fixedAlpha);
-        Input.Input.Update(windowInstance.KeyboardState, windowInstance.MouseState);
+        Time.Update(deltaTime);
+        Input.Update(graphicsContext!.InputState);
+        DisplayInfo.Update(graphicsContext.DisplayState);
+        Cursor.Update(graphicsContext.Window.CursorState);
+    }
+
+
+    private static void InternalUpdate(double fixedAlpha)
+    {
+        Time.UpdateFixedAlpha(fixedAlpha);
         
         SceneManager.Update();
         
@@ -229,4 +253,10 @@ public static class Application
     }
 
 #endregion
+
+
+    internal static void SetCursorState(CursorLockState value)
+    {
+        graphicsContext!.Window.CursorState = value;
+    }
 }

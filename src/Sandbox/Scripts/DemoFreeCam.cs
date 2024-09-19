@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.Entities;
-using KorpiEngine.Input;
+using KorpiEngine.InputManagement;
 using KorpiEngine.Mathematics;
 using KorpiEngine.UI;
 using KorpiEngine.Utils;
@@ -62,9 +62,9 @@ internal class DemoFreeCam : EntityComponent
 
     private void UpdateCursorLock()
     {
-        if (Input.GetMouseDown(MouseButton.Right) && !GUI.WantCaptureMouse)
+        if (Input.GetMouseButtonDown(MouseButton.Right) && !GUI.WantCaptureMouse)
             StartLooking();
-        else if (Input.GetMouseUp(MouseButton.Right))
+        else if (Input.GetMouseButtonUp(MouseButton.Right))
             StopLooking();
     }
 
