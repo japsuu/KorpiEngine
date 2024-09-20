@@ -35,7 +35,7 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
 
         // Generate FBO
         if (Handle <= 0)
-            throw new OpenGLException("[FrameBuffer] Failed to generate new FrameBuffer.");
+            throw new GLException("[FrameBuffer] Failed to generate new FrameBuffer.");
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
 
@@ -50,7 +50,7 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
         GL.DrawBuffers(texCount, Buffers);
 
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-            throw new OpenGLException("RenderTexture: [ID {fboId}] RenderTexture object creation failed.");
+            throw new GLException("RenderTexture: [ID {fboId}] RenderTexture object creation failed.");
 
         // Unbind FBO.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

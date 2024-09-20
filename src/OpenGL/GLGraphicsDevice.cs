@@ -654,10 +654,10 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         // also use the new function Marshal.PtrToStringUTF8 since .NET Core 1.1.
         string message = Marshal.PtrToStringAnsi(pMessage, length);
 
-        Logger.OpenGl($"[{severity} source={source} type={type} id={id}] {message}");
+        Application.Logger.Error($"[OpenGL-{severity} source={source} type={type} id={id}] {message}");
 
         if (type == DebugType.DebugTypeError)
-            throw new OpenGLException(message);
+            throw new GLException(message);
     }
     
     
@@ -678,7 +678,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         if (value == desiredValue)
             return;
         
-        throw new OpenGLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
+        throw new GLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
     }
 #endif
 

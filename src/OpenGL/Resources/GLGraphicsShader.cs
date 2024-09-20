@@ -79,7 +79,7 @@ internal class GLGraphicsShader : GraphicsObject
         
         const string msg = "Error compiling shader.";
         Logger.Error($"{msg} Source:\n{InjectLineNumbers(source)}");
-        throw new ShaderCompileException(msg, info);
+        throw new GLShaderCompileException(msg, info);
     }
 
 

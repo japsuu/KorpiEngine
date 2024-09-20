@@ -6,8 +6,6 @@ namespace KorpiEngine.OpenGL;
 
 internal class GLGraphicsProgram : GraphicsProgram
 {
-    private static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GLGraphicsProgram));
-
     public static GLGraphicsProgram? CurrentProgram { get; private set; }
 
     /// <summary>
@@ -66,7 +64,7 @@ internal class GLGraphicsProgram : GraphicsProgram
     /// </summary>
     internal void Link()
     {
-        Logger.Debug($"Linking shaderProgram '{Handle}'...");
+        Application.Logger.Debug($"Linking shaderProgram '{Handle}'...");
         GL.LinkProgram(Handle);
         CheckLinkStatus();
     }
@@ -79,19 +77,19 @@ internal class GLGraphicsProgram : GraphicsProgram
     {
         // Check link status
         GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int linkStatus);
-        Logger.DebugFormat("Link status: {0}", linkStatus);
+        Application.Logger.DebugFormat("Link status: {0}", linkStatus);
 
         // Check shaderProgram info log
         string? info = GL.GetProgramInfoLog(Handle);
         if (!string.IsNullOrEmpty(info))
-            Logger.InfoFormat("Link  info:\n{0}", info);
+            Application.Logger.InfoFormat("Link  info:\n{0}", info);
 
         // Log message and throw exception on link error
         if (linkStatus == 1)
             return;
         
         string msg = $"Error linking shaderProgram '{Handle}'";
-        Logger.Error(msg);
-        throw new ShaderProgramLinkException(msg, info);
+        Application.Logger.Error(msg);
+        throw new GLShaderProgramLinkException(msg, info);
     }
 }

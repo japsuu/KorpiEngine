@@ -5,8 +5,6 @@ namespace KorpiEngine.Rendering;
 
 public abstract class GraphicsDevice
 {
-    protected static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(GraphicsDevice));
-
     public abstract GraphicsProgram? CurrentProgram { get; }
 
 #if TOOLS
@@ -31,7 +29,7 @@ public abstract class GraphicsDevice
 
     public void Initialize()
     {
-        Logger.Info($"Initializing {nameof(GraphicsDevice)}...");
+        Application.Logger.Info($"Initializing {nameof(GraphicsDevice)}...");
         InitializeInternal();
     }
 
@@ -41,7 +39,7 @@ public abstract class GraphicsDevice
 
     public void Shutdown()
     {
-        Logger.Info($"Shutting down {nameof(GraphicsDevice)}...");
+        Application.Logger.Info($"Shutting down {nameof(GraphicsDevice)}...");
         ShutdownInternal();
     }
 
