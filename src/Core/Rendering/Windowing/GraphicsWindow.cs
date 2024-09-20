@@ -11,6 +11,11 @@ public abstract class GraphicsWindow
     public abstract event Action<Int2>? OnResize;
     
     /// <summary>
+    /// Gets or sets the text displayed in the title bar of the window.
+    /// </summary>
+    public abstract string Title { get; set; }
+    
+    /// <summary>
     /// Gets the size of the window in screen coordinates (logical pixels).
     /// This is the size of the drawable area of the window, excluding any window decorations like borders and title bars.
     /// </summary>
@@ -27,7 +32,7 @@ public abstract class GraphicsWindow
     /// graphicsWindow.SetPosition(centeredPosition);
     /// </code>
     /// </example>
-    public abstract Int2 WindowSize { get; }
+    public abstract Int2 WindowSize { get; set; }
     
     /// <summary>
     /// Gets the size of the framebuffer in actual pixels.
@@ -63,15 +68,4 @@ public abstract class GraphicsWindow
     /// Centers the window on the screen.
     /// </summary>
     public abstract void SetCentered();
-    
-    /// <summary>
-    /// Sets the size of the window in screen coordinates (logical pixels).
-    /// See <see cref="WindowSize"/> for more information.
-    /// </summary>
-    public abstract void SetSize(Int2 size);
-    
-    /// <summary>
-    /// Sets the text displayed in the title bar of the window.
-    /// </summary>
-    public abstract void SetTitle(string title);
 }

@@ -8,7 +8,7 @@ using WindowState = KorpiEngine.Rendering.WindowState;
 
 namespace KorpiEngine.OpenGL;
 
-public sealed class GLWindow : GraphicsWindow, IDisposable
+public sealed class GLWindow : GraphicsWindow
 {
     private readonly GameWindow _internalWindow;
     private readonly GLInputState _inputState;
@@ -18,8 +18,19 @@ public sealed class GLWindow : GraphicsWindow, IDisposable
     private readonly Action _onUnload;
 
     public override event Action<Int2>? OnResize;
-    
-    public override Int2 WindowSize => new(_internalWindow.ClientSize.X, _internalWindow.ClientSize.Y);
+
+    public override string Title
+    {
+        get => _internalWindow.Title;
+        set => _internalWindow.Title = value;
+    }
+
+    public override Int2 WindowSize
+    {
+        get => new(_internalWindow.ClientSize.X, _internalWindow.ClientSize.Y);
+        set => _internalWindow.ClientSize = new Vector2i(value.X, value.Y);
+    }
+
     public override Int2 FramebufferSize => new(_internalWindow.FramebufferSize.X, _internalWindow.FramebufferSize.Y);
 
     public override bool IsVisible
@@ -82,28 +93,6 @@ public sealed class GLWindow : GraphicsWindow, IDisposable
     public InputState InputState => _inputState;
 
 
-#region TODO: to get/set properties
-
-    public override void SetCentered()
-    {
-        _internalWindow.CenterWindow();
-    }
-
-
-    public override void SetSize(Int2 size)
-    {
-        _internalWindow.siz = new Vector2i(size.X, size.Y);
-    }
-
-
-    public override void SetTitle(string title)
-    {
-        _internalWindow.Title = title;
-    }
-
-#endregion
-
-
     public DisplayState DisplayState
     {
         get
@@ -139,6 +128,19 @@ public sealed class GLWindow : GraphicsWindow, IDisposable
     {
         _internalWindow.Run();
     }
+    
+
+    public override void SetCentered()
+    {
+        _internalWindow.CenterWindow();
+    }
+
+
+    public void Shutdown()
+    {
+        _internalWindow.Close();
+        _internalWindow.Dispose();
+    }
 
 
     private void OnLoad()
@@ -170,18 +172,6 @@ public sealed class GLWindow : GraphicsWindow, IDisposable
     private void OnWindowResize(ResizeEventArgs e)
     {
         OnResize?.Invoke(new Int2(e.Width, e.Height));
-    }
-
-
-    public void Close()
-    {
-        _internalWindow.Close();
-    }
-
-
-    public void Dispose()
-    {
-        _internalWindow.Dispose();
     }
 
 

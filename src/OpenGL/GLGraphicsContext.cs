@@ -31,7 +31,8 @@ public class GLGraphicsContext : GraphicsContext
     public override void Shutdown()
     {
         _device?.Shutdown();
-        _window?.Close();
-        _window?.Dispose();
+        _window?.Shutdown();
+        _device = null;
+        _window = null;
     }
 }
