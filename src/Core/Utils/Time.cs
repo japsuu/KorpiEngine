@@ -46,13 +46,11 @@ public static class Time
     public static float FrameRate { get; private set; }
 
 
-    public static void Update(double deltaTime, double fixedAlpha)
+    internal static void Update(double deltaTime)
     {
         DeltaTimeDouble = deltaTime;
         DeltaTime = (float) deltaTime;
         FrameRate = 1.0f / DeltaTime;
-        
-        FixedAlpha = fixedAlpha;
         
         TotalTime += deltaTime;
         
@@ -60,7 +58,13 @@ public static class Time
     }
 
 
-    public static void FixedUpdate()
+    internal static void UpdateFixedAlpha(double fixedAlpha)
+    {
+        FixedAlpha = fixedAlpha;
+    }
+
+
+    internal static void FixedUpdate()
     {
         TotalFixedFrameCount++;
     }

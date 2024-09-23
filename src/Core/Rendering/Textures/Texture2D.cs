@@ -201,12 +201,12 @@ public sealed class Texture2D : Texture, ISerializable
 
     private static void ValidateTextureSize(int width, int height)
     {
-        if (width <= 0 || width > SystemInfo.MaxTextureSize)
-            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}({SystemInfo.MaxTextureSize})]");
+        if (width <= 0 || width > GraphicsInfo.MaxTextureSize)
+            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(GraphicsInfo.MaxTextureSize)}({GraphicsInfo.MaxTextureSize})]");
 
-        if (height <= 0 || height > SystemInfo.MaxTextureSize)
+        if (height <= 0 || height > GraphicsInfo.MaxTextureSize)
             throw new ArgumentOutOfRangeException(
-                nameof(height), height, $"{nameof(height)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}]");
+                nameof(height), height, $"{nameof(height)} must be in the range (0, {nameof(GraphicsInfo.MaxTextureSize)}]");
     }
 
 

@@ -1,9 +1,11 @@
 ﻿namespace KorpiEngine.Rendering;
 
-internal class MeshVertexLayout
+public class MeshVertexLayout
 {
-    public readonly VertexAttributeDescriptor[] Attributes;
+    private readonly VertexAttributeDescriptor[] _attributes;
+    
     public readonly int VertexSize;
+    public IReadOnlyList<VertexAttributeDescriptor> Attributes => _attributes;
 
     private readonly bool[] _enabledVertexAttributes = new bool[6];
 
@@ -15,9 +17,9 @@ internal class MeshVertexLayout
         if (attributes.Length == 0)
             throw new ArgumentNullException(nameof(attributes), $"The argument '{nameof(attributes)}' is null!");
 
-        Attributes = attributes;
+        _attributes = attributes;
 
-        foreach (VertexAttributeDescriptor element in Attributes)
+        foreach (VertexAttributeDescriptor element in _attributes)
         {
             int attributeSize = element.Count * element.AttributeType switch
             {

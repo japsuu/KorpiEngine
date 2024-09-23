@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Input;
+﻿namespace KorpiEngine.InputManagement;
 
 /// <summary>Specifies the buttons of a mouse.</summary>
 public enum MouseButton

@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a graphics resource handle.
 /// </summary>
-internal abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
+public abstract class GraphicsObject : GraphicsResource, IEquatable<GraphicsObject>
 {
     /// <summary>
     /// The OpenGL handle.

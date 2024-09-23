@@ -1,4 +1,4 @@
-﻿namespace KorpiEngine.Input;
+﻿namespace KorpiEngine.InputManagement;
 
 public enum CursorLockState
 {

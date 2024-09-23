@@ -10,7 +10,7 @@ public static class Graphics
 {
     private static Material defaultBlitMaterial = null!;
     
-    internal static KorpiWindow Window { get; private set; } = null!;
+    internal static GraphicsWindow Window { get; private set; } = null!;
     internal static GraphicsDevice Device { get; private set; } = null!;
     
     public static bool UseJitter { get; set; }
@@ -29,11 +29,12 @@ public static class Graphics
     public static Matrix4x4 DepthViewMatrix { get; set; }
     
 
-    internal static void Initialize<T>(KorpiWindow korpiWindow) where T : GraphicsDevice, new()
+    internal static void Initialize(GraphicsContext graphicsContext)
     {
-        Device = new T();
-        Window = korpiWindow;
+        Device = graphicsContext.Device;
+        Window = graphicsContext.Window;
         Device.Initialize();
+        GraphicsInfo.Initialize(graphicsContext);
         
         defaultBlitMaterial = new Material(Asset.Load<Shader>("Assets/Defaults/Basic.kshader"), "basic material", false);
         Material.LoadDefaults();

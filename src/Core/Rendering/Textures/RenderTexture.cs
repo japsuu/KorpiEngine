@@ -27,8 +27,8 @@ public sealed class RenderTexture : Asset
     public RenderTexture(int width, int height, int numTextures = 1, bool hasDepthAttachment = true, TextureImageFormat[]? formats = null) : base("RenderTexture")
     {
         TextureImageFormat[] textureFormats;
-        if (numTextures < 0 || numTextures > SystemInfo.MaxFramebufferColorAttachments)
-            throw new ArgumentOutOfRangeException("Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
+        if (numTextures < 0 || numTextures > GraphicsInfo.MaxFramebufferColorAttachments)
+            throw new ArgumentOutOfRangeException($"Invalid number of textures! [0-{GraphicsInfo.MaxFramebufferColorAttachments}]");
 
         Width = width;
         Height = height;

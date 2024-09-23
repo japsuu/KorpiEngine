@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using KorpiEngine.Mathematics;
-using KorpiEngine.Utils;
+using KorpiEngine.Rendering;
 using OpenTK.Graphics.OpenGL4;
 using PType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
-namespace KorpiEngine.Rendering.OpenGL;
+namespace KorpiEngine.OpenGL;
 
 /// <summary>
 /// OpenGL graphics driver.
@@ -40,6 +40,12 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
     #region Initialization and Shutdown
 
+    public override int MaxTextureSize { get; protected set; }
+    public override int MaxCubeMapTextureSize { get; protected set; }
+    public override int MaxArrayTextureLayers { get; protected set; }
+    public override int MaxFramebufferColorAttachments { get; protected set; }
+
+
     protected override void InitializeInternal()
     {
 #if TOOLS
@@ -51,10 +57,10 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         // Smooth lines.
         GL.Enable(EnableCap.LineSmooth);
 
-        SystemInfo.MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
-        SystemInfo.MaxCubeMapTextureSize = GL.GetInteger(GetPName.MaxCubeMapTextureSize);
-        SystemInfo.MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
-        SystemInfo.MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
+        MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
+        MaxCubeMapTextureSize = GL.GetInteger(GetPName.MaxCubeMapTextureSize);
+        MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
+        MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
     }
 
 
@@ -648,10 +654,10 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         // also use the new function Marshal.PtrToStringUTF8 since .NET Core 1.1.
         string message = Marshal.PtrToStringAnsi(pMessage, length);
 
-        Logger.OpenGl($"[{severity} source={source} type={type} id={id}] {message}");
+        Application.Logger.Debug($"[OpenGL-{severity} source={source} type={type} id={id}] {message}");
 
         if (type == DebugType.DebugTypeError)
-            throw new OpenGLException(message);
+            throw new GLException(message);
     }
     
     
@@ -672,7 +678,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         if (value == desiredValue)
             return;
         
-        throw new OpenGLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
+        throw new GLException($"Assertion failed. ErrorCode: {value}\n{errorMessage}");
     }
 #endif
 
