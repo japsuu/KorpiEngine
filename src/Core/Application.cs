@@ -87,7 +87,7 @@ public static class Application
         initialSceneType = typeof(T);
         
         graphicsContext = context;
-        graphicsContext.Run(settings, OnLoad, OnUpdate, OnRender, OnUnload);
+        graphicsContext.Run(settings, OnLoad, OnFrameStart, OnUpdate, OnRender, OnFrameEnd, OnUnload);
         graphicsContext = null;
     }
 
@@ -157,6 +157,12 @@ public static class Application
 
 
 #region Frame Updating and Rendering
+    
+    private static void OnFrameStart()
+    {
+        
+    }
+    
 
     private static void OnUpdate(double deltaTime)
     {
@@ -191,6 +197,12 @@ public static class Application
         Graphics.StartFrame();
         InternalRender();
         Graphics.EndFrame();
+    }
+    
+    
+    private static void OnFrameEnd()
+    {
+        
     }
 
 

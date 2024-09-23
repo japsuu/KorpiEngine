@@ -14,8 +14,10 @@ public sealed class GLWindow : GraphicsWindow
     private readonly GameWindow _internalWindow;
     private readonly GLInputState _inputState;
     private readonly Action _onLoad;
+    private readonly Action _onFrameStart;
     private readonly Action<double> _onUpdate;
     private readonly Action _onRender;
+    private readonly Action _onFrameEnd;
     private readonly Action _onUnload;
 
     public override event Action<Int2>? OnResize;
@@ -106,13 +108,15 @@ public sealed class GLWindow : GraphicsWindow
     }
 
 
-    public GLWindow(WindowingSettings windowingSettings, Action onLoad, Action<double> onUpdate, Action onRender, Action onUnload)
+    public GLWindow(WindowingSettings windowingSettings, Action onFrameStart, Action onLoad, Action<double> onUpdate, Action onRender, Action onFrameEnd, Action onUnload)
     {
         (GameWindowSettings gws, NativeWindowSettings nws) = GetWindowSettings(windowingSettings);
 
         _onLoad = onLoad;
+        _onFrameStart = onFrameStart;
         _onUpdate = onUpdate;
         _onRender = onRender;
+        _onFrameEnd = onFrameEnd;
         _onUnload = onUnload;
         
         _internalWindow = new GameWindow(gws, nws);
@@ -162,6 +166,7 @@ public sealed class GLWindow : GraphicsWindow
     
     private void OnWindowUpdate(FrameEventArgs args)
     {
+        _onFrameStart();
         _onUpdate(args.Time);
     }
 
@@ -171,6 +176,7 @@ public sealed class GLWindow : GraphicsWindow
         _onRender();
         
         _internalWindow.SwapBuffers();
+        _onFrameEnd();
     }
 
 
