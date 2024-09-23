@@ -9,7 +9,7 @@ The KSL files are compiled into GLSL, so you can use any GLSL code/syntax in you
 
 ## Shader Files
 
-Shader files are text files with the `.ksl` extension. They can be [loaded at runtime](external-assets.md) using the `AssetManager` API.
+Shader files are text files with the `.ksl` extension. They can be [loaded at runtime](assets.md) using the `Application.AssetProvider` API.
 
 <br/>
 
