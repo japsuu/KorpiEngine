@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGL", "OpenGL\OpenGL.csproj", "{A8B2A997-1861-44C1-97CB-B2586603396A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,11 @@ Global
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Production|Any CPU.ActiveCfg = Debug|Any CPU
 		{DACB5EE0-2CBD-49F3-88F0-42D3BD822438}.Production|Any CPU.Build.0 = Debug|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Production|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B2A997-1861-44C1-97CB-B2586603396A}.Production|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

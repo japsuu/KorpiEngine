@@ -1,22 +1,23 @@
 ﻿using System.Runtime.CompilerServices;
 using ImGuiNET;
+using KorpiEngine.InputManagement;
+using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
+using KorpiEngine.UI;
+using KorpiEngine.UI.DearImGui;
 using KorpiEngine.Utils;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
-using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
+using Vector2 = KorpiEngine.Mathematics.Vector2;
 
-namespace KorpiEngine.UI.DearImGui;
+namespace KorpiEngine.OpenGL;
 
-internal class ImGuiController : GraphicsResource
+internal class GLImGuiRenderer : IImGuiRenderer
 {
-    private readonly GameWindow _window;
+    private readonly GraphicsContext _graphicsContext;
 
     private bool _frameBegun;
 
@@ -46,15 +47,15 @@ internal class ImGuiController : GraphicsResource
     /// <summary>
     /// Constructs a new ImGuiController.
     /// </summary>
-    public ImGuiController(GameWindow window)
+    public GLImGuiRenderer(GraphicsContext graphicsContext)
     {
-        _window = window;
-        window.Resize += args => WindowResized(args.Width, args.Height);
-        window.TextInput += e => PressChar((char)e.Unicode);
-        window.MouseWheel += e => MouseScroll(e.Offset);
+        _graphicsContext = graphicsContext;
+        _graphicsContext.Window.OnResize += WindowResized;
+        _graphicsContext.Window.OnTextInput += PressChar;
+        _graphicsContext.Window.OnMouseWheel += MouseScroll;
 
-        _windowWidth = window.ClientSize.X;
-        _windowHeight = window.ClientSize.Y;
+        _windowWidth = graphicsContext.Window.Size.X;
+        _windowHeight = graphicsContext.Window.Size.Y;
 
         int major = GL.GetInteger(GetPName.MajorVersion);
         int minor = GL.GetInteger(GetPName.MinorVersion);
@@ -81,10 +82,10 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    private void WindowResized(int width, int height)
+    private void WindowResized(Int2 size)
     {
-        _windowWidth = width;
-        _windowHeight = height;
+        _windowWidth = size.X;
+        _windowHeight = size.Y;
     }
 
 
@@ -229,9 +230,9 @@ internal class ImGuiController : GraphicsResource
     public void Update()
     {
         // Emulate the cursor being fixed to the center of the screen, as OpenTK doesn't fix the cursor position when it's grabbed.
-        OpenTK.Mathematics.Vector2 mousePos = Input.Input.MouseState.Position;
-        if (_window.CursorState == CursorState.Grabbed)
-            mousePos = new OpenTK.Mathematics.Vector2(_window.ClientSize.X / 2f, _window.ClientSize.Y / 2f);
+        Vector2 mousePos = Input.MouseState.Position;
+        if (_graphicsContext.Window.CursorState == CursorLockState.Locked)
+            mousePos = new Vector2(_graphicsContext.Window.Size.X / 2f, _graphicsContext.Window.Size.Y / 2f);
 
         float deltaSeconds = Time.DeltaTime;
 
@@ -263,50 +264,47 @@ internal class ImGuiController : GraphicsResource
 
     private readonly List<char> _pressedChars = new();
 
-    private static readonly Keys[] AllKeys = Enum.GetValues(typeof(Keys))
-        .Cast<Keys>()
-        .Where(k => k != Keys.Unknown)
+    private static readonly KeyCode[] AllKeys = Enum.GetValues(typeof(KeyCode))
+        .Cast<KeyCode>()
+        .Where(k => k != KeyCode.Unknown)
         .ToArray();
 
 
     // NOTE: Modified to take in an override mouse position
-    private void UpdateImGuiInput(OpenTK.Mathematics.Vector2 mousePos)
+    private void UpdateImGuiInput(Vector2 mousePos)
     {
         ImGuiIOPtr io = ImGui.GetIO();
         
         GUI.WantCaptureKeyboard = io.WantCaptureKeyboard;
         GUI.WantCaptureMouse = io.WantCaptureMouse;
 
-        MouseState mouseState = Input.Input.MouseState;
-        KeyboardState keyboardState = Input.Input.KeyboardState;
-
-        io.MouseDown[0] = mouseState[MouseButton.Left];
-        io.MouseDown[1] = mouseState[MouseButton.Right];
-        io.MouseDown[2] = mouseState[MouseButton.Middle];
-        io.MouseDown[3] = mouseState[MouseButton.Button4];
-        io.MouseDown[4] = mouseState[MouseButton.Button5];
+        io.MouseDown[0] = Input.GetMouseButton(MouseButton.Left);
+        io.MouseDown[1] = Input.GetMouseButton(MouseButton.Right);
+        io.MouseDown[2] = Input.GetMouseButton(MouseButton.Middle);
+        io.MouseDown[3] = Input.GetMouseButton(MouseButton.Button4);
+        io.MouseDown[4] = Input.GetMouseButton(MouseButton.Button5);
 
         io.MousePos = new System.Numerics.Vector2((int)mousePos.X, (int)mousePos.Y);
 
         // NOTE: Optimized to allocation free
-        foreach (Keys key in AllKeys)
+        foreach (KeyCode key in AllKeys)
             if (TryMapKey(key, out ImGuiKey imKey))
-                io.AddKeyEvent(imKey, keyboardState.IsKeyDown(key));
+                io.AddKeyEvent(imKey, Input.GetKey(key));
 
         foreach (char c in _pressedChars)
             io.AddInputCharacter(c);
         _pressedChars.Clear();
 
-        io.KeyCtrl = keyboardState.IsKeyDown(Keys.LeftControl) || keyboardState.IsKeyDown(Keys.RightControl);
-        io.KeyAlt = keyboardState.IsKeyDown(Keys.LeftAlt) || keyboardState.IsKeyDown(Keys.RightAlt);
-        io.KeyShift = keyboardState.IsKeyDown(Keys.LeftShift) || keyboardState.IsKeyDown(Keys.RightShift);
-        io.KeySuper = keyboardState.IsKeyDown(Keys.LeftSuper) || keyboardState.IsKeyDown(Keys.RightSuper);
+        io.KeyCtrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        io.KeyAlt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+        io.KeyShift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        io.KeySuper = Input.GetKey(KeyCode.LeftSuper) || Input.GetKey(KeyCode.RightSuper);
     }
 
 
-    private bool TryMapKey(Keys key, out ImGuiKey result)
+    private bool TryMapKey(KeyCode key, out ImGuiKey result)
     {
-        ImGuiKey KeyToImGuiKeyShortcut(Keys keyToConvert, Keys startKey1, ImGuiKey startKey2)
+        ImGuiKey KeyToImGuiKeyShortcut(KeyCode keyToConvert, KeyCode startKey1, ImGuiKey startKey2)
         {
             int changeFromStart1 = (int)keyToConvert - (int)startKey1;
             return startKey2 + changeFromStart1;
@@ -314,52 +312,52 @@ internal class ImGuiController : GraphicsResource
 
         result = key switch
         {
-            >= Keys.F1 and <= Keys.F24 => KeyToImGuiKeyShortcut(key, Keys.F1, ImGuiKey.F1),
-            >= Keys.KeyPad0 and <= Keys.KeyPad9 => KeyToImGuiKeyShortcut(key, Keys.KeyPad0, ImGuiKey.Keypad0),
-            >= Keys.A and <= Keys.Z => KeyToImGuiKeyShortcut(key, Keys.A, ImGuiKey.A),
-            >= Keys.D0 and <= Keys.D9 => KeyToImGuiKeyShortcut(key, Keys.D0, ImGuiKey._0),
-            Keys.LeftShift or Keys.RightShift => ImGuiKey.ModShift,
-            Keys.LeftControl or Keys.RightControl => ImGuiKey.ModCtrl,
-            Keys.LeftAlt or Keys.RightAlt => ImGuiKey.ModAlt,
-            Keys.LeftSuper or Keys.RightSuper => ImGuiKey.ModSuper,
-            Keys.Menu => ImGuiKey.Menu,
-            Keys.Up => ImGuiKey.UpArrow,
-            Keys.Down => ImGuiKey.DownArrow,
-            Keys.Left => ImGuiKey.LeftArrow,
-            Keys.Right => ImGuiKey.RightArrow,
-            Keys.Enter => ImGuiKey.Enter,
-            Keys.Escape => ImGuiKey.Escape,
-            Keys.Space => ImGuiKey.Space,
-            Keys.Tab => ImGuiKey.Tab,
-            Keys.Backspace => ImGuiKey.Backspace,
-            Keys.Insert => ImGuiKey.Insert,
-            Keys.Delete => ImGuiKey.Delete,
-            Keys.PageUp => ImGuiKey.PageUp,
-            Keys.PageDown => ImGuiKey.PageDown,
-            Keys.Home => ImGuiKey.Home,
-            Keys.End => ImGuiKey.End,
-            Keys.CapsLock => ImGuiKey.CapsLock,
-            Keys.ScrollLock => ImGuiKey.ScrollLock,
-            Keys.PrintScreen => ImGuiKey.PrintScreen,
-            Keys.Pause => ImGuiKey.Pause,
-            Keys.NumLock => ImGuiKey.NumLock,
-            Keys.KeyPadDivide => ImGuiKey.KeypadDivide,
-            Keys.KeyPadMultiply => ImGuiKey.KeypadMultiply,
-            Keys.KeyPadSubtract => ImGuiKey.KeypadSubtract,
-            Keys.KeyPadAdd => ImGuiKey.KeypadAdd,
-            Keys.KeyPadDecimal => ImGuiKey.KeypadDecimal,
-            Keys.KeyPadEnter => ImGuiKey.KeypadEnter,
-            Keys.GraveAccent => ImGuiKey.GraveAccent,
-            Keys.Minus => ImGuiKey.Minus,
-            Keys.Equal => ImGuiKey.Equal,
-            Keys.LeftBracket => ImGuiKey.LeftBracket,
-            Keys.RightBracket => ImGuiKey.RightBracket,
-            Keys.Semicolon => ImGuiKey.Semicolon,
-            Keys.Apostrophe => ImGuiKey.Apostrophe,
-            Keys.Comma => ImGuiKey.Comma,
-            Keys.Period => ImGuiKey.Period,
-            Keys.Slash => ImGuiKey.Slash,
-            Keys.Backslash => ImGuiKey.Backslash,
+            >= KeyCode.F1 and <= KeyCode.F24 => KeyToImGuiKeyShortcut(key, KeyCode.F1, ImGuiKey.F1),
+            >= KeyCode.KeyPad0 and <= KeyCode.KeyPad9 => KeyToImGuiKeyShortcut(key, KeyCode.KeyPad0, ImGuiKey.Keypad0),
+            >= KeyCode.A and <= KeyCode.Z => KeyToImGuiKeyShortcut(key, KeyCode.A, ImGuiKey.A),
+            >= KeyCode.D0 and <= KeyCode.D9 => KeyToImGuiKeyShortcut(key, KeyCode.D0, ImGuiKey._0),
+            KeyCode.LeftShift or KeyCode.RightShift => ImGuiKey.ModShift,
+            KeyCode.LeftControl or KeyCode.RightControl => ImGuiKey.ModCtrl,
+            KeyCode.LeftAlt or KeyCode.RightAlt => ImGuiKey.ModAlt,
+            KeyCode.LeftSuper or KeyCode.RightSuper => ImGuiKey.ModSuper,
+            KeyCode.Menu => ImGuiKey.Menu,
+            KeyCode.Up => ImGuiKey.UpArrow,
+            KeyCode.Down => ImGuiKey.DownArrow,
+            KeyCode.Left => ImGuiKey.LeftArrow,
+            KeyCode.Right => ImGuiKey.RightArrow,
+            KeyCode.Enter => ImGuiKey.Enter,
+            KeyCode.Escape => ImGuiKey.Escape,
+            KeyCode.Space => ImGuiKey.Space,
+            KeyCode.Tab => ImGuiKey.Tab,
+            KeyCode.Backspace => ImGuiKey.Backspace,
+            KeyCode.Insert => ImGuiKey.Insert,
+            KeyCode.Delete => ImGuiKey.Delete,
+            KeyCode.PageUp => ImGuiKey.PageUp,
+            KeyCode.PageDown => ImGuiKey.PageDown,
+            KeyCode.Home => ImGuiKey.Home,
+            KeyCode.End => ImGuiKey.End,
+            KeyCode.CapsLock => ImGuiKey.CapsLock,
+            KeyCode.ScrollLock => ImGuiKey.ScrollLock,
+            KeyCode.PrintScreen => ImGuiKey.PrintScreen,
+            KeyCode.Pause => ImGuiKey.Pause,
+            KeyCode.NumLock => ImGuiKey.NumLock,
+            KeyCode.KeyPadDivide => ImGuiKey.KeypadDivide,
+            KeyCode.KeyPadMultiply => ImGuiKey.KeypadMultiply,
+            KeyCode.KeyPadSubtract => ImGuiKey.KeypadSubtract,
+            KeyCode.KeyPadAdd => ImGuiKey.KeypadAdd,
+            KeyCode.KeyPadDecimal => ImGuiKey.KeypadDecimal,
+            KeyCode.KeyPadEnter => ImGuiKey.KeypadEnter,
+            KeyCode.GraveAccent => ImGuiKey.GraveAccent,
+            KeyCode.Minus => ImGuiKey.Minus,
+            KeyCode.Equal => ImGuiKey.Equal,
+            KeyCode.LeftBracket => ImGuiKey.LeftBracket,
+            KeyCode.RightBracket => ImGuiKey.RightBracket,
+            KeyCode.Semicolon => ImGuiKey.Semicolon,
+            KeyCode.Apostrophe => ImGuiKey.Apostrophe,
+            KeyCode.Comma => ImGuiKey.Comma,
+            KeyCode.Period => ImGuiKey.Period,
+            KeyCode.Slash => ImGuiKey.Slash,
+            KeyCode.Backslash => ImGuiKey.Backslash,
             _ => ImGuiKey.None
         };
 
@@ -373,7 +371,7 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    private static void MouseScroll(OpenTK.Mathematics.Vector2 offset)
+    private static void MouseScroll(Vector2 offset)
     {
         ImGuiIOPtr io = ImGui.GetIO();
 
@@ -661,7 +659,7 @@ internal class ImGuiController : GraphicsResource
     }
 
 
-    protected override void DisposeResources()
+    public void Shutdown()
     {
         GL.DeleteVertexArray(_vertexArray);
         GL.DeleteBuffer(_vertexBuffer);

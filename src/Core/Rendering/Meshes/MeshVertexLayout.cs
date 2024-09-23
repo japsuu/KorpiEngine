@@ -1,6 +1,6 @@
 ﻿namespace KorpiEngine.Rendering;
 
-internal class MeshVertexLayout
+public class MeshVertexLayout
 {
     public readonly VertexAttributeDescriptor[] Attributes;
     public readonly int VertexSize;

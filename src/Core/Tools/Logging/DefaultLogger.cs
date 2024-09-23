@@ -142,10 +142,4 @@ public class DefaultLogger(ILog logger) : IKorpiLogger
     {
         LogFormat(Level.Warn, null, format, args);
     }
-
-
-    public void OpenGl(string message)
-    {
-        Log(Level.Debug, $"[OpenGL] {message}");
-    }
 }

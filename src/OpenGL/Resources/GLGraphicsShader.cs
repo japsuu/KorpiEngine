@@ -1,8 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using KorpiEngine.Rendering;
 using KorpiEngine.Tools.Logging;
 using OpenTK.Graphics.OpenGL4;
+using ShaderType = KorpiEngine.Rendering.ShaderType;
 
-namespace KorpiEngine.Rendering.OpenGL;
+namespace KorpiEngine.OpenGL;
 
 /// <summary>
 /// Represents an OpenGL shader object.
@@ -77,7 +79,7 @@ internal class GLGraphicsShader : GraphicsObject
         
         const string msg = "Error compiling shader.";
         Logger.Error($"{msg} Source:\n{InjectLineNumbers(source)}");
-        throw new ShaderCompileException(msg, info);
+        throw new GLShaderCompileException(msg, info);
     }
 
 

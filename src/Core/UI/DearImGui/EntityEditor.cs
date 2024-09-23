@@ -1,7 +1,7 @@
 ﻿#if TOOLS
 using ImGuiNET;
 using KorpiEngine.Entities;
-using KorpiEngine.Input;
+using KorpiEngine.InputManagement;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 
@@ -15,10 +15,10 @@ public class EntityEditor() : ImGuiWindow(true)
 
     protected override void PreUpdate()
     {
-        if (!Input.Input.GetMouseDown(MouseButton.Left) || GUI.WantCaptureMouse)
+        if (!Input.GetMouseButtonDown(MouseButton.Left) || GUI.WantCaptureMouse)
             return;
 
-        Vector2 mousePos = Input.Input.MousePosition;
+        Vector2 mousePos = Input.MousePosition;
         Vector2 mouseUV = new Vector2(mousePos.X / Graphics.ViewportResolution.X, mousePos.Y / Graphics.ViewportResolution.Y);
         GBuffer? gBuffer = Camera.LastRenderedCamera?.GBuffer;
         

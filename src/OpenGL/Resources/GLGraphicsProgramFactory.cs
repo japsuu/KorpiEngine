@@ -1,4 +1,6 @@
-namespace KorpiEngine.Rendering.OpenGL;
+using KorpiEngine.Rendering;
+
+namespace KorpiEngine.OpenGL;
 
 /// <summary>
 /// Contains methods to automatically initialize shader shaderProgram objects.
@@ -12,7 +14,7 @@ internal static class GLGraphicsProgramFactory
     public static GLGraphicsProgram Create(List<ShaderSourceDescriptor> shaders)
     {
         if (shaders.Count == 0)
-            throw new OpenGLException("No shaders provided for shaderProgram creation.");
+            throw new GLException("No shaders provided for shaderProgram creation.");
 
         // Create a shader shaderProgram instance
         GLGraphicsProgram program = new();
@@ -38,7 +40,7 @@ internal static class GLGraphicsProgramFactory
         {
             program.Dispose();
             
-            throw new OpenGLException("Failed to create shaderProgram.", e);
+            throw new GLException("Failed to create shaderProgram.", e);
         }
 
         return program;

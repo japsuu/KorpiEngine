@@ -127,16 +127,16 @@ public sealed class Texture2DArray : Texture
     /// <param name="depth">The new depth for the <see cref="Texture2DArray"/>.</param>
     public void RecreateImage(int width, int height, int depth)
     {
-        if (width <= 0 || width > SystemInfo.MaxTextureSize)
-            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}]");
+        if (width <= 0 || width > GraphicsInfo.MaxTextureSize)
+            throw new ArgumentOutOfRangeException(nameof(width), width, $"{nameof(width)} must be in the range (0, {nameof(GraphicsInfo.MaxTextureSize)}]");
 
-        if (height <= 0 || height > SystemInfo.MaxTextureSize)
-            throw new ArgumentOutOfRangeException(nameof(height), height, $"{nameof(height)} must be in the range (0, {nameof(SystemInfo.MaxTextureSize)}]");
+        if (height <= 0 || height > GraphicsInfo.MaxTextureSize)
+            throw new ArgumentOutOfRangeException(nameof(height), height, $"{nameof(height)} must be in the range (0, {nameof(GraphicsInfo.MaxTextureSize)}]");
 
-        if (depth <= 0 || depth > SystemInfo.MaxArrayTextureLayers)
+        if (depth <= 0 || depth > GraphicsInfo.MaxArrayTextureLayers)
             throw new ArgumentOutOfRangeException(
                 nameof(depth), depth,
-                $"{nameof(depth)} must be in the range (0, {nameof(SystemInfo.MaxArrayTextureLayers)})");
+                $"{nameof(depth)} must be in the range (0, {nameof(GraphicsInfo.MaxArrayTextureLayers)})");
 
         Width = width;
         Height = height;
