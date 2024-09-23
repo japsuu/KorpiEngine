@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using KorpiEngine.Rendering;
 
 namespace KorpiEngine.Utils;
 
@@ -24,35 +23,10 @@ public static class SystemInfo
     /// </summary>
     public static int MainThreadId { get; private set; }
     
-    /// <summary>
-    /// Maximum supported texture size of the current graphics driver.
-    /// </summary>
-    public static int MaxTextureSize { get; private set; }
     
-    /// <summary>
-    /// Maximum supported cube map texture size of the current graphics driver.
-    /// </summary>
-    public static int MaxCubeMapTextureSize { get; private set; }
-    
-    /// <summary>
-    /// Maximum supported array texture layers of the current graphics driver.
-    /// </summary>
-    public static int MaxArrayTextureLayers { get; private set; }
-    
-    /// <summary>
-    /// Maximum supported framebuffer color attachments of the current graphics driver.
-    /// </summary>
-    public static int MaxFramebufferColorAttachments { get; private set; }
-    
-    
-    public static void Initialize(GraphicsContext context)
+    public static void Initialize()
     {
         ProcessorCount = Environment.ProcessorCount;
         MainThreadId = Environment.CurrentManagedThreadId;
-
-        MaxTextureSize = context.Device.MaxTextureSize;
-        MaxCubeMapTextureSize = context.Device.MaxCubeMapTextureSize;
-        MaxArrayTextureLayers = context.Device.MaxArrayTextureLayers;
-        MaxFramebufferColorAttachments = context.Device.MaxFramebufferColorAttachments;
     }
 }

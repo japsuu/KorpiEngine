@@ -30,8 +30,9 @@ internal sealed class GLFrameBuffer : GraphicsFrameBuffer
     public GLFrameBuffer(IList<Attachment> attachments) : base(GL.GenFramebuffer())
     {
         int texCount = attachments.Count;
-        if (texCount < 1 || texCount > SystemInfo.MaxFramebufferColorAttachments)
-            throw new ArgumentOutOfRangeException(nameof(attachments), "[FrameBuffer] Invalid number of textures! [0-" + SystemInfo.MaxFramebufferColorAttachments + "]");
+        if (texCount < 1 || texCount > GraphicsInfo.MaxFramebufferColorAttachments)
+            throw new ArgumentOutOfRangeException(nameof(attachments),
+                $"[FrameBuffer] Invalid number of textures! [0-{GraphicsInfo.MaxFramebufferColorAttachments}]");
 
         // Generate FBO
         if (Handle <= 0)

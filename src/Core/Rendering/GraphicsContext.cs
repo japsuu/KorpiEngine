@@ -1,5 +1,5 @@
 ﻿using KorpiEngine.InputManagement;
-using KorpiEngine.Utils;
+using KorpiEngine.UI.DearImGui;
 
 namespace KorpiEngine.Rendering;
 
@@ -31,6 +31,11 @@ public abstract class GraphicsContext
     /// The current state of the display.
     /// </summary>
     public abstract DisplayState DisplayState { get; }
+    
+    /// <summary>
+    /// The renderer for Dear ImGui.
+    /// </summary>
+    public abstract IImGuiRenderer ImGuiRenderer { get; }
 
 
     /// <summary>

@@ -40,7 +40,7 @@ public static class WindowInfo
 
     internal static void Update(GraphicsContext context)
     {
-        ClientSize = context.Window.WindowSize;
+        ClientSize = context.Window.Size;
         ClientAspectRatio = ClientWidth / (float)ClientHeight;
         WindowResized?.Invoke(new WindowResizeEventArgs(ClientWidth, ClientHeight, ClientAspectRatio));
     }

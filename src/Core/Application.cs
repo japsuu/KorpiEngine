@@ -19,7 +19,6 @@ namespace KorpiEngine;
 /// </summary>
 public static class Application
 {
-    private static ImGuiController imGuiController = null!;
     private static GraphicsContext? graphicsContext;
     private static AssetProvider? assetProvider;
     private static SceneManager? sceneManager;
@@ -88,7 +87,6 @@ public static class Application
         initialSceneType = typeof(T);
         
         graphicsContext = context;
-        graphicsContext.Window.OnResize += OnWindowResize;
         graphicsContext.Run(settings, OnLoad, OnUpdate, OnRender, OnUnload);
         graphicsContext = null;
     }
@@ -118,13 +116,14 @@ public static class Application
 
     private static void OnLoad()
     {
+        SystemInfo.Initialize();
         Graphics.Initialize(graphicsContext!);
         
         // Queue window visibility after all internal resources are loaded.
-        graphicsContext!.Window.SetCentered();
+        graphicsContext!.Window.OnResize += OnWindowResize;
+        graphicsContext.Window.SetCentered();
         graphicsContext.Window.IsVisible = true;
         sceneManager = new SceneManager(initialSceneType);
-        imGuiController = new ImGuiController(graphicsContext);
         
         GUI.Initialize();
 #if TOOLS
@@ -149,7 +148,6 @@ public static class Application
         assetProvider?.Shutdown();
         
         ImGuiWindowManager.Shutdown();
-        imGuiController.Dispose();
         MemoryReleaseSystem.Shutdown();
         
         Graphics.Shutdown();
@@ -225,7 +223,7 @@ public static class Application
         // Instantly execute jobs.
         GlobalJobPool.Update();
         
-        imGuiController.Update();
+        graphicsContext!.ImGuiRenderer.Update();
         ImGuiWindowManager.Update();
         
         MemoryReleaseSystem.ProcessDisposeQueue();
@@ -235,7 +233,7 @@ public static class Application
     private static void InternalRender()
     {
         SceneManager.Render();
-        imGuiController.Render();
+        graphicsContext!.ImGuiRenderer.Render();
     }
 
 #endregion

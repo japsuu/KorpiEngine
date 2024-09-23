@@ -4,6 +4,7 @@ using KorpiEngine.Rendering;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using Vector2 = KorpiEngine.Mathematics.Vector2;
 using WindowState = KorpiEngine.Rendering.WindowState;
 
 namespace KorpiEngine.OpenGL;
@@ -18,6 +19,8 @@ public sealed class GLWindow : GraphicsWindow
     private readonly Action _onUnload;
 
     public override event Action<Int2>? OnResize;
+    public override event Action<char>? OnTextInput;
+    public override event Action<Vector2>? OnMouseWheel;
 
     public override string Title
     {
@@ -25,7 +28,7 @@ public sealed class GLWindow : GraphicsWindow
         set => _internalWindow.Title = value;
     }
 
-    public override Int2 WindowSize
+    public override Int2 Size
     {
         get => new(_internalWindow.ClientSize.X, _internalWindow.ClientSize.Y);
         set => _internalWindow.ClientSize = new Vector2i(value.X, value.Y);
@@ -114,11 +117,13 @@ public sealed class GLWindow : GraphicsWindow
         
         _internalWindow = new GameWindow(gws, nws);
         
-        _internalWindow.Load += OnLoad;
-        _internalWindow.UpdateFrame += OnUpdate;
-        _internalWindow.RenderFrame += OnRender;
-        _internalWindow.Unload += OnUnload;
+        _internalWindow.Load += OnWindowLoad;
+        _internalWindow.UpdateFrame += OnWindowUpdate;
+        _internalWindow.RenderFrame += OnWindowRender;
+        _internalWindow.Unload += OnWindowUnload;
         _internalWindow.Resize += OnWindowResize;
+        _internalWindow.TextInput += OnWindowTextInput;
+        _internalWindow.MouseWheel += OnWindowMouseWheel;
         
         _inputState = new GLInputState(_internalWindow);
     }
@@ -143,25 +148,25 @@ public sealed class GLWindow : GraphicsWindow
     }
 
 
-    private void OnLoad()
+    private void OnWindowLoad()
     {
         _onLoad();
     }
 
 
-    private void OnUnload()
+    private void OnWindowUnload()
     {
         _onUnload();
     }
     
     
-    private void OnUpdate(FrameEventArgs args)
+    private void OnWindowUpdate(FrameEventArgs args)
     {
         _onUpdate(args.Time);
     }
 
 
-    private void OnRender(FrameEventArgs args)
+    private void OnWindowRender(FrameEventArgs args)
     {
         _onRender();
         
@@ -172,6 +177,18 @@ public sealed class GLWindow : GraphicsWindow
     private void OnWindowResize(ResizeEventArgs e)
     {
         OnResize?.Invoke(new Int2(e.Width, e.Height));
+    }
+    
+    
+    private void OnWindowTextInput(TextInputEventArgs e)
+    {
+        OnTextInput?.Invoke((char)e.Unicode);
+    }
+    
+    
+    private void OnWindowMouseWheel(MouseWheelEventArgs e)
+    {
+        OnMouseWheel?.Invoke(new Vector2(e.OffsetX, e.OffsetY));
     }
 
 

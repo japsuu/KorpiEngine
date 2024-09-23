@@ -34,6 +34,7 @@ public static class Graphics
         Device = graphicsContext.Device;
         Window = graphicsContext.Window;
         Device.Initialize();
+        GraphicsInfo.Initialize(graphicsContext);
         
         defaultBlitMaterial = new Material(Asset.Load<Shader>("Assets/Defaults/Basic.kshader"), "basic material", false);
         Material.LoadDefaults();

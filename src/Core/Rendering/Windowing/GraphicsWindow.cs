@@ -11,6 +11,16 @@ public abstract class GraphicsWindow
     public abstract event Action<Int2>? OnResize;
     
     /// <summary>
+    /// Event that is triggered when a key is pressed.
+    /// </summary>
+    public abstract event Action<char>? OnTextInput;
+    
+    /// <summary>
+    /// Event that is triggered when the mouse wheel is scrolled.
+    /// </summary>
+    public abstract event Action<Vector2>? OnMouseWheel;
+    
+    /// <summary>
     /// Gets or sets the text displayed in the title bar of the window.
     /// </summary>
     public abstract string Title { get; set; }
@@ -20,7 +30,7 @@ public abstract class GraphicsWindow
     /// This is the size of the drawable area of the window, excluding any window decorations like borders and title bars.
     /// </summary>
     /// <example>
-    /// Use <see cref="WindowSize"/> when you need to set or get the size of the window in logical pixels.
+    /// Use <see cref="Size"/> when you need to set or get the size of the window in logical pixels.
     /// For example, when centering the window on the screen:
     /// <code>
     /// var windowSize = graphicsWindow.WindowSize;
@@ -32,7 +42,7 @@ public abstract class GraphicsWindow
     /// graphicsWindow.SetPosition(centeredPosition);
     /// </code>
     /// </example>
-    public abstract Int2 WindowSize { get; set; }
+    public abstract Int2 Size { get; set; }
     
     /// <summary>
     /// Gets the size of the framebuffer in actual pixels.
