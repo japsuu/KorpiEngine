@@ -4,6 +4,8 @@
   href: getting-started.md
 - name: Scripting
   href: scripting.md
+- name: Profiling
+  href: profiling.md
 - name: Coordinate Systems
   href: coordinate-systems.md
 - name: Math
