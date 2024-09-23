@@ -69,8 +69,11 @@ public sealed class WebAssetLoadOperation
     /// <returns>An IEnumerator that can be yielded in a coroutine.</returns>
     public IEnumerator SendWebRequest()
     {
+        int index = 0;
+        int count = _assets.Length;
         foreach (string asset in _assets)
         {
+            index++;
             string url = Path.Combine(_baseUrl, asset);
             using WebRequest request = WebRequest.Get(url);
             request.DownloadHandler = new DownloadHandler();
@@ -82,12 +85,12 @@ public sealed class WebAssetLoadOperation
                 bool fileExists = File.Exists(destinationFile);
                 if (fileExists)
                 {
-                    Application.Logger.Info($"Asset '{url}' already exists. Skipping download.");
+                    Application.Logger.Info($"Asset {index}/{count} '{url}' already exists. Skipping download.");
                     continue;
                 }
             }
         
-            Application.Logger.Info($"Downloading asset '{url}'...");
+            Application.Logger.Info($"Downloading asset {index}/{count} '{url}'...");
             yield return request.SendWebRequest();
 
             if (!string.IsNullOrEmpty(request.Error))
