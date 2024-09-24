@@ -108,7 +108,7 @@ public sealed class GLWindow : GraphicsWindow
     }
 
 
-    public GLWindow(WindowingSettings windowingSettings, Action onFrameStart, Action onLoad, Action<double> onUpdate, Action onRender, Action onFrameEnd, Action onUnload)
+    public GLWindow(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onUpdate, Action onRender, Action onFrameEnd, Action onUnload)
     {
         (GameWindowSettings gws, NativeWindowSettings nws) = GetWindowSettings(windowingSettings);
 
