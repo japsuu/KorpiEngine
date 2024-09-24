@@ -6,6 +6,7 @@ using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Threading;
+using KorpiEngine.Tools;
 using KorpiEngine.Tools.Logging;
 using KorpiEngine.UI;
 using KorpiEngine.UI.DearImGui;
@@ -28,6 +29,7 @@ public static class Application
     [ThreadStatic]
     internal static bool IsMainThread;
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
+    public static readonly IProfiler Profiler = new TracyProfiler();
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);
@@ -160,7 +162,7 @@ public static class Application
     
     private static void OnFrameStart()
     {
-        
+        // Any frame initialization code goes here.
     }
     
 
@@ -176,19 +178,28 @@ public static class Application
             Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
         }
         
-        InternalPreUpdate(deltaTime);
+        using (Profiler.BeginZone("PreUpdate"))
+        {
+            InternalPreUpdate(deltaTime);
+        }
         
         fixedFrameAccumulator += deltaTime;
         
         while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
         {
-            InternalFixedUpdate();
+            using (Profiler.BeginZone("FixedUpdate"))
+            {
+                InternalFixedUpdate();
+            }
             fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
         }
  
         double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
         
-        InternalUpdate(fixedAlpha);
+        using (Profiler.BeginZone("Update"))
+        {
+            InternalUpdate(fixedAlpha);
+        }
     }
 
 
@@ -202,7 +213,8 @@ public static class Application
     
     private static void OnFrameEnd()
     {
-        
+        // Any frame cleanup code goes here.
+        Profiler.EndFrame();
     }
 
 
