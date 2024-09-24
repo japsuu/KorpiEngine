@@ -44,11 +44,11 @@ public abstract class GraphicsContext
     /// <param name="windowingSettings">The settings for the window.</param>
     /// <param name="onLoad">The action to execute when the graphics context is loaded.</param>
     /// <param name="onFrameStart">The action to execute at the very start of each frame.</param>
-    /// <param name="onUpdate">The action to execute when the graphics context is updated.</param>
-    /// <param name="onRender">The action to execute when the graphics context is rendered.</param>
+    /// <param name="onFrameUpdate">The action to execute when the graphics context is updated.</param>
+    /// <param name="onFrameRender">The action to execute when the graphics context is rendered.</param>
     /// <param name="onFrameEnd">The action to execute at the very end of each frame.</param>
     /// <param name="onUnload">The action to execute when the graphics context is unloaded.</param>
-    public abstract void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onUpdate, Action onRender, Action onFrameEnd, Action onUnload);
+    public abstract void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload);
     
     
     /// <summary>

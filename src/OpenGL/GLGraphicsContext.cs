@@ -22,9 +22,9 @@ public class GLGraphicsContext : GraphicsContext
     public override IImGuiRenderer ImGuiRenderer => _imGuiRenderer ?? throw new InvalidOperationException(NOT_INITIALIZED);
 
 
-    public override void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onUpdate, Action onRender, Action onFrameEnd, Action onUnload)
+    public override void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload)
     {
-        _window = new GLWindow(windowingSettings, onLoad, onFrameStart, onUpdate, onRender, onFrameEnd, onUnload);
+        _window = new GLWindow(windowingSettings, onLoad, onFrameStart, onFrameUpdate, onFrameRender, onFrameEnd, onUnload);
         _device = new GLGraphicsDevice();
         _imGuiRenderer = new GLImGuiRenderer(this);
 
