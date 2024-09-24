@@ -15,13 +15,13 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <Optimize>false</Optimize>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS;NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS;LITENETLIB_UNSAFE</DefineConstants>
+        <DefineConstants>TRACE;TOOLS;NET_STANDARD_2_0;NETSTACK_SPAN;LITENETLIB_UNSAFE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS;NET_STANDARD_2_0;NETSTACK_SPAN;TRACE;TOOLS;LITENETLIB_UNSAFE</DefineConstants>
+        <DefineConstants>TRACE;TOOLS;NET_STANDARD_2_0;NETSTACK_SPAN;LITENETLIB_UNSAFE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">

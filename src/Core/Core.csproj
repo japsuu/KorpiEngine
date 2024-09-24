@@ -21,14 +21,14 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <Optimize>false</Optimize>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS;PROFILE</DefineConstants>
+        <DefineConstants>TRACE;TOOLS;KORPI_PROFILE</DefineConstants>
     </PropertyGroup>
 
     <!-- Release configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS;PROFILE</DefineConstants>
+        <DefineConstants>TRACE;TOOLS;KORPI_PROFILE</DefineConstants>
     </PropertyGroup>
 
     <!-- Production configuration -->
@@ -38,7 +38,7 @@
     </PropertyGroup>
 
     <!-- Tracy profiler -->
-    <PropertyGroup Condition="$(DefineConstants.Contains('PROFILE'))">
+    <PropertyGroup Condition="$(DefineConstants.Contains('KORPI_PROFILE'))">
         <DefineConstants>$(DefineConstants);TRACY_ENABLE</DefineConstants>
     </PropertyGroup>
 
