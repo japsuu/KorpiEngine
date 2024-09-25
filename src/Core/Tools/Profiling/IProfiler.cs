@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using KorpiEngine.Mathematics;
 
 namespace KorpiEngine.Tools;
 
@@ -13,7 +12,7 @@ public interface IProfiler
     /// </summary>
     /// <param name="zoneName">A custom name for this zone.</param>
     /// <param name="active">Is the zone active? An inactive zone won't be shown in the profiler.</param>
-    /// <param name="color">A color code that will be used to color the zone in the profiler.</param>
+    /// <param name="color">An RRGGBB color code that will be used to color the zone in the profiler.</param>
     /// <param name="text">Arbitrary text associated with this zone.</param>
     /// <param name="lineNumber">
     /// The source code line number that this zone begins at.
@@ -31,7 +30,7 @@ public interface IProfiler
     public IProfilerZone BeginZone(
         string? zoneName = null,
         bool active = true,
-        ColorRGB color = default,
+        uint color = 0,
         string? text = null,
         [CallerLineNumber] int lineNumber = 0,
         [CallerFilePath] string? filePath = null,
@@ -54,9 +53,9 @@ public interface IProfiler
     /// If <see langword="false"/> the the area below the plot will not be filled with a solid color.
     /// </param>
     /// <param name="color">
-    /// A color code that will be used to color the plot in the profiler.
+    /// An RRGGBB color code that will be used to color the plot in the profiler.
     /// </param>
-    public void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, ColorRGB color = default);
+    public void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, uint color = default);
     
     
     /// <summary>

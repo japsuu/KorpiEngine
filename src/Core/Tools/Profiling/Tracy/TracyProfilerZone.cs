@@ -1,5 +1,4 @@
 ﻿using bottlenoselabs.C2CS.Runtime;
-using KorpiEngine.Mathematics;
 using Tracy;
 
 namespace KorpiEngine.Tools;
@@ -25,10 +24,9 @@ public readonly struct TracyProfilerZone : IProfilerZone
     }
 
 
-    public void EmitColor(ColorRGB color)
+    public void EmitColor(uint color)
     {
-        uint colorCode = TracyProfiler.GetColorCode(color);
-        PInvoke.TracyEmitZoneColor(Context, colorCode);
+        PInvoke.TracyEmitZoneColor(Context, color);
     }
 
 
