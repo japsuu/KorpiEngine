@@ -229,58 +229,50 @@ public static class Application
 
 #region Frame event handlers (internal)
 
+    [Profile]
     private static void PreUpdate(double deltaTime)
     {
-        using (Profiler.BeginZone("PreUpdate"))
-        {
-            Time.Update(deltaTime);
-            Input.Update(graphicsContext!.InputState);
-            DisplayInfo.Update(graphicsContext.DisplayState);
-            Cursor.Update(graphicsContext.Window.CursorState);
-        }
+        Time.Update(deltaTime);
+        Input.Update(graphicsContext!.InputState);
+        DisplayInfo.Update(graphicsContext.DisplayState);
+        Cursor.Update(graphicsContext.Window.CursorState);
     }
 
 
+    [Profile]
     private static void FixedUpdate()
     {
-        using (Profiler.BeginZone("FixedUpdate"))
-        {
-            Time.FixedUpdate();
+        Time.FixedUpdate();
         
-            SceneManager.FixedUpdate();
+        SceneManager.FixedUpdate();
         
-            // Instantly execute jobs.
-            GlobalJobPool.FixedUpdate();
-        }
+        // Instantly execute jobs.
+        GlobalJobPool.FixedUpdate();
     }
 
-
+    
+    [Profile]
     private static void Update(double fixedAlpha)
     {
-        using (Profiler.BeginZone("Update"))
-        {
-            Time.UpdateFixedAlpha(fixedAlpha);
+        Time.UpdateFixedAlpha(fixedAlpha);
 
-            SceneManager.Update();
+        SceneManager.Update();
         
-            // Instantly execute jobs.
-            GlobalJobPool.Update();
+        // Instantly execute jobs.
+        GlobalJobPool.Update();
         
-            graphicsContext!.ImGuiRenderer.Update();
-            ImGuiWindowManager.Update();
+        graphicsContext!.ImGuiRenderer.Update();
+        ImGuiWindowManager.Update();
         
-            MemoryReleaseSystem.ProcessDisposeQueue();
-        }
+        MemoryReleaseSystem.ProcessDisposeQueue();
     }
 
 
+    [Profile]
     private static void Render()
     {
-        using (Profiler.BeginZone("Render"))
-        {
-            SceneManager.Render();
-            graphicsContext!.ImGuiRenderer.Render();
-        }
+        SceneManager.Render();
+        graphicsContext!.ImGuiRenderer.Render();
     }
 
 #endregion
