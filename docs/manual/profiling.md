@@ -51,6 +51,20 @@ using (IProfilerZone zone = Application.Profiler.BeginZone("MyZone"))
 }
 ```
 
+Profiling with an attribute is also supported (profiling code is injected around the method at build-time, using `AspectInjector`).
+This approach is useful when you want to quickly profile a method without modifying the code,
+but it's not as flexible.
+
+```csharp
+
+[Profile]
+public void MyMethod()
+{
+    // Code to profile
+    // ...
+}
+``` 
+
 <br/>
 
 ### GPU Profiling
