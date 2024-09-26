@@ -27,6 +27,7 @@ internal static class MemoryReleaseSystem
     }
     
     
+    [Profile]
     public static void ProcessDisposeQueue()
     {
         Debug.Assert(Application.IsMainThread, "Dispose queue can only be processed on the main thread!");
