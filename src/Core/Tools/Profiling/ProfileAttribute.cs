@@ -5,7 +5,7 @@ using AspectInjector.Broker;
 namespace KorpiEngine.Tools;
 
 /// <summary>
-/// An attribute that can be applied to methods to profile them using the Tracy profiler.
+/// An attribute that can be applied to methods to profile them using the configured profiler.
 /// </summary>
 /// <param name="zoneName">The name of the profiling zone. If not provided, the method name will be used.</param>
 /// <param name="color">The RRGGBB color of the profiling zone.</param>

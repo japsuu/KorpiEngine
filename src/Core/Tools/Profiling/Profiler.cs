@@ -3,12 +3,15 @@ using System.Runtime.CompilerServices;
 
 namespace KorpiEngine.Tools;
 
+/// <summary>
+/// A profiler that can be used to measure the performance of the application.
+/// </summary>
 public abstract class Profiler
 {
     /// <summary>
-    /// Begins a new <see cref="TracyProfilerZone"/> and returns the handle to that zone. Time
+    /// Begins a new <see cref="IProfilerZone"/> and returns the handle to that zone. Time
     /// spent inside a zone is calculated and shown in the profiler. A zone is
-    /// ended when <see cref="TracyProfilerZone.Dispose"/> is called either automatically via 
+    /// ended when <see cref="IProfilerZone.Dispose"/> is called either automatically via 
     /// disposal scope rules or by calling it manually.
     /// </summary>
     /// <param name="zoneName">A custom name for this zone.</param>
