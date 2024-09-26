@@ -1,7 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-#if KORPI_PROFILE
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using AspectInjector.Broker;
-#endif
 
 namespace KorpiEngine.Tools;
 
@@ -12,9 +11,8 @@ namespace KorpiEngine.Tools;
 /// <param name="color">The RRGGBB color of the profiling zone.</param>
 /// <param name="lineNumber">The line number of the method call. Automatically provided by the compiler.</param>
 /// <param name="filePath">The file path of the method call. Automatically provided by the compiler.</param>
-#if KORPI_PROFILE
+[Conditional("KORPI_PROFILE")]
 [Injection(typeof(ProfileAspect))]
-#endif
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ProfileAttribute(
     string? zoneName = null,
@@ -22,15 +20,12 @@ public sealed class ProfileAttribute(
     [CallerLineNumber] int lineNumber = 0,
     [CallerFilePath] string? filePath = null) : Attribute
 {
-#if KORPI_PROFILE
     public readonly string? ZoneName = zoneName;
     public readonly uint Color = color;
     public readonly int LineNumber = lineNumber;
     public readonly string? FilePath = filePath;
-#endif
 }
 
-#if KORPI_PROFILE
 [Aspect(Scope.Global)]
 public class ProfileAspect
 {
@@ -70,4 +65,3 @@ public class ProfileAspect
         }
     }
 }
-#endif
