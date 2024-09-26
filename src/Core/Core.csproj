@@ -22,6 +22,7 @@
         <Optimize>false</Optimize>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;TOOLS;KORPI_PROFILE</DefineConstants>
+        <OutputPath>..\..\Build\Debug\</OutputPath>
     </PropertyGroup>
 
     <!-- Release configuration -->
@@ -29,12 +30,14 @@
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;TOOLS;KORPI_PROFILE</DefineConstants>
+        <OutputPath>..\..\Build\Release\</OutputPath>
     </PropertyGroup>
 
     <!-- Production configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+        <OutputPath>..\..\Build\Production\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

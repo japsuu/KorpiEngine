@@ -35,6 +35,7 @@ Desktop.ini
 
 # Build folder
 [Bb]uilds/
+[Bb]uild/
 
 # DocFx
 .cache

@@ -14,17 +14,20 @@
         <Optimize>false</Optimize>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <OutputPath>..\..\Build\Debug\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <OutputPath>..\..\Build\Release\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+        <OutputPath>..\..\Build\Production\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
