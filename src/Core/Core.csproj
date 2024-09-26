@@ -37,11 +37,6 @@
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     </PropertyGroup>
 
-    <!-- Tracy profiler -->
-    <PropertyGroup Condition="$(DefineConstants.Contains('KORPI_PROFILE'))">
-        <DefineConstants>$(DefineConstants);TRACY_ENABLE</DefineConstants>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="AspectInjector.NET" Version="2.8.3" />
         <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
