@@ -31,7 +31,8 @@ public class ProfileAspect
 {
     [Advice(Kind.Around, Targets = Target.Method)]
     public object OnInvoke(
-        [Argument(Source.Name)] string name,
+        [Argument(Source.Name)] string methodName,
+        [Argument(Source.Type)] Type type,
         [Argument(Source.Arguments)] object[] arguments,
         [Argument(Source.Target)] Func<object[], object> method,
         [Argument(Source.Triggers)] Attribute[] triggers)
@@ -43,7 +44,7 @@ public class ProfileAspect
         if (profileTrigger == null)
             return method(arguments);
 
-        string zoneName = profileTrigger.ZoneName ?? name;
+        string zoneName = profileTrigger.ZoneName ?? $"{type.Name}.{methodName}";
         IProfilerZone zone = Application.Profiler.BeginZone(
             zoneName,
             true,
@@ -51,7 +52,7 @@ public class ProfileAspect
             null,
             profileTrigger.LineNumber + 1,  // Add 1 to the line number to point to the actual method call instead of the attribute
             profileTrigger.FilePath,
-            name);
+            methodName);
 
         try
         {
