@@ -1,19 +1,18 @@
-﻿using System.Runtime.CompilerServices;
-using bottlenoselabs.C2CS.Runtime;
+﻿using bottlenoselabs.C2CS.Runtime;
 using Tracy;
 
 namespace KorpiEngine.Tools;
 
-public class TracyProfiler : IProfiler
+public sealed class TracyProfiler : Profiler
 {
-    public IProfilerZone BeginZone(
-        string? zoneName = null,
-        bool active = true,
-        uint color = 0,
-        string? text = null,
-        [CallerLineNumber] int lineNumber = 0,
-        [CallerFilePath] string? filePath = null,
-        [CallerMemberName] string? memberName = null)
+    protected override IProfilerZone BeginZoneImpl(
+        string? zoneName,
+        bool active,
+        uint color,
+        string? text,
+        int lineNumber,
+        string? filePath,
+        string? memberName)
     {
         using CString filestr = GetCString(filePath, out ulong fileln);
         using CString memberstr = GetCString(memberName, out ulong memberln);
@@ -34,28 +33,28 @@ public class TracyProfiler : IProfiler
     }
 
 
-    public void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, uint color = 0)
+    public override void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, uint color = 0)
     {
         using CString namestr = GetCString(name, out ulong _);
         PInvoke.TracyEmitPlotConfig(namestr, (int)type, step ? 1 : 0, fill ? 1 : 0, color);
     }
 
 
-    public void Plot(string name, double val)
+    public override void Plot(string name, double val)
     {
         using CString namestr = GetCString(name, out ulong _);
         PInvoke.TracyEmitPlot(namestr, val);
     }
 
 
-    public void Plot(string name, int val)
+    public override void Plot(string name, int val)
     {
         using CString namestr = GetCString(name, out ulong _);
         PInvoke.TracyEmitPlotInt(namestr, val);
     }
 
 
-    public void Plot(string name, float val)
+    public override void Plot(string name, float val)
     {
         using CString namestr = GetCString(name, out ulong _);
         PInvoke.TracyEmitPlotFloat(namestr, val);
@@ -68,7 +67,7 @@ public class TracyProfiler : IProfiler
     /// <remarks>
     /// Tracy Cpp API and docs refer to this as the <c>FrameMark</c> macro.
     /// </remarks>
-    public void EndFrame()
+    public override void EndFrame()
     {
         PInvoke.TracyEmitFrameMark(null);
     }

@@ -30,7 +30,7 @@ public static class Application
     internal static bool IsMainThread;
     
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
-    public static readonly IProfiler Profiler = new TracyProfiler();
+    public static readonly Profiler Profiler = new TracyProfiler();
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);

@@ -1,8 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace KorpiEngine.Tools;
 
-public interface IProfiler
+public abstract class Profiler
 {
     /// <summary>
     /// Begins a new <see cref="TracyProfilerZone"/> and returns the handle to that zone. Time
@@ -34,9 +35,17 @@ public interface IProfiler
         string? text = null,
         [CallerLineNumber] int lineNumber = 0,
         [CallerFilePath] string? filePath = null,
-        [CallerMemberName] string? memberName = null);
-    
-    
+        [CallerMemberName] string? memberName = null)
+    {
+#if KORPI_PROFILE
+        return BeginZoneImpl(zoneName, active, color, text, lineNumber, filePath, memberName);
+#else
+        return new DummyProfilerZone();
+#endif
+    }
+    protected abstract IProfilerZone BeginZoneImpl(string? zoneName, bool active, uint color, string? text, int lineNumber, string? filePath, string? memberName);
+
+
     /// <summary>
     /// Configure how plotted values are displayed in the profiler.
     /// </summary>
@@ -55,30 +64,35 @@ public interface IProfiler
     /// <param name="color">
     /// An RRGGBB color code that will be used to color the plot in the profiler.
     /// </param>
-    public void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, uint color = default);
+    [Conditional("KORPI_PROFILE")]
+    public abstract void PlotConfig(string name, ProfilePlotType type = ProfilePlotType.Number, bool step = false, bool fill = true, uint color = default);
     
     
     /// <summary>
     /// Add a <see langword="double"/> value to a plot.
     /// </summary>
-    public void Plot(string name, double val);
+    [Conditional("KORPI_PROFILE")]
+    public abstract void Plot(string name, double val);
     
     
     /// <summary>
     /// Add a <see langword="int"/> value to a plot.
     /// </summary>
-    public void Plot(string name, int val);
+    [Conditional("KORPI_PROFILE")]
+    public abstract void Plot(string name, int val);
 
 
     /// <summary>
     /// Add a <see langword="float"/> value to a plot.
     /// </summary>
-    public void Plot(string name, float val);
+    [Conditional("KORPI_PROFILE")]
+    public abstract void Plot(string name, float val);
     
     
     /// <summary>
     /// Emit the top-level frame marker.
     /// Should be called at the end of each frame.
     /// </summary>
-    public void EndFrame();
+    [Conditional("KORPI_PROFILE")]
+    public abstract void EndFrame();
 }
