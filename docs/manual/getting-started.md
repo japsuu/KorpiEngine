@@ -22,7 +22,7 @@ The example has multiple scenes, each showcasing different features of the engin
    - With the **TERMINAL**:
       - `cd ./KorpiEngine/src/Sandbox`
       - `dotnet build ./Sandbox.csproj`
-      - The built executable is now located at `./bin/<configuration>/<framework>/Sandbox.exe`
+      - The built executable is now located at `KorpiEngine/Build/<configuration>/<framework>/Sandbox.exe`
 
 <br/>
 

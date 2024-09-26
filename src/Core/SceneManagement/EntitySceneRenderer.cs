@@ -1,4 +1,5 @@
 ﻿using KorpiEngine.Rendering;
+using KorpiEngine.Tools;
 
 namespace KorpiEngine.SceneManagement;
 
@@ -39,6 +40,7 @@ internal sealed class EntitySceneRenderer
     }
 
 
+    [Profile]
     public void Render()
     {
         // Construct ordered render queues

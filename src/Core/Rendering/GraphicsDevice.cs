@@ -1,5 +1,4 @@
 ﻿using KorpiEngine.Mathematics;
-using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Rendering;
 

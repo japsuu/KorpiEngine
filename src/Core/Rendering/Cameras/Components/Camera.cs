@@ -2,6 +2,7 @@
 using KorpiEngine.Entities;
 using KorpiEngine.InputManagement;
 using KorpiEngine.Mathematics;
+using KorpiEngine.Tools;
 using KorpiEngine.Tools.Gizmos;
 using KorpiEngine.UI.DearImGui;
 using KorpiEngine.Utils;
@@ -94,6 +95,7 @@ public sealed class Camera : EntityComponent
         : Matrix4x4.CreatePerspectiveFieldOfView(FOVDegrees.ToRadians(), width / height, NearClipPlane, FarClipPlane);
 
 
+    [Profile]
     internal void Render(int width = -1, int height = -1)
     {
         if (Entity.Scene == null)
@@ -182,11 +184,15 @@ public sealed class Camera : EntityComponent
     }
     
     
+    [Profile]
     internal void RenderLights() => Entity.Scene!.InvokeRenderLighting();
+    [Profile]
     internal void RenderDepthGeometry() => Entity.Scene!.InvokeRenderGeometryDepth();
+    [Profile]
     private void RenderGeometry() => Entity.Scene!.InvokeRenderGeometry();
 
 
+    [Profile]
     private void RenderGizmos()
     {
         // if (Graphics.UseJitter)
@@ -201,6 +207,7 @@ public sealed class Camera : EntityComponent
     }
 
 
+    [Profile]
     private void GeometryPass()
     {
         Entity.Scene!.InvokePreRender();
@@ -218,6 +225,7 @@ public sealed class Camera : EntityComponent
     }
     
     
+    [Profile]
     private void GeometryPassWireframe()
     {
         // Set the wireframe rendering mode

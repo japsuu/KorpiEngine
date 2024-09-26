@@ -53,6 +53,21 @@ public partial struct ColorRGB
         g = G / 255f;
         b = B / 255f;
     }
+    
+    
+    // Explicitly convert a ColorRGB to a uint
+    public static explicit operator uint(ColorRGB color)
+    {
+        // Convert the color to an RRGGBB uint
+        uint colorCode = 0;
+        byte r = color.R;
+        byte g = color.G;
+        byte b = color.B;
+        colorCode |= (uint)r << 16;
+        colorCode |= (uint)g << 8;
+        colorCode |= b;
+        return colorCode;
+    }
 }
 
 public partial struct ColorRGBA

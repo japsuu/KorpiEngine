@@ -2,6 +2,7 @@
 using KorpiEngine.Entities;
 using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
+using KorpiEngine.Tools;
 using KorpiEngine.Tools.Gizmos;
 using KorpiEngine.UI;
 using KorpiEngine.Utils;
@@ -103,6 +104,7 @@ public abstract class Scene
     }
     
     
+    [Profile]
     internal void Render()
     {
         if (_isBeingDestroyed)
@@ -333,6 +335,7 @@ public abstract class Scene
     }
 
 
+    [Profile]
     private void UpdateEntities(EntityUpdateStage stage)
     {
         _isIteratingEntities = true;
@@ -355,6 +358,7 @@ public abstract class Scene
     }
 
 
+    [Profile]
     private void UpdateSceneSystems(EntityUpdateStage stage)
     {
         foreach (SceneSystem system in _sceneSystems.Values)
