@@ -4,8 +4,10 @@
 KorpiEngine uses the `Tracy` profiler to measure the performance of the engine.
 _Tracy is a real-time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications_.
 
+Profiling functionality is enabled by defining the `KORPI_PROFILE` preprocessor directive.
+
 > [!NOTE]
-> Profiling is enabled by default for `Debug` and `Release` builds, but **NOT** for `Production` builds.
+> `KORPI_PROFILE` is defined by default for `Debug` and `Release` builds, but **NOT** for `Production` builds.
 
 <br/>
 
@@ -21,13 +23,40 @@ _Tracy is a real-time, nanosecond resolution, remote telemetry, hybrid frame and
 ## Custom Profiling
 
 To profile a specific part of your code,
-you can use the <xref:KorpiEngine.Tools.IProfiler> provided by `Application.Profiler`.
-The `IProfiler` provides a simplified interface to start and stop profiling a specific block of code,
-and plotting data in the profiler.
+you can either use the <xref:KorpiEngine.Tools.ProfileAttribute> or the <xref:KorpiEngine.Tools.IProfilerZone> interface.
 
 <br/>
 
-### CPU Profiling
+### By attribute
+
+When using a <xref:KorpiEngine.Tools.ProfileAttribute> the profiling code
+is injected around the method at build-time, using `AspectInjector`).
+This approach is useful when you want to quickly profile a method without modifying the code,
+but it's not as flexible.
+
+> [!NOTE]
+> The profiling code is only injected when `KORPI_PROFILE` is defined.
+
+```csharp
+
+[Profile]
+public void MyMethod()
+{
+    // Code to profile
+    // ...
+}
+``` 
+
+<br/>
+
+### By zone
+
+The <xref:KorpiEngine.Tools.Profiler> provided by `Application.Profiler` provides a more flexible interface
+to start and stop profiling a specific block of code, and plotting data in the profiler.
+This approach is way more verbose than using the `Profile` attribute, but it's also more flexible.
+
+> [!IMPORTANT]
+> Make sure to dispose of the `IProfilerZone`.
 
 ```csharp
 IProfilerZone zone = Application.Profiler.BeginZone("MyZone");
@@ -51,23 +80,9 @@ using (IProfilerZone zone = Application.Profiler.BeginZone("MyZone"))
 }
 ```
 
-Profiling with an attribute is also supported (profiling code is injected around the method at build-time, using `AspectInjector`).
-This approach is useful when you want to quickly profile a method without modifying the code,
-but it's not as flexible.
-
-```csharp
-
-[Profile]
-public void MyMethod()
-{
-    // Code to profile
-    // ...
-}
-``` 
-
 <br/>
 
-### GPU Profiling
+## GPU Profiling
 
 GPU profiling is not yet supported.
 
@@ -76,6 +91,7 @@ GPU profiling is not yet supported.
 ## Advanced
 
 You can also use the `Tracy` API directly to profile your code.
+This bypasses the `KorpiEngine` profiling system
 
 We use [clibequilibrium/Tracy-CSharp](https://github.com/clibequilibrium/Tracy-CSharp) bindings
 to interact with the `Tracy` profiler.
