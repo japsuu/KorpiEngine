@@ -40,3 +40,6 @@ Desktop.ini
 # DocFx
 .cache
 **/_site/
+
+# User tools folder (profiler, etc)
+[Tt]ools/[Uu]ser/
