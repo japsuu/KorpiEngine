@@ -53,7 +53,7 @@ public static class GlobalJobPool
     }
 
 
-    [Profile]
+    [ProfileInternal]
     internal static void Update()
     {
         ItemsInMainThreadQueue = (ulong)mainQueue.Count;
@@ -64,7 +64,7 @@ public static class GlobalJobPool
     }
 
 
-    [Profile]
+    [ProfileInternal]
     internal static void FixedUpdate()
     {
         ItemsInMainThreadThrottledQueue = (ulong)mainQueueThrottled.Count;

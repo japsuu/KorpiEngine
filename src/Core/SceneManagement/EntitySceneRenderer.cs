@@ -40,7 +40,7 @@ internal sealed class EntitySceneRenderer
     }
 
 
-    [Profile]
+    [ProfileInternal]
     public void Render()
     {
         // Construct ordered render queues

@@ -72,7 +72,7 @@ public class LightingPassNode : RenderPassNode
     public float Scale { get; set; } = 1.0f;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture Render(RenderTexture? _)
     {
         RenderTexture lightingTex = GetRenderTexture(Scale, [Format]);
@@ -95,7 +95,7 @@ public class LightingCombinePassNode : RenderPassNode
     
     /// <param name="source">Lighting Texture</param>
     /// <returns>A texture with geometry and lighting combined</returns>
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
@@ -117,7 +117,7 @@ public class LightingCombinePassNode : RenderPassNode
 
 public class UnlitCombinePassNode : RenderPassNode
 {
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         GBuffer gBuffer = Camera.RenderingCamera.GBuffer!;
@@ -137,7 +137,7 @@ public class ProceduralSkyboxNode : RenderPassNode
     private Material? _mat;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         Camera camera = Camera.RenderingCamera;
@@ -175,7 +175,7 @@ public class ScreenSpaceReflectionNode : RenderPassNode
     private Material? _mat;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)
@@ -251,7 +251,7 @@ public class TAANode : RenderPassNode
     }
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)
@@ -291,7 +291,7 @@ public class DepthOfFieldNode : RenderPassNode
     private Material? _mat;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)
@@ -325,7 +325,7 @@ public class BloomNode : RenderPassNode
     private Material? _mat;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)
@@ -386,7 +386,7 @@ public class TonemappingNode : RenderPassNode
     private TonemapperType? _prevTonemapper;
 
 
-    [Profile]
+    [ProfileInternal]
     protected override RenderTexture? Render(RenderTexture? source)
     {
         if (source == null)

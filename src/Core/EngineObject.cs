@@ -116,7 +116,7 @@ public abstract class EngineObject : SafeDisposable
     }
 
 
-    [Profile]
+    [ProfileInternal]
     internal static void ProcessDisposeQueue()
     {
         while (DisposalDelayedResources.TryPop(out EngineObject? obj))

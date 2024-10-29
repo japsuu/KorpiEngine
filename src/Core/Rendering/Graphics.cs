@@ -71,7 +71,7 @@ public static class Graphics
     /// <summary>
     /// Starts a new draw frame.
     /// </summary>
-    [Profile]
+    [ProfileInternal]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame()
     {
@@ -92,7 +92,7 @@ public static class Graphics
     /// <summary>
     /// Ends the current draw frame.
     /// </summary>
-    [Profile]
+    [ProfileInternal]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {

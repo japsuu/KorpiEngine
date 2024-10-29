@@ -46,7 +46,7 @@ public class RenderPipeline
     }
 
     
-    [Profile]
+    [ProfileInternal]
     public RenderTexture? Render()
     {
         RenderTexture? result = null;

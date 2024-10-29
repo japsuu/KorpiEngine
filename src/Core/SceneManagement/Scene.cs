@@ -104,7 +104,7 @@ public abstract class Scene
     }
     
     
-    [Profile]
+    [ProfileInternal]
     internal void Render()
     {
         if (_isBeingDestroyed)
@@ -335,7 +335,7 @@ public abstract class Scene
     }
 
 
-    [Profile]
+    [ProfileInternal]
     private void UpdateEntities(EntityUpdateStage stage)
     {
         _isIteratingEntities = true;
@@ -358,7 +358,7 @@ public abstract class Scene
     }
 
 
-    [Profile]
+    [ProfileInternal]
     private void UpdateSceneSystems(EntityUpdateStage stage)
     {
         foreach (SceneSystem system in _sceneSystems.Values)

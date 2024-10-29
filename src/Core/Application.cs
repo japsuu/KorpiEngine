@@ -229,7 +229,7 @@ public static class Application
 
 #region Frame event handlers (internal)
 
-    [Profile]
+    [ProfileInternal]
     private static void PreUpdate(double deltaTime)
     {
         Time.Update(deltaTime);
@@ -239,7 +239,7 @@ public static class Application
     }
 
 
-    [Profile]
+    [ProfileInternal]
     private static void FixedUpdate()
     {
         Time.FixedUpdate();
@@ -251,7 +251,7 @@ public static class Application
     }
 
     
-    [Profile]
+    [ProfileInternal]
     private static void Update(double fixedAlpha)
     {
         Time.UpdateFixedAlpha(fixedAlpha);
@@ -268,7 +268,7 @@ public static class Application
     }
 
 
-    [Profile]
+    [ProfileInternal]
     private static void Render()
     {
         SceneManager.Render();

@@ -138,7 +138,7 @@ public sealed class SceneManager
 
 #region Internal Calls
 
-    [Profile]
+    [ProfileInternal]
     internal void Update()
     {
         EngineObject.ProcessDisposeQueue();
@@ -159,14 +159,14 @@ public sealed class SceneManager
     }
     
     
-    [Profile]
+    [ProfileInternal]
     internal void FixedUpdate()
     {
         CurrentScene.FixedUpdate();
     }
     
     
-    [Profile]
+    [ProfileInternal]
     internal void Render()
     {
         CurrentScene.Render();

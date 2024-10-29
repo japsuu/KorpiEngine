@@ -95,7 +95,7 @@ public sealed class Camera : EntityComponent
         : Matrix4x4.CreatePerspectiveFieldOfView(FOVDegrees.ToRadians(), width / height, NearClipPlane, FarClipPlane);
 
 
-    [Profile]
+    [ProfileInternal]
     internal void Render(int width = -1, int height = -1)
     {
         if (Entity.Scene == null)
@@ -184,15 +184,15 @@ public sealed class Camera : EntityComponent
     }
     
     
-    [Profile]
+    [ProfileInternal]
     internal void RenderLights() => Entity.Scene!.InvokeRenderLighting();
-    [Profile]
+    [ProfileInternal]
     internal void RenderDepthGeometry() => Entity.Scene!.InvokeRenderGeometryDepth();
-    [Profile]
+    [ProfileInternal]
     private void RenderGeometry() => Entity.Scene!.InvokeRenderGeometry();
 
 
-    [Profile]
+    [ProfileInternal]
     private void RenderGizmos()
     {
         // if (Graphics.UseJitter)
@@ -207,7 +207,7 @@ public sealed class Camera : EntityComponent
     }
 
 
-    [Profile]
+    [ProfileInternal]
     private void GeometryPass()
     {
         Entity.Scene!.InvokePreRender();
@@ -225,7 +225,7 @@ public sealed class Camera : EntityComponent
     }
     
     
-    [Profile]
+    [ProfileInternal]
     private void GeometryPassWireframe()
     {
         // Set the wireframe rendering mode
