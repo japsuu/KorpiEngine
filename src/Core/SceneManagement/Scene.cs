@@ -76,6 +76,7 @@ public abstract class Scene
     internal void Load() => OnLoad();
     
     
+    [ProfileInternal]
     internal void Update()
     {
         if (_isBeingDestroyed)

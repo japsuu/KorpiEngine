@@ -86,6 +86,7 @@ public sealed class SceneManager
     }
 
 
+    [ProfileInternal]
     private void LoadSceneInternal(Scene scene, SceneLoadMode mode)
     {
         switch (mode)
