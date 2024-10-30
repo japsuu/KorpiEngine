@@ -594,7 +594,7 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
             stopwatch.Stop();
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("KORPI_DEBUG")]
         private void ProcessDelayedPackets()
         {
 #if KORPI_DEBUG
