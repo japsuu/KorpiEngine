@@ -1,4 +1,4 @@
-﻿#if TOOLS
+﻿#if KORPI_TOOLS
 using ImGuiNET;
 using KorpiEngine.Entities;
 

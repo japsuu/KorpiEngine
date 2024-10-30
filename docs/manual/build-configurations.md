@@ -24,10 +24,13 @@ and all tooling and debugging information stripped.
 ## Default Preprocessor Defines
 
 The following preprocessor defines are available in KorpiEngine projects,
-in addition to the default ones (e.g. `DEBUG`, `RELEASE`, `PRODUCTION`, `NETCOREAPP`, `NET`, etc.) provided by the .NET SDK.
+in addition to the default ones (e.g. `NETCOREAPP`, `NET`, etc.) provided by the .NET SDK.
 
 | Preprocessor define | Debug | Release | Production | Description                                         |
 |---------------------|:-----:|:-------:|:----------:|-----------------------------------------------------|
+| `KORPI_DEBUG`       |   ✔   |         |            | This is the debug build configuration.              |
+| `KORPI_RELEASE`     |       |    ✔    |            | This is the release build configuration.            |
+| `KORPI_PRODUCTION`  |       |         |     ✔      | This is the production build configuration.         |
 | `KORPI_PROFILE`     |   ✔   |    ✔    |            | Profiling functionality is included with the build. |
 | `KORPI_TOOLS`       |   ✔   |    ✔    |            | Tooling functionality is included with the build.   |
 | `KORPI_OPTIMIZED`   |       |    ✔    |     ✔      | Optimized code compilation is enabled.              |

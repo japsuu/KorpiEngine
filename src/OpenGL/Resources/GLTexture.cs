@@ -69,7 +69,7 @@ internal sealed class GLTexture : GraphicsTexture
 
         GL.BindTexture(Target, Handle);
         CurrentlyBoundHandle = Handle;
-#if TOOLS
+#if KORPI_TOOLS
         Graphics.Device.TextureSwaps++;
 #endif
     }

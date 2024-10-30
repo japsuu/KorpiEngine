@@ -11,12 +11,22 @@
         <RootNamespace>KorpiEngine.Core.Tests</RootNamespace>
     </PropertyGroup>
 
+    <!-- Debug configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>..\..\Build\Debug\</OutputPath>
+        <DefineConstants>KORPI_DEBUG;KORPI_TOOLS;KORPI_PROFILE;TRACY_ENABLE;TRACE</DefineConstants>
+        <OutputPath>..\..\Build\Debug\</OutputPath>
     </PropertyGroup>
 
+    <!-- Release configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <OutputPath>..\..\Build\Release\</OutputPath>
+        <DefineConstants>KORPI_RELEASE;KORPI_TOOLS;KORPI_PROFILE;KORPI_OPTIMIZE;TRACY_ENABLE;TRACE</DefineConstants>
+        <OutputPath>..\..\Build\Release\</OutputPath>
+    </PropertyGroup>
+
+    <!-- Production configuration -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+        <DefineConstants>KORPI_PRODUCTION;KORPI_OPTIMIZE</DefineConstants>
+        <OutputPath>..\..\Build\Production\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

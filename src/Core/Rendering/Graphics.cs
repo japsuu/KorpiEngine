@@ -83,7 +83,7 @@ public static class Graphics
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Device.SetState(new RasterizerState(), true);
-#if TOOLS
+#if KORPI_TOOLS
         Device.ResetStatistics();
 #endif
     }

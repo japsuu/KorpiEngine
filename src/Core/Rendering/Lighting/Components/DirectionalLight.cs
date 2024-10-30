@@ -48,7 +48,7 @@ public sealed class DirectionalLight : EntityComponent
     
     protected override void OnStart()
     {
-#if TOOLS
+#if KORPI_TOOLS
         ImGuiWindowManager.RegisterWindow(new DirectionalLightEditor(this));
 #endif
     }

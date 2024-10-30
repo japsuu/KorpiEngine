@@ -296,7 +296,7 @@ public sealed class Camera : EntityComponent
     
     protected override void OnStart()
     {
-#if TOOLS
+#if KORPI_TOOLS
         ImGuiWindowManager.RegisterWindow(new CameraEditor(this));
 #endif
     }

@@ -135,7 +135,7 @@ public static class Application
         sceneManager = new SceneManager(initialSceneType);
         
         GUI.Initialize();
-#if TOOLS
+#if KORPI_TOOLS
         EditorGUI.Initialize();
 #endif
         GlobalJobPool.Initialize();
@@ -146,7 +146,7 @@ public static class Application
     private static void OnUnload()
     {
         OnApplicationUnloadAttribute.Invoke();
-#if TOOLS
+#if KORPI_TOOLS
         EditorGUI.Deinitialize();
 #endif
         GUI.Deinitialize();

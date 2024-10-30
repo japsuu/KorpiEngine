@@ -228,7 +228,7 @@ public sealed class GLWindow : GraphicsWindow
             Profile = ContextProfile.Core,
             APIVersion = new Version(4, 2),
             AspectRatio = (16, 9),
-#if TOOLS
+#if KORPI_TOOLS
             Flags = ContextFlags.Debug
 #endif
         };
