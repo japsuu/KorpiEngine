@@ -16,14 +16,16 @@ Korpi Engine **DOES** aim to
 - offer a clean and simple API
 - adhere to the [KISS principle](https://en.m.wikipedia.org/wiki/KISS_principle)
 - be a good learning tool for game/engine development
-- be modular and extensible, to allow for easy integration of new features and systems.
+- be modular and extensible, allowing for easy integration of new features and systems.
 
 <br/>
 
 ## Which types of games is Korpi Engine best suited for?
 
-- **Open-world games**: The engine is designed to handle large worlds with minimal additional programmer effort.
-- **Procedural generation**: The APIs have been designed to support custom procedurally generated meshes.
+- **Games with highly specialized requirements**: The engine can be used as a rendering engine, allowing for custom systems.
+- **Systematic games**: Programmers have full control over their game systems.
+- **Open-world games**: The engine handles large worlds with minimal additional programmer effort.
+- **Procedural generation**: The APIs have been designed to support custom procedurally generated content.
 
 An example of such a game could be a Minecraft-like voxel game, or a deep-space exploration game.
 
@@ -40,4 +42,4 @@ An example of such a game could be a Minecraft-like voxel game, or a deep-space 
 
 ## Why the name "Korpi"?
 
-The name "Korpi" is Finnish and means "wilderness" or "forest". It was chosen to reflect the engine's focus on large, open-world games.
+The name "Korpi" is Finnish and means "wilderness" or "forest". It was chosen to reflect the engine's focus on large-scale games.

@@ -2,13 +2,7 @@
 
 namespace KorpiEngine.Rendering;
 
-public class DisplayState
+public readonly struct DisplayState(Int2 resolution)
 {
-    public readonly Int2 Resolution;
-
-
-    public DisplayState(Int2 resolution)
-    {
-        Resolution = resolution;
-    }
+    public readonly Int2 Resolution = resolution;
 }

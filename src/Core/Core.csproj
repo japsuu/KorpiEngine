@@ -17,28 +17,37 @@
         <InternalsVisibleTo Include="KorpiEngine.OpenGL" />
     </ItemGroup>
 
+    <!-- Debug configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DefineConstants>KORPI_DEBUG;KORPI_TOOLS;KORPI_PROFILE;TRACY_ENABLE;TRACE</DefineConstants>
         <Optimize>false</Optimize>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <OutputPath>..\..\Build\Debug\</OutputPath>
     </PropertyGroup>
 
+    <!-- Release configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DefineConstants>KORPI_RELEASE;KORPI_TOOLS;KORPI_PROFILE;KORPI_OPTIMIZE;TRACY_ENABLE;TRACE</DefineConstants>
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;TOOLS</DefineConstants>
+        <OutputPath>..\..\Build\Release\</OutputPath>
     </PropertyGroup>
 
+    <!-- Production configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+        <DefineConstants>KORPI_PRODUCTION;KORPI_OPTIMIZE</DefineConstants>
         <Optimize>true</Optimize>
         <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+        <OutputPath>..\..\Build\Production\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspectInjector.NET" Version="2.8.3" />
         <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
         <PackageReference Include="ImGui.NET" Version="1.91.0.1"/>
         <PackageReference Include="log4net" Version="2.0.15"/>
         <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.7.0"/>
+        <PackageReference Include="Tracy-CSharp" Version="0.11.1" />
     </ItemGroup>
 
     <ItemGroup>

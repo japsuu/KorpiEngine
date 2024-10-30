@@ -35,7 +35,11 @@ Desktop.ini
 
 # Build folder
 [Bb]uilds/
+[Bb]uild/
 
 # DocFx
 .cache
 **/_site/
+
+# User tools folder (profiler, etc)
+[Tt]ools/[Uu]ser/

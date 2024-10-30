@@ -25,7 +25,7 @@ public abstract class GraphicsContext
     /// The current input state.
     /// Handles everything related to input handling and HID devices.
     /// </summary>
-    public abstract InputState InputState { get; }
+    public abstract IInputState InputState { get; }
     
     /// <summary>
     /// The current state of the display.
@@ -43,10 +43,12 @@ public abstract class GraphicsContext
     /// </summary>
     /// <param name="windowingSettings">The settings for the window.</param>
     /// <param name="onLoad">The action to execute when the graphics context is loaded.</param>
-    /// <param name="onUpdate">The action to execute when the graphics context is updated.</param>
-    /// <param name="onRender">The action to execute when the graphics context is rendered.</param>
+    /// <param name="onFrameStart">The action to execute at the very start of each frame.</param>
+    /// <param name="onFrameUpdate">The action to execute when the graphics context is updated.</param>
+    /// <param name="onFrameRender">The action to execute when the graphics context is rendered.</param>
+    /// <param name="onFrameEnd">The action to execute at the very end of each frame.</param>
     /// <param name="onUnload">The action to execute when the graphics context is unloaded.</param>
-    public abstract void Run(WindowingSettings windowingSettings, Action onLoad, Action<double> onUpdate, Action onRender, Action onUnload);
+    public abstract void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload);
     
     
     /// <summary>

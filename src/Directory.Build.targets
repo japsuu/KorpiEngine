@@ -19,4 +19,9 @@
             </AssemblyAttribute>
         </ItemGroup>
     </Target>
+
+    <!-- Tracy profiler -->
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);TRACY_ENABLE</DefineConstants>
+    </PropertyGroup>
 </Project>

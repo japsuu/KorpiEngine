@@ -30,7 +30,7 @@ public class MeshRenderer : EntityComponent
         if (material == null)
         {
             material = Rendering.Material.InvalidMaterial.Asset!;
-#if TOOLS
+#if KORPI_TOOLS
             Application.Logger.Warn($"Material for {Entity.Name} is null, using invalid material");
 #endif
         }

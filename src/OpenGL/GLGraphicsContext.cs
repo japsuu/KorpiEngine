@@ -17,14 +17,14 @@ public class GLGraphicsContext : GraphicsContext
     public override GraphicsDevice Device => _device ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override GraphicsWindow Window => _window ?? throw new InvalidOperationException(NOT_INITIALIZED);
     
-    public override InputState InputState => _window?.InputState ?? throw new InvalidOperationException(NOT_INITIALIZED);
+    public override IInputState InputState => _window?.InputState ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override DisplayState DisplayState => _window?.DisplayState ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override IImGuiRenderer ImGuiRenderer => _imGuiRenderer ?? throw new InvalidOperationException(NOT_INITIALIZED);
 
 
-    public override void Run(WindowingSettings windowingSettings, Action onLoad, Action<double> onUpdate, Action onRender, Action onUnload)
+    public override void Run(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload)
     {
-        _window = new GLWindow(windowingSettings, onLoad, onUpdate, onRender, onUnload);
+        _window = new GLWindow(windowingSettings, onLoad, onFrameStart, onFrameUpdate, onFrameRender, onFrameEnd, onUnload);
         _device = new GLGraphicsDevice();
         _imGuiRenderer = new GLImGuiRenderer(this);
 

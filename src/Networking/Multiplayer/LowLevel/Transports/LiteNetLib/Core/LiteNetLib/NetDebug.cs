@@ -71,13 +71,13 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
             WriteLogic(level, str);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        [Conditional("DEBUG_MESSAGES"), Conditional("KORPI_DEBUG")]
         internal static void WriteForce(string str)
         {
             WriteLogic(NetLogLevel.Trace, str);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        [Conditional("DEBUG_MESSAGES"), Conditional("KORPI_DEBUG")]
         internal static void WriteForce(NetLogLevel level, string str)
         {
             WriteLogic(level, str);

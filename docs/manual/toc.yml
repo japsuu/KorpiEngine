@@ -2,8 +2,12 @@
   href: introduction.md
 - name: Getting Started
   href: getting-started.md
+- name: Build Configurations
+  href: build-configurations.md
 - name: Scripting
   href: scripting.md
+- name: Profiling
+  href: profiling.md
 - name: Coordinate Systems
   href: coordinate-systems.md
 - name: Math
