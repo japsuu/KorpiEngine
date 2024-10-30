@@ -48,7 +48,7 @@ You can start by looking through the
       ```
 
 8. **Create a Pull Request:**
-    - Open a pull request (PR) from your branch to the main repository's `master` branch.
+    - Open a pull request (PR) from your branch to the main repository's `dev` branch. The `dev` branch is the default branch for development, and is merged into `main` when a new release is made.
     - Provide a detailed description of your changes in the pull request.
     - Reference any relevant issues in the description.
 
