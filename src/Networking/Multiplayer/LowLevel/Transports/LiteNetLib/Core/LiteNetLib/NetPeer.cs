@@ -1,4 +1,4 @@
-﻿#if DEBUG
+﻿#if KORPI_DEBUG
 #define STATS_ENABLED
 #endif
 using System.Collections.Concurrent;

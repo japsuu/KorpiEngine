@@ -1,3 +1,5 @@
+using KorpiEngine.Tools;
+
 namespace KorpiEngine.Rendering;
 
 public class RenderPipeline
@@ -44,6 +46,7 @@ public class RenderPipeline
     }
 
     
+    [ProfileInternal]
     public RenderTexture? Render()
     {
         RenderTexture? result = null;

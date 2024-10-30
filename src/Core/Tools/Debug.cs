@@ -6,7 +6,7 @@ namespace KorpiEngine.Tools;
 internal static class Debug
 {
     [StackTraceHidden]
-    [Conditional("TOOLS")]
+    [Conditional("KORPI_TOOLS")]
     public static void Assert(bool condition, string message)
     {
         if (!condition)
@@ -17,7 +17,7 @@ internal static class Debug
     /// Throws an exception if the current thread is not the main thread.
     /// </summary>
     [StackTraceHidden]
-    [Conditional("TOOLS")]
+    [Conditional("KORPI_TOOLS")]
     public static void AssertMainThread(bool shouldBeMainThread)
     {
         string log = shouldBeMainThread ?

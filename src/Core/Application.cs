@@ -6,6 +6,7 @@ using KorpiEngine.Mathematics;
 using KorpiEngine.Rendering;
 using KorpiEngine.SceneManagement;
 using KorpiEngine.Threading;
+using KorpiEngine.Tools;
 using KorpiEngine.Tools.Logging;
 using KorpiEngine.UI;
 using KorpiEngine.UI.DearImGui;
@@ -15,7 +16,7 @@ namespace KorpiEngine;
 
 /// <summary>
 /// The main class for the application.
-/// Contains the game window and handles the game loop.
+/// Handles the game loop and provides access to main engine systems.
 /// </summary>
 public static class Application
 {
@@ -27,7 +28,9 @@ public static class Application
 
     [ThreadStatic]
     internal static bool IsMainThread;
+    
     public static readonly IKorpiLogger Logger = LogFactory.GetLogger(typeof(Application));
+    public static readonly Profiler Profiler = new TracyProfiler();
     
     public static string Directory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static string AssetsDirectory => Path.Combine(Directory, EngineConstants.ASSETS_FOLDER_NAME);
@@ -64,6 +67,8 @@ public static class Application
     }
 
 
+#region Public API
+
     /// <summary>
     /// Enters the blocking game loop.
     /// </summary>
@@ -87,16 +92,8 @@ public static class Application
         initialSceneType = typeof(T);
         
         graphicsContext = context;
-        graphicsContext.Run(settings, OnLoad, OnUpdate, OnRender, OnUnload);
+        graphicsContext.Run(settings, OnLoad, OnFrameStart, OnFrameUpdate, OnFrameRender, OnFrameEnd, OnUnload);
         graphicsContext = null;
-    }
-
-
-    private static void OnWindowResize(Int2 newSize)
-    {
-        Graphics.UpdateViewport(newSize.X, newSize.Y);
-        
-        WindowInfo.Update(graphicsContext!);
     }
 
 
@@ -110,6 +107,18 @@ public static class Application
         
         graphicsContext.Shutdown();
     }
+
+#endregion
+
+
+#region Internal API
+
+    internal static void SetCursorState(CursorLockState value)
+    {
+        graphicsContext!.Window.CursorState = value;
+    }
+
+#endregion
 
 
 #region Loading and Unloading
@@ -126,7 +135,7 @@ public static class Application
         sceneManager = new SceneManager(initialSceneType);
         
         GUI.Initialize();
-#if TOOLS
+#if KORPI_TOOLS
         EditorGUI.Initialize();
 #endif
         GlobalJobPool.Initialize();
@@ -137,7 +146,7 @@ public static class Application
     private static void OnUnload()
     {
         OnApplicationUnloadAttribute.Invoke();
-#if TOOLS
+#if KORPI_TOOLS
         EditorGUI.Deinitialize();
 #endif
         GUI.Deinitialize();
@@ -156,45 +165,82 @@ public static class Application
 #endregion
 
 
-#region Frame Updating and Rendering
-
-    private static void OnUpdate(double deltaTime)
+#region Frame event handlers
+    
+    private static void OnFrameStart()
     {
-        if (deltaTime > EngineConstants.MAX_DELTA_TIME)
+        // Any frame initialization code goes here.
+    }
+    
+
+    private static void OnFrameUpdate(double deltaTime)
+    {
+        switch (deltaTime)
         {
-            Logger.Warn($"Detected large frame hitch ({1f/deltaTime:F2}fps, {deltaTime:F2}s)! Delta time was clamped to {EngineConstants.MAX_DELTA_TIME:F2} seconds.");
-            deltaTime = EngineConstants.MAX_DELTA_TIME;
+            case > EngineConstants.MAX_DELTA_TIME:
+                Logger.Warn($"Detected large frame hitch ({1f/deltaTime:F2}fps, {deltaTime:F2}s)! Delta time was clamped to {EngineConstants.MAX_DELTA_TIME:F2} seconds.");
+                deltaTime = EngineConstants.MAX_DELTA_TIME;
+                break;
+            case > EngineConstants.DELTA_TIME_SLOW_THRESHOLD:
+                Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
+                break;
         }
-        else if (deltaTime > EngineConstants.DELTA_TIME_SLOW_THRESHOLD)
-        {
-            Logger.Warn($"Detected frame hitch ({deltaTime:F2}s)!");
-        }
-        
-        InternalPreUpdate(deltaTime);
+
+        PreUpdate(deltaTime);
         
         fixedFrameAccumulator += deltaTime;
         
         while (fixedFrameAccumulator >= EngineConstants.FIXED_DELTA_TIME)
         {
-            InternalFixedUpdate();
+            FixedUpdate();
             fixedFrameAccumulator -= EngineConstants.FIXED_DELTA_TIME;
         }
  
         double fixedAlpha = fixedFrameAccumulator / EngineConstants.FIXED_DELTA_TIME;
         
-        InternalUpdate(fixedAlpha);
+        Update(fixedAlpha);
     }
 
 
-    private static void OnRender()
+    private static void OnFrameRender()
     {
         Graphics.StartFrame();
-        InternalRender();
+        Render();
         Graphics.EndFrame();
+    }
+    
+    
+    private static void OnFrameEnd()
+    {
+        // Any frame cleanup code goes here.
+        Profiler.EndFrame();
     }
 
 
-    private static void InternalFixedUpdate()
+    private static void OnWindowResize(Int2 newSize)
+    {
+        Graphics.UpdateViewport(newSize.X, newSize.Y);
+        
+        WindowInfo.Update(graphicsContext!);
+    }
+
+#endregion
+
+
+#region Frame event handlers (internal)
+
+    [ProfileInternal]
+    private static void PreUpdate(double deltaTime)
+    {
+        Time.Update(deltaTime);
+        Input.Update(graphicsContext!.InputState);
+        DisplayInfo.Update(graphicsContext.DisplayState);
+        Cursor.Update(graphicsContext.Window.CursorState);
+    }
+
+
+    [ProfileInternal]
+    private static void FixedUpdate()
     {
         Time.FixedUpdate();
         
@@ -204,20 +250,12 @@ public static class Application
         GlobalJobPool.FixedUpdate();
     }
 
-
-    private static void InternalPreUpdate(double deltaTime)
-    {
-        Time.Update(deltaTime);
-        Input.Update(graphicsContext!.InputState);
-        DisplayInfo.Update(graphicsContext.DisplayState);
-        Cursor.Update(graphicsContext.Window.CursorState);
-    }
-
-
-    private static void InternalUpdate(double fixedAlpha)
+    
+    [ProfileInternal]
+    private static void Update(double fixedAlpha)
     {
         Time.UpdateFixedAlpha(fixedAlpha);
-        
+
         SceneManager.Update();
         
         // Instantly execute jobs.
@@ -230,7 +268,8 @@ public static class Application
     }
 
 
-    private static void InternalRender()
+    [ProfileInternal]
+    private static void Render()
     {
         SceneManager.Render();
         graphicsContext!.ImGuiRenderer.Render();
@@ -251,10 +290,4 @@ public static class Application
     }
 
 #endregion
-
-
-    internal static void SetCursorState(CursorLockState value)
-    {
-        graphicsContext!.Window.CursorState = value;
-    }
 }

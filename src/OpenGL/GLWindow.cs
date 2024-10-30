@@ -14,9 +14,13 @@ public sealed class GLWindow : GraphicsWindow
     private readonly GameWindow _internalWindow;
     private readonly GLInputState _inputState;
     private readonly Action _onLoad;
-    private readonly Action<double> _onUpdate;
-    private readonly Action _onRender;
+    private readonly Action _onFrameStart;
+    private readonly Action<double> _onFrameUpdate;
+    private readonly Action _onFrameRender;
+    private readonly Action _onFrameEnd;
     private readonly Action _onUnload;
+    
+    private MonitorInfo _currentMonitor;
 
     public override event Action<Int2>? OnResize;
     public override event Action<char>? OnTextInput;
@@ -93,26 +97,21 @@ public sealed class GLWindow : GraphicsWindow
         }
     }
 
-    public InputState InputState => _inputState;
+    public IInputState InputState => _inputState;
 
 
-    public DisplayState DisplayState
-    {
-        get
-        {
-            MonitorInfo monitor = Monitors.GetMonitorFromWindow(_internalWindow);
-            return new DisplayState(new Int2(monitor.HorizontalResolution, monitor.VerticalResolution));
-        }
-    }
+    public DisplayState DisplayState => new(new Int2(_currentMonitor.HorizontalResolution, _currentMonitor.VerticalResolution));
 
 
-    public GLWindow(WindowingSettings windowingSettings, Action onLoad, Action<double> onUpdate, Action onRender, Action onUnload)
+    public GLWindow(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload)
     {
         (GameWindowSettings gws, NativeWindowSettings nws) = GetWindowSettings(windowingSettings);
 
         _onLoad = onLoad;
-        _onUpdate = onUpdate;
-        _onRender = onRender;
+        _onFrameStart = onFrameStart;
+        _onFrameUpdate = onFrameUpdate;
+        _onFrameRender = onFrameRender;
+        _onFrameEnd = onFrameEnd;
         _onUnload = onUnload;
         
         _internalWindow = new GameWindow(gws, nws);
@@ -124,7 +123,9 @@ public sealed class GLWindow : GraphicsWindow
         _internalWindow.Resize += OnWindowResize;
         _internalWindow.TextInput += OnWindowTextInput;
         _internalWindow.MouseWheel += OnWindowMouseWheel;
+        _internalWindow.Move += OnWindowMove;
         
+        _currentMonitor = Monitors.GetMonitorFromWindow(_internalWindow);
         _inputState = new GLInputState(_internalWindow);
     }
 
@@ -162,15 +163,17 @@ public sealed class GLWindow : GraphicsWindow
     
     private void OnWindowUpdate(FrameEventArgs args)
     {
-        _onUpdate(args.Time);
+        _onFrameStart();
+        _onFrameUpdate(args.Time);
     }
 
 
     private void OnWindowRender(FrameEventArgs args)
     {
-        _onRender();
+        _onFrameRender();
         
         _internalWindow.SwapBuffers();
+        _onFrameEnd();
     }
 
 
@@ -189,6 +192,12 @@ public sealed class GLWindow : GraphicsWindow
     private void OnWindowMouseWheel(MouseWheelEventArgs e)
     {
         OnMouseWheel?.Invoke(new Vector2(e.OffsetX, e.OffsetY));
+    }
+
+
+    private void OnWindowMove(WindowPositionEventArgs obj)
+    {
+        _currentMonitor = Monitors.GetMonitorFromWindow(_internalWindow);
     }
 
 
@@ -222,7 +231,7 @@ public sealed class GLWindow : GraphicsWindow
             Profile = ContextProfile.Core,
             APIVersion = new Version(4, 2),
             AspectRatio = (16, 9),
-#if TOOLS
+#if KORPI_TOOLS
             Flags = ContextFlags.Debug
 #endif
         };

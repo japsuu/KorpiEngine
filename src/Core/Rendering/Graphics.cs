@@ -71,6 +71,7 @@ public static class Graphics
     /// <summary>
     /// Starts a new draw frame.
     /// </summary>
+    [ProfileInternal]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StartFrame()
     {
@@ -82,7 +83,7 @@ public static class Graphics
         UpdateViewport(Window.FramebufferSize.X, Window.FramebufferSize.Y);
 
         Device.SetState(new RasterizerState(), true);
-#if TOOLS
+#if KORPI_TOOLS
         Device.ResetStatistics();
 #endif
     }
@@ -91,6 +92,7 @@ public static class Graphics
     /// <summary>
     /// Ends the current draw frame.
     /// </summary>
+    [ProfileInternal]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void EndFrame()
     {

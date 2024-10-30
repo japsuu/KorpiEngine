@@ -10,7 +10,7 @@ public class DebugStatsWindow : ImGuiWindow
     public override string Title => "Debug Statistics";
     protected override ImGuiWindowFlags Flags => ImGuiWindowFlags.AlwaysAutoResize;
 
-#if TOOLS
+#if KORPI_TOOLS
     private readonly NumberFormatInfo _largeNumberFormat;
 #endif
 
@@ -21,7 +21,7 @@ public class DebugStatsWindow : ImGuiWindow
     
     public DebugStatsWindow() : base(true)
     {
-#if TOOLS
+#if KORPI_TOOLS
         _largeNumberFormat = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
         _largeNumberFormat.NumberGroupSeparator = " ";
 #endif
@@ -30,7 +30,7 @@ public class DebugStatsWindow : ImGuiWindow
 
     protected sealed override void DrawContent()
     {
-#if TOOLS
+#if KORPI_TOOLS
         string renderedTris = Graphics.Device.RenderedTriangles.ToString("#,0", _largeNumberFormat);
         string renderedVerts = Graphics.Device.RenderedVertices.ToString("#,0", _largeNumberFormat);
         string drawCalls = Graphics.Device.DrawCalls.ToString("#,0", _largeNumberFormat);
@@ -57,7 +57,7 @@ public class DebugStatsWindow : ImGuiWindow
             ImGui.Text($"Min: {_minFps:F1} fps");
             ImGui.Text($"Max: {_maxFps:F1} fps");
         }
-#if TOOLS
+#if KORPI_TOOLS
         ImGui.Text($"Draw Calls = {drawCalls}");
         ImGui.Text($"Triangles = {renderedTris}");
         ImGui.Text($"Vertices = {renderedVerts}");

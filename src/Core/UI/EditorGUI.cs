@@ -1,4 +1,4 @@
-﻿#if TOOLS
+﻿#if KORPI_TOOLS
 using KorpiEngine.UI.DearImGui;
 
 namespace KorpiEngine.UI;

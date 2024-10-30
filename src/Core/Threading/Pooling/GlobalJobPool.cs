@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using KorpiEngine.Tools;
 using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Threading;
@@ -52,6 +53,7 @@ public static class GlobalJobPool
     }
 
 
+    [ProfileInternal]
     internal static void Update()
     {
         ItemsInMainThreadQueue = (ulong)mainQueue.Count;
@@ -62,6 +64,7 @@ public static class GlobalJobPool
     }
 
 
+    [ProfileInternal]
     internal static void FixedUpdate()
     {
         ItemsInMainThreadThrottledQueue = (ulong)mainQueueThrottled.Count;

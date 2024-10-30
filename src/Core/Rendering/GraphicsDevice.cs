@@ -1,5 +1,4 @@
 ﻿using KorpiEngine.Mathematics;
-using KorpiEngine.Tools.Logging;
 
 namespace KorpiEngine.Rendering;
 
@@ -7,7 +6,7 @@ public abstract class GraphicsDevice
 {
     public abstract GraphicsProgram? CurrentProgram { get; }
 
-#if TOOLS
+#if KORPI_TOOLS
     public ulong RenderedTriangles { get; private set; }
     public ulong RenderedVertices { get; private set; }
     public ulong DrawCalls { get; private set; }
@@ -54,7 +53,7 @@ public abstract class GraphicsDevice
     public void SetState(RasterizerState state, bool force = false)
     {
         SetStateInternal(state, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateWrites++;
 #endif
     }
@@ -63,7 +62,7 @@ public abstract class GraphicsDevice
     public void SetEnableDepthTest(bool enable, bool force = false)
     {
         SetEnableDepthTestInternal(enable, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -72,7 +71,7 @@ public abstract class GraphicsDevice
     public void SetEnableDepthWrite(bool enable, bool force = false)
     {
         SetEnableDepthWriteInternal(enable, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -81,7 +80,7 @@ public abstract class GraphicsDevice
     public void SetEnableBlending(bool enable, bool force = false)
     {
         SetEnableBlendingInternal(enable, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -90,7 +89,7 @@ public abstract class GraphicsDevice
     public void SetEnableCulling(bool enable, bool force = false)
     {
         SetEnableCullingInternal(enable, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -99,7 +98,7 @@ public abstract class GraphicsDevice
     public void SetEnableScissorTest(bool enable, bool force = false)
     {
         SetEnableScissorTestInternal(enable, force);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -108,7 +107,7 @@ public abstract class GraphicsDevice
     public void SetScissorRect(int index, int left, int bottom, int width, int height)
     {
         SetScissorRectInternal(index, left, bottom, width, height);
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateOverrides++;
 #endif
     }
@@ -116,7 +115,7 @@ public abstract class GraphicsDevice
     
     public RasterizerState GetState()
     {
-#if TOOLS
+#if KORPI_TOOLS
         RasterizerStateReads++;
 #endif
         return GetStateInternal();
@@ -132,7 +131,7 @@ public abstract class GraphicsDevice
     public void Clear(float r, float g, float b, float a, ClearFlags flags)
     {
         ClearInternal(r, g, b, a, flags);
-#if TOOLS
+#if KORPI_TOOLS
         Clears++;
 #endif
     }
@@ -303,7 +302,7 @@ public abstract class GraphicsDevice
     public void SetUniformF(GraphicsProgram program, string name, float value)
     {
         SetUniformFInternal(program, name, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -312,7 +311,7 @@ public abstract class GraphicsDevice
     public void SetUniformF(GraphicsProgram program, int location, float value)
     {
         SetUniformFInternal(program, location, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -321,7 +320,7 @@ public abstract class GraphicsDevice
     public void SetUniformI(GraphicsProgram program, string name, int value)
     {
         SetUniformIInternal(program, name, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -330,7 +329,7 @@ public abstract class GraphicsDevice
     public void SetUniformI(GraphicsProgram program, int location, int value)
     {
         SetUniformIInternal(program, location, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -339,7 +338,7 @@ public abstract class GraphicsDevice
     public void SetUniformV2(GraphicsProgram program, string name, Vector2 value)
     {
         SetUniformV2Internal(program, name, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -348,7 +347,7 @@ public abstract class GraphicsDevice
     public void SetUniformV2(GraphicsProgram program, int location, Vector2 value)
     {
         SetUniformV2Internal(program, location, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -357,7 +356,7 @@ public abstract class GraphicsDevice
     public void SetUniformV3(GraphicsProgram program, string name, Vector3 value)
     {
         SetUniformV3Internal(program, name, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -366,7 +365,7 @@ public abstract class GraphicsDevice
     public void SetUniformV3(GraphicsProgram program, int location, Vector3 value)
     {
         SetUniformV3Internal(program, location, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -375,7 +374,7 @@ public abstract class GraphicsDevice
     public void SetUniformV4(GraphicsProgram program, string name, Vector4 value)
     {
         SetUniformV4Internal(program, name, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -384,7 +383,7 @@ public abstract class GraphicsDevice
     public void SetUniformV4(GraphicsProgram program, int location, Vector4 value)
     {
         SetUniformV4Internal(program, location, value);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -393,7 +392,7 @@ public abstract class GraphicsDevice
     public void SetUniformMatrix(GraphicsProgram program, string name, int length, bool transpose, in float m11)
     {
         SetUniformMatrixInternal(program, name, length, transpose, in m11);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -402,7 +401,7 @@ public abstract class GraphicsDevice
     public void SetUniformMatrix(GraphicsProgram program, int location, int length, bool transpose, in float m11)
     {
         SetUniformMatrixInternal(program, location, length, transpose, in m11);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -411,7 +410,7 @@ public abstract class GraphicsDevice
     public void SetUniformTexture(GraphicsProgram program, string name, int slot, GraphicsTexture texture)
     {
         SetUniformTextureInternal(program, name, slot, texture);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -420,7 +419,7 @@ public abstract class GraphicsDevice
     public void SetUniformTexture(GraphicsProgram program, int location, int slot, GraphicsTexture texture)
     {
         SetUniformTextureInternal(program, location, slot, texture);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -431,7 +430,7 @@ public abstract class GraphicsDevice
     public void ClearUniformTexture(GraphicsProgram program, string name, int slot)
     {
         ClearUniformTextureInternal(program, name, slot);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -440,7 +439,7 @@ public abstract class GraphicsDevice
     public void ClearUniformTexture(GraphicsProgram program, int location, int slot)
     {
         ClearUniformTextureInternal(program, location, slot);
-#if TOOLS
+#if KORPI_TOOLS
         ShaderUniformWrites++;
 #endif
     }
@@ -579,7 +578,7 @@ public abstract class GraphicsDevice
     {
         DrawArraysInternal(topology, indexOffset, count);
 
-#if TOOLS
+#if KORPI_TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -598,7 +597,7 @@ public abstract class GraphicsDevice
     {
         DrawElementsInternal(topology, indexOffset, count, isIndex32Bit);
 
-#if TOOLS
+#if KORPI_TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -618,7 +617,7 @@ public abstract class GraphicsDevice
     {
         DrawElementsInternal(topology, indexOffset, count, isIndex32Bit, vertexOffset);
 
-#if TOOLS
+#if KORPI_TOOLS
         RenderedTriangles += (ulong)GetTriangleCount(topology, count);
         RenderedVertices += (ulong)count;
         DrawCalls++;
@@ -653,7 +652,7 @@ public abstract class GraphicsDevice
     #endregion
 
 
-#if TOOLS
+#if KORPI_TOOLS
     internal void ResetStatistics()
     {
         RenderedTriangles = 0;

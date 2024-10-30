@@ -115,7 +115,7 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
             object IEnumerator.Current => _p;
         }
 
-#if DEBUG
+#if KORPI_DEBUG
         private struct IncomingData
         {
             public NetPacket Data;
@@ -594,10 +594,10 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
             stopwatch.Stop();
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("KORPI_DEBUG")]
         private void ProcessDelayedPackets()
         {
-#if DEBUG
+#if KORPI_DEBUG
             if (!SimulateLatency)
                 return;
 
@@ -780,7 +780,7 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
                 PoolRecycle(packet);
                 return;
             }
-#if DEBUG
+#if KORPI_DEBUG
             if (SimulatePacketLoss && _randomGenerator.NextDouble() * 100 < SimulationPacketLossChance)
             {
                 //drop packet
@@ -1570,7 +1570,7 @@ namespace KorpiEngine.Networking.Multiplayer.LowLevel
             ClearPeerSet();
             _peerIds = new ConcurrentQueue<int>();
             _lastPeerId = 0;
-#if DEBUG
+#if KORPI_DEBUG
             lock (_pingSimulationList)
                 _pingSimulationList.Clear();
 #endif

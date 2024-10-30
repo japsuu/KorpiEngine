@@ -1,4 +1,6 @@
-﻿namespace KorpiEngine.SceneManagement;
+﻿using KorpiEngine.Tools;
+
+namespace KorpiEngine.SceneManagement;
 
 /// <summary>
 /// Manages in-game scenes.
@@ -84,6 +86,7 @@ public sealed class SceneManager
     }
 
 
+    [ProfileInternal]
     private void LoadSceneInternal(Scene scene, SceneLoadMode mode)
     {
         switch (mode)
@@ -136,6 +139,7 @@ public sealed class SceneManager
 
 #region Internal Calls
 
+    [ProfileInternal]
     internal void Update()
     {
         EngineObject.ProcessDisposeQueue();
@@ -156,12 +160,14 @@ public sealed class SceneManager
     }
     
     
+    [ProfileInternal]
     internal void FixedUpdate()
     {
         CurrentScene.FixedUpdate();
     }
     
     
+    [ProfileInternal]
     internal void Render()
     {
         CurrentScene.Render();

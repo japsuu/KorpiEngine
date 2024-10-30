@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using KorpiEngine.AssetManagement;
+using KorpiEngine.Tools;
 using KorpiEngine.Utils;
 using Debug = KorpiEngine.Tools.Debug;
 
@@ -172,6 +173,7 @@ public sealed class RenderTexture : Asset
     }
 
 
+    [ProfileInternal]
     public static void UpdatePool()
     {
         DisposableTextures.Clear();
