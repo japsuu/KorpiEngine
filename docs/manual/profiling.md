@@ -4,7 +4,9 @@
 KorpiEngine uses the `Tracy` profiler to measure the performance of the engine.
 _Tracy is a real-time, nanosecond resolution, remote telemetry, hybrid frame and sampling profiler for games and other applications_.
 
-Profiling functionality is enabled by defining the `KORPI_PROFILE` preprocessor directive.
+Profiling functionality incurs a small performance overhead.
+For this reason all profiling functionality is stripped from the build if the `KORPI_PROFILE` preprocessor directive is not defined.
+Read more about [build configurations and preprocessor defines](build-configurations.md).
 
 > [!NOTE]
 > `KORPI_PROFILE` is defined by default for `Debug` and `Release` builds, but **NOT** for `Production` builds.
@@ -14,8 +16,8 @@ Profiling functionality is enabled by defining the `KORPI_PROFILE` preprocessor 
 ## Usage
 
 1. Download the latest Tracy profiler from [here](https://github.com/wolfpld/tracy/releases) and extract the downloaded archive.
-2. Run your game/application with a build configuration that has profiling enabled.
-3. Run the `tracy-profiler` executable, located in the extracted archive.
+2. Run the `tracy-profiler` executable, located in the extracted archive.
+3. Run your game/application with a build configuration that has profiling enabled (see above).
 4. The profiler should discover the running game/application instance. _Double-click_ on the instance to connect to it.
 
 <br/>
@@ -91,7 +93,7 @@ GPU profiling is not yet supported.
 ## Advanced
 
 You can also use the `Tracy` API directly to profile your code.
-This bypasses the `KorpiEngine` profiling system
+This bypasses the `KorpiEngine` profiling system.
 
 We use [clibequilibrium/Tracy-CSharp](https://github.com/clibequilibrium/Tracy-CSharp) bindings
 to interact with the `Tracy` profiler.
