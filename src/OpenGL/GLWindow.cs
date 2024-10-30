@@ -19,6 +19,8 @@ public sealed class GLWindow : GraphicsWindow
     private readonly Action _onFrameRender;
     private readonly Action _onFrameEnd;
     private readonly Action _onUnload;
+    
+    private MonitorInfo _currentMonitor;
 
     public override event Action<Int2>? OnResize;
     public override event Action<char>? OnTextInput;
@@ -98,14 +100,7 @@ public sealed class GLWindow : GraphicsWindow
     public InputState InputState => _inputState;
 
 
-    public DisplayState DisplayState
-    {
-        get
-        {
-            MonitorInfo monitor = Monitors.GetMonitorFromWindow(_internalWindow);
-            return new DisplayState(new Int2(monitor.HorizontalResolution, monitor.VerticalResolution));
-        }
-    }
+    public DisplayState DisplayState => new(new Int2(_currentMonitor.HorizontalResolution, _currentMonitor.VerticalResolution));
 
 
     public GLWindow(WindowingSettings windowingSettings, Action onLoad, Action onFrameStart, Action<double> onFrameUpdate, Action onFrameRender, Action onFrameEnd, Action onUnload)
@@ -128,7 +123,9 @@ public sealed class GLWindow : GraphicsWindow
         _internalWindow.Resize += OnWindowResize;
         _internalWindow.TextInput += OnWindowTextInput;
         _internalWindow.MouseWheel += OnWindowMouseWheel;
+        _internalWindow.Move += OnWindowMove;
         
+        _currentMonitor = Monitors.GetMonitorFromWindow(_internalWindow);
         _inputState = new GLInputState(_internalWindow);
     }
 
@@ -195,6 +192,12 @@ public sealed class GLWindow : GraphicsWindow
     private void OnWindowMouseWheel(MouseWheelEventArgs e)
     {
         OnMouseWheel?.Invoke(new Vector2(e.OffsetX, e.OffsetY));
+    }
+
+
+    private void OnWindowMove(WindowPositionEventArgs obj)
+    {
+        _currentMonitor = Monitors.GetMonitorFromWindow(_internalWindow);
     }
 
 
