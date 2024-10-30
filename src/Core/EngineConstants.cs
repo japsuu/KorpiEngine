@@ -9,7 +9,7 @@ public static class EngineConstants
 {
     public const string ENGINE_NAME = "Korpi Engine";
     public const string ENGINE_VERSION = "Dev";
-    public const string DEFAULT_SHADER_DEFINE = $"KORPI_ENGINE_{ENGINE_VERSION}";
+    public const string DEFAULT_SHADER_DEFINE = $"KORPI_{ENGINE_VERSION}";
     public const string ASSETS_FOLDER_NAME = "Assets";
     public const string DEFAULTS_FOLDER_NAME = "Defaults";
     public const string WEB_ASSETS_FOLDER_NAME = "WebAssets";
