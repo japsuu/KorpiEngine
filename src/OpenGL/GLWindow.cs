@@ -97,7 +97,7 @@ public sealed class GLWindow : GraphicsWindow
         }
     }
 
-    public InputState InputState => _inputState;
+    public IInputState InputState => _inputState;
 
 
     public DisplayState DisplayState => new(new Int2(_currentMonitor.HorizontalResolution, _currentMonitor.VerticalResolution));

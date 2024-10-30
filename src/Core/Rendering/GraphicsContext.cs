@@ -25,7 +25,7 @@ public abstract class GraphicsContext
     /// The current input state.
     /// Handles everything related to input handling and HID devices.
     /// </summary>
-    public abstract InputState InputState { get; }
+    public abstract IInputState InputState { get; }
     
     /// <summary>
     /// The current state of the display.

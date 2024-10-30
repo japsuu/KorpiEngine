@@ -5,8 +5,8 @@ namespace KorpiEngine.InputManagement;
 
 public static class Input
 {
-    internal static KeyboardState KeyboardState { get; private set; } = null!;
-    internal static MouseState MouseState { get; private set; } = null!;
+    internal static IKeyboardState KeyboardState { get; private set; } = null!;
+    internal static IMouseState MouseState { get; private set; } = null!;
     
     public static Vector2 MousePosition => new(MouseState.Position.X, Graphics.ViewportResolution.Y - MouseState.Position.Y);
     public static float MouseX => MouseState.Position.X;
@@ -20,7 +20,7 @@ public static class Input
     public static Vector2 ScrollDelta => new(MouseState.ScrollDelta.X, MouseState.ScrollDelta.Y);
 
 
-    public static void Update(InputState inputState)
+    public static void Update(IInputState inputState)
     {
         KeyboardState = inputState.KeyboardState;
         MouseState = inputState.MouseState;

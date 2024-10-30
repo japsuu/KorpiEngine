@@ -17,7 +17,7 @@ public class GLGraphicsContext : GraphicsContext
     public override GraphicsDevice Device => _device ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override GraphicsWindow Window => _window ?? throw new InvalidOperationException(NOT_INITIALIZED);
     
-    public override InputState InputState => _window?.InputState ?? throw new InvalidOperationException(NOT_INITIALIZED);
+    public override IInputState InputState => _window?.InputState ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override DisplayState DisplayState => _window?.DisplayState ?? throw new InvalidOperationException(NOT_INITIALIZED);
     public override IImGuiRenderer ImGuiRenderer => _imGuiRenderer ?? throw new InvalidOperationException(NOT_INITIALIZED);
 
