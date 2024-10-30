@@ -143,7 +143,7 @@ It will help you get the engine up and running on your machine, and guide you th
 Contributions are welcome!
 
 - **If you are new to contributing** to open-source projects, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
-- **If you are a seasoned contributor**, you can jump straight to the [developer section](https://japsuu.github.io/KorpiEngine/developers/index.html) of the documentation.
+- **If you are a seasoned contributor**, you can jump straight to the [developer section](https://japsuu.github.io/KorpiEngine/developers/code-contribution-guide.html) of the documentation.
 
 ---
 
